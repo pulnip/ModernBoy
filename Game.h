@@ -1,3 +1,7 @@
+#pragma once
+
+#include <vector>
+
 #include <SDL.h>
 
 struct Vector2{
@@ -13,6 +17,9 @@ public:
     void RunLoop();
     // 게임 종료
     void ShutDown();
+
+    void AddActor(class Actor* actor);
+    void ClearActors();
 private:
     // 게임 루프를 위한 헬퍼 함수
     void ProcessInput();
@@ -26,6 +33,10 @@ private:
 
     SDL_Renderer* mRenderer;
     Uint32 mTicksCount;
+
+    std::vector<class Actor*> mActors;
+    std::vector<class Actor*> mPendingActors;
+    bool mUpdatingActors=false;
 
     const int thickness=15;
     int mPaddleDir=0;

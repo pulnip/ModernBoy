@@ -1,6 +1,7 @@
-#include "Game.h"
-
 #include <algorithm>
+
+#include "Game.h"
+#include "Actor.h"
 
 Game::Game()=default;
 
@@ -57,7 +58,20 @@ void Game::RunLoop(){
     }
 }
 
+void Game::AddActor(Actor* actor){
+    if(mUpdatingActors){
+        mPendingActors.emplace_back(actor);
+    }
+    else{
+        mActors.emplace_back(actor);
+    }
+}
 
+void Game::ClearActors(){
+    while(!mActors.empty()){
+        delete mActors.back();
+    }
+}
 
 void Game::ProcessInput(){
     SDL_Event event;
@@ -95,6 +109,32 @@ void Game::UpdateGame(){
 
     // 다음 프레임을 위해 틱 값을 갱신
     mTicksCount=SDL_GetTicks();
+
+    // 모든 액터를 갱신
+    mUpdatingActors = true;
+    for(auto actor: mActors){
+        actor->Update(deltaTime);
+    }
+    mUpdatingActors = false;
+
+    // 대기 중인 액터를 활성화
+    for(auto pending: mPendingActors){
+        mActors.emplace_back(pending);
+    }
+    mPendingActors.clear();
+
+    // 죽은 액터를 임시 벡터에 추가
+    std::vector<Actor*> deadActors;
+    for(auto actor: mActors){
+        if(actor->GetState() == Actor::EDead){
+            deadActors.emplace_back(actor);
+        }
+    }
+
+    // 죽은 액터 제거
+    for(auto actor: deadActors){
+        delete actor;
+    }
 
     // 패들 갱신
     if(mPaddleDir != 0){
