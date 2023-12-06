@@ -10,7 +10,7 @@
                 "${fileDirname}\\Vector2.cpp",
                 "${fileDirname}\\Components.cpp",
                 "${fileDirname}\\Actor.cpp",
-                "${fileDirname}\\Paddle.cpp",
+                "${fileDirname}\\Objects.cpp",
                 "${fileDirname}\\Game.cpp",
                 "${fileDirname}\\main.cpp",
                 "-IC:\\SDL2-2.28.5\\x86_64-w64-mingw32\\include\\SDL2",

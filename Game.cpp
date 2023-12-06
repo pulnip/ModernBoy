@@ -2,7 +2,7 @@
 
 #include "Components.hpp"
 #include "Game.hpp"
-#include "Paddle.hpp"
+#include "Objects.hpp"
 
 Game::Game()=default;
 
@@ -34,10 +34,17 @@ bool Game::Initialize(){
         return false;
     }
 
-    AddActor(new Paddle(this));
+    auto ceil=new Wall(this, 0, 0, 1024, 15);
+    auto floor=new Wall(this, 0, 768-15, 1024, 15);
+    auto rightWall=new Wall(this, 1024-15, 0, 15, 768);
+    AddActor(ceil);
+    AddActor(floor);
+    AddActor(rightWall);
 
-    mBallPos.x = 1024/2;
-    mBallPos.y = 768/2;
+    auto paddle=new Paddle(this);
+    paddle->cc->collideAllow(ceil->cc);
+    paddle->cc->collideAllow(floor->cc);
+    AddActor(paddle);
 
     return true;
 }

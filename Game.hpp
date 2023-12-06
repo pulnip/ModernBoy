@@ -41,8 +41,4 @@ private:
     std::vector<class Actor*> mActors;
     std::vector<class Actor*> mPendingActors;
     bool mUpdatingActors=false;
-
-    const int thickness=15;
-    Vector2 mBallPos;
-    Vector2 mBallVel={-200.0f, 235.0f};
 };

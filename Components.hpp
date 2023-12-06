@@ -51,7 +51,7 @@ public:
     ~CollisionComponent()=default;
 
     void update(float deltaTime) override;
-private:
+
     void collideAllow(const CollisionComponent* opponent);
     void collideDisallow(const CollisionComponent* opponent);
 

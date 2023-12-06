@@ -1,6 +1,6 @@
 #include "Components.hpp"
 #include "Game.hpp"
-#include "Paddle.hpp"
+#include "Objects.hpp"
 
 Paddle::Paddle(Game* game):Actor(game)
 ,start_position{15.0, 768/2}, fixed_velocity{0, 300}, fixed_size{15, 120}{
@@ -12,7 +12,7 @@ Paddle::Paddle(Game* game):Actor(game)
         tc
     );
     game->drawables.emplace_back(sdc);
-    auto cc=new CollisionComponent(this,
+    cc=new CollisionComponent(this,
         tc, sdc
     );
     auto con_c=new ControlComponent(this,
@@ -26,4 +26,15 @@ Paddle::Paddle(Game* game):Actor(game)
 
 void Paddle::UpdateActor(float deltaTime){
     tc->velocity.y = fixed_velocity.y;
+}
+
+Wall::Wall(Game* game, int x, int y, int w, int h):Actor(game){
+    auto tc=new TransformComponent(this, x, y);
+    auto sdc=new SimpleDrawComponent(this, w, h, tc);
+    game->drawables.emplace_back(sdc);
+    cc=new CollisionComponent(this, tc, sdc);
+
+    AddComponent(tc);
+    AddComponent(sdc);
+    AddComponent(cc);
 }
