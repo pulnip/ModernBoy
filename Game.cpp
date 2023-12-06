@@ -1,7 +1,8 @@
 #include <algorithm>
 
-#include "Game.h"
-#include "Actor.h"
+#include "Components.hpp"
+#include "Game.hpp"
+#include "Paddle.hpp"
 
 Game::Game()=default;
 
@@ -33,8 +34,7 @@ bool Game::Initialize(){
         return false;
     }
 
-    mPaddlePos.x = thickness;
-    mPaddlePos.y = 768/2;
+    AddActor(new Paddle(this));
 
     mBallPos.x = 1024/2;
     mBallPos.y = 768/2;
@@ -46,6 +46,8 @@ void Game::ShutDown(){
     SDL_DestroyRenderer(mRenderer);
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
+
+    ClearActors();
 }
 
 void Game::RunLoop(){
@@ -67,6 +69,12 @@ void Game::AddActor(Actor* actor){
     }
 }
 
+void Game::RemoveActor(Actor* actor){
+    mActors.erase(
+        std::find(mActors.cbegin(), mActors.cend(), actor)
+    );
+}
+
 void Game::ClearActors(){
     while(!mActors.empty()){
         delete mActors.back();
@@ -74,7 +82,6 @@ void Game::ClearActors(){
 }
 
 void Game::ProcessInput(){
-    SDL_Event event;
     // 큐에 여전히 이벤트가 남아있는 동안
     while(SDL_PollEvent(&event)){
         switch(event.type){
@@ -83,18 +90,11 @@ void Game::ProcessInput(){
         }
     }
 
-    const Uint8* state = SDL_GetKeyboardState(nullptr);
+    state = SDL_GetKeyboardState(nullptr);
+
     // ESC로 게임 종료
     if(state[SDL_SCANCODE_ESCAPE]){
         mIsRunning=false;
-    }
-    // 패들 조종
-    mPaddleDir=0;
-    if(state[SDL_SCANCODE_W]){
-        mPaddleDir -= 1;
-    }
-    if(state[SDL_SCANCODE_S]){
-        mPaddleDir += 1;
     }
 }
 
@@ -135,64 +135,6 @@ void Game::UpdateGame(){
     for(auto actor: deadActors){
         delete actor;
     }
-
-    // 패들 갱신
-    if(mPaddleDir != 0){
-        // 패들의 속도는 300pixel / s;
-        mPaddlePos.y += mPaddleDir * 300.0f * deltaTime;
-        // 패들이 화면 위로 넘어가지 않도록
-        mPaddlePos.y = std::max(thickness+PaddleHeight/2.0f, mPaddlePos.y);
-        // 패들이 화면 아래로 넘어가지 않도록
-        mPaddlePos.y = std::min(768-thickness-PaddleHeight/2.0f, mPaddlePos.y);
-    }
-
-    // 공 위치 갱신
-    mBallPos.x += mBallVel.x * deltaTime;
-    mBallPos.y += mBallVel.y * deltaTime;
-
-    // 상단 벽과 충돌
-    if(mBallPos.y <= thickness + thickness/2){
-        // 상단 벽으로 이동 중
-        if(mBallVel.y < 0.0f){
-            // 그렇다면, 이동 방향을 반전
-            mBallVel.y = -mBallVel.y;
-        }
-    }
-    // 하단 벽과 충돌
-    else if(mBallPos.y >= 768 - thickness - thickness/2){
-        if(mBallVel.y > 0.0f){
-            mBallVel.y = -mBallVel.y;
-        }
-    }
-    
-    // 패들과 공의 위치 차
-    Vector2 diff{
-        std::abs(mPaddlePos.x - mBallPos.x),
-        std::abs(mPaddlePos.y - mBallPos.y)
-    };
-    // 패들과 충돌
-    if(
-        // x축에 대해
-        (diff.x <= thickness/2 + thickness/2 ) // 패들과 공의 너비 합의 절반
-        && // y축에 대해
-        (diff.y <= PaddleHeight/2 + thickness/2 ) // 패들과 공의 높이 합의 절반 
-    ){
-        if(mBallVel.x < 0.0f ){
-            mBallVel.x = -mBallVel.x;
-        }
-    }
-    // 우측 벽과 충돌
-    else if(mBallPos.x >= 1024 - thickness - thickness/2){
-        if(mBallVel.x > 0.0f){
-            mBallVel.x = -mBallVel.x;
-        }
-    }
-
-    // 공이 화면 밖으로 나가면
-    if(mBallPos.x <= -thickness/2){
-        // 게임 종료
-        mIsRunning=false;
-    }
 }
 
 void Game::GenerateOutput(){
@@ -204,38 +146,17 @@ void Game::GenerateOutput(){
     SDL_RenderClear(mRenderer);
     
     // 전체 게임 장면 그리기
-    // 벽 그리기
-    SDL_SetRenderDrawColor(mRenderer,
-        255, 255, 255, // 하얀색으로
-        255
-    );
-    SDL_Rect ceiling{
-        0, 0, // position
-        1024, thickness // size
-    };
-    SDL_Rect floor{
-        0, 768-thickness, // position
-        1024, thickness // size
-    };
-    SDL_Rect wall{
-        1024-thickness, 0, // position
-        thickness, 768 // size
-    };
-    SDL_RenderFillRect(mRenderer, &ceiling);
-    SDL_RenderFillRect(mRenderer, &floor);
-    SDL_RenderFillRect(mRenderer, &wall);
-
-    // 공과 패들 그리기
-    SDL_Rect ball{
-        static_cast<int>(mBallPos.x - thickness/2), static_cast<int>(mBallPos.y - thickness/2),
-        thickness, thickness
-    };
-    SDL_Rect paddle{
-        static_cast<int>(mPaddlePos.x - thickness/2), static_cast<int>(mPaddlePos.y - PaddleHeight/2),
-        thickness, PaddleHeight
-    };
-    SDL_RenderFillRect(mRenderer, &ball);
-    SDL_RenderFillRect(mRenderer, &paddle);
+    for(auto d: drawables){
+        SDL_SetRenderDrawColor(mRenderer,
+            d->r, d->g, d->b,
+            d->a
+        );
+        SDL_Rect rect{
+            static_cast<int>(d->tc->position.x), static_cast<int>(d->tc->position.y),
+            static_cast<int>(d->size.x), static_cast<int>(d->size.y)
+        };
+        SDL_RenderFillRect(mRenderer, &rect);
+    }
 
     // 전면 버퍼와 후면 버퍼 교환
     SDL_RenderPresent(mRenderer);
