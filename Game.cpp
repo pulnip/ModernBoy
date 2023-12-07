@@ -1,8 +1,8 @@
 #include <algorithm>
 
+#include "Actors.hpp"
 #include "Components.hpp"
 #include "Game.hpp"
-#include "Objects.hpp"
 
 Game::Game()=default;
 
@@ -34,9 +34,9 @@ bool Game::Initialize(){
         return false;
     }
 
-    auto ceil=new Wall(this, 0, 0, 1024, 15);
-    auto floor=new Wall(this, 0, 768-15, 1024, 15);
-    auto rightWall=new Wall(this, 1024-15, 0, 15, 768);
+    auto ceil=new Wall(this, 1024/2, 15/2, 1024, 15);
+    auto floor=new Wall(this, 1024/2, 768-15/2, 1024, 15);
+    auto rightWall=new Wall(this, 1024-15/2, 768/2, 15, 768);
     AddActor(ceil);
     AddActor(floor);
     AddActor(rightWall);
@@ -45,6 +45,13 @@ bool Game::Initialize(){
     paddle->cc->collideAllow(ceil->cc);
     paddle->cc->collideAllow(floor->cc);
     AddActor(paddle);
+
+    auto ball=new Ball(this, 1024/2, 768/2, 15, 15);
+    ball->cc->collideAllow(ceil->cc);
+    ball->cc->collideAllow(floor->cc);
+    ball->cc->collideAllow(rightWall->cc);
+    ball->cc->collideAllow(paddle->cc);
+    AddActor(ball);
 
     return true;
 }
@@ -159,7 +166,8 @@ void Game::GenerateOutput(){
             d->a
         );
         SDL_Rect rect{
-            static_cast<int>(d->tc->position.x), static_cast<int>(d->tc->position.y),
+            static_cast<int>(d->tc->position.x - d->size.x/2),
+            static_cast<int>(d->tc->position.y - d->size.y/2),
             static_cast<int>(d->size.x), static_cast<int>(d->size.y)
         };
         SDL_RenderFillRect(mRenderer, &rect);

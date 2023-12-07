@@ -4,6 +4,8 @@
 
 #include "Vector2.hpp"
 
+// Component interface
+
 class Component{
 public:
     // 업데이트 순서값이 작을수록 더 빨리 갱신
@@ -19,10 +21,12 @@ protected:
     int mUpdateOrder;
 };
 
+// Real Components
+
 class TransformComponent final: public Component{
 public:
     TransformComponent(class Actor* owner, float x, float y)
-    :Component(owner), position{x, y}{}
+    :Component(owner, 4), position{x, y}{}
     ~TransformComponent()=default;
 
     void update(float deltaTime) override;
@@ -34,7 +38,7 @@ public:
 class SimpleDrawComponent final: public Component{
 public:
     SimpleDrawComponent(class Actor* owner, float width, float height, TransformComponent* _tc)
-    :Component(owner, 200), size{width, height}, tc(_tc){}
+    :Component(owner, 2), size{width, height}, tc(_tc){}
     ~SimpleDrawComponent()=default;
 
     void update(float deltaTime) override{}
@@ -47,18 +51,17 @@ public:
 class CollisionComponent final: public Component{
 public:
     CollisionComponent(class Actor* owner, TransformComponent* _tc, SimpleDrawComponent* _sdc)
-    :Component(owner), tc(_tc), sdc(_sdc){}
+    :Component(owner, 3), tc(_tc), sdc(_sdc){}
     ~CollisionComponent()=default;
 
     void update(float deltaTime) override;
 
     void collideAllow(const CollisionComponent* opponent);
     void collideDisallow(const CollisionComponent* opponent);
-
-private:
+public:
     TransformComponent* tc;
     const SimpleDrawComponent* sdc;
-
+private:
     std::vector<const CollisionComponent*> opponents;
 };
 
@@ -66,7 +69,7 @@ private:
 class ControlComponent final: public Component{
 public:
     ControlComponent(class Actor* owner, TransformComponent* _tc, class Game* _game)
-    :Component(owner, 99), tc(_tc), game(_game){};
+    :Component(owner, 1), tc(_tc), game(_game){};
     ~ControlComponent()=default;
 
     void update(float deltaTime) override;

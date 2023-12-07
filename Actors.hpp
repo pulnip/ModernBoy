@@ -4,6 +4,8 @@
 
 #include "Vector2.hpp"
 
+// Actor interface
+
 class Actor{
 public:
     // 액터의 상태를 추적하는 데 사용
@@ -26,10 +28,45 @@ public:
 
     void AddComponent(class Component* component);
     void RemoveComponent(class Component* component);
+protected:
+    class Game* game;
 private:
     State mState=EActive;
     // 액터가 보유한 컴포넌트들
     std::vector<class Component*> mComponents;
-    
-    class Game* game;
+};
+
+// Real Actors
+
+class Paddle final: public Actor{
+public:
+    Paddle(class Game* game);
+    ~Paddle()=default;
+
+    void UpdateActor(float deltaTime) override;
+public:
+    class CollisionComponent* cc;
+private:
+    class TransformComponent* tc;
+    const Vector2 start_position, fixed_velocity, fixed_size;
+};
+
+class Wall final: public Actor{
+public:
+    Wall(class Game* game, int x, int y, int w, int h);
+    ~Wall()=default;
+
+    void UpdateActor(float deltaTime) override{}
+public:
+    class CollisionComponent* cc;
+};
+
+class Ball final: public Actor{
+public:
+    Ball(class Game* game, int x, int y, int w, int h);
+    ~Ball()=default;
+
+    void UpdateActor(float deltaTime) override;
+public:
+    class CollisionComponent* cc;
 };

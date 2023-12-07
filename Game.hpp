@@ -29,11 +29,11 @@ public:
     const Uint8* state;
 
     std::vector<class SimpleDrawComponent*> drawables;
+    bool mIsRunning=false;
 private:
     // SDL이 생성한 윈도우
     SDL_Window* mWindow=nullptr;
     // 게임이 계속 실행돼야 하는지를 판단
-    bool mIsRunning=false;
 
     SDL_Renderer* mRenderer;
     Uint32 mTicksCount=0;

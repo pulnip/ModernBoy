@@ -21,6 +21,9 @@ Vector2 operator*(float scalar, const Vector2& v){
 Vector2 operator*(const Vector2& v, float scalar){
     return scalar*v;
 }
+Vector2 operator/(const Vector2& v, float scalar){
+    return (1.0/scalar)*v;
+}
 bool operator<=(const Vector2& lhs, const Vector2& rhs){
     return lhs.x<=rhs.x && lhs.y<=rhs.y;
 }
