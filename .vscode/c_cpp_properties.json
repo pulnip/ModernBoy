@@ -4,7 +4,8 @@
             "name": "Windows",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:\\SDL2-2.28.5\\x86_64-w64-mingw32\\include\\SDL2"
+                "C:\\SDL2-2.28.5\\x86_64-w64-mingw32\\include\\SDL2",
+                "C:\\SDL2_image-2.8.0\\x86_64-w64-mingw32\\include\\SDL2"
             ],
             "defines": [
                 "_DEBUG",

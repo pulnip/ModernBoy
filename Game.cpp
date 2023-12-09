@@ -34,6 +34,18 @@ bool Game::Initialize(){
         return false;
     }
 
+    // Init SDL Image Library
+    if(IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG){
+        SDL_Log("Unable to initialize SDL_image: %s", SDL_GetError());
+        return false;
+    }
+
+    LoadData();
+
+    return true;
+}
+
+void Game::LoadData(){
     auto ceil=new Wall(this, 1024/2, 15/2, 1024, 15);
     auto floor=new Wall(this, 1024/2, 768-15/2, 1024, 15);
     auto rightWall=new Wall(this, 1024-15/2, 768/2, 15, 768);
@@ -52,8 +64,6 @@ bool Game::Initialize(){
     ball->cc->collideAllow(rightWall->cc);
     ball->cc->collideAllow(paddle->cc);
     AddActor(ball);
-
-    return true;
 }
 
 void Game::ShutDown(){
@@ -93,6 +103,28 @@ void Game::ClearActors(){
     while(!mActors.empty()){
         delete mActors.back();
     }
+}
+
+SDL_Texture* Game::LoadTexture(const char* fileName){
+    // 파일로부터 로딩
+    SDL_Surface* surf = IMG_Load(fileName);
+    if(!surf){
+        SDL_Log("Failed to load texture file %s", fileName);
+        return nullptr;
+    }
+
+    // 텍스쳐 생성
+    SDL_Texture* text = SDL_CreateTextureFromSurface(mRenderer, surf);
+    SDL_FreeSurface(surf);
+    if(!text){
+        SDL_Log("Failed to convert surface to texture for %s", fileName);
+        return nullptr;
+    }
+    return text;
+}
+
+void Game::AddSprite(SpriteComponent* sprite){
+
 }
 
 void Game::ProcessInput(){

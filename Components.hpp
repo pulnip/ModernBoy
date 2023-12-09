@@ -77,3 +77,20 @@ private:
     TransformComponent* tc;
     class Game* game;
 };
+
+class SpriteComponent: public Component{
+public:
+    SpriteComponent(class Actor* owner, int drawOrder=100);
+    ~SpriteComponent();
+    virtual void Draw(SDL_Renderer* renderer);
+    virtual void SetTexture(SDL_Texture* texture);
+
+protected:
+    // 그릴 텍스쳐
+    SDL_Texture* mTexture;
+    // 그리기 순서(화가 알고리즘)
+    int mDrawOrder;
+    // 텍스쳐의 너비/높이
+    int mTexWidth;
+    int mTexHeight;
+};
