@@ -4,17 +4,20 @@
 #include "Components.hpp"
 #include "Game.hpp"
 
-Actor::Actor(Game* game):game(game){}
+Actor::Actor(Game* game):mGame(game){
+    mGame->AddActor(this);
+}
 Actor::~Actor(){
-    game->RemoveActor(this);
+    mGame->RemoveActor(this);
     for(auto component: mComponents){
         delete component;
     }
 }
 
 void Actor::Update(float deltaTime){
-    UpdateActor(deltaTime);
+    UpdateActorFirst(deltaTime);
     UpdateComponents(deltaTime);
+    UpdateActorLast(deltaTime);
 }
 
 void Actor::UpdateComponents(float deltaTime){
@@ -30,8 +33,6 @@ void Actor::UpdateComponents(float deltaTime){
     }
 }
 
-void Actor::UpdateActor(float deltaTime){}
-
 void Actor::AddComponent(Component* component){
     mComponents.emplace_back(component);
 }
@@ -44,58 +45,60 @@ void Actor::RemoveComponent(Component* component){
 
 // Real Actors
 
-Paddle::Paddle(Game* game):Actor(game)
-,start_position{15.0, 768/2}, fixed_velocity{0, 300}, fixed_size{15, 120}{
-    tc=new TransformComponent(this,
-        start_position.x, start_position.y
-    );
-    auto sdc=new SimpleDrawComponent(this,
-        fixed_size.x, fixed_size.y,
-        tc
-    );
-    game->drawables.emplace_back(sdc);
-    cc=new CollisionComponent(this,
-        tc, sdc
-    );
-    auto con_c=new ControlComponent(this,
-        tc, game
-    );
-    AddComponent(tc);
-    AddComponent(sdc);
-    AddComponent(cc);
-    AddComponent(con_c);
+Paddle::Paddle(Game* game)
+:Actor(game), fixed_velocity_y{300}{
+    mPosition.x=15.0f;
+    mPosition.y=384.0f;
+    mVelocity.y=fixed_velocity_y;
+
+    auto bc=new BoxComponent(this);
+    bc->SetTexture(new Color(), 15.0f, 120.0f);
+    mSize=&bc->GetSize();
+    cc=new CollisionComponent(this);
+    auto coc=new ControlComponent(this);
 }
 
-void Paddle::UpdateActor(float deltaTime){
-    tc->velocity.y = fixed_velocity.y;
+void Paddle::UpdateActorFirst(float deltaTime){
+    mVelocity.y = fixed_velocity_y;
+}
+
+void Paddle::UpdateActorLast(float deltaTime){
+    mPosition += deltaTime * mVelocity;
+}
+
+void Paddle::CollideAllow(Actor* opponent){
+    cc->Allow(opponent);
 }
 
 Wall::Wall(Game* game, int x, int y, int w, int h):Actor(game){
-    auto tc=new TransformComponent(this, x, y);
-    auto sdc=new SimpleDrawComponent(this, w, h, tc);
-    game->drawables.emplace_back(sdc);
-    cc=new CollisionComponent(this, tc, sdc);
+    mPosition.x=x;
+    mPosition.y=y;
 
-    AddComponent(tc);
-    AddComponent(sdc);
-    AddComponent(cc);
+    auto bc=new BoxComponent(this);
+    bc->SetTexture(new Color(), w, h);
+    mSize=&bc->GetSize();
 }
 
 Ball::Ball(Game* game, int x, int y, int w, int h):Actor(game){
-    auto tc=new TransformComponent(this, x, y);
-    tc->velocity.x = -200.0f;
-    tc->velocity.y = 235.0f;
-    auto sdc=new SimpleDrawComponent(this, w, h, tc);
-    game->drawables.emplace_back(sdc);
-    cc=new CollisionComponent(this, tc, sdc);
+    mPosition.x=x;
+    mPosition.y=y;
+    mVelocity.x=-200.0f;
+    mVelocity.y=235.0f;
 
-    AddComponent(tc);
-    AddComponent(sdc);
-    AddComponent(cc);
+    auto bc=new BoxComponent(this);
+    bc->SetTexture(new Color(), w, h);
+    mSize=&bc->GetSize();
+    cc=new CollisionComponent(this);
 }
 
-void Ball::UpdateActor(float deltaTime){
-    if(cc->tc->position.x < -cc->sdc->size.x){
-        game->mIsRunning=false;
+void Ball::UpdateActorLast(float deltaTime){
+    mPosition += deltaTime * mVelocity;
+    
+    if(mPosition.x < -mSize->x){
+        GetGame()->mIsRunning=false;
     }
+}
+
+void Ball::CollideAllow(Actor* opponent){
+    cc->Allow(opponent);
 }

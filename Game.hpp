@@ -26,7 +26,8 @@ public:
     // 이미지 로딩 과정 캡슐화
     SDL_Texture* LoadTexture(const char* fileName);
 
-    void AddSprite(class SpriteComponent* sprite);
+    void AddDrawable(class DrawComponent* drawable);
+    void RemoveDrawable(class DrawComponent* drawable);
 private:
     // 게임 루프를 위한 헬퍼 함수
     void ProcessInput();
@@ -36,7 +37,6 @@ public:
     SDL_Event event;
     const Uint8* state;
 
-    std::vector<class SimpleDrawComponent*> drawables;
     // 게임이 계속 실행돼야 하는지를 판단
     bool mIsRunning=false;
 private:
@@ -50,5 +50,5 @@ private:
     std::vector<class Actor*> mPendingActors;
     bool mUpdatingActors=false;
 
-    std::vector<class SpriteComponent*> mSprites;
+    std::vector<class DrawComponent*> mDrawables;
 };

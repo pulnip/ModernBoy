@@ -49,21 +49,16 @@ void Game::LoadData(){
     auto ceil=new Wall(this, 1024/2, 15/2, 1024, 15);
     auto floor=new Wall(this, 1024/2, 768-15/2, 1024, 15);
     auto rightWall=new Wall(this, 1024-15/2, 768/2, 15, 768);
-    AddActor(ceil);
-    AddActor(floor);
-    AddActor(rightWall);
 
     auto paddle=new Paddle(this);
-    paddle->cc->collideAllow(ceil->cc);
-    paddle->cc->collideAllow(floor->cc);
-    AddActor(paddle);
+    paddle->CollideAllow(ceil);
+    paddle->CollideAllow(floor);
 
     auto ball=new Ball(this, 1024/2, 768/2, 15, 15);
-    ball->cc->collideAllow(ceil->cc);
-    ball->cc->collideAllow(floor->cc);
-    ball->cc->collideAllow(rightWall->cc);
-    ball->cc->collideAllow(paddle->cc);
-    AddActor(ball);
+    ball->CollideAllow(ceil);
+    ball->CollideAllow(floor);
+    ball->CollideAllow(rightWall);
+    ball->CollideAllow(paddle);
 }
 
 void Game::ShutDown(){
@@ -123,7 +118,23 @@ SDL_Texture* Game::LoadTexture(const char* fileName){
     return text;
 }
 
-void Game::AddSprite(SpriteComponent* sprite){
+void Game::AddDrawable(DrawComponent* drawable){
+    auto it = mDrawables.cbegin();
+    
+    const int myDrawOrder = drawable->GetDrawOrder();
+    for(; it!=mDrawables.cend(); ++it){
+        // mSprites는 이미 정렬되어 있음.
+        // sprite보다 그리기 순서가 큰 요소 앞에 삽입해야함.
+        if((*it)->GetDrawOrder() > myDrawOrder) break;
+    }
+
+    mDrawables.insert(it, drawable);
+}
+
+void Game::RemoveDrawable(DrawComponent* drawable){
+    mDrawables.erase(
+        std::find(mDrawables.cbegin(), mDrawables.cend(), drawable)
+    );
 
 }
 
@@ -192,17 +203,8 @@ void Game::GenerateOutput(){
     SDL_RenderClear(mRenderer);
     
     // 전체 게임 장면 그리기
-    for(auto d: drawables){
-        SDL_SetRenderDrawColor(mRenderer,
-            d->r, d->g, d->b,
-            d->a
-        );
-        SDL_Rect rect{
-            static_cast<int>(d->tc->position.x - d->size.x/2),
-            static_cast<int>(d->tc->position.y - d->size.y/2),
-            static_cast<int>(d->size.x), static_cast<int>(d->size.y)
-        };
-        SDL_RenderFillRect(mRenderer, &rect);
+    for(auto d: mDrawables){
+        d->Draw(mRenderer);
     }
 
     // 전면 버퍼와 후면 버퍼 교환

@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include <SDL.h>
+
 #include "Vector2.hpp"
 
 // Component interface
@@ -12,7 +14,7 @@ public:
     Component(class Actor* owner, int updateOrder=100);
     virtual ~Component();
     
-    virtual void update(float deltaTime);
+    virtual void update(float deltaTime){}
     int GetUpdateOrder() const{ return mUpdateOrder; }
 protected:
     // 소유자 액터
@@ -23,74 +25,72 @@ protected:
 
 // Real Components
 
-class TransformComponent final: public Component{
+// 패들 조종 전용 컴포넌트
+class ControlComponent final: public Component{
 public:
-    TransformComponent(class Actor* owner, float x, float y)
-    :Component(owner, 4), position{x, y}{}
-    ~TransformComponent()=default;
+    ControlComponent(class Actor* owner)
+    :Component(owner, 1){}
+    ~ControlComponent()=default;
 
     void update(float deltaTime) override;
-public:
-    Vector2 position;
-    Vector2 velocity;
-};
-
-class SimpleDrawComponent final: public Component{
-public:
-    SimpleDrawComponent(class Actor* owner, float width, float height, TransformComponent* _tc)
-    :Component(owner, 2), size{width, height}, tc(_tc){}
-    ~SimpleDrawComponent()=default;
-
-    void update(float deltaTime) override{}
-public:
-    TransformComponent* tc;
-    Vector2 size;
-    short r=0, g=0, b=0, a=255;
 };
 
 class CollisionComponent final: public Component{
 public:
-    CollisionComponent(class Actor* owner, TransformComponent* _tc, SimpleDrawComponent* _sdc)
-    :Component(owner, 3), tc(_tc), sdc(_sdc){}
+    CollisionComponent(class Actor* owner)
+    :Component(owner, 2){}
     ~CollisionComponent()=default;
 
     void update(float deltaTime) override;
 
-    void collideAllow(const CollisionComponent* opponent);
-    void collideDisallow(const CollisionComponent* opponent);
-public:
-    TransformComponent* tc;
-    const SimpleDrawComponent* sdc;
+    void Allow(const class Actor* opponent);
+    void Disallow(const class Actor* opponent);
 private:
-    std::vector<const CollisionComponent*> opponents;
+    std::vector<const class Actor*> opponents;
 };
 
-// 패들 조종 전용 컴포넌트
-class ControlComponent final: public Component{
+class DrawComponent: public Component{
 public:
-    ControlComponent(class Actor* owner, TransformComponent* _tc, class Game* _game)
-    :Component(owner, 1), tc(_tc), game(_game){};
-    ~ControlComponent()=default;
+    DrawComponent(class Actor* owner, int drawOrder);
+    virtual ~DrawComponent();
 
-    void update(float deltaTime) override;
-private:
-    TransformComponent* tc;
-    class Game* game;
-};
+    virtual void Draw(SDL_Renderer* renderer)=0;
 
-class SpriteComponent: public Component{
-public:
-    SpriteComponent(class Actor* owner, int drawOrder=100);
-    ~SpriteComponent();
-    virtual void Draw(SDL_Renderer* renderer);
-    virtual void SetTexture(SDL_Texture* texture);
-
+    int GetDrawOrder(){ return mDrawOrder; }
+    const Vector2& GetSize() const{ return mSize; }
 protected:
-    // 그릴 텍스쳐
-    SDL_Texture* mTexture;
     // 그리기 순서(화가 알고리즘)
-    int mDrawOrder;
+    const int mDrawOrder;
     // 텍스쳐의 너비/높이
-    int mTexWidth;
-    int mTexHeight;
+    Vector2 mSize;
+};
+
+struct Color{ short r=0, g=0, b=0, a=255; };
+
+class BoxComponent final: public DrawComponent{
+public:
+    BoxComponent(class Actor* owner, int drawOrder=1)
+    :DrawComponent(owner, drawOrder){}
+    ~BoxComponent(){
+        delete mColor;
+    }
+
+    void Draw(SDL_Renderer* renderer) override;
+    void SetTexture(Color* color, int w, int h){
+        mColor=color; mSize.x=w; mSize.y=h;
+    }
+private:
+    Color* mColor;
+};
+
+class SpriteComponent: public DrawComponent{
+public:
+    SpriteComponent(class Actor* owner, int drawOrder=2)
+    :DrawComponent(owner, drawOrder){}
+    ~SpriteComponent()=default;
+
+    virtual void Draw(SDL_Renderer* renderer) override;
+    virtual void SetTexture(SDL_Texture* texture);
+private:
+    SDL_Texture* mTexture;
 };
