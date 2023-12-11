@@ -5,7 +5,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include "Vector2.hpp"
+#include "Math.hpp"
 
 class Game{
 public:

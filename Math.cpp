@@ -1,6 +1,8 @@
 #include <algorithm>
 
-#include "Vector2.hpp"
+#include "Math.hpp"
+
+constexpr auto PI=2*std::asin(1);
 
 Vector2& Vector2::operator+=(const Vector2& other){
     x += other.x;
@@ -32,3 +34,6 @@ Vector2 abs(const Vector2& v){
     return Vector2{ std::abs(v.x), std::abs(v.y) };
 }
 
+float Math::ToDegree(float radian){
+    return 180.0/PI * radian;
+}

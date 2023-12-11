@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Vector2.hpp"
+#include "Math.hpp"
 
 // Actor interface
 
@@ -32,8 +32,8 @@ public:
     const Vector2& GetVelocity() const{ return mVelocity; }
     void SetVelocity(const Vector2& other){ mVelocity = other; }
     const Vector2& GetSize() const{ return *mSize; }
-    float GetScale(){ return mScale; }
-    float GetRotation(){ return mRotation; }
+    float GetScale() const{ return mScale; }
+    float GetRotation() const{ return mRotation; }
 
     void AddComponent(class Component* component);
     void RemoveComponent(class Component* component);
@@ -44,12 +44,13 @@ protected:
     // 라디안
     float mScale=1.0f;
     float mRotation=0.0f;
+
+    class Game* mGame;
 private:
     State mState=EActive;
 
     // 액터가 보유한 컴포넌트들
     std::vector<class Component*> mComponents;
-    class Game* mGame;
 };
 
 // Real Actors

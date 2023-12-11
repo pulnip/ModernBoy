@@ -19,18 +19,20 @@ Component::~Component(){
 //     position += velocity * deltaTime;
 // }
 
-void CollisionComponent::update(float deltaTime){
+void CollisionComponent::Update(float deltaTime){
     for(auto opponent: opponents){
         // 위치의 차이
         auto pos_diff = opponent->GetPosition() - mOwner->GetPosition();
         auto pos_diff_abs = abs(opponent->GetPosition() - mOwner->GetPosition());
         // 충돌 판정 박스
-        auto size_diff = (mOwner->GetSize() + opponent->GetSize())/2;
+        auto size_diff = (
+            mOwner->GetScale()*mOwner->GetSize() +
+            opponent->GetScale()*opponent->GetSize()
+        )/2;
 
         // AABB 알고리즘으로 충돌 판정
         if(pos_diff_abs <= size_diff){            
             // 충돌 후 처리
-            SDL_Log("COLLIDE!\n");
 
             // 상대 속도
             auto vel_diff = opponent->GetVelocity() - mOwner->GetVelocity();
@@ -81,7 +83,7 @@ void CollisionComponent::Disallow(const Actor* opponent){
     );
 }
 
-void ControlComponent::update(float deltaTime){
+void ControlComponent::Update(float deltaTime){
     auto keystate=mOwner->GetGame()->state;
 
     int paddleDir=0;
@@ -136,12 +138,12 @@ void SpriteComponent::Draw(SDL_Renderer* renderer){
 
     SDL_RenderCopyEx(renderer,
         mTexture,
-        // 텍스쳐의 특정 영역 (nullptr은 전체영역)
+        // 텍스처의 특정 영역 (nullptr은 전체영역)
         nullptr,
         // 어느 위치에, 어느 크기로 렌더링할 지 
         &rect,
         // 라디안을 각도로 변환
-        180*M_PI * mOwner->GetRotation(),
+        Math::ToDegree(mOwner->GetRotation()),
         // 회전 중심점
         nullptr,
         SDL_FLIP_NONE
@@ -158,4 +160,20 @@ void SpriteComponent::SetTexture(SDL_Texture* texture){
     );
     mSize.x=width;
     mSize.y=height;
+}
+
+void AnimSpriteComponent::Update(float deltaTime) noexcept{
+    SpriteComponent::Update(deltaTime);
+
+    // 애니메이션에 사용된 텍스처 개수
+    const int tex_num=mAnimTextures.size();
+    // 텍스처가 없을 경우
+    if(tex_num <= 0) return;
+
+    // 현재 프레임 갱신
+    mCurrFrame = mAnimFPS * deltaTime;
+    // 0 <= mCurrFrame < tex_num 이도록
+    mCurrFrame -= static_cast<int>(mCurrFrame) / tex_num * tex_num;
+
+    SetTexture(mAnimTextures[static_cast<int>(mCurrFrame)]);
 }

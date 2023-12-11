@@ -29,7 +29,7 @@ void Actor::UpdateComponents(float deltaTime){
         }
     );
     for(auto component: sortByUpdateOrder){
-        component->update(deltaTime);
+        component->Update(deltaTime);
     }
 }
 
@@ -85,9 +85,13 @@ Ball::Ball(Game* game, int x, int y, int w, int h):Actor(game){
     mVelocity.x=-200.0f;
     mVelocity.y=235.0f;
 
-    auto bc=new BoxComponent(this);
-    bc->SetTexture(new Color(), w, h);
-    mSize=&bc->GetSize();
+    auto sc=new SpriteComponent(this);
+    sc->SetTexture(mGame->LoadTexture("pigeon_1.png"));
+    mSize=&sc->GetSize();
+    mScale=5.0f;
+    // auto bc=new BoxComponent(this);
+    // bc->SetTexture(new Color(), w, h);
+    // mSize=&bc->GetSize();
     cc=new CollisionComponent(this);
 }
 
