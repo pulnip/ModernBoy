@@ -22,10 +22,10 @@ Component::~Component(){
 void CollisionComponent::Update(float deltaTime){
     for(auto opponent: opponents){
         // 위치의 차이
-        auto pos_diff = opponent->GetPosition() - mOwner->GetPosition();
-        auto pos_diff_abs = abs(opponent->GetPosition() - mOwner->GetPosition());
+        const auto pos_diff = opponent->GetPosition() - mOwner->GetPosition();
+        const auto pos_diff_abs = abs(opponent->GetPosition() - mOwner->GetPosition());
         // 충돌 판정 박스
-        auto size_diff = (
+        const auto size_diff = (
             mOwner->GetScale()*mOwner->GetSize() +
             opponent->GetScale()*opponent->GetSize()
         )/2;
@@ -35,9 +35,11 @@ void CollisionComponent::Update(float deltaTime){
             // 충돌 후 처리
 
             // 상대 속도
-            auto vel_diff = opponent->GetVelocity() - mOwner->GetVelocity();
+            const auto myVel = mOwner->GetVelocity();
+            const auto opVel = opponent->GetVelocity();
+            const auto vel_diff = opVel - myVel;
 
-            auto collision_result=size_diff - pos_diff_abs;
+            const auto collision_result=size_diff - pos_diff_abs;
             // x축 면이 닿았음.
             if(collision_result.x < collision_result.y){
                 // 해당 면으로 접근 중
@@ -49,8 +51,8 @@ void CollisionComponent::Update(float deltaTime){
                     );
                     #else
                     mOwner->SetVelocity( Vector2{
-                        -mOwner->GetVelocity().x,
-                        mOwner->GetVelocity().y
+                        Math::reflect(myVel.x, opVel.x),
+                        myVel.y
                     });
                     #endif
                 }
@@ -64,7 +66,7 @@ void CollisionComponent::Update(float deltaTime){
                     #else
                     mOwner->SetVelocity( Vector2{
                         mOwner->GetVelocity().x,
-                        -mOwner->GetVelocity().y
+                        Math::reflect(myVel.y, opVel.y)
                     });
                     #endif
                 }
@@ -171,7 +173,7 @@ void AnimSpriteComponent::Update(float deltaTime) noexcept{
     if(tex_num <= 0) return;
 
     // 현재 프레임 갱신
-    mCurrFrame = mAnimFPS * deltaTime;
+    mCurrFrame += mAnimFPS * deltaTime;
     // 0 <= mCurrFrame < tex_num 이도록
     mCurrFrame -= static_cast<int>(mCurrFrame) / tex_num * tex_num;
 

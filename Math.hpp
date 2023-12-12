@@ -18,5 +18,8 @@ bool operator<=(const Vector2& lhs, const Vector2& rhs);
 Vector2 abs(const Vector2& v);
 
 namespace Math{
-    float ToDegree(float radian);
+    double ToDegree(double radian);
+    template<typename T> T reflect(const T x, const T base) noexcept{
+        return 2*base - x;
+    }
 }

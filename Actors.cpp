@@ -85,8 +85,13 @@ Ball::Ball(Game* game, int x, int y, int w, int h):Actor(game){
     mVelocity.x=-200.0f;
     mVelocity.y=235.0f;
 
-    auto sc=new SpriteComponent(this);
-    sc->SetTexture(mGame->LoadTexture("pigeon_1.png"));
+    auto sc=new AnimSpriteComponent(this);
+    std::vector<SDL_Texture*> anims;
+    anims.emplace_back(mGame->LoadTexture("resource/pigeon_1.png"));
+    anims.emplace_back(mGame->LoadTexture("resource/pigeon_2.png"));
+    anims.emplace_back(mGame->LoadTexture("resource/pigeon_3.png"));
+    anims.emplace_back(mGame->LoadTexture("resource/pigeon_2.png"));
+    sc->SetAnimTextures(anims);
     mSize=&sc->GetSize();
     mScale=5.0f;
     // auto bc=new BoxComponent(this);

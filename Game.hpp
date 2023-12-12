@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+#include <string>
 #include <vector>
 
 #include <SDL.h>
@@ -10,6 +12,7 @@
 class Game{
 public:
     Game();
+    ~Game();
     // 게임 초기화
     bool Initialize();
     // 게임 세계의 액터를 로드
@@ -24,7 +27,7 @@ public:
     void ClearActors();
 
     // 이미지 로딩 과정 캡슐화
-    SDL_Texture* LoadTexture(const char* fileName);
+    SDL_Texture* LoadTexture(const std::string fileName);
 
     void AddDrawable(class DrawComponent* drawable);
     void RemoveDrawable(class DrawComponent* drawable);
@@ -51,4 +54,6 @@ private:
     bool mUpdatingActors=false;
 
     std::vector<class DrawComponent*> mDrawables;
+
+    std::map<const std::string, SDL_Texture*> textures;
 };

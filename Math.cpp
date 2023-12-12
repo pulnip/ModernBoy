@@ -34,6 +34,6 @@ Vector2 abs(const Vector2& v){
     return Vector2{ std::abs(v.x), std::abs(v.y) };
 }
 
-float Math::ToDegree(float radian){
+double Math::ToDegree(double radian){
     return 180.0/PI * radian;
 }

@@ -101,19 +101,22 @@ private:
 // 애니메이션 텍스처
 class AnimSpriteComponent final: public SpriteComponent{
 public:
-    AnimSpriteComponent(class Actor* owner, int drawOrder=3);
+    AnimSpriteComponent(class Actor* owner, int drawOrder=3)
+    :SpriteComponent(owner, drawOrder){}
     // 애니메이션을 프레임마다 갱신
     void Update(float deltaTime) noexcept override;
     // 애니메이션에 사용되는 텍스처 설정
-    void SetAnimTextures(const std::vector<SDL_Texture*>& textures);
+    void SetAnimTextures(const std::vector<SDL_Texture*>& textures){
+        mAnimTextures=textures;
+    }
     // 애니메이션 FPS
     float GetAnimFPS() const{ return mAnimFPS; }
     void SetAnimFPS(float fps){ mAnimFPS=fps; }
 private:
-    const std::vector<SDL_Texture*> mAnimTextures;
+    std::vector<SDL_Texture*> mAnimTextures;
     // 현재 프레임
     float mCurrFrame=0.0f;
-    float mAnimFPS;
+    float mAnimFPS=8.0f;
 };
 
 // 스크롤되는 배경

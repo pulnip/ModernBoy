@@ -6,6 +6,17 @@
 
 Game::Game()=default;
 
+Game::~Game(){
+    for(auto actor: mActors) delete actor;
+    for(auto actor: mPendingActors) delete actor;
+    
+    for(auto key: textures) SDL_DestroyTexture(key.second);
+
+    SDL_DestroyWindow(mWindow);
+
+    SDL_Quit();
+}
+
 bool Game::Initialize(){
     int sdlResult=SDL_Init(SDL_INIT_VIDEO);
     if(sdlResult != 0 ){
@@ -100,22 +111,25 @@ void Game::ClearActors(){
     }
 }
 
-SDL_Texture* Game::LoadTexture(const char* fileName){
+SDL_Texture* Game::LoadTexture(const std::string fileName){
+    auto texture=textures[fileName];
+    if(texture!=nullptr) return texture;
+
     // 파일로부터 로딩
-    SDL_Surface* surf = IMG_Load(fileName);
+    SDL_Surface* surf = IMG_Load(fileName.c_str());
     if(!surf){
         SDL_Log("Failed to load texture file %s", fileName);
         return nullptr;
     }
 
     // 텍스쳐 생성
-    SDL_Texture* text = SDL_CreateTextureFromSurface(mRenderer, surf);
+    texture = SDL_CreateTextureFromSurface(mRenderer, surf);
     SDL_FreeSurface(surf);
-    if(!text){
+    if(!texture){
         SDL_Log("Failed to convert surface to texture for %s", fileName);
         return nullptr;
     }
-    return text;
+    return textures[fileName]=texture;
 }
 
 void Game::AddDrawable(DrawComponent* drawable){
