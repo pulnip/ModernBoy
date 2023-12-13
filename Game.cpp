@@ -88,7 +88,7 @@ void Game::LoadData(){
 	bg->SetBGTextures(bgtexs);
 	bg->SetScrollSpeed(-100.0f);
 	// Create the closer background
-	bg = new BGSpriteComponent(temp, 50);
+	bg = new BGSpriteComponent(temp, 101);
 	bg->SetScreenSize(Vector2{1024.0f, 768.0f});
 	bgtexs = {
 		GetTexture("resource/Stars.png"),

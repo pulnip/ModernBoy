@@ -115,7 +115,7 @@ void ControlComponent::Update(float deltaTime){
 }
 
 DrawComponent::DrawComponent(Actor* owner, int drawOrder)
-:Component(owner), mDrawOrder(drawOrder){
+:Component(owner, 300), mDrawOrder(drawOrder){
     mOwner->GetGame()->AddDrawable(this);
 }
 DrawComponent::~DrawComponent(){
@@ -196,11 +196,9 @@ void AnimSpriteComponent::Update(float deltaTime) noexcept{
 void BGSpriteComponent::SetBGTextures(const std::vector<SDL_Texture*>& textures){
     int count=0;
     for(auto tex: textures){
-        BGTexture temp;
-        temp.mTexture = tex;
-        temp.mOffset.x = count * mScreenSize.x;
-        temp.mOffset.y = 0;
-        mBGTextures.emplace_back(temp);
+        mBGTextures.emplace_back(BGTexture{
+            tex, count*mScreenSize.x
+        });
         ++count;
     }
 }
@@ -210,27 +208,41 @@ void BGSpriteComponent::Update(float deltaTime) noexcept{
 
     for(auto& bg: mBGTextures){
         // 텍스처 위치(offset)를 스크롤 스피드만큼 왼쪽으로 이동.
-        bg.mOffset.x -= mScrollSpeed * deltaTime;
+        bg.mOffset_x += mScrollSpeed * deltaTime;
 
-        // 텍스처가 왼쪽으로 이동 중, 완전히 사라지면
-        if(bg.mOffset.x < -mScreenSize.x){
-            // 오른쪽 끝으로 이동.
-            bg.mOffset.x = (mBGTextures.size()-1) * mScreenSize.x -1;
+        // 화면이 왼쪽으로 이동
+        if(mScrollSpeed < 0){
+            // 화면 왼쪽 밖으로 완전히 사라지면
+            if(bg.mOffset_x < -mScreenSize.x){
+                // 오른쪽 끝으로 이동.
+                bg.mOffset_x += mBGTextures.size() * mScreenSize.x;
+            }
+        }
+        // 화면이 오른쪽으로 이동
+        else if(mScrollSpeed > 0){
+            // 화면 오른쪽 밖으로 완전히 사라지면
+            if(bg.mOffset_x > mScreenSize.x){
+                // 왼쪽 끝으로 이동.
+                bg.mOffset_x -= mBGTextures.size() * mScreenSize.x;
+            }
         }
     }
 }
 
 void BGSpriteComponent::Draw(SDL_Renderer* renderer) noexcept{
-	for (auto& bg : mBGTextures){
-		SDL_Rect r;
-		r.w = static_cast<int>(mScreenSize.x);
-		r.h = static_cast<int>(mScreenSize.y);
-		r.x = static_cast<int>(mOwner->GetPosition().x - r.w/2 + bg.mOffset.x);
-		r.y = static_cast<int>(mOwner->GetPosition().y - r.h/2 + bg.mOffset.y);
+	// const auto origin = mOwner->GetPosition() - mScreenSize/2;
+    for (auto& bg : mBGTextures){
+		SDL_Rect rect;
+		rect.w = static_cast<int>(mScreenSize.x);
+		rect.h = static_cast<int>(mScreenSize.y);
+		// rect.x = static_cast<int>(mOwner->GetPosition().x - rect.w/2 + bg.mOffset.x);
+		// rect.y = static_cast<int>(mOwner->GetPosition().y - rect.h/2 + bg.mOffset.y);
+		rect.x = static_cast<int>(bg.mOffset_x);
+		rect.y = 0.0f;
 
 		SDL_RenderCopy(renderer,
 			bg.mTexture,
-			nullptr, &r
+			nullptr, &rect
 		);
 	}
 }
