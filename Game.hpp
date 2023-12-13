@@ -26,8 +26,7 @@ public:
     void RemoveActor(class Actor* actor);
     void ClearActors();
 
-    // 이미지 로딩 과정 캡슐화
-    SDL_Texture* LoadTexture(const std::string fileName);
+    SDL_Texture* GetTexture(const char* fileName);
 
     void AddDrawable(class DrawComponent* drawable);
     void RemoveDrawable(class DrawComponent* drawable);
@@ -36,6 +35,9 @@ private:
     void ProcessInput();
     void UpdateGame();
     void GenerateOutput();
+
+    // 이미지 로딩 과정 캡슐화
+    SDL_Texture* LoadTexture(const char* fileName);
 public:
     SDL_Event event;
     const Uint8* state;

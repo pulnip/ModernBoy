@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
 #include "Math.hpp"
@@ -21,8 +22,8 @@ public:
     // 액터에 부착된 모든 컴포넌트를 업데이트
     void UpdateComponents(float deltaTime);
     // 특정 액터에 특화된 업데이트 코드
-    virtual void UpdateActorFirst(float deltaTime)=0;
-    virtual void UpdateActorLast(float deltaTime)=0;
+    virtual void UpdateActorFirst(float deltaTime){}
+    virtual void UpdateActorLast(float deltaTime){}
 
     // Getters/Setters
     State GetState() const{ return mState; }
@@ -33,7 +34,9 @@ public:
     void SetVelocity(const Vector2& other){ mVelocity = other; }
     const Vector2& GetSize() const{ return *mSize; }
     float GetScale() const{ return mScale; }
+    void SetScale(float other){ mScale=other; }
     float GetRotation() const{ return mRotation; }
+    void SetRotation(float other){ mRotation=other; }
 
     void AddComponent(class Component* component);
     void RemoveComponent(class Component* component);
@@ -87,4 +90,11 @@ public:
     void CollideAllow(Actor* opponent);
 private:
     class CollisionComponent* cc;
+};
+
+class Ship: public Actor{
+public:
+    Ship(class Game* game);
+    void UpdateActorFirst(float deltaTime) override{}
+    void UpdateActorLast(float deltaTime) override;
 };

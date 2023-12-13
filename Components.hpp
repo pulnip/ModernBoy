@@ -122,7 +122,43 @@ private:
 // 스크롤되는 배경
 class BGSpriteComponent final: public SpriteComponent{
 public:
-    BGSpriteComponent(class Actor* owner, int drawOrder=0);
+    BGSpriteComponent(class Actor* owner, int drawOrder=0)
+    :SpriteComponent(owner, drawOrder){}
+    
     void Update(float deltaTime) noexcept override;
     void Draw(SDL_Renderer* renderer) noexcept override;
+
+    // 배경용 텍스처 설정
+    void SetBGTextures(const std::vector<SDL_Texture*>& textures);
+    void SetScreenSize(const Vector2& size){ mScreenSize=size; }
+    void SetScrollSpeed(float speed){ mScrollSpeed=speed; }
+    float GetScrollSpeed(){ return mScrollSpeed; }
+
+private:
+    struct BGTexture{
+        SDL_Texture* mTexture=nullptr;
+        // 화면 너비에서 렌더링이 시작할 위치
+        Vector2 mOffset;
+    };
+    std::vector<BGTexture> mBGTextures;
+    Vector2 mScreenSize;
+    float mScrollSpeed=1.0f;
+};
+
+class MoveComponent: public Component{
+public:
+    MoveComponent(class Actor* owner)
+    :Component(owner, 1){}
+
+    void Update(float deltaTime) override;
+
+    float GetAngularSpeed() const{ return mAngularSpeed; }
+    float GetForwardSpeed() const{ return mForwardSpeed; }
+    void SetAngularSpeed(float speed) { mAngularSpeed=speed; }
+    void SetForwardSpeed(float speed) { mForwardSpeed=speed; }
+protected:
+    // radian per second
+    float mAngularSpeed;
+    // unit per second
+    float mForwardSpeed;
 };

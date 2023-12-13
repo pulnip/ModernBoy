@@ -57,19 +57,46 @@ bool Game::Initialize(){
 }
 
 void Game::LoadData(){
-    auto ceil=new Wall(this, 1024/2, 15/2, 1024, 15);
-    auto floor=new Wall(this, 1024/2, 768-15/2, 1024, 15);
-    auto rightWall=new Wall(this, 1024-15/2, 768/2, 15, 768);
+    // ping-pong
 
-    auto paddle=new Paddle(this);
-    paddle->CollideAllow(ceil);
-    paddle->CollideAllow(floor);
+    // auto ceil=new Wall(this, 1024/2, 15/2, 1024, 15);
+    // auto floor=new Wall(this, 1024/2, 768-15/2, 1024, 15);
+    // auto rightWall=new Wall(this, 1024-15/2, 768/2, 15, 768);
 
-    auto ball=new Ball(this, 1024/2, 768/2, 15, 15);
-    ball->CollideAllow(ceil);
-    ball->CollideAllow(floor);
-    ball->CollideAllow(rightWall);
-    ball->CollideAllow(paddle);
+    // auto paddle=new Paddle(this);
+    // paddle->CollideAllow(ceil);
+    // paddle->CollideAllow(floor);
+
+    // auto ball=new Ball(this, 1024/2, 768/2, 15, 15);
+    // ball->CollideAllow(ceil);
+    // ball->CollideAllow(floor);
+    // ball->CollideAllow(rightWall);
+    // ball->CollideAllow(paddle);
+
+    auto ship=new Ship(this);
+
+	// Create actor for the background (this doesn't need a subclass)
+	Actor* temp = new Actor(this);
+	temp->SetPosition(Vector2{512.0f, 384.0f});
+	// Create the "far back" background
+	BGSpriteComponent* bg = new BGSpriteComponent(temp);
+	bg->SetScreenSize(Vector2{1024.0f, 768.0f});
+	std::vector<SDL_Texture*> bgtexs = {
+		GetTexture("resource/Farback01.png"),
+		GetTexture("resource/Farback02.png")
+	};
+	bg->SetBGTextures(bgtexs);
+	bg->SetScrollSpeed(-100.0f);
+	// Create the closer background
+	bg = new BGSpriteComponent(temp, 50);
+	bg->SetScreenSize(Vector2{1024.0f, 768.0f});
+	bgtexs = {
+		GetTexture("resource/Stars.png"),
+		GetTexture("resource/Stars.png")
+	};
+	bg->SetBGTextures(bgtexs);
+	bg->SetScrollSpeed(-200.0f);
+
 }
 
 void Game::ShutDown(){
@@ -111,24 +138,11 @@ void Game::ClearActors(){
     }
 }
 
-SDL_Texture* Game::LoadTexture(const std::string fileName){
+SDL_Texture* Game::GetTexture(const char* fileName){
     auto texture=textures[fileName];
     if(texture!=nullptr) return texture;
 
-    // 파일로부터 로딩
-    SDL_Surface* surf = IMG_Load(fileName.c_str());
-    if(!surf){
-        SDL_Log("Failed to load texture file %s", fileName);
-        return nullptr;
-    }
-
-    // 텍스쳐 생성
-    texture = SDL_CreateTextureFromSurface(mRenderer, surf);
-    SDL_FreeSurface(surf);
-    if(!texture){
-        SDL_Log("Failed to convert surface to texture for %s", fileName);
-        return nullptr;
-    }
+    texture=LoadTexture(fileName);
     return textures[fileName]=texture;
 }
 
@@ -223,4 +237,22 @@ void Game::GenerateOutput(){
 
     // 전면 버퍼와 후면 버퍼 교환
     SDL_RenderPresent(mRenderer);
+}
+
+SDL_Texture* Game::LoadTexture(const char* fileName){
+    // 파일로부터 로딩
+    SDL_Surface* surf = IMG_Load(fileName);
+    if(!surf){
+        SDL_Log("Failed to load texture file %s", fileName);
+        return nullptr;
+    }
+
+    // 텍스쳐 생성
+    auto texture = SDL_CreateTextureFromSurface(mRenderer, surf);
+    SDL_FreeSurface(surf);
+    if(!texture){
+        SDL_Log("Failed to convert surface to texture for %s", fileName);
+        return nullptr;
+    }
+    return texture;
 }

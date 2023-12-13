@@ -15,10 +15,6 @@ Component::~Component(){
 
 // Real Components
 
-// void TransformComponent::update(float deltaTime){
-//     position += velocity * deltaTime;
-// }
-
 void CollisionComponent::Update(float deltaTime){
     for(auto opponent: opponents){
         // 위치의 차이
@@ -88,17 +84,34 @@ void CollisionComponent::Disallow(const Actor* opponent){
 void ControlComponent::Update(float deltaTime){
     auto keystate=mOwner->GetGame()->state;
 
-    int paddleDir=0;
+    // paddle
+
+    // int paddleDir=0;
+    // if(keystate[SDL_SCANCODE_W]){
+    //     paddleDir -= 1;
+    // }
+    // if(keystate[SDL_SCANCODE_S]){
+    //     paddleDir += 1;
+    // }
+
+    // mOwner->SetVelocity(Vector2{
+    //     mOwner->GetVelocity().x, paddleDir*mOwner->GetVelocity().y
+    // });
+
+    Vector2 newVel;
     if(keystate[SDL_SCANCODE_W]){
-        paddleDir -= 1;
+        newVel.y += -300.0f;
+    }
+    if(keystate[SDL_SCANCODE_A]){
+        newVel.x += -300.0f;
     }
     if(keystate[SDL_SCANCODE_S]){
-        paddleDir += 1;
+        newVel.y += 300.0f;
     }
-
-    mOwner->SetVelocity(Vector2{
-        mOwner->GetVelocity().x, paddleDir*mOwner->GetVelocity().y
-    });
+    if(keystate[SDL_SCANCODE_D]){
+        newVel.x += 300.0f;
+    }
+    mOwner->SetVelocity(newVel);
 }
 
 DrawComponent::DrawComponent(Actor* owner, int drawOrder)
@@ -178,4 +191,60 @@ void AnimSpriteComponent::Update(float deltaTime) noexcept{
     mCurrFrame -= static_cast<int>(mCurrFrame) / tex_num * tex_num;
 
     SetTexture(mAnimTextures[static_cast<int>(mCurrFrame)]);
+}
+
+void BGSpriteComponent::SetBGTextures(const std::vector<SDL_Texture*>& textures){
+    int count=0;
+    for(auto tex: textures){
+        BGTexture temp;
+        temp.mTexture = tex;
+        temp.mOffset.x = count * mScreenSize.x;
+        temp.mOffset.y = 0;
+        mBGTextures.emplace_back(temp);
+        ++count;
+    }
+}
+
+void BGSpriteComponent::Update(float deltaTime) noexcept{
+    SpriteComponent::Update(deltaTime);
+
+    for(auto& bg: mBGTextures){
+        // 텍스처 위치(offset)를 스크롤 스피드만큼 왼쪽으로 이동.
+        bg.mOffset.x -= mScrollSpeed * deltaTime;
+
+        // 텍스처가 왼쪽으로 이동 중, 완전히 사라지면
+        if(bg.mOffset.x < -mScreenSize.x){
+            // 오른쪽 끝으로 이동.
+            bg.mOffset.x = (mBGTextures.size()-1) * mScreenSize.x -1;
+        }
+    }
+}
+
+void BGSpriteComponent::Draw(SDL_Renderer* renderer) noexcept{
+	for (auto& bg : mBGTextures){
+		SDL_Rect r;
+		r.w = static_cast<int>(mScreenSize.x);
+		r.h = static_cast<int>(mScreenSize.y);
+		r.x = static_cast<int>(mOwner->GetPosition().x - r.w/2 + bg.mOffset.x);
+		r.y = static_cast<int>(mOwner->GetPosition().y - r.h/2 + bg.mOffset.y);
+
+		SDL_RenderCopy(renderer,
+			bg.mTexture,
+			nullptr, &r
+		);
+	}
+}
+
+void MoveComponent::Update(float deltaTime){
+    if(!Math::NearZero(mAngularSpeed)){
+        mOwner->SetRotation(
+            mOwner->GetRotation() + mAngularSpeed*deltaTime
+        );
+    }
+    if(!Math::NearZero(mForwardSpeed)){
+        const auto pos = mOwner->GetPosition();
+        mOwner->SetPosition(
+            pos + normalize(pos)*mForwardSpeed*deltaTime
+        );
+    }
 }

@@ -87,10 +87,10 @@ Ball::Ball(Game* game, int x, int y, int w, int h):Actor(game){
 
     auto sc=new AnimSpriteComponent(this);
     std::vector<SDL_Texture*> anims;
-    anims.emplace_back(mGame->LoadTexture("resource/pigeon_1.png"));
-    anims.emplace_back(mGame->LoadTexture("resource/pigeon_2.png"));
-    anims.emplace_back(mGame->LoadTexture("resource/pigeon_3.png"));
-    anims.emplace_back(mGame->LoadTexture("resource/pigeon_2.png"));
+    anims.emplace_back(mGame->GetTexture("resource/pigeon_1.png"));
+    anims.emplace_back(mGame->GetTexture("resource/pigeon_2.png"));
+    anims.emplace_back(mGame->GetTexture("resource/pigeon_3.png"));
+    anims.emplace_back(mGame->GetTexture("resource/pigeon_2.png"));
     sc->SetAnimTextures(anims);
     mSize=&sc->GetSize();
     mScale=5.0f;
@@ -110,4 +110,23 @@ void Ball::UpdateActorLast(float deltaTime){
 
 void Ball::CollideAllow(Actor* opponent){
     cc->Allow(opponent);
+}
+
+Ship::Ship(Game* game)
+:Actor(game) {
+    SetPosition({500, 500});
+    AnimSpriteComponent* asc = new AnimSpriteComponent(this);
+    std::vector<SDL_Texture*> anims={
+        mGame->GetTexture("resource/Ship01.png"),
+        mGame->GetTexture("resource/Ship02.png"),
+        mGame->GetTexture("resource/Ship03.png"),
+        mGame->GetTexture("resource/Ship04.png")
+    };
+    asc->SetAnimTextures(anims);
+
+    ControlComponent* conc = new ControlComponent(this);
+}
+
+void Ship::UpdateActorLast(float deltaTime){
+    mPosition += deltaTime * mVelocity;
 }
