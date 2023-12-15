@@ -82,7 +82,7 @@ void CollisionComponent::Disallow(const Actor* opponent){
 }
 
 void ControlComponent::Update(float deltaTime){
-    auto keystate=mOwner->GetGame()->state;
+    auto keystate=mOwner->GetGame()->getKeyState();
 
     // paddle
 
@@ -256,7 +256,19 @@ void MoveComponent::Update(float deltaTime){
     if(!Math::NearZero(mForwardSpeed)){
         const auto pos = mOwner->GetPosition();
         mOwner->SetPosition(
-            pos + normalize(pos)*mForwardSpeed*deltaTime
+            pos + getForward(mOwner->GetRotation())*mForwardSpeed*deltaTime
         );
     }
+}
+
+void InputComponent::ProcessInput(const uint8_t* keyState) noexcept{
+    short dir=0;
+    if(keyState[mForwardKey]) dir += 1;
+    if(keyState[mBackwardKey]) dir -= 1;
+    SetForwardSpeed(dir * mForwardMoveSpeed);
+
+    dir=0;
+    if(keyState[mClockwiseKey]) dir += 1;
+    if(keyState[mCounterClockwiseKey]) dir -= 1;
+    SetAngularSpeed(dir * mAngularMoveSpeed);
 }

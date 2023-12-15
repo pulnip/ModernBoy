@@ -1,0 +1,32 @@
+[
+{
+  "directory": "C:/Users/choiw/Documents/GameEngineDevelopment/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/GameEngineDevelopment.dir/includes_CXX.rsp -g -o CMakeFiles\\GameEngineDevelopment.dir\\main.cpp.obj -c C:\\Users\\choiw\\Documents\\GameEngineDevelopment\\main.cpp",
+  "file": "C:/Users/choiw/Documents/GameEngineDevelopment/main.cpp",
+  "output": "CMakeFiles/GameEngineDevelopment.dir/main.cpp.obj"
+},
+{
+  "directory": "C:/Users/choiw/Documents/GameEngineDevelopment/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/GameEngineDevelopment.dir/includes_CXX.rsp -g -o CMakeFiles\\GameEngineDevelopment.dir\\Game.cpp.obj -c C:\\Users\\choiw\\Documents\\GameEngineDevelopment\\Game.cpp",
+  "file": "C:/Users/choiw/Documents/GameEngineDevelopment/Game.cpp",
+  "output": "CMakeFiles/GameEngineDevelopment.dir/Game.cpp.obj"
+},
+{
+  "directory": "C:/Users/choiw/Documents/GameEngineDevelopment/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/GameEngineDevelopment.dir/includes_CXX.rsp -g -o CMakeFiles\\GameEngineDevelopment.dir\\Actors.cpp.obj -c C:\\Users\\choiw\\Documents\\GameEngineDevelopment\\Actors.cpp",
+  "file": "C:/Users/choiw/Documents/GameEngineDevelopment/Actors.cpp",
+  "output": "CMakeFiles/GameEngineDevelopment.dir/Actors.cpp.obj"
+},
+{
+  "directory": "C:/Users/choiw/Documents/GameEngineDevelopment/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/GameEngineDevelopment.dir/includes_CXX.rsp -g -o CMakeFiles\\GameEngineDevelopment.dir\\Components.cpp.obj -c C:\\Users\\choiw\\Documents\\GameEngineDevelopment\\Components.cpp",
+  "file": "C:/Users/choiw/Documents/GameEngineDevelopment/Components.cpp",
+  "output": "CMakeFiles/GameEngineDevelopment.dir/Components.cpp.obj"
+},
+{
+  "directory": "C:/Users/choiw/Documents/GameEngineDevelopment/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/GameEngineDevelopment.dir/includes_CXX.rsp -g -o CMakeFiles\\GameEngineDevelopment.dir\\Math.cpp.obj -c C:\\Users\\choiw\\Documents\\GameEngineDevelopment\\Math.cpp",
+  "file": "C:/Users/choiw/Documents/GameEngineDevelopment/Math.cpp",
+  "output": "CMakeFiles/GameEngineDevelopment.dir/Math.cpp.obj"
+}
+]

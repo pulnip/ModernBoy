@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <cassert>
+#include <random>
 
 #include "Math.hpp"
 
@@ -60,3 +62,19 @@ double Math::ToRadian(double degree) noexcept{
 }
 
 bool Math::NearZero(double x){ return std::abs(x) < epsilon; }
+
+int Math::wrap(int x, int low, int high){
+    assert(low <= high);
+
+    const auto r = (x-low) % (high-low);
+
+    return (r >= 0) ? (r + low) : (r + high);
+}
+
+double Math::wrap(const double x, const double low, const double high){
+    assert(low <= high);
+
+    const auto r = std::fmod(x-low, high-low);
+
+    return (r >= 0) ? (r + low) : (r + high);
+}

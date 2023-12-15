@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #include "Math.hpp"
 
@@ -16,7 +16,9 @@ public:
     Component(class Actor* owner, int updateOrder);
     virtual ~Component();
     
-    virtual void Update(float deltaTime){}
+    virtual void Update(float deltaTime)=0;
+    virtual void ProcessInput(const uint8_t* keyState){}
+
     int GetUpdateOrder() const{ return mUpdateOrder; }
 protected:
     // 소유자 액터
@@ -62,6 +64,7 @@ public:
     DrawComponent(class Actor* owner, int drawOrder);
     virtual ~DrawComponent();
 
+    virtual void Update(float deltaTime) override{}
     virtual void Draw(SDL_Renderer* renderer)=0;
 
     int GetDrawOrder(){ return mDrawOrder; }
@@ -168,4 +171,29 @@ protected:
     float mAngularSpeed;
     // unit per second
     float mForwardSpeed;
+};
+
+class InputComponent final: public MoveComponent{
+public:
+    InputComponent(class Actor* owner, int updateOrder=99)
+    :MoveComponent(owner, updateOrder){}
+
+    void ProcessInput(const uint8_t* keyState) noexcept override;
+
+    void setForwardMoveSpeed(float speed){ mForwardMoveSpeed=speed; }
+    float getForwardMoveSpeed(){ return mForwardMoveSpeed; }
+    void setAngularMoveSpeed(float radian){ mAngularMoveSpeed=radian; }
+    float getAngularMoveSpeed(){ return mAngularMoveSpeed; }
+    void setForwardKey(unsigned short key){ mForwardKey=key; }
+    void setBackwardKey(unsigned short key){ mBackwardKey=key; }
+    void setClockwiseKey(unsigned short key){ mClockwiseKey=key; }
+    void setCounterClockwiseKey(unsigned short key){ mCounterClockwiseKey=key; }
+private:
+    float mForwardMoveSpeed;
+    float mAngularMoveSpeed;
+
+    unsigned short mForwardKey;
+    unsigned short mBackwardKey;
+    unsigned short mClockwiseKey;
+    unsigned short mCounterClockwiseKey;
 };

@@ -82,8 +82,8 @@ void Game::LoadData(){
 	BGSpriteComponent* bg = new BGSpriteComponent(temp);
 	bg->SetScreenSize(Vector2{1024.0f, 768.0f});
 	std::vector<SDL_Texture*> bgtexs = {
-		GetTexture("resource/Farback01.png"),
-		GetTexture("resource/Farback02.png")
+		GetTexture("../resource/Farback01.png"),
+		GetTexture("../resource/Farback02.png")
 	};
 	bg->SetBGTextures(bgtexs);
 	bg->SetScrollSpeed(-100.0f);
@@ -91,12 +91,15 @@ void Game::LoadData(){
 	bg = new BGSpriteComponent(temp, 101);
 	bg->SetScreenSize(Vector2{1024.0f, 768.0f});
 	bgtexs = {
-		GetTexture("resource/Stars.png"),
-		GetTexture("resource/Stars.png")
+		GetTexture("../resource/Stars.png"),
+		GetTexture("../resource/Stars.png")
 	};
 	bg->SetBGTextures(bgtexs);
 	bg->SetScrollSpeed(-200.0f);
 
+    for(int i=0; i<20; ++i){
+        new Asteroid(this);
+    }
 }
 
 void Game::ShutDown(){
@@ -175,12 +178,17 @@ void Game::ProcessInput(){
         }
     }
 
-    state = SDL_GetKeyboardState(nullptr);
-
+    keyState = SDL_GetKeyboardState(nullptr);
     // ESC로 게임 종료
-    if(state[SDL_SCANCODE_ESCAPE]){
+    if(keyState[SDL_SCANCODE_ESCAPE]){
         mIsRunning=false;
     }
+
+    mUpdatingActors=true;
+    for(auto actor: mActors){
+        actor->ProcessInput(keyState);
+    }
+    mUpdatingActors=false;
 }
 
 void Game::UpdateGame(){

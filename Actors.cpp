@@ -33,6 +33,15 @@ void Actor::UpdateComponents(float deltaTime){
     }
 }
 
+void Actor::ProcessInput(const uint8_t* keyState){
+    if(mState==EActive){
+        for(auto comp: mComponents){
+            comp->ProcessInput(keyState);
+        }
+        ActorInput(keyState);
+    }
+}
+
 void Actor::AddComponent(Component* component){
     mComponents.emplace_back(component);
 }
@@ -87,10 +96,10 @@ Ball::Ball(Game* game, int x, int y, int w, int h):Actor(game){
 
     auto sc=new AnimSpriteComponent(this);
     std::vector<SDL_Texture*> anims;
-    anims.emplace_back(mGame->GetTexture("resource/pigeon_1.png"));
-    anims.emplace_back(mGame->GetTexture("resource/pigeon_2.png"));
-    anims.emplace_back(mGame->GetTexture("resource/pigeon_3.png"));
-    anims.emplace_back(mGame->GetTexture("resource/pigeon_2.png"));
+    anims.emplace_back(mGame->GetTexture("../resource/pigeon_1.png"));
+    anims.emplace_back(mGame->GetTexture("../resource/pigeon_2.png"));
+    anims.emplace_back(mGame->GetTexture("../resource/pigeon_3.png"));
+    anims.emplace_back(mGame->GetTexture("../resource/pigeon_2.png"));
     sc->SetAnimTextures(anims);
     mSize=&sc->GetSize();
     mScale=5.0f;
@@ -117,16 +126,31 @@ Ship::Ship(Game* game)
     SetPosition({500, 500});
     AnimSpriteComponent* asc = new AnimSpriteComponent(this);
     std::vector<SDL_Texture*> anims={
-        mGame->GetTexture("resource/Ship01.png"),
-        mGame->GetTexture("resource/Ship02.png"),
-        mGame->GetTexture("resource/Ship03.png"),
-        mGame->GetTexture("resource/Ship04.png")
+        mGame->GetTexture("../resource/Ship01.png"),
+        mGame->GetTexture("../resource/Ship02.png"),
+        mGame->GetTexture("../resource/Ship03.png"),
+        mGame->GetTexture("../resource/Ship04.png")
     };
     asc->SetAnimTextures(anims);
 
-    ControlComponent* conc = new ControlComponent(this);
+    InputComponent* ic=new InputComponent(this);
+    ic->setForwardMoveSpeed(300.0f);
+    ic->setAngularMoveSpeed(Math::PI);
+    ic->setForwardKey(SDL_SCANCODE_D);
+    ic->setBackwardKey(SDL_SCANCODE_A);
+    ic->setClockwiseKey(SDL_SCANCODE_E);
+    ic->setCounterClockwiseKey(SDL_SCANCODE_Q);
 }
 
-void Ship::UpdateActorLast(float deltaTime){
-    mPosition += deltaTime * mVelocity;
+Asteroid::Asteroid(Game* game):Actor(game){
+    SetPosition(Vector2{
+        static_cast<float>(getRandom<0, 1024>()),
+        static_cast<float>(getRandom<0, 768>())
+    });
+    SetRotation(getRandom<0, 1024>()/Math::PI);
+
+    SpriteComponent* sc=new SpriteComponent(this);
+    sc->SetTexture(game->GetTexture("../resource/Asteroid.png"));
+    MoveComponent* mc=new MoveComponent(this);
+    mc->SetForwardSpeed(150.0f);
 }

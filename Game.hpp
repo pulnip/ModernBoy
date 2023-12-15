@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include "Math.hpp"
 
@@ -30,6 +30,8 @@ public:
 
     void AddDrawable(class DrawComponent* drawable);
     void RemoveDrawable(class DrawComponent* drawable);
+
+    auto getKeyState() const{ return keyState; }
 private:
     // 게임 루프를 위한 헬퍼 함수
     void ProcessInput();
@@ -40,13 +42,14 @@ private:
     SDL_Texture* LoadTexture(const char* fileName);
 public:
     SDL_Event event;
-    const Uint8* state;
 
     // 게임이 계속 실행돼야 하는지를 판단
     bool mIsRunning=false;
 private:
     // SDL이 생성한 윈도우
     SDL_Window* mWindow=nullptr;
+
+    const Uint8* keyState;
 
     SDL_Renderer* mRenderer;
     Uint32 mTicksCount=0;
@@ -55,7 +58,10 @@ private:
     std::vector<class Actor*> mPendingActors;
     bool mUpdatingActors=false;
 
-    std::vector<class DrawComponent*> mDrawables;
-
     std::map<const std::string, SDL_Texture*> textures;
+    std::vector<class DrawComponent*> mDrawables;
+};
+
+class p1pingpong final: public Game{
+
 };

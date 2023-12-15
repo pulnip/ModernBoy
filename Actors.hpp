@@ -25,6 +25,11 @@ public:
     virtual void UpdateActorFirst(float deltaTime){}
     virtual void UpdateActorLast(float deltaTime){}
 
+    // Game에서 호출하는 ProcessInput함수
+    void ProcessInput(const uint8_t* keyState);
+    // 특정 액터를 위한 입력 코드
+    virtual void ActorInput(const uint8_t* keyState){}
+
     // Getters/Setters
     State GetState() const{ return mState; }
     class Game* GetGame(){ return mGame; }
@@ -85,16 +90,18 @@ public:
     Ball(class Game* game, int x, int y, int w, int h);
     ~Ball()=default;
 
-    void UpdateActorFirst(float deltaTime) override{}
     void UpdateActorLast(float deltaTime) override;
     void CollideAllow(Actor* opponent);
 private:
     class CollisionComponent* cc;
 };
 
-class Ship: public Actor{
+class Ship final: public Actor{
 public:
     Ship(class Game* game);
-    void UpdateActorFirst(float deltaTime) override{}
-    void UpdateActorLast(float deltaTime) override;
+};
+
+class Asteroid final: public Actor{
+public:
+    Asteroid(class Game* game);
 };
