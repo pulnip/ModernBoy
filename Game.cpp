@@ -4,8 +4,6 @@
 #include "Components.hpp"
 #include "Game.hpp"
 
-Game::Game()=default;
-
 Game::~Game(){
     for(auto actor: mActors) delete actor;
     for(auto actor: mPendingActors) delete actor;
@@ -149,7 +147,7 @@ SDL_Texture* Game::GetTexture(const char* fileName){
     return textures[fileName]=texture;
 }
 
-void Game::AddDrawable(DrawComponent* drawable){
+void Game::appendDrawable(DrawComponent* drawable){
     auto it = mDrawables.cbegin();
     
     const int myDrawOrder = drawable->GetDrawOrder();
@@ -162,7 +160,7 @@ void Game::AddDrawable(DrawComponent* drawable){
     mDrawables.insert(it, drawable);
 }
 
-void Game::RemoveDrawable(DrawComponent* drawable){
+void Game::removeDrawable(DrawComponent* drawable){
     mDrawables.erase(
         std::find(mDrawables.cbegin(), mDrawables.cend(), drawable)
     );

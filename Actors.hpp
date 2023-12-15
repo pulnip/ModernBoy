@@ -18,33 +18,33 @@ public:
     virtual ~Actor();
 
     // Game에서 호출하는 Update함수
-    void Update(float deltaTime);
+    void update(float deltaTime);
     // 액터에 부착된 모든 컴포넌트를 업데이트
-    void UpdateComponents(float deltaTime);
+    void updateComponents(float deltaTime);
     // 특정 액터에 특화된 업데이트 코드
-    virtual void UpdateActorFirst(float deltaTime){}
-    virtual void UpdateActorLast(float deltaTime){}
+    virtual void updateActorFirst(float deltaTime){}
+    virtual void updateActorLast(float deltaTime){}
 
     // Game에서 호출하는 ProcessInput함수
-    void ProcessInput(const uint8_t* keyState);
+    void processInput(const uint8_t* keyState);
     // 특정 액터를 위한 입력 코드
-    virtual void ActorInput(const uint8_t* keyState){}
+    virtual void actorInput(const uint8_t* keyState){}
 
     // Getters/Setters
-    State GetState() const{ return mState; }
-    class Game* GetGame(){ return mGame; }
-    const Vector2& GetPosition() const{ return mPosition; }
-    void SetPosition(const Vector2& other){ mPosition = other; }
-    const Vector2& GetVelocity() const{ return mVelocity; }
-    void SetVelocity(const Vector2& other){ mVelocity = other; }
-    const Vector2& GetSize() const{ return *mSize; }
-    float GetScale() const{ return mScale; }
-    void SetScale(float other){ mScale=other; }
-    float GetRotation() const{ return mRotation; }
-    void SetRotation(float other){ mRotation=other; }
+    State getState() const{ return mState; }
+    class Game* getGame(){ return mGame; }
+    const Vector2& getPosition() const{ return mPosition; }
+    void setPosition(const Vector2& other){ mPosition = other; }
+    const Vector2& getVelocity() const{ return mVelocity; }
+    void setVelocity(const Vector2& other){ mVelocity = other; }
+    const Vector2& getSize() const{ return *mSize; }
+    float getScale() const{ return mScale; }
+    void setScale(float other){ mScale=other; }
+    float getRotation() const{ return mRotation; }
+    void setRotation(float other){ mRotation=other; }
 
-    void AddComponent(class Component* component);
-    void RemoveComponent(class Component* component);
+    void appendComponent(class Component* component);
+    void removeComponent(class Component* component);
 protected:
     Vector2 mPosition;
     Vector2 mVelocity;
@@ -68,9 +68,9 @@ public:
     Paddle(class Game* game);
     ~Paddle()=default;
 
-    void UpdateActorFirst(float deltaTime) override;
-    void UpdateActorLast(float deltaTime) override;
-    void CollideAllow(Actor* opponent);
+    void updateActorFirst(float deltaTime) override;
+    void updateActorLast(float deltaTime) override;
+    void collideAllow(Actor* opponent);
 private:
     const float fixed_velocity_y;
     class CollisionComponent* cc;
@@ -81,8 +81,8 @@ public:
     Wall(class Game* game, int x, int y, int w, int h);
     ~Wall()=default;
 
-    void UpdateActorFirst(float deltaTime) override{}
-    void UpdateActorLast(float deltaTime) override{}
+    void updateActorFirst(float deltaTime) override{}
+    void updateActorLast(float deltaTime) override{}
 };
 
 class Ball final: public Actor{
@@ -90,8 +90,8 @@ public:
     Ball(class Game* game, int x, int y, int w, int h);
     ~Ball()=default;
 
-    void UpdateActorLast(float deltaTime) override;
-    void CollideAllow(Actor* opponent);
+    void updateActorLast(float deltaTime) override;
+    void collideAllow(Actor* opponent);
 private:
     class CollisionComponent* cc;
 };

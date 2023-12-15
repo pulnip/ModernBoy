@@ -11,7 +11,7 @@
 
 class Game{
 public:
-    Game();
+    Game() noexcept=default;
     ~Game();
     // 게임 초기화
     bool Initialize();
@@ -28,8 +28,8 @@ public:
 
     SDL_Texture* GetTexture(const char* fileName);
 
-    void AddDrawable(class DrawComponent* drawable);
-    void RemoveDrawable(class DrawComponent* drawable);
+    void appendDrawable(class DrawComponent* drawable);
+    void removeDrawable(class DrawComponent* drawable);
 
     auto getKeyState() const{ return keyState; }
 private:

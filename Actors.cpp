@@ -3,6 +3,7 @@
 #include "Actors.hpp"
 #include "Components.hpp"
 #include "Game.hpp"
+#include "Math.hpp"
 
 Actor::Actor(Game* game):mGame(game){
     mGame->AddActor(this);
@@ -25,28 +26,28 @@ void Actor::UpdateComponents(float deltaTime){
     std::sort(
         sortByUpdateOrder.begin(), sortByUpdateOrder.end(),
         [](Component* lhs, Component* rhs)->bool{
-            return lhs->GetUpdateOrder() < rhs->GetUpdateOrder();
+            return lhs->getUpdateOrder() < rhs->getUpdateOrder();
         }
     );
     for(auto component: sortByUpdateOrder){
-        component->Update(deltaTime);
+        component->update(deltaTime);
     }
 }
 
 void Actor::ProcessInput(const uint8_t* keyState){
     if(mState==EActive){
         for(auto comp: mComponents){
-            comp->ProcessInput(keyState);
+            comp->processInput(keyState);
         }
         ActorInput(keyState);
     }
 }
 
-void Actor::AddComponent(Component* component){
+void Actor::appendComponent(Component* component){
     mComponents.emplace_back(component);
 }
 
-void Actor::RemoveComponent(Component* component){
+void Actor::removeComponent(Component* component){
     mComponents.erase(
         std::find(mComponents.cbegin(), mComponents.cend(), component)
     );
@@ -76,7 +77,7 @@ void Paddle::UpdateActorLast(float deltaTime){
 }
 
 void Paddle::CollideAllow(Actor* opponent){
-    cc->Allow(opponent);
+    cc->allow(opponent);
 }
 
 Wall::Wall(Game* game, int x, int y, int w, int h):Actor(game){
@@ -109,21 +110,21 @@ Ball::Ball(Game* game, int x, int y, int w, int h):Actor(game){
     cc=new CollisionComponent(this);
 }
 
-void Ball::UpdateActorLast(float deltaTime){
+void Ball::updateActorLast(float deltaTime){
     mPosition += deltaTime * mVelocity;
     
     if(mPosition.x < -mSize->x){
-        GetGame()->mIsRunning=false;
+        getGame()->mIsRunning=false;
     }
 }
 
-void Ball::CollideAllow(Actor* opponent){
-    cc->Allow(opponent);
+void Ball::collideAllow(Actor* opponent){
+    cc->allow(opponent);
 }
 
 Ship::Ship(Game* game)
 :Actor(game) {
-    SetPosition({500, 500});
+    setPosition({500, 500});
     AnimSpriteComponent* asc = new AnimSpriteComponent(this);
     std::vector<SDL_Texture*> anims={
         mGame->GetTexture("../resource/Ship01.png"),
@@ -144,10 +145,10 @@ Ship::Ship(Game* game)
 
 Asteroid::Asteroid(Game* game):Actor(game){
     SetPosition(Vector2{
-        static_cast<float>(getRandom<0, 1024>()),
-        static_cast<float>(getRandom<0, 768>())
+        static_cast<float>(Math::random(0, 1024)),
+        static_cast<float>(Math::random(0, 768))
     });
-    SetRotation(getRandom<0, 1024>()/Math::PI);
+    SetRotation(Math::random(0, 1024)/Math::PI);
 
     SpriteComponent* sc=new SpriteComponent(this);
     sc->SetTexture(game->GetTexture("../resource/Asteroid.png"));

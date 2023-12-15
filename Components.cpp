@@ -1,29 +1,47 @@
 #include <algorithm>
+#include <cassert>
 #include <cmath>
+
+#include <SDL2/SDL.h>
 
 #include "Actors.hpp"
 #include "Components.hpp"
 #include "Game.hpp"
 
-Component::Component(Actor* owner, int updateOrder)
-:mOwner(owner), mUpdateOrder(updateOrder){
-    owner->AddComponent(this);
+// Component interface
+
+Component::Component(
+    const std::weak_ptr<Actor> owner,
+    const int updateOrder)
+noexcept :owner(owner), updateOrder(updateOrder) {
+    assert(!owner.expired() && "Component argument owner: expired");
+    assert(100<=updateOrder && updateOrder<400 &&
+        "updateOrder: value not valid"
+    );
+    owner.lock()->appendComponent(this);
 }
 Component::~Component(){
-    mOwner->RemoveComponent(this);
+    assert(!owner.expired() && "owner(Actor): expired");
+    owner.lock()->removeComponent(this);
 }
 
 // Real Components
 
-void CollisionComponent::Update(float deltaTime){
+void CollisionComponent::update(const float deltaTime) noexcept{
+    assert(!owner.expired() && "owner(Actor): expired");
+    const auto _owner=owner.lock();
+
     for(auto opponent: opponents){
+        assert(!opponent.expired() && "opponent(Actor): expired");
+        const auto _opponent=opponent.lock();
+
         // 위치의 차이
-        const auto pos_diff = opponent->GetPosition() - mOwner->GetPosition();
-        const auto pos_diff_abs = abs(opponent->GetPosition() - mOwner->GetPosition());
+        const auto pos_diff = _opponent->getPosition() - _owner->getPosition();
+        const auto pos_diff_abs = Vector2::abs(_opponent->getPosition() - _owner->getPosition());
         // 충돌 판정 박스
         const auto size_diff = (
-            mOwner->GetScale()*mOwner->GetSize() +
-            opponent->GetScale()*opponent->GetSize()
+            _owner->getScale()*_owner->getSize() +
+            _opponent->getScale()*_opponent->getSize()
         )/2;
 
         // AABB 알고리즘으로 충돌 판정
@@ -31,8 +49,8 @@ void CollisionComponent::Update(float deltaTime){
             // 충돌 후 처리
 
             // 상대 속도
-            const auto myVel = mOwner->GetVelocity();
-            const auto opVel = opponent->GetVelocity();
+            const auto myVel = _owner->getVelocity();
+            const auto opVel = _opponent->getVelocity();
             const auto vel_diff = opVel - myVel;
 
             const auto collision_result=size_diff - pos_diff_abs;
@@ -42,11 +60,11 @@ void CollisionComponent::Update(float deltaTime){
                 if(pos_diff.x * vel_diff.x < 0){
                     #ifdef TOTALLY_INELASTIC_COLLISION
                     // 완전 비탄성 충돌
-                    mOwner->SetVelocity(
-                        Vector2{0, mOwner->GetVelocity().y}
+                    _owner->setVelocity(
+                        Vector2{0, _owner->getVelocity().y}
                     );
                     #else
-                    mOwner->SetVelocity( Vector2{
+                    _owner->setVelocity( Vector2{
                         Math::reflect(myVel.x, opVel.x),
                         myVel.y
                     });
@@ -56,12 +74,12 @@ void CollisionComponent::Update(float deltaTime){
             else{
                 if(pos_diff.y * vel_diff.y < 0){
                     #ifdef TOTALLY_INELASTIC_COLLISION
-                    mOwner->SetVelocity(
-                        Vector2{mOwner->GetVelocity().x, 0}
+                    _owner->setVelocity(
+                        Vector2{_owner->getVelocity().x, 0}
                     );
                     #else
-                    mOwner->SetVelocity( Vector2{
-                        mOwner->GetVelocity().x,
+                    _owner->setVelocity( Vector2{
+                        _owner->getVelocity().x,
                         Math::reflect(myVel.y, opVel.y)
                     });
                     #endif
@@ -71,204 +89,196 @@ void CollisionComponent::Update(float deltaTime){
     }
 }
 
-void CollisionComponent::Allow(const Actor* opponent){
+void CollisionComponent::allow(const std::weak_ptr<Actor> opponent) noexcept{
     opponents.emplace_back(opponent);
 }
 
-void CollisionComponent::Disallow(const Actor* opponent){
+void CollisionComponent::disallow(const std::weak_ptr<Actor> opponent) noexcept{
     opponents.erase(
         std::find(opponents.cbegin(), opponents.cend(), opponent)
     );
 }
 
-void ControlComponent::Update(float deltaTime){
-    auto keystate=mOwner->GetGame()->getKeyState();
-
-    // paddle
-
-    // int paddleDir=0;
-    // if(keystate[SDL_SCANCODE_W]){
-    //     paddleDir -= 1;
-    // }
-    // if(keystate[SDL_SCANCODE_S]){
-    //     paddleDir += 1;
-    // }
-
-    // mOwner->SetVelocity(Vector2{
-    //     mOwner->GetVelocity().x, paddleDir*mOwner->GetVelocity().y
-    // });
-
-    Vector2 newVel;
-    if(keystate[SDL_SCANCODE_W]){
-        newVel.y += -300.0f;
-    }
-    if(keystate[SDL_SCANCODE_A]){
-        newVel.x += -300.0f;
-    }
-    if(keystate[SDL_SCANCODE_S]){
-        newVel.y += 300.0f;
-    }
-    if(keystate[SDL_SCANCODE_D]){
-        newVel.x += 300.0f;
-    }
-    mOwner->SetVelocity(newVel);
-}
-
-DrawComponent::DrawComponent(Actor* owner, int drawOrder)
-:Component(owner, 300), mDrawOrder(drawOrder){
-    mOwner->GetGame()->AddDrawable(this);
+DrawComponent::DrawComponent(
+    const std::weak_ptr<Actor> owner,
+    const int drawOrder)
+noexcept :Component(owner, 300), drawOrder(drawOrder){
+    assert(!owner.expired() && "owner(Actor): expired");
+    owner.lock()->getGame()->appendDrawable(this);
 }
 DrawComponent::~DrawComponent(){
-    mOwner->GetGame()->RemoveDrawable(this);
+    assert(!owner.expired() && "owner(Actor): expired");
+    owner.lock()->getGame()->removeDrawable(this);
 }
 
-void BoxComponent::Draw(SDL_Renderer* renderer){
-    if(!mColor) return;
+void BoxComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
+    assert(!owner.expired() && "owner(Actor): expired");
+    const auto _owner=owner.lock();
+
+    assert(!renderer.expired() && "renderer: expired");
+    const auto _renderer=renderer.lock().get();
 
     SDL_Rect rect;
     // 소유자의 배율 값으로 크기 조절
-    rect.w = static_cast<int>(mSize.x * mOwner->GetScale());
-    rect.h = static_cast<int>(mSize.y * mOwner->GetScale());
+    rect.w = static_cast<int>(size.x * _owner->getScale());
+    rect.h = static_cast<int>(size.y * _owner->getScale());
     // 중심 위치로 좌상단 좌표 계산
-    rect.x = static_cast<int>(mOwner->GetPosition().x - rect.w/2);
-    rect.y = static_cast<int>(mOwner->GetPosition().y - rect.h/2);
+    rect.x = static_cast<int>(_owner->getPosition().x - rect.w/2);
+    rect.y = static_cast<int>(_owner->getPosition().y - rect.h/2);
 
-    SDL_SetRenderDrawColor(renderer,
-        mColor->r, mColor->g, mColor->b,
-        mColor->a
+
+    SDL_SetRenderDrawColor(_renderer,
+        color.r, color.g, color.b,
+        color.a
     );
-    SDL_RenderFillRect(renderer, &rect);
+    SDL_RenderFillRect(_renderer, &rect);
 }
 
-void SpriteComponent::Draw(SDL_Renderer* renderer){
-    if(!mTexture) return;
+void SpriteComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
+    assert(!owner.expired() && "owner(Actor): expired");
+    const auto _owner=owner.lock();
+
+    assert(!renderer.expired() && "renderer: expired");
+    const auto _renderer=renderer.lock().get();
 
     SDL_Rect rect;
     // 소유자의 배율 값으로 크기 조절
-    rect.w = static_cast<int>(mSize.x * mOwner->GetScale());
-    rect.h = static_cast<int>(mSize.y * mOwner->GetScale());
+    rect.w = static_cast<int>(size.x * _owner->getScale());
+    rect.h = static_cast<int>(size.y * _owner->getScale());
     // 중심 위치로 좌상단 좌표 계산
-    rect.x = static_cast<int>(mOwner->GetPosition().x - rect.w/2);
-    rect.y = static_cast<int>(mOwner->GetPosition().y - rect.h/2);
+    rect.x = static_cast<int>(_owner->getPosition().x - rect.w/2);
+    rect.y = static_cast<int>(_owner->getPosition().y - rect.h/2);
 
-    SDL_RenderCopyEx(renderer,
-        mTexture,
+    assert(!texture.expired() && "texture: expired");
+    SDL_RenderCopyEx(_renderer,
+        texture.lock().get(),
         // 텍스처의 특정 영역 (nullptr은 전체영역)
         nullptr,
         // 어느 위치에, 어느 크기로 렌더링할 지 
         &rect,
         // 라디안을 각도로 변환
-        Math::ToDegree(mOwner->GetRotation()),
+        Math::toDegree(_owner->getRotation()),
         // 회전 중심점
         nullptr,
         SDL_FLIP_NONE
     );
 }
 
-void SpriteComponent::SetTexture(SDL_Texture* texture){
-    mTexture = texture;
+void SpriteComponent::setTexture(const std::weak_ptr<SDL_Texture> texture) noexcept{
+    assert(!texture.expired() && "texture: expired");
+    SpriteComponent::texture = texture;
 
     int width, height;
-    SDL_QueryTexture(texture,
+    SDL_QueryTexture(texture.lock().get(),
         nullptr, nullptr,
         &width, &height
     );
-    mSize.x=width;
-    mSize.y=height;
+    size.x=width;
+    size.y=height;
 }
 
-void AnimSpriteComponent::Update(float deltaTime) noexcept{
-    SpriteComponent::Update(deltaTime);
+void AnimSpriteComponent::update(const float deltaTime) noexcept{
+    SpriteComponent::update(deltaTime);
 
     // 애니메이션에 사용된 텍스처 개수
-    const int tex_num=mAnimTextures.size();
+    const int tex_num=animTextures.size();
     // 텍스처가 없을 경우
     if(tex_num <= 0) return;
 
     // 현재 프레임 갱신
-    mCurrFrame += mAnimFPS * deltaTime;
+    currFrame += animFPS * deltaTime;
     // 0 <= mCurrFrame < tex_num 이도록
-    mCurrFrame -= static_cast<int>(mCurrFrame) / tex_num * tex_num;
+    currFrame -= static_cast<int>(currFrame) / tex_num * tex_num;
 
-    SetTexture(mAnimTextures[static_cast<int>(mCurrFrame)]);
+    setTexture(animTextures[static_cast<int>(currFrame)]);
 }
 
-void BGSpriteComponent::SetBGTextures(const std::vector<SDL_Texture*>& textures){
-    int count=0;
-    for(auto tex: textures){
-        mBGTextures.emplace_back(BGTexture{
-            tex, count*mScreenSize.x
-        });
-        ++count;
-    }
-}
+void BGSpriteComponent::update(const float deltaTime) noexcept{
+    SpriteComponent::update(deltaTime);
 
-void BGSpriteComponent::Update(float deltaTime) noexcept{
-    SpriteComponent::Update(deltaTime);
-
-    for(auto& bg: mBGTextures){
+    for(auto& bg: BGTextures){
         // 텍스처 위치(offset)를 스크롤 스피드만큼 왼쪽으로 이동.
-        bg.mOffset_x += mScrollSpeed * deltaTime;
+        bg.mOffset_x += scrollSpeed * deltaTime;
 
         // 화면이 왼쪽으로 이동
-        if(mScrollSpeed < 0){
+        if(scrollSpeed < 0){
             // 화면 왼쪽 밖으로 완전히 사라지면
-            if(bg.mOffset_x < -mScreenSize.x){
+            if(bg.mOffset_x < -screenSize.x){
                 // 오른쪽 끝으로 이동.
-                bg.mOffset_x += mBGTextures.size() * mScreenSize.x;
+                bg.mOffset_x += BGTextures.size() * screenSize.x;
             }
         }
         // 화면이 오른쪽으로 이동
-        else if(mScrollSpeed > 0){
+        else if(scrollSpeed > 0){
             // 화면 오른쪽 밖으로 완전히 사라지면
-            if(bg.mOffset_x > mScreenSize.x){
+            if(bg.mOffset_x > screenSize.x){
                 // 왼쪽 끝으로 이동.
-                bg.mOffset_x -= mBGTextures.size() * mScreenSize.x;
+                bg.mOffset_x -= BGTextures.size() * screenSize.x;
             }
         }
     }
 }
 
-void BGSpriteComponent::Draw(SDL_Renderer* renderer) noexcept{
-	// const auto origin = mOwner->GetPosition() - mScreenSize/2;
-    for (auto& bg : mBGTextures){
+void BGSpriteComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
+	assert(!renderer.expired() && "renderer: expired");
+    const auto _renderer=renderer.lock().get();
+    
+    // const auto origin = _owner->getPosition() - mScreenSize/2;
+    for (auto& bg : BGTextures){
 		SDL_Rect rect;
-		rect.w = static_cast<int>(mScreenSize.x);
-		rect.h = static_cast<int>(mScreenSize.y);
-		// rect.x = static_cast<int>(mOwner->GetPosition().x - rect.w/2 + bg.mOffset.x);
-		// rect.y = static_cast<int>(mOwner->GetPosition().y - rect.h/2 + bg.mOffset.y);
+		rect.w = static_cast<int>(screenSize.x);
+		rect.h = static_cast<int>(screenSize.y);
+		// rect.x = static_cast<int>(_owner->getPosition().x - rect.w/2 + bg.mOffset.x);
+		// rect.y = static_cast<int>(_owner->getPosition().y - rect.h/2 + bg.mOffset.y);
 		rect.x = static_cast<int>(bg.mOffset_x);
 		rect.y = 0.0f;
 
-		SDL_RenderCopy(renderer,
-			bg.mTexture,
+        assert(!bg.texture.expired() && "bg texture: expired");
+        auto _texture=bg.texture.lock().get();
+		SDL_RenderCopy(_renderer,
+			_texture,
 			nullptr, &rect
 		);
 	}
 }
 
-void MoveComponent::Update(float deltaTime){
+void BGSpriteComponent::setBGTextures(const std::vector<const std::weak_ptr<SDL_Texture>>& textures) noexcept{
+    int count=0;
+    for(auto tex: textures){
+        assert(!tex.expired() && "tex: expired");
+
+        BGTextures.emplace_back(BGTexture{
+            tex, count*screenSize.x
+        });
+        ++count;
+    }
+}
+
+void MoveComponent::update(const float deltaTime) noexcept{
+    assert(!owner.expired() && "owner: expired");
+    const auto _owner=owner.lock();
+
     if(!Math::NearZero(mAngularSpeed)){
-        mOwner->SetRotation(
-            mOwner->GetRotation() + mAngularSpeed*deltaTime
+        _owner->setRotation(
+            _owner->getRotation() + mAngularSpeed*deltaTime
         );
     }
     if(!Math::NearZero(mForwardSpeed)){
-        const auto pos = mOwner->GetPosition();
-        mOwner->SetPosition(
-            pos + getForward(mOwner->GetRotation())*mForwardSpeed*deltaTime
+        const auto pos = _owner->getPosition();
+        _owner->setPosition(
+            pos + Vector2::forward(_owner->getRotation())*mForwardSpeed*deltaTime
         );
     }
 }
 
-void InputComponent::ProcessInput(const uint8_t* keyState) noexcept{
+void InputComponent::processInput(const uint8_t* keyState) noexcept{
     short dir=0;
     if(keyState[mForwardKey]) dir += 1;
     if(keyState[mBackwardKey]) dir -= 1;
-    SetForwardSpeed(dir * mForwardMoveSpeed);
+    setForwardSpeed(dir * mForwardMoveSpeed);
 
     dir=0;
     if(keyState[mClockwiseKey]) dir += 1;
     if(keyState[mCounterClockwiseKey]) dir -= 1;
-    SetAngularSpeed(dir * mAngularMoveSpeed);
+    setAngularSpeed(dir * mAngularMoveSpeed);
 }
