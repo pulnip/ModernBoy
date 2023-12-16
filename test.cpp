@@ -1,3 +1,6 @@
+#include <memory>
+#include <iostream>
+
 class Base{
     virtual void func()=0;
 };
@@ -8,7 +11,9 @@ public:
 };
 
 int main(void){
-    Derived d;
+    auto d=std::make_shared<Derived>();
+    std::weak_ptr<Base> wb=d;
 
-    d.func();
+    std::weak_ptr<Derived> new_wd=std::dynamic_pointer_cast<Derived>(wb.lock());
+    std::cout<<new_wd.lock().use_count()<<std::endl;
 }

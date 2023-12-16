@@ -18,11 +18,9 @@ noexcept :owner(owner), updateOrder(updateOrder) {
     assert(100<=updateOrder && updateOrder<400 &&
         "updateOrder: value not valid"
     );
-    owner.lock()->appendComponent(this);
-}
-Component::~Component(){
-    assert(!owner.expired() && "owner(Actor): expired");
-    owner.lock()->removeComponent(this);
+    owner.lock()->appendComponent(
+        std::make_shared<Component>(this)
+    );
 }
 
 // Real Components
@@ -39,13 +37,10 @@ void CollisionComponent::update(const float deltaTime) noexcept{
         const auto pos_diff = _opponent->getPosition() - _owner->getPosition();
         const auto pos_diff_abs = Vector2::abs(_opponent->getPosition() - _owner->getPosition());
         // 충돌 판정 박스
-        const auto size_diff = (
-            _owner->getScale()*_owner->getSize() +
-            _opponent->getScale()*_opponent->getSize()
-        )/2;
+        const auto col_box = (_owner->getSize() + _opponent->getSize())/2;
 
         // AABB 알고리즘으로 충돌 판정
-        if(pos_diff_abs <= size_diff){            
+        if(pos_diff_abs <= col_box){            
             // 충돌 후 처리
 
             // 상대 속도
@@ -53,7 +48,7 @@ void CollisionComponent::update(const float deltaTime) noexcept{
             const auto opVel = _opponent->getVelocity();
             const auto vel_diff = opVel - myVel;
 
-            const auto collision_result=size_diff - pos_diff_abs;
+            const auto collision_result=col_box - pos_diff_abs;
             // x축 면이 닿았음.
             if(collision_result.x < collision_result.y){
                 // 해당 면으로 접근 중
@@ -104,28 +99,36 @@ DrawComponent::DrawComponent(
     const int drawOrder)
 noexcept :Component(owner, 300), drawOrder(drawOrder){
     assert(!owner.expired() && "owner(Actor): expired");
-    owner.lock()->getGame()->appendDrawable(this);
+    assert(!owner.lock()->getGame().expired() && "game: expired");
+    const auto _owner=owner.lock();
+
+    _owner->getGame().lock()->appendDrawable(
+        std::dynamic_pointer_cast<DrawComponent>(
+            _owner->queryComponent(this).lock()
+        )
+    );
 }
 DrawComponent::~DrawComponent(){
     assert(!owner.expired() && "owner(Actor): expired");
-    owner.lock()->getGame()->removeDrawable(this);
+    assert(!owner.lock()->getGame().expired() && "game: expired");
+    owner.lock()->getGame().lock()->removeDrawable(this);
 }
 
 void BoxComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
     assert(!owner.expired() && "owner(Actor): expired");
-    const auto _owner=owner.lock();
-
     assert(!renderer.expired() && "renderer: expired");
+    const auto _owner=owner.lock();
     const auto _renderer=renderer.lock().get();
 
     SDL_Rect rect;
+    const auto size=_owner->getSize();
+    const auto pos=_owner->getPosition();
     // 소유자의 배율 값으로 크기 조절
-    rect.w = static_cast<int>(size.x * _owner->getScale());
-    rect.h = static_cast<int>(size.y * _owner->getScale());
+    rect.w = static_cast<int>(size.x);
+    rect.h = static_cast<int>(size.y);
     // 중심 위치로 좌상단 좌표 계산
-    rect.x = static_cast<int>(_owner->getPosition().x - rect.w/2);
-    rect.y = static_cast<int>(_owner->getPosition().y - rect.h/2);
-
+    rect.x = static_cast<int>(pos.x - rect.w/2);
+    rect.y = static_cast<int>(pos.y - rect.h/2);
 
     SDL_SetRenderDrawColor(_renderer,
         color.r, color.g, color.b,
@@ -134,20 +137,27 @@ void BoxComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
     SDL_RenderFillRect(_renderer, &rect);
 }
 
+void BoxComponent::setTexture(const BoxComponent::Color& color, const Vector2& size) noexcept{
+    assert(!owner.expired() && "owner(Actor): expired");
+    BoxComponent::color=color;
+    owner.lock()->setBaseSize(size);
+}
+
 void SpriteComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
     assert(!owner.expired() && "owner(Actor): expired");
-    const auto _owner=owner.lock();
-
     assert(!renderer.expired() && "renderer: expired");
+    const auto _owner=owner.lock();
     const auto _renderer=renderer.lock().get();
 
     SDL_Rect rect;
+    const auto size=_owner->getSize();
+    const auto pos=_owner->getPosition();
     // 소유자의 배율 값으로 크기 조절
-    rect.w = static_cast<int>(size.x * _owner->getScale());
-    rect.h = static_cast<int>(size.y * _owner->getScale());
+    rect.w = static_cast<int>(size.x);
+    rect.h = static_cast<int>(size.y);
     // 중심 위치로 좌상단 좌표 계산
-    rect.x = static_cast<int>(_owner->getPosition().x - rect.w/2);
-    rect.y = static_cast<int>(_owner->getPosition().y - rect.h/2);
+    rect.x = static_cast<int>(pos.x - rect.w/2);
+    rect.y = static_cast<int>(pos.y - rect.h/2);
 
     assert(!texture.expired() && "texture: expired");
     SDL_RenderCopyEx(_renderer,
@@ -165,7 +175,9 @@ void SpriteComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
 }
 
 void SpriteComponent::setTexture(const std::weak_ptr<SDL_Texture> texture) noexcept{
+    assert(!owner.expired() && "owner(Actor): expired");
     assert(!texture.expired() && "texture: expired");
+    const auto _owner=owner.lock();
     SpriteComponent::texture = texture;
 
     int width, height;
@@ -173,8 +185,10 @@ void SpriteComponent::setTexture(const std::weak_ptr<SDL_Texture> texture) noexc
         nullptr, nullptr,
         &width, &height
     );
-    size.x=width;
-    size.y=height;
+    owner.lock()->setBaseSize(Vector2{
+        static_cast<float>(width),
+        static_cast<float>(height)
+    });
 }
 
 void AnimSpriteComponent::update(const float deltaTime) noexcept{

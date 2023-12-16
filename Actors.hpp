@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include <memory>
 #include <vector>
 
 #include "Math.hpp"
@@ -14,51 +14,54 @@ public:
         EActive, EPaused, EDead
     };
 
-    Actor(class Game* game);
-    virtual ~Actor();
+    Actor(const std::weak_ptr<class Game> game) noexcept;
+    virtual ~Actor()=default;
 
-    // Game에서 호출하는 Update함수
-    void update(float deltaTime);
-    // 액터에 부착된 모든 컴포넌트를 업데이트
-    void updateComponents(float deltaTime);
-    // 특정 액터에 특화된 업데이트 코드
-    virtual void updateActorFirst(float deltaTime){}
-    virtual void updateActorLast(float deltaTime){}
-
-    // Game에서 호출하는 ProcessInput함수
-    void processInput(const uint8_t* keyState);
+    // Game에서 호출하는 함수
+    void processInput(const uint8_t* keyState) noexcept;
+    void update(const float deltaTime) noexcept;
+    void updateComponents(const float deltaTime) noexcept;
     // 특정 액터를 위한 입력 코드
-    virtual void actorInput(const uint8_t* keyState){}
+    virtual void processActorInput(const uint8_t* keyState){}
+    // 특정 액터에 특화된 업데이트 코드
+    virtual void updateActor(float deltaTime){}
 
     // Getters/Setters
-    State getState() const{ return mState; }
-    class Game* getGame(){ return mGame; }
-    const Vector2& getPosition() const{ return mPosition; }
-    void setPosition(const Vector2& other){ mPosition = other; }
-    const Vector2& getVelocity() const{ return mVelocity; }
-    void setVelocity(const Vector2& other){ mVelocity = other; }
-    const Vector2& getSize() const{ return *mSize; }
-    float getScale() const{ return mScale; }
-    void setScale(float other){ mScale=other; }
-    float getRotation() const{ return mRotation; }
-    void setRotation(float other){ mRotation=other; }
+    const State& getState() const noexcept{ return state; }
+    const std::weak_ptr<class Game>& getGame() const noexcept{ return game; }
 
-    void appendComponent(class Component* component);
-    void removeComponent(class Component* component);
-protected:
-    Vector2 mPosition;
-    Vector2 mVelocity;
-    const Vector2* mSize;
-    // 라디안
-    float mScale=1.0f;
-    float mRotation=0.0f;
+    const Vector2& getPosition() const noexcept{ return position; }
+    void setPosition(const Vector2& other) noexcept{ position = other; }
+    const Vector2& getVelocity() const noexcept{ return velocity; }
+    void setVelocity(const Vector2& other) noexcept{ velocity = other; }
+    const Vector2& getBaseSize() const noexcept{ return baseSize; }
+    void setBaseSize(const Vector2& other) noexcept{ baseSize=other; }
+    const Math::Real& getScale() const noexcept{ return scale; }
+    void setScale(const Math::Real& other) noexcept{ scale=other; }
+    Vector2 getSize() const noexcept{ return scale*baseSize; }
+    const Math::Real& getRotation() const noexcept{ return rotation; }
+    void setRotation(const Math::Real& other) noexcept{ rotation=other; }
 
-    class Game* mGame;
+    void appendComponent(const std::shared_ptr<class Component>& component) noexcept;
+    std::weak_ptr<class Component> queryComponent(const class Component* component) const noexcept;
+    void removeComponent(const class Component* component) noexcept;
 private:
-    State mState=EActive;
+    void orderComponents() noexcept;
 
+protected:
+    State state=EActive;
+    const std::weak_ptr<class Game> game;
+    
+    Vector2 position;
+    Vector2 velocity;
+    Vector2 baseSize;
+    Math::Real scale=1.0;
+    Math::Radian rotation=0.0;
+private:
     // 액터가 보유한 컴포넌트들
-    std::vector<class Component*> mComponents;
+    std::vector<const std::shared_ptr<class Component>> components;
+    decltype(components)::const_iterator find(const class Component* component) const noexcept;
+    bool isOrdered=true;
 };
 
 // Real Actors
@@ -69,7 +72,7 @@ public:
     ~Paddle()=default;
 
     void updateActorFirst(float deltaTime) override;
-    void updateActorLast(float deltaTime) override;
+    void updateActor(float deltaTime) override;
     void collideAllow(Actor* opponent);
 private:
     const float fixed_velocity_y;
@@ -81,8 +84,7 @@ public:
     Wall(class Game* game, int x, int y, int w, int h);
     ~Wall()=default;
 
-    void updateActorFirst(float deltaTime) override{}
-    void updateActorLast(float deltaTime) override{}
+    void updateActor(float deltaTime) override{}
 };
 
 class Ball final: public Actor{
@@ -90,7 +92,7 @@ public:
     Ball(class Game* game, int x, int y, int w, int h);
     ~Ball()=default;
 
-    void updateActorLast(float deltaTime) override;
+    void updateActor(float deltaTime) override;
     void collideAllow(Actor* opponent);
 private:
     class CollisionComponent* cc;

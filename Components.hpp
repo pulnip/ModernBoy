@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <cfloat>
 
 // Component interface
 
@@ -15,7 +16,7 @@ public:
         const std::weak_ptr<class Actor> owner,
         const int updateOrder
     ) noexcept;
-    virtual ~Component();
+    virtual ~Component()=default;
     
     virtual void update(const float deltaTime)=0;
     virtual void processInput(const uint8_t* keyState){}
@@ -64,12 +65,9 @@ public:
     virtual void draw(const std::weak_ptr<class SDL_Renderer> renderer)=0;
 
     int getDrawOrder() const noexcept{ return drawOrder; }
-    const Vector2& getSize() const noexcept{ return size; }
 protected:
     // 그리기 순서(화가 알고리즘)
     const int drawOrder;
-    // 텍스처의 너비/높이
-    Vector2 size;
 };
 
 // Color Box 텍스처
@@ -77,7 +75,7 @@ protected:
 class BoxComponent final: public DrawComponent{
 public:
     struct Color{
-        short r=0, g=0, b=0, a=255;
+        char r=0, g=0, b=0, a=255;
     };
 
     BoxComponent(
@@ -87,9 +85,7 @@ public:
     ~BoxComponent()=default;
 
     void draw(const std::weak_ptr<class SDL_Renderer> renderer) noexcept override;
-    void setTexture(const Color& color, const Vector2& size){
-        BoxComponent::color=color; BoxComponent::size=size;
-    }
+    void setTexture(const Color& color, const Vector2& size) noexcept;
 private:
     Color color;
 };
@@ -149,8 +145,8 @@ public:
     // 배경용 텍스처 설정
     void setBGTextures(const std::vector<const std::weak_ptr<class SDL_Texture>>& textures) noexcept;
     void setScreenSize(const Vector2& size) noexcept{ screenSize=size; }
-    void setScrollSpeed(const float speed) noexcept{ scrollSpeed=speed; }
     float getScrollSpeed() const noexcept{ return scrollSpeed; }
+    void setScrollSpeed(const float speed) noexcept{ scrollSpeed=speed; }
 
 private:
     struct BGTexture{
@@ -173,10 +169,10 @@ public:
 
     void update(const float deltaTime) noexcept override;
 
-    void setAngularSpeed(const float speed) noexcept{ mAngularSpeed=speed; }
     float getAngularSpeed() const noexcept{ return mAngularSpeed; }
-    void setForwardSpeed(const float speed) noexcept{ mForwardSpeed=speed; }
+    void setAngularSpeed(const float speed) noexcept{ mAngularSpeed=speed; }
     float getForwardSpeed() const noexcept{ return mForwardSpeed; }
+    void setForwardSpeed(const float speed) noexcept{ mForwardSpeed=speed; }
 protected:
     // radian per second
     float mAngularSpeed;
@@ -194,10 +190,10 @@ public:
 
     void processInput(const uint8_t* keyState) noexcept override;
 
-    void setForwardMoveSpeed(const float speed) noexcept{ mForwardMoveSpeed=speed; }
     float getForwardMoveSpeed() const noexcept{ return mForwardMoveSpeed; }
-    void setAngularMoveSpeed(const float radian) noexcept{ mAngularMoveSpeed=radian; }
+    void setForwardMoveSpeed(const float speed) noexcept{ mForwardMoveSpeed=speed; }
     float getAngularMoveSpeed() const noexcept{ return mAngularMoveSpeed; }
+    void setAngularMoveSpeed(const float radian) noexcept{ mAngularMoveSpeed=radian; }
     void setForwardKey(const unsigned short key) noexcept{ mForwardKey=key; }
     void setBackwardKey(const unsigned short key) noexcept{ mBackwardKey=key; }
     void setClockwiseKey(const unsigned short key) noexcept{ mClockwiseKey=key; }

@@ -118,7 +118,7 @@ void Game::RunLoop(){
     }
 }
 
-void Game::AddActor(Actor* actor){
+void Game::addActor(Actor* actor){
     if(mUpdatingActors){
         mPendingActors.emplace_back(actor);
     }
@@ -127,7 +127,7 @@ void Game::AddActor(Actor* actor){
     }
 }
 
-void Game::RemoveActor(Actor* actor){
+void Game::removeActor(Actor* actor){
     mActors.erase(
         std::find(mActors.cbegin(), mActors.cend(), actor)
     );

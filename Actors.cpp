@@ -1,55 +1,64 @@
 #include <algorithm>
+#include <cassert>
 
 #include "Actors.hpp"
 #include "Components.hpp"
 #include "Game.hpp"
 #include "Math.hpp"
 
-Actor::Actor(Game* game):mGame(game){
-    mGame->AddActor(this);
+Actor::Actor(
+    const std::weak_ptr<class Game> game
+) noexcept :game(game){
+    assert(!game.expired() && "game: expired");
+    game.lock()->appendActor(
+        std::make_shared<Actor>(this)
+    );
 }
-Actor::~Actor(){
-    mGame->RemoveActor(this);
-    for(auto component: mComponents){
-        delete component;
+
+void Actor::processInput(const uint8_t* keyState) noexcept{
+    if(state==EActive){
+        for(auto& comp: components){
+            comp->processInput(keyState);
+        }
+        processActorInput(keyState);
     }
 }
-
-void Actor::Update(float deltaTime){
-    UpdateActorFirst(deltaTime);
-    UpdateComponents(deltaTime);
-    UpdateActorLast(deltaTime);
+void Actor::update(const float deltaTime) noexcept{
+    updateComponents(deltaTime);
+    updateActor(deltaTime);
 }
-
-void Actor::UpdateComponents(float deltaTime){
-    auto sortByUpdateOrder=mComponents;
-    std::sort(
-        sortByUpdateOrder.begin(), sortByUpdateOrder.end(),
-        [](Component* lhs, Component* rhs)->bool{
-            return lhs->getUpdateOrder() < rhs->getUpdateOrder();
-        }
-    );
-    for(auto component: sortByUpdateOrder){
+void Actor::updateComponents(const float deltaTime) noexcept{
+    if(!isOrdered){
+        orderComponents();
+    }
+    for(auto& component: components){
         component->update(deltaTime);
     }
 }
 
-void Actor::ProcessInput(const uint8_t* keyState){
-    if(mState==EActive){
-        for(auto comp: mComponents){
-            comp->processInput(keyState);
+void Actor::appendComponent(const std::shared_ptr<class Component>& component) noexcept{
+    components.emplace_back(component);
+    isOrdered=false;
+}
+std::weak_ptr<Component> Actor::queryComponent(const Component* component) const noexcept{
+    return *find(component);
+}
+void Actor::removeComponent(const Component* component) noexcept{
+    components.erase(find(component));
+}
+void Actor::orderComponents() noexcept{
+    std::sort(components.begin(), components.end(),
+        [](const auto& lhs, const auto& rhs)->bool{
+            return lhs->getUpdateOrder() < rhs->getUpdateOrder();
         }
-        ActorInput(keyState);
-    }
+    );
+    isOrdered=true;
 }
-
-void Actor::appendComponent(Component* component){
-    mComponents.emplace_back(component);
-}
-
-void Actor::removeComponent(Component* component){
-    mComponents.erase(
-        std::find(mComponents.cbegin(), mComponents.cend(), component)
+decltype(Actor::components)::const_iterator Actor::find(const Component* component) const noexcept{
+    return std::find_if(components.cbegin(), components.cend(),
+        [](const auto& lhs, const auto& rhs)->bool{
+            return lhs->getUpdateOrder() == rhs->getUpdateOrder();
+        }
     );
 }
 

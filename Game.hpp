@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -22,16 +23,13 @@ public:
     // 게임 종료
     void ShutDown();
 
-    void AddActor(class Actor* actor);
-    void RemoveActor(class Actor* actor);
+    void appendActor(std::shared_ptr<class Actor> actor);
+    void removeActor(class Actor* actor);
     void ClearActors();
 
     SDL_Texture* GetTexture(const char* fileName);
-
-    void appendDrawable(class DrawComponent* drawable);
+    void appendDrawable(std::weak_ptr<class DrawComponent> drawable);
     void removeDrawable(class DrawComponent* drawable);
-
-    auto getKeyState() const{ return keyState; }
 private:
     // 게임 루프를 위한 헬퍼 함수
     void ProcessInput();
@@ -39,27 +37,23 @@ private:
     void GenerateOutput();
 
     // 이미지 로딩 과정 캡슐화
-    SDL_Texture* LoadTexture(const char* fileName);
-public:
-    SDL_Event event;
+    std::weak_ptr<class SDL_Texture> LoadTexture(const char* fileName);
+private:
+    const Uint8* keyState;
+    // SDL이 생성한 윈도우
+    std::unique_ptr<class SDL_Window> mWindow;
+    std::shared_ptr<class SDL_Renderer> mRenderer;
 
     // 게임이 계속 실행돼야 하는지를 판단
     bool mIsRunning=false;
-private:
-    // SDL이 생성한 윈도우
-    SDL_Window* mWindow=nullptr;
-
-    const Uint8* keyState;
-
-    SDL_Renderer* mRenderer;
     Uint32 mTicksCount=0;
 
-    std::vector<class Actor*> mActors;
-    std::vector<class Actor*> mPendingActors;
+    std::vector<std::shared_ptr<class Actor>> mActors;
+    std::vector<std::shared_ptr<class Actor>> mPendingActors;
     bool mUpdatingActors=false;
 
-    std::map<const std::string, SDL_Texture*> textures;
-    std::vector<class DrawComponent*> mDrawables;
+    std::map<const std::string, std::shared_ptr<class SDL_Texture>> textures;
+    std::vector<std::weak_ptr<class DrawComponent>> mDrawables;
 };
 
 class p1pingpong final: public Game{
