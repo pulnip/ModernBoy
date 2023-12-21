@@ -5,7 +5,7 @@
 int main(int argc, char* argv[]){
     auto game=std::make_shared<Game>();
 
-    bool success = game->initialize(game);
+    bool success = game->initialize();
     
     if(success){
         game->runLoop();

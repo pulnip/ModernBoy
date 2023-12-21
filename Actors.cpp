@@ -8,25 +8,22 @@
 #include "Game.hpp"
 #include "Math.hpp"
 
-Actor::Actor(const std::weak_ptr<Game> game) noexcept
-:game(game){
+Actor::Actor(const std::weak_ptr<Game> game) noexcept: game(game){
     assert(!game.expired() && "game: expired");
-
-    auto self=shared_from_this();
-    game.lock()->appendActor(self);
-    Actor::self=self;
 }
 
 void Actor::processInput(const uint8_t* keyState) noexcept{
-    if(state==EActive){
-        for(auto& comp: components){
-            assert(!comp.expired() && "comp: expired");
-            comp.lock()->processInput(keyState);
-        }
-        processActorInput(keyState);
+    if(state!=EActive) return;
+
+    for(auto& comp: components){
+        assert(!comp.expired() && "comp: expired");
+        comp.lock()->processInput(keyState);
     }
+    processActorInput(keyState);
 }
 void Actor::update(const float deltaTime) noexcept{
+    if(state!=EActive) return;
+
     updateComponents(deltaTime);
     updateActor(deltaTime);
 }
@@ -60,14 +57,18 @@ void Actor::orderComponents() noexcept{
 
 // Real Actors
 
-Paddle::Paddle(const std::weak_ptr<Game> game) noexcept
-:Actor(game)
-,bc(std::make_shared<BoxComponent>(self))
-,cc(std::make_shared<CollisionComponent>(self))
-,mc(std::make_shared<AbsoluteMoveComponent>(self)){
-    Actor::position={15.0f, 384.0f};
+Paddle::Paddle(const std::weak_ptr<Game> game) noexcept:
+Actor(game),
+bc(std::make_shared<BoxComponent>(weak_from_this())),
+cc(std::make_shared<CollisionComponent>(weak_from_this())),
+ic(std::make_shared<InputComponentA>(weak_from_this())){
+    appendComponent(bc);
+    appendComponent(cc);
+    appendComponent(ic);
+
+    position={15.0f, 384.0f};
     bc->setTexture({}, {15.0f, 120.0f});
-    mc->setMoveVelocity({0, 300.0f});
+    ic->setMoveVelocity({0, 300.0f});
 }
 
 void Paddle::updateActor(const float deltaTime) noexcept{
@@ -78,27 +79,23 @@ void Paddle::collideAllow(const std::weak_ptr<Actor> opponent) noexcept{
     cc->allow(opponent);
 }
 
-Wall::Wall(std::weak_ptr<class Game> game,
-    const Vector2& pos,
-    const Vector2& size
-) noexcept:Actor(game)
-,bc(std::make_shared<BoxComponent>(self)){
-    Actor::position=pos;
-    bc->setTexture({}, size);
+Wall::Wall(const std::weak_ptr<Game> game) noexcept:
+Actor(game),
+bc(std::make_shared<BoxComponent>(weak_from_this())){
+    appendComponent(bc);
 }
 
-Ball::Ball(std::weak_ptr<class Game> game,
-    const Vector2& pos,
-    const Vector2& size
-) noexcept:Actor(game)
-,sc(std::make_shared<AnimSpriteComponent>(self))
-,cc(std::make_shared<CollisionComponent>(self)){
-    assert(!game.expired() && "game: expired");
-    auto _game=game.lock();
+Ball::Ball(const std::weak_ptr<Game> game) noexcept:
+Actor(game),
+sc(std::make_shared<AnimSpriteComponent>(weak_from_this())),
+cc(std::make_shared<CollisionComponent>(weak_from_this())){
+    appendComponent(sc);
+    appendComponent(cc);
 
-    Actor::position=pos;
     velocity={-200.0f, 235.0f};
+    scale=5.0f;
 
+    auto _game=game.lock();
     std::vector<SDL_Texture*> anims={
         _game->getTexture("../resource/pigeon_1.png"),
         _game->getTexture("../resource/pigeon_2.png"),
@@ -106,8 +103,6 @@ Ball::Ball(std::weak_ptr<class Game> game,
         _game->getTexture("../resource/pigeon_2.png")
     };
     sc->setAnimTextures(anims);
-
-    scale=5.0f;
 }
 
 void Ball::updateActor(const float deltaTime) noexcept{
@@ -123,14 +118,17 @@ void Ball::collideAllow(const std::weak_ptr<Actor> opponent) noexcept{
     cc->allow(opponent);
 }
 
-Ship::Ship(const std::weak_ptr<Game> game) noexcept: Actor(game){
-    assert(!game.expired() && "game: expired");
+Ship::Ship(const std::weak_ptr<Game> game) noexcept:
+Actor(game){
+    auto w=weak_from_this();
+    sc=std::make_shared<AnimSpriteComponent>(weak_from_this());
+    ic=std::make_shared<InputComponentP>(weak_from_this());
+    appendComponent(sc);
+    appendComponent(ic);
+
+    position={500.0f, 500.0f};
+
     auto _game=game.lock();
-    sc=std::make_shared<AnimSpriteComponent>(self);
-    ic=std::make_shared<InputComponentP>(self);
-
-    Actor::position={500.0f, 500.0f};
-
     std::vector<SDL_Texture*> anims={
         _game->getTexture("../resource/Ship01.png"),
         _game->getTexture("../resource/Ship02.png"),
@@ -147,19 +145,20 @@ Ship::Ship(const std::weak_ptr<Game> game) noexcept: Actor(game){
     ic->setCounterClockwiseKey(SDL_SCANCODE_Q);
 }
 
-Asteroid::Asteroid(const std::weak_ptr<Game> game) noexcept
-:Actor(game)
-,sc(std::make_shared<SpriteComponent>(self))
-,mc(std::make_shared<AngularMoveComponent>(self)){
-    assert(!game.expired() && "game: expired");
-    auto _game=game.lock();
+Asteroid::Asteroid(const std::weak_ptr<Game> game) noexcept:
+Actor(game),
+sc(std::make_shared<AnimSpriteComponent>(weak_from_this())),
+mc(std::make_shared<AngularMoveComponent>(weak_from_this())){
+    appendComponent(sc);
+    appendComponent(mc);
 
-    Actor::position={
+    position={
         static_cast<float>(Math::random(0, 1024)),
         static_cast<float>(Math::random(0, 768))
     };
-    Actor::rotation = Math::random(0, 1024)/Math::PI;
+    rotation = Math::random(0, 1024)/Math::PI;
 
+    auto _game=game.lock();
     sc->setTexture(_game->getTexture("../resource/Asteroid.png"));
 
     mc->setForwardSpeed(150.0f);

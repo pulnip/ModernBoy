@@ -8,9 +8,7 @@
 #include "Components.hpp"
 #include "Game.hpp"
 
-bool Game::initialize(const std::weak_ptr<Game> game) noexcept{
-    self=game;
-
+bool Game::initialize() noexcept{
     int sdlResult=SDL_Init(SDL_INIT_VIDEO);
     if(sdlResult != 0 ){
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
@@ -50,7 +48,6 @@ bool Game::initialize(const std::weak_ptr<Game> game) noexcept{
 }
 
 void Game::loadData() noexcept{
-    assert(!self.expired() && "self: expired");
     // ping-pong
 
     // auto ceil=new Wall(this, 1024/2, 15/2, 1024, 15);
@@ -66,14 +63,16 @@ void Game::loadData() noexcept{
     // ball->CollideAllow(floor);
     // ball->CollideAllow(rightWall);
     // ball->CollideAllow(paddle);
-
-    auto ship=std::make_shared<Ship>(self);
+    auto ship=std::make_shared<Ship>(weak_from_this());
+    appendActor(ship);
 
 	// Create actor for the background (this doesn't need a subclass)
-	auto temp=std::make_shared<Actor>(self);
-	temp->setPosition(Vector2{512.0f, 384.0f});
+	auto bgActor=std::make_shared<Actor>(weak_from_this());
+	appendActor(bgActor);
+    bgActor->position=Vector2{512.0f, 384.0f};
 	// Create the "far back" background
-	auto fbg=std::make_shared<BGSpriteComponent>(temp);
+	auto fbg=std::make_shared<BGSpriteComponent>(bgActor);
+    bgActor->appendComponent(fbg);
 	fbg->setScreenSize(Vector2{1024.0f, 768.0f});
 	std::vector<SDL_Texture*> fbgtexs = {
 		getTexture("../resource/Farback01.png"),
@@ -82,7 +81,9 @@ void Game::loadData() noexcept{
 	fbg->setBGTextures(fbgtexs);
 	fbg->setScrollSpeed(-100.0f);
 	// Create the closer background
-    auto cbg=std::make_shared<BGSpriteComponent>(temp, 101);
+    auto cbg=std::make_shared<BGSpriteComponent>(bgActor);
+    bgActor->appendComponent(cbg);
+    cbg->setUpdateOrder(101);
 	cbg->setScreenSize(Vector2{1024.0f, 768.0f});
 	std::vector<SDL_Texture*> cbgtexs={
 		getTexture("../resource/Stars.png"),
@@ -92,7 +93,7 @@ void Game::loadData() noexcept{
 	cbg->setScrollSpeed(-200.0f);
 
     for(int i=0; i<20; ++i){
-        auto asteroid=std::make_shared<Asteroid>(self);
+        auto asteroid=std::make_shared<Asteroid>(weak_from_this());
     }
 }
 

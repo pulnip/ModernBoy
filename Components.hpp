@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <memory>
 #include <vector>
 
@@ -7,31 +8,27 @@
 
 // Component interface
 
-class Component: private std::enable_shared_from_this<Component>{
-    friend class Actor;
+class Component{
 public:
     // updateOrder이 작을수록 더 빨리 갱신
     // input 계열: 100 to 199
     // 연산 계열: 200 to 299
     // output계열: 300 to 399
-    Component(
-        const std::weak_ptr<class Actor> owner,
-        const int updateOrder
-    ) noexcept;
+    Component(const std::weak_ptr<class Actor> owner) noexcept: owner(owner){
+        assert(!owner.expired() && "owner(Actor): expired");
+    };
     virtual ~Component()=default;
     
     virtual void update(const float deltaTime)=0;
     virtual void processInput(const uint8_t* keyState){}
 
     int getUpdateOrder() const noexcept{ return updateOrder; }
+    void setUpdateOrder(const int uo) noexcept{ updateOrder=uo; }
 protected:
-    // this 대체용
-    std::weak_ptr<Component> self;
     // 소유자 액터
     const std::weak_ptr<class Actor> owner;
     // 컴포넌트의 업데이트 순서
-    const int updateOrder;
-
+    int updateOrder=0;
 };
 
 // Real Components
@@ -39,31 +36,27 @@ protected:
 // 충돌 처리 컴포넌트
 class CollisionComponent final: public Component{
 public:
-    CollisionComponent(
-        const std::weak_ptr<class Actor> owner,
-        const int updateOrder=200
-    ) noexcept :Component(owner, updateOrder){}
-    ~CollisionComponent()=default;
+    CollisionComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
+        updateOrder=200;
+    }
 
     void update(const float deltaTime) noexcept override;
 
-    void allow(const std::weak_ptr<class Actor> opponent) noexcept;
-    void disallow(const std::weak_ptr<class Actor> opponent) noexcept;
+    void allow(const std::weak_ptr<class Actor> opponent) noexcept{
+        opponents.emplace_back(opponent);
+    }
 private:
     std::vector<std::weak_ptr<class Actor>> opponents;
 };
 
 // 2D Graphics interface
-class DrawComponent: public Component{
+class DrawComponent: public Component, public std::enable_shared_from_this<DrawComponent>{
 public:
     // drawOrder이 작을수록 더 뒤에 위치
     // 배경 계열: 100 to 199
     // 일반 오브젝트 계열: 200 to 299
     // player계열: 300 to 399
-    DrawComponent(
-        const std::weak_ptr<class Actor> owner,
-        const int drawOrder
-    ) noexcept;
+    DrawComponent(const std::weak_ptr<class Actor> owner) noexcept;
     virtual ~DrawComponent();
 
     virtual void update(const float deltaTime) noexcept override{}
@@ -72,7 +65,7 @@ public:
     int getDrawOrder() const noexcept{ return drawOrder; }
 protected:
     // 그리기 순서(화가 알고리즘)
-    const int drawOrder;
+    int drawOrder=0;
 };
 
 // Color Box 텍스처
@@ -84,10 +77,9 @@ public:
         byte r=0, g=0, b=0, a=255;
     };
 
-    BoxComponent(
-        const std::weak_ptr<class Actor> owner,
-        const int drawOrder=200
-    ) noexcept :DrawComponent(owner, drawOrder){}
+    BoxComponent(const std::weak_ptr<class Actor> owner) noexcept: DrawComponent(owner){
+        drawOrder=200;
+    }
     ~BoxComponent()=default;
 
     void draw(class SDL_Renderer* renderer) noexcept override;
@@ -99,10 +91,9 @@ private:
 // 단일 스프라이트 텍스처
 class SpriteComponent: public DrawComponent{
 public:
-    SpriteComponent(
-        const std::weak_ptr<class Actor> owner,
-        const int drawOrder=201
-    )noexcept :DrawComponent(owner, drawOrder){}
+    SpriteComponent(const std::weak_ptr<class Actor> owner) noexcept: DrawComponent(owner){
+        drawOrder=201;
+    }
     virtual ~SpriteComponent()=default;
 
     virtual void draw(class SDL_Renderer* renderer) noexcept override;
@@ -114,10 +105,9 @@ private:
 // 애니메이션 텍스처
 class AnimSpriteComponent final: public SpriteComponent{
 public:
-    AnimSpriteComponent(
-        const std::weak_ptr<class Actor> owner,
-        const int drawOrder=202
-    ) noexcept :SpriteComponent(owner, drawOrder){}
+    AnimSpriteComponent(const std::weak_ptr<class Actor> owner) noexcept: SpriteComponent(owner){
+        drawOrder=202;
+    }
     ~AnimSpriteComponent()=default;
 
     // 애니메이션을 프레임마다 갱신
@@ -139,10 +129,9 @@ private:
 // 스크롤되는 배경
 class BGSpriteComponent final: public SpriteComponent{
 public:
-    BGSpriteComponent(
-        const std::weak_ptr<class Actor> owner,
-        const int drawOrder=100
-    ) noexcept :SpriteComponent(owner, drawOrder){}
+    BGSpriteComponent(const std::weak_ptr<class Actor> owner) noexcept: SpriteComponent(owner){
+        drawOrder=100;
+    }
     ~BGSpriteComponent()=default;
     
     void update(const float deltaTime) noexcept override;
@@ -167,10 +156,9 @@ private:
 
 class AngularMoveComponent: public Component{
 public:
-    AngularMoveComponent(
-        const std::weak_ptr<class Actor> owner,
-        const int updateOrder=100
-    ) noexcept :Component(owner, updateOrder){}
+    AngularMoveComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
+        updateOrder=100;
+    }
     ~AngularMoveComponent()=default;
 
     void update(const float deltaTime) noexcept override;
@@ -187,10 +175,9 @@ protected:
 };
 class InputComponentP final: public AngularMoveComponent{
 public:
-    InputComponentP(
-        std::weak_ptr<class Actor> owner,
-        const int updateOrder=99
-    ) noexcept :AngularMoveComponent(owner, updateOrder){}
+    InputComponentP(std::weak_ptr<class Actor> owner) noexcept: AngularMoveComponent(owner){
+        updateOrder=99;
+    }
     ~InputComponentP()=default;
 
     void processInput(const uint8_t* keyState) noexcept override;
@@ -215,10 +202,9 @@ private:
 
 class AbsoluteMoveComponent: public Component{
 public:
-    AbsoluteMoveComponent(
-        const std::weak_ptr<class Actor> owner,
-        const int updateOrder=100
-    ) noexcept :Component(owner, updateOrder){}
+    AbsoluteMoveComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
+        updateOrder=100;
+    }
     ~AbsoluteMoveComponent()=default;
 
     void update(const float deltaTime) noexcept override;
@@ -231,10 +217,9 @@ protected:
 };
 class InputComponentA final: public AbsoluteMoveComponent{
 public:
-    InputComponentA(
-        std::weak_ptr<class Actor> owner,
-        const int updateOrder=99
-    ) noexcept :AbsoluteMoveComponent(owner, updateOrder){}
+    InputComponentA(std::weak_ptr<class Actor> owner) noexcept: AbsoluteMoveComponent(owner){
+        updateOrder=99;
+    }
     ~InputComponentA()=default;
 
     void processInput(const uint8_t* keyState) noexcept override;
