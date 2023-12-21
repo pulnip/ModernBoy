@@ -1,59 +1,58 @@
 #pragma once
 
+#include <list>
 #include <map>
 #include <memory>
-#include <string>
 #include <vector>
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 
 #include "Math.hpp"
 
 class Game{
 public:
     Game() noexcept=default;
-    ~Game();
+    ~Game()=default;
     // 게임 초기화
-    bool Initialize();
-    // 게임 세계의 액터를 로드
-    void LoadData();
+    bool initialize(const std::weak_ptr<Game> game) noexcept;
     // 게임이 끝나기 전까지 게임 루프를 실행
-    void RunLoop();
+    void runLoop() noexcept;
     // 게임 종료
-    void ShutDown();
+    void shutDown() noexcept;
 
-    void appendActor(std::shared_ptr<class Actor> actor);
-    void removeActor(class Actor* actor);
-    void ClearActors();
+    void quit() noexcept{ isRunning=false; }
 
-    SDL_Texture* GetTexture(const char* fileName);
-    void appendDrawable(std::weak_ptr<class DrawComponent> drawable);
-    void removeDrawable(class DrawComponent* drawable);
+    void appendActor(const std::shared_ptr<class Actor> actor) noexcept;
+
+    class SDL_Texture* getTexture(const char* fileName) noexcept;
+    void appendDrawable(const std::weak_ptr<class DrawComponent> drawable) noexcept;
+    void removeDrawable(const std::weak_ptr<class DrawComponent> drawable) noexcept;
 private:
+    // 게임 세계의 액터를 로드
+    void loadData() noexcept;
     // 게임 루프를 위한 헬퍼 함수
-    void ProcessInput();
-    void UpdateGame();
-    void GenerateOutput();
+    void processInput() noexcept;
+    void updateGame() noexcept;
+    void generateOutput() noexcept;
 
     // 이미지 로딩 과정 캡슐화
-    std::weak_ptr<class SDL_Texture> LoadTexture(const char* fileName);
+    class SDL_Texture* loadTexture(const char* fileName) noexcept;
 private:
-    const Uint8* keyState;
+    std::weak_ptr<Game> self;
+
+    const uint8_t* keyState;
     // SDL이 생성한 윈도우
-    std::unique_ptr<class SDL_Window> mWindow;
-    std::shared_ptr<class SDL_Renderer> mRenderer;
+    class SDL_Window* window;
+    class SDL_Renderer* renderer;
 
     // 게임이 계속 실행돼야 하는지를 판단
-    bool mIsRunning=false;
-    Uint32 mTicksCount=0;
+    bool isRunning=false;
+    uint32_t ticksCount=0;
 
-    std::vector<std::shared_ptr<class Actor>> mActors;
-    std::vector<std::shared_ptr<class Actor>> mPendingActors;
-    bool mUpdatingActors=false;
+    std::list<std::shared_ptr<class Actor>> actors;
+    std::list<std::shared_ptr<class Actor>> pendingActors;
+    bool isUpdatingActors=false;
 
-    std::map<const std::string, std::shared_ptr<class SDL_Texture>> textures;
-    std::vector<std::weak_ptr<class DrawComponent>> mDrawables;
+    std::map<const std::string, class SDL_Texture*> textures;
+    std::vector<std::weak_ptr<class DrawComponent>> drawables;
 };
 
 class p1pingpong final: public Game{

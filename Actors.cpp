@@ -1,24 +1,27 @@
 #include <algorithm>
 #include <cassert>
 
+#include <SDL2/SDL.h>
+
 #include "Actors.hpp"
 #include "Components.hpp"
 #include "Game.hpp"
 #include "Math.hpp"
 
-Actor::Actor(
-    const std::weak_ptr<class Game> game
-) noexcept :game(game){
+Actor::Actor(const std::weak_ptr<Game> game) noexcept
+:game(game){
     assert(!game.expired() && "game: expired");
-    game.lock()->appendActor(
-        std::make_shared<Actor>(this)
-    );
+
+    auto self=shared_from_this();
+    game.lock()->appendActor(self);
+    Actor::self=self;
 }
 
 void Actor::processInput(const uint8_t* keyState) noexcept{
     if(state==EActive){
         for(auto& comp: components){
-            comp->processInput(keyState);
+            assert(!comp.expired() && "comp: expired");
+            comp.lock()->processInput(keyState);
         }
         processActorInput(keyState);
     }
@@ -31,119 +34,111 @@ void Actor::updateComponents(const float deltaTime) noexcept{
     if(!isOrdered){
         orderComponents();
     }
-    for(auto& component: components){
-        component->update(deltaTime);
+    for(auto& comp: components){
+        assert(!comp.expired() && "comp: expired");
+        comp.lock()->update(deltaTime);
     }
 }
 
-void Actor::appendComponent(const std::shared_ptr<class Component>& component) noexcept{
+void Actor::appendComponent(const std::shared_ptr<Component> component) noexcept{
     components.emplace_back(component);
     isOrdered=false;
-}
-std::weak_ptr<Component> Actor::queryComponent(const Component* component) const noexcept{
-    return *find(component);
-}
-void Actor::removeComponent(const Component* component) noexcept{
-    components.erase(find(component));
 }
 void Actor::orderComponents() noexcept{
     std::sort(components.begin(), components.end(),
         [](const auto& lhs, const auto& rhs)->bool{
-            return lhs->getUpdateOrder() < rhs->getUpdateOrder();
+            assert(
+                !lhs.expired() &&
+                !rhs.expired() &&
+                "lhs or rhs: expired"
+            );
+            return lhs.lock()->getUpdateOrder() < rhs.lock()->getUpdateOrder();
         }
     );
     isOrdered=true;
 }
-decltype(Actor::components)::const_iterator Actor::find(const Component* component) const noexcept{
-    return std::find_if(components.cbegin(), components.cend(),
-        [](const auto& lhs, const auto& rhs)->bool{
-            return lhs->getUpdateOrder() == rhs->getUpdateOrder();
-        }
-    );
-}
 
 // Real Actors
 
-Paddle::Paddle(Game* game)
-:Actor(game), fixed_velocity_y{300}{
-    mPosition.x=15.0f;
-    mPosition.y=384.0f;
-    mVelocity.y=fixed_velocity_y;
-
-    auto bc=new BoxComponent(this);
-    bc->SetTexture(new Color(), 15.0f, 120.0f);
-    mSize=&bc->GetSize();
-    cc=new CollisionComponent(this);
-    auto coc=new ControlComponent(this);
+Paddle::Paddle(const std::weak_ptr<Game> game) noexcept
+:Actor(game)
+,bc(std::make_shared<BoxComponent>(self))
+,cc(std::make_shared<CollisionComponent>(self))
+,mc(std::make_shared<AbsoluteMoveComponent>(self)){
+    Actor::position={15.0f, 384.0f};
+    bc->setTexture({}, {15.0f, 120.0f});
+    mc->setMoveVelocity({0, 300.0f});
 }
 
-void Paddle::UpdateActorFirst(float deltaTime){
-    mVelocity.y = fixed_velocity_y;
+void Paddle::updateActor(const float deltaTime) noexcept{
+    position += deltaTime * velocity;
 }
 
-void Paddle::UpdateActorLast(float deltaTime){
-    mPosition += deltaTime * mVelocity;
-}
-
-void Paddle::CollideAllow(Actor* opponent){
+void Paddle::collideAllow(const std::weak_ptr<Actor> opponent) noexcept{
     cc->allow(opponent);
 }
 
-Wall::Wall(Game* game, int x, int y, int w, int h):Actor(game){
-    mPosition.x=x;
-    mPosition.y=y;
-
-    auto bc=new BoxComponent(this);
-    bc->SetTexture(new Color(), w, h);
-    mSize=&bc->GetSize();
+Wall::Wall(std::weak_ptr<class Game> game,
+    const Vector2& pos,
+    const Vector2& size
+) noexcept:Actor(game)
+,bc(std::make_shared<BoxComponent>(self)){
+    Actor::position=pos;
+    bc->setTexture({}, size);
 }
 
-Ball::Ball(Game* game, int x, int y, int w, int h):Actor(game){
-    mPosition.x=x;
-    mPosition.y=y;
-    mVelocity.x=-200.0f;
-    mVelocity.y=235.0f;
+Ball::Ball(std::weak_ptr<class Game> game,
+    const Vector2& pos,
+    const Vector2& size
+) noexcept:Actor(game)
+,sc(std::make_shared<AnimSpriteComponent>(self))
+,cc(std::make_shared<CollisionComponent>(self)){
+    assert(!game.expired() && "game: expired");
+    auto _game=game.lock();
 
-    auto sc=new AnimSpriteComponent(this);
-    std::vector<SDL_Texture*> anims;
-    anims.emplace_back(mGame->GetTexture("../resource/pigeon_1.png"));
-    anims.emplace_back(mGame->GetTexture("../resource/pigeon_2.png"));
-    anims.emplace_back(mGame->GetTexture("../resource/pigeon_3.png"));
-    anims.emplace_back(mGame->GetTexture("../resource/pigeon_2.png"));
-    sc->SetAnimTextures(anims);
-    mSize=&sc->GetSize();
-    mScale=5.0f;
-    // auto bc=new BoxComponent(this);
-    // bc->SetTexture(new Color(), w, h);
-    // mSize=&bc->GetSize();
-    cc=new CollisionComponent(this);
+    Actor::position=pos;
+    velocity={-200.0f, 235.0f};
+
+    std::vector<SDL_Texture*> anims={
+        _game->getTexture("../resource/pigeon_1.png"),
+        _game->getTexture("../resource/pigeon_2.png"),
+        _game->getTexture("../resource/pigeon_3.png"),
+        _game->getTexture("../resource/pigeon_2.png")
+    };
+    sc->setAnimTextures(anims);
+
+    scale=5.0f;
 }
 
-void Ball::updateActorLast(float deltaTime){
-    mPosition += deltaTime * mVelocity;
+void Ball::updateActor(const float deltaTime) noexcept{
+    assert(!game.expired() && "game: expired");
+    position += deltaTime * velocity;
     
-    if(mPosition.x < -mSize->x){
-        getGame()->mIsRunning=false;
+    if(position.x < -getSize().x){
+        game.lock()->quit();
     }
 }
 
-void Ball::collideAllow(Actor* opponent){
+void Ball::collideAllow(const std::weak_ptr<Actor> opponent) noexcept{
     cc->allow(opponent);
 }
 
-Ship::Ship(Game* game)
-:Actor(game) {
-    setPosition({500, 500});
-    AnimSpriteComponent* asc = new AnimSpriteComponent(this);
-    std::vector<SDL_Texture*> anims={
-        mGame->GetTexture("../resource/Ship01.png"),
-        mGame->GetTexture("../resource/Ship02.png"),
-        mGame->GetTexture("../resource/Ship03.png"),
-        mGame->GetTexture("../resource/Ship04.png")
-    };
-    asc->SetAnimTextures(anims);
+Ship::Ship(const std::weak_ptr<Game> game) noexcept: Actor(game){
+    assert(!game.expired() && "game: expired");
+    auto _game=game.lock();
+    sc=std::make_shared<AnimSpriteComponent>(self);
+    ic=std::make_shared<InputComponentP>(self);
 
-    InputComponent* ic=new InputComponent(this);
+    Actor::position={500.0f, 500.0f};
+
+    std::vector<SDL_Texture*> anims={
+        _game->getTexture("../resource/Ship01.png"),
+        _game->getTexture("../resource/Ship02.png"),
+        _game->getTexture("../resource/Ship03.png"),
+        _game->getTexture("../resource/Ship04.png")
+    };
+    sc->setAnimTextures(anims);
+
     ic->setForwardMoveSpeed(300.0f);
     ic->setAngularMoveSpeed(Math::PI);
     ic->setForwardKey(SDL_SCANCODE_D);
@@ -152,15 +147,20 @@ Ship::Ship(Game* game)
     ic->setCounterClockwiseKey(SDL_SCANCODE_Q);
 }
 
-Asteroid::Asteroid(Game* game):Actor(game){
-    SetPosition(Vector2{
+Asteroid::Asteroid(const std::weak_ptr<Game> game) noexcept
+:Actor(game)
+,sc(std::make_shared<SpriteComponent>(self))
+,mc(std::make_shared<AngularMoveComponent>(self)){
+    assert(!game.expired() && "game: expired");
+    auto _game=game.lock();
+
+    Actor::position={
         static_cast<float>(Math::random(0, 1024)),
         static_cast<float>(Math::random(0, 768))
-    });
-    SetRotation(Math::random(0, 1024)/Math::PI);
+    };
+    Actor::rotation = Math::random(0, 1024)/Math::PI;
 
-    SpriteComponent* sc=new SpriteComponent(this);
-    sc->SetTexture(game->GetTexture("../resource/Asteroid.png"));
-    MoveComponent* mc=new MoveComponent(this);
-    mc->SetForwardSpeed(150.0f);
+    sc->setTexture(_game->getTexture("../resource/Asteroid.png"));
+
+    mc->setForwardSpeed(150.0f);
 }

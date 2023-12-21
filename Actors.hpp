@@ -7,15 +7,15 @@
 
 // Actor interface
 
-class Actor{
+class Actor: private std::enable_shared_from_this<Actor>{
 public:
     // 액터의 상태를 추적하는 데 사용
     enum State{
         EActive, EPaused, EDead
     };
-
+public:
     Actor(const std::weak_ptr<class Game> game) noexcept;
-    virtual ~Actor()=default;
+    virtual ~Actor(){}
 
     // Game에서 호출하는 함수
     void processInput(const uint8_t* keyState) noexcept;
@@ -42,13 +42,15 @@ public:
     const Math::Real& getRotation() const noexcept{ return rotation; }
     void setRotation(const Math::Real& other) noexcept{ rotation=other; }
 
-    void appendComponent(const std::shared_ptr<class Component>& component) noexcept;
-    std::weak_ptr<class Component> queryComponent(const class Component* component) const noexcept;
-    void removeComponent(const class Component* component) noexcept;
-private:
+    void appendComponent(const std::shared_ptr<class Component> component) noexcept;
+
     void orderComponents() noexcept;
 
 protected:
+    std::weak_ptr<Actor> self;
+    // 액터 구현체가 보유한 컴포넌트들
+    std::vector<std::weak_ptr<class Component>> components;
+
     State state=EActive;
     const std::weak_ptr<class Game> game;
     
@@ -58,9 +60,6 @@ protected:
     Math::Real scale=1.0;
     Math::Radian rotation=0.0;
 private:
-    // 액터가 보유한 컴포넌트들
-    std::vector<const std::shared_ptr<class Component>> components;
-    decltype(components)::const_iterator find(const class Component* component) const noexcept;
     bool isOrdered=true;
 };
 
@@ -68,42 +67,57 @@ private:
 
 class Paddle final: public Actor{
 public:
-    Paddle(class Game* game);
+    Paddle(const std::weak_ptr<class Game> game) noexcept;
     ~Paddle()=default;
 
-    void updateActorFirst(float deltaTime) override;
-    void updateActor(float deltaTime) override;
-    void collideAllow(Actor* opponent);
+    void updateActor(float deltaTime) noexcept override;
+    void collideAllow(const std::weak_ptr<Actor> opponent) noexcept;
 private:
-    const float fixed_velocity_y;
-    class CollisionComponent* cc;
+    std::shared_ptr<class BoxComponent> bc;
+    std::shared_ptr<class CollisionComponent> cc;
+    std::shared_ptr<class AbsoluteMoveComponent> mc;
 };
 
 class Wall final: public Actor{
 public:
-    Wall(class Game* game, int x, int y, int w, int h);
+    Wall( const std::weak_ptr<class Game> game,
+        const Vector2& pos,
+        const Vector2& size
+    ) noexcept;
     ~Wall()=default;
 
     void updateActor(float deltaTime) override{}
+private:
+    std::shared_ptr<class BoxComponent> bc;
 };
 
 class Ball final: public Actor{
 public:
-    Ball(class Game* game, int x, int y, int w, int h);
+    Ball(const std::weak_ptr<class Game> game,
+        const Vector2& pos,
+        const Vector2& size
+    ) noexcept;
     ~Ball()=default;
 
-    void updateActor(float deltaTime) override;
-    void collideAllow(Actor* opponent);
+    void updateActor(const float deltaTime) noexcept override;
+    void collideAllow(const std::weak_ptr<Actor> opponent) noexcept;
 private:
-    class CollisionComponent* cc;
+    std::shared_ptr<class AnimSpriteComponent> sc;
+    std::shared_ptr<class CollisionComponent> cc;
 };
 
 class Ship final: public Actor{
 public:
-    Ship(class Game* game);
+    Ship(const std::weak_ptr<class Game> game) noexcept;
+private:
+    std::shared_ptr<class AnimSpriteComponent> sc;
+    std::shared_ptr<class InputComponentP> ic;
 };
 
 class Asteroid final: public Actor{
 public:
-    Asteroid(class Game* game);
+    Asteroid(const std::weak_ptr<class Game> game) noexcept;
+private:
+    std::shared_ptr<class SpriteComponent> sc;
+    std::shared_ptr<class AngularMoveComponent> mc;
 };

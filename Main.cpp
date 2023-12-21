@@ -1,14 +1,16 @@
 #include "Game.hpp"
 
-int main(int argc, char* argv[]){
-    Game game;
+#include "SDL2/SDL.h"
 
-    bool success = game.Initialize();
+int main(int argc, char* argv[]){
+    auto game=std::make_shared<Game>();
+
+    bool success = game->initialize(game);
     
     if(success){
-        game.RunLoop();
+        game->runLoop();
     }
-    game.ShutDown();
+    game->shutDown();
 
     return 0;
 }

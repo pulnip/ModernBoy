@@ -12,15 +12,16 @@
 
 Component::Component(
     const std::weak_ptr<Actor> owner,
-    const int updateOrder)
-noexcept :owner(owner), updateOrder(updateOrder) {
+    const int updateOrder)noexcept
+:owner(owner), updateOrder(updateOrder){
     assert(!owner.expired() && "Component argument owner: expired");
     assert(100<=updateOrder && updateOrder<400 &&
         "updateOrder: value not valid"
     );
-    owner.lock()->appendComponent(
-        std::make_shared<Component>(this)
-    );
+
+    auto self=shared_from_this();
+    owner.lock()->appendComponent(self);
+    Component::self=self;
 }
 
 // Real Components
@@ -89,8 +90,15 @@ void CollisionComponent::allow(const std::weak_ptr<Actor> opponent) noexcept{
 }
 
 void CollisionComponent::disallow(const std::weak_ptr<Actor> opponent) noexcept{
+    assert(!opponent.expired() && "opponent: expired");
+    
     opponents.erase(
-        std::find(opponents.cbegin(), opponents.cend(), opponent)
+        std::find_if(opponents.cbegin(), opponents.cend(),
+            [&opponent](const auto& actor){
+                assert(!actor.expired() && "actor: expired");
+                return opponent.lock().get() == actor.lock().get();
+            }
+        )
     );
 }
 
@@ -102,23 +110,22 @@ noexcept :Component(owner, 300), drawOrder(drawOrder){
     assert(!owner.lock()->getGame().expired() && "game: expired");
     const auto _owner=owner.lock();
 
+    
     _owner->getGame().lock()->appendDrawable(
-        std::dynamic_pointer_cast<DrawComponent>(
-            _owner->queryComponent(this).lock()
-        )
+        std::dynamic_pointer_cast<DrawComponent>(self.lock())
     );
 }
 DrawComponent::~DrawComponent(){
     assert(!owner.expired() && "owner(Actor): expired");
     assert(!owner.lock()->getGame().expired() && "game: expired");
-    owner.lock()->getGame().lock()->removeDrawable(this);
+    owner.lock()->getGame().lock()->removeDrawable(
+        std::dynamic_pointer_cast<DrawComponent>(self.lock())
+    );
 }
 
-void BoxComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
+void BoxComponent::draw(SDL_Renderer* renderer) noexcept{
     assert(!owner.expired() && "owner(Actor): expired");
-    assert(!renderer.expired() && "renderer: expired");
     const auto _owner=owner.lock();
-    const auto _renderer=renderer.lock().get();
 
     SDL_Rect rect;
     const auto size=_owner->getSize();
@@ -130,11 +137,11 @@ void BoxComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
     rect.x = static_cast<int>(pos.x - rect.w/2);
     rect.y = static_cast<int>(pos.y - rect.h/2);
 
-    SDL_SetRenderDrawColor(_renderer,
+    SDL_SetRenderDrawColor(renderer,
         color.r, color.g, color.b,
         color.a
     );
-    SDL_RenderFillRect(_renderer, &rect);
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 void BoxComponent::setTexture(const BoxComponent::Color& color, const Vector2& size) noexcept{
@@ -143,11 +150,9 @@ void BoxComponent::setTexture(const BoxComponent::Color& color, const Vector2& s
     owner.lock()->setBaseSize(size);
 }
 
-void SpriteComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
+void SpriteComponent::draw(SDL_Renderer* renderer) noexcept{
     assert(!owner.expired() && "owner(Actor): expired");
-    assert(!renderer.expired() && "renderer: expired");
     const auto _owner=owner.lock();
-    const auto _renderer=renderer.lock().get();
 
     SDL_Rect rect;
     const auto size=_owner->getSize();
@@ -159,9 +164,8 @@ void SpriteComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
     rect.x = static_cast<int>(pos.x - rect.w/2);
     rect.y = static_cast<int>(pos.y - rect.h/2);
 
-    assert(!texture.expired() && "texture: expired");
-    SDL_RenderCopyEx(_renderer,
-        texture.lock().get(),
+    SDL_RenderCopyEx(renderer,
+        texture,
         // 텍스처의 특정 영역 (nullptr은 전체영역)
         nullptr,
         // 어느 위치에, 어느 크기로 렌더링할 지 
@@ -174,14 +178,13 @@ void SpriteComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
     );
 }
 
-void SpriteComponent::setTexture(const std::weak_ptr<SDL_Texture> texture) noexcept{
+void SpriteComponent::setTexture(SDL_Texture* texture) noexcept{
     assert(!owner.expired() && "owner(Actor): expired");
-    assert(!texture.expired() && "texture: expired");
     const auto _owner=owner.lock();
     SpriteComponent::texture = texture;
 
     int width, height;
-    SDL_QueryTexture(texture.lock().get(),
+    SDL_QueryTexture(texture,
         nullptr, nullptr,
         &width, &height
     );
@@ -212,31 +215,28 @@ void BGSpriteComponent::update(const float deltaTime) noexcept{
 
     for(auto& bg: BGTextures){
         // 텍스처 위치(offset)를 스크롤 스피드만큼 왼쪽으로 이동.
-        bg.mOffset_x += scrollSpeed * deltaTime;
+        bg.offset_x += scrollSpeed * deltaTime;
 
         // 화면이 왼쪽으로 이동
         if(scrollSpeed < 0){
             // 화면 왼쪽 밖으로 완전히 사라지면
-            if(bg.mOffset_x < -screenSize.x){
+            if(bg.offset_x < -screenSize.x){
                 // 오른쪽 끝으로 이동.
-                bg.mOffset_x += BGTextures.size() * screenSize.x;
+                bg.offset_x += BGTextures.size() * screenSize.x;
             }
         }
         // 화면이 오른쪽으로 이동
         else if(scrollSpeed > 0){
             // 화면 오른쪽 밖으로 완전히 사라지면
-            if(bg.mOffset_x > screenSize.x){
+            if(bg.offset_x > screenSize.x){
                 // 왼쪽 끝으로 이동.
-                bg.mOffset_x -= BGTextures.size() * screenSize.x;
+                bg.offset_x -= BGTextures.size() * screenSize.x;
             }
         }
     }
 }
 
-void BGSpriteComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcept{
-	assert(!renderer.expired() && "renderer: expired");
-    const auto _renderer=renderer.lock().get();
-    
+void BGSpriteComponent::draw(SDL_Renderer* renderer) noexcept{    
     // const auto origin = _owner->getPosition() - mScreenSize/2;
     for (auto& bg : BGTextures){
 		SDL_Rect rect;
@@ -244,23 +244,19 @@ void BGSpriteComponent::draw(const std::weak_ptr<SDL_Renderer> renderer) noexcep
 		rect.h = static_cast<int>(screenSize.y);
 		// rect.x = static_cast<int>(_owner->getPosition().x - rect.w/2 + bg.mOffset.x);
 		// rect.y = static_cast<int>(_owner->getPosition().y - rect.h/2 + bg.mOffset.y);
-		rect.x = static_cast<int>(bg.mOffset_x);
+		rect.x = static_cast<int>(bg.offset_x);
 		rect.y = 0.0f;
 
-        assert(!bg.texture.expired() && "bg texture: expired");
-        auto _texture=bg.texture.lock().get();
-		SDL_RenderCopy(_renderer,
-			_texture,
+		SDL_RenderCopy(renderer,
+			bg.texture,
 			nullptr, &rect
 		);
 	}
 }
 
-void BGSpriteComponent::setBGTextures(const std::vector<const std::weak_ptr<SDL_Texture>>& textures) noexcept{
+void BGSpriteComponent::setBGTextures(const std::vector<SDL_Texture*>& textures) noexcept{
     int count=0;
     for(auto tex: textures){
-        assert(!tex.expired() && "tex: expired");
-
         BGTextures.emplace_back(BGTexture{
             tex, count*screenSize.x
         });
@@ -268,31 +264,48 @@ void BGSpriteComponent::setBGTextures(const std::vector<const std::weak_ptr<SDL_
     }
 }
 
-void MoveComponent::update(const float deltaTime) noexcept{
+void AngularMoveComponent::update(const float deltaTime) noexcept{
     assert(!owner.expired() && "owner: expired");
     const auto _owner=owner.lock();
 
-    if(!Math::NearZero(mAngularSpeed)){
-        _owner->setRotation(
-            _owner->getRotation() + mAngularSpeed*deltaTime
-        );
-    }
-    if(!Math::NearZero(mForwardSpeed)){
-        const auto pos = _owner->getPosition();
-        _owner->setPosition(
-            pos + Vector2::forward(_owner->getRotation())*mForwardSpeed*deltaTime
+    _owner->setRotation(
+        _owner->getRotation() + angularSpeed*deltaTime
+    );
+    
+    if(!Math::NearZero(forwardSpeed)){
+        _owner->setVelocity(
+            Vector2::forward(_owner->getRotation())*forwardSpeed*deltaTime
         );
     }
 }
-
-void InputComponent::processInput(const uint8_t* keyState) noexcept{
+void InputComponentP::processInput(const uint8_t* keyState) noexcept{
     short dir=0;
-    if(keyState[mForwardKey]) dir += 1;
-    if(keyState[mBackwardKey]) dir -= 1;
-    setForwardSpeed(dir * mForwardMoveSpeed);
+    if(keyState[forwardKey]) dir += 1;
+    if(keyState[backwardKey]) dir -= 1;
+    setForwardSpeed(dir * forwardMoveSpeed);
 
     dir=0;
-    if(keyState[mClockwiseKey]) dir += 1;
-    if(keyState[mCounterClockwiseKey]) dir -= 1;
-    setAngularSpeed(dir * mAngularMoveSpeed);
+    if(keyState[clockwiseKey]) dir += 1;
+    if(keyState[counterClockwiseKey]) dir -= 1;
+    setAngularSpeed(dir * angularMoveSpeed);
+}
+
+void AbsoluteMoveComponent::update(const float deltaTime) noexcept{
+    assert(!owner.expired() && "owner: expired");
+    const auto _owner=owner.lock();
+
+    _owner->setVelocity(
+        _owner->getVelocity() + moveVelocity*deltaTime
+    );
+}
+void InputComponentA::processInput(const uint8_t* keyState) noexcept{
+    short dir=0;
+    if(keyState[xPositiveKey]) dir += 1;
+    if(keyState[xNegativeKey]) dir -= 1;
+    moveVelocity.x *= dir;
+
+    dir=0;
+    if(keyState[yPositiveKey]) dir += 1;
+    if(keyState[yNegativeKey]) dir -= 1;
+    moveVelocity.y *= dir;
 }
