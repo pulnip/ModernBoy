@@ -1,3 +1,0 @@
-C:\msys64\mingw64\bin\cmake.exe -E rm -f CMakeFiles\GameEngineDevelopment.dir/objects.a
-C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\GameEngineDevelopment.dir/objects.a @CMakeFiles\GameEngineDevelopment.dir\objects1.rsp
-C:\msys64\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\GameEngineDevelopment.dir/objects.a -Wl,--no-whole-archive -o GameEngineDevelopment.exe -Wl,--out-implib,libGameEngineDevelopment.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\GameEngineDevelopment.dir\linkLibs.rsp
