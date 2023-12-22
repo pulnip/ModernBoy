@@ -63,15 +63,14 @@ void Game::loadData() noexcept{
     // ball->CollideAllow(floor);
     // ball->CollideAllow(rightWall);
     // ball->CollideAllow(paddle);
-    auto ship=std::make_shared<Ship>(weak_from_this());
-    appendActor(ship);
+    auto w=weak_from_this();
+    auto ship=Actor::Factory::make<Ship>(weak_from_this());
 
 	// Create actor for the background (this doesn't need a subclass)
-	auto bgActor=std::make_shared<Actor>(weak_from_this());
-	appendActor(bgActor);
+    auto bgActor=Actor::Factory::make<Actor>(weak_from_this());
     bgActor->position=Vector2{512.0f, 384.0f};
 	// Create the "far back" background
-	auto fbg=std::make_shared<BGSpriteComponent>(bgActor);
+	auto fbg=Component::Factory::make<BGSpriteComponent>(bgActor);
     bgActor->appendComponent(fbg);
 	fbg->setScreenSize(Vector2{1024.0f, 768.0f});
 	std::vector<SDL_Texture*> fbgtexs = {
@@ -81,7 +80,7 @@ void Game::loadData() noexcept{
 	fbg->setBGTextures(fbgtexs);
 	fbg->setScrollSpeed(-100.0f);
 	// Create the closer background
-    auto cbg=std::make_shared<BGSpriteComponent>(bgActor);
+    auto cbg=Component::Factory::make<BGSpriteComponent>(bgActor);
     bgActor->appendComponent(cbg);
     cbg->setUpdateOrder(101);
 	cbg->setScreenSize(Vector2{1024.0f, 768.0f});
@@ -93,7 +92,7 @@ void Game::loadData() noexcept{
 	cbg->setScrollSpeed(-200.0f);
 
     for(int i=0; i<20; ++i){
-        auto asteroid=std::make_shared<Asteroid>(weak_from_this());
+        auto asteroid=Actor::Factory::make<Asteroid>(weak_from_this());
     }
 }
 

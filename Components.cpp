@@ -59,15 +59,13 @@ void CollisionComponent::update(const float deltaTime) noexcept{
     }
 }
 
-DrawComponent::DrawComponent(const std::weak_ptr<Actor> owner) noexcept: Component(owner){
-    assert(!owner.expired() && "owner(Actor): expired");
+DrawComponent::DrawComponent(const std::weak_ptr<Actor> owner) noexcept: Component(owner){}
+
+void DrawComponent::load(const std::weak_ptr<Component> self) noexcept{
     assert(!owner.lock()->getGame().expired() && "game: expired");
-    owner.lock()->getGame().lock()->appendDrawable(weak_from_this());
-}
-DrawComponent::~DrawComponent(){
-    assert(!owner.expired() && "owner(Actor): expired");
-    assert(!owner.lock()->getGame().expired() && "game: expired");
-    owner.lock()->getGame().lock()->removeDrawable(weak_from_this());
+    owner.lock()->getGame().lock()->appendDrawable(
+        std::static_pointer_cast<DrawComponent>(self.lock())
+    );
 }
 
 void BoxComponent::draw(SDL_Renderer* renderer) noexcept{

@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "Game.hpp"
 #include "Math.hpp"
 
 // Actor interface
@@ -14,6 +15,17 @@ public:
         EActive, EPaused, EDead
     };
 public:
+    struct Factory{
+        template<typename T>
+        static std::shared_ptr<T> make(const std::weak_ptr<class Game> game) noexcept{
+            std::shared_ptr<Actor> actor=std::make_shared<T>(game);
+            actor->load(actor);
+            game.lock()->appendActor(actor);
+            return std::static_pointer_cast<T>(actor);
+        }
+        Factory()=delete;
+        ~Factory()=delete;
+    };
     Actor(const std::weak_ptr<class Game> game) noexcept;
     virtual ~Actor()=default;
 
@@ -38,6 +50,7 @@ public:
     void appendComponent(const std::shared_ptr<class Component> component) noexcept;
 private:
     void orderComponents() noexcept;
+    virtual void load(const std::weak_ptr<Actor> self) noexcept{}
 public:
     Vector2 position;
     Vector2 velocity;
@@ -56,21 +69,25 @@ private:
 
 // Real Actors
 
-class Paddle final: public Actor, public std::enable_shared_from_this<Paddle>{
+class Paddle final: public Actor{
 public:
     Paddle(const std::weak_ptr<class Game> game) noexcept;
     void updateActor(float deltaTime) noexcept override;
     void collideAllow(const std::weak_ptr<Actor> opponent) noexcept;
+private:
+    void load(const std::weak_ptr<Actor> self) noexcept override;
 private:
     std::shared_ptr<class BoxComponent> bc;
     std::shared_ptr<class CollisionComponent> cc;
     std::shared_ptr<class InputComponentA> ic;
 };
 
-class Wall final: public Actor, public std::enable_shared_from_this<Wall>{
+class Wall final: public Actor{
 public:
     Wall(const std::weak_ptr<class Game> game) noexcept;
     void updateActor(float deltaTime) override{}
+private:
+    void load(const std::weak_ptr<Actor> self) noexcept override;
 private:
     std::shared_ptr<class BoxComponent> bc;
 };
@@ -81,21 +98,27 @@ public:
     void updateActor(const float deltaTime) noexcept override;
     void collideAllow(const std::weak_ptr<Actor> opponent) noexcept;
 private:
+    void load(const std::weak_ptr<Actor> self) noexcept override;
+private:
     std::shared_ptr<class AnimSpriteComponent> sc;
     std::shared_ptr<class CollisionComponent> cc;
 };
 
-class Ship final: public Actor, public std::enable_shared_from_this<Ship>{
+class Ship final: public Actor{
 public:
     Ship(const std::weak_ptr<class Game> game) noexcept;
+private:
+    void load(const std::weak_ptr<Actor> self) noexcept override;
 private:
     std::shared_ptr<class AnimSpriteComponent> sc;
     std::shared_ptr<class InputComponentP> ic;
 };
 
-class Asteroid final: public Actor, public std::enable_shared_from_this<Asteroid>{
+class Asteroid final: public Actor{
 public:
     Asteroid(const std::weak_ptr<class Game> game) noexcept;
+private:
+    void load(const std::weak_ptr<Actor> self) noexcept override;
 private:
     std::shared_ptr<class SpriteComponent> sc;
     std::shared_ptr<class AngularMoveComponent> mc;

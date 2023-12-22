@@ -10,20 +10,35 @@
 
 class Component{
 public:
+    struct Factory{
+        template<typename T>
+        static std::shared_ptr<T> make(const std::weak_ptr<class Actor> actor) noexcept{
+            std::shared_ptr<Component> comp=std::make_shared<T>(actor);
+            comp->load(comp);
+            actor.lock()->appendComponent(comp);
+            return std::static_pointer_cast<T>(comp);
+        }
+        Factory()=delete;
+        ~Factory()=delete;
+    };
     // updateOrder이 작을수록 더 빨리 갱신
     // input 계열: 100 to 199
     // 연산 계열: 200 to 299
     // output계열: 300 to 399
     Component(const std::weak_ptr<class Actor> owner) noexcept: owner(owner){
         assert(!owner.expired() && "owner(Actor): expired");
-    };
-    virtual ~Component()=default;
+    }
+    virtual ~Component(){
+        assert(!owner.expired() && "owner(Actor): expired");
+    }
     
     virtual void update(const float deltaTime)=0;
     virtual void processInput(const uint8_t* keyState){}
 
     int getUpdateOrder() const noexcept{ return updateOrder; }
     void setUpdateOrder(const int uo) noexcept{ updateOrder=uo; }
+private:
+    virtual void load(const std::weak_ptr<Component> self) noexcept{}
 protected:
     // 소유자 액터
     const std::weak_ptr<class Actor> owner;
@@ -39,7 +54,6 @@ public:
     CollisionComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
         updateOrder=200;
     }
-
     void update(const float deltaTime) noexcept override;
 
     void allow(const std::weak_ptr<class Actor> opponent) noexcept{
@@ -57,12 +71,14 @@ public:
     // 일반 오브젝트 계열: 200 to 299
     // player계열: 300 to 399
     DrawComponent(const std::weak_ptr<class Actor> owner) noexcept;
-    virtual ~DrawComponent();
+    virtual ~DrawComponent()=default;
 
     virtual void update(const float deltaTime) noexcept override{}
     virtual void draw(class SDL_Renderer* renderer)=0;
 
     int getDrawOrder() const noexcept{ return drawOrder; }
+private:
+    void load(const std::weak_ptr<Component> self) noexcept override;
 protected:
     // 그리기 순서(화가 알고리즘)
     int drawOrder=0;
@@ -76,7 +92,7 @@ public:
         using byte=uint8_t;
         byte r=0, g=0, b=0, a=255;
     };
-
+public:
     BoxComponent(const std::weak_ptr<class Actor> owner) noexcept: DrawComponent(owner){
         drawOrder=200;
     }
@@ -142,7 +158,6 @@ public:
     void setScreenSize(const Vector2& size) noexcept{ screenSize=size; }
     float getScrollSpeed() const noexcept{ return scrollSpeed; }
     void setScrollSpeed(const float speed) noexcept{ scrollSpeed=speed; }
-
 private:
     struct BGTexture{
         class SDL_Texture* texture;
