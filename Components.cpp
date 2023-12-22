@@ -1,7 +1,4 @@
-#include <algorithm>
 #include <cassert>
-#include <cmath>
-#include <typeinfo>
 
 #include <SDL2/SDL.h>
 
@@ -20,7 +17,13 @@ const std::string InputComponent::className="InputComponent";
 const std::string AngularMoveComponent::className="AngularMoveComponent";
 const std::string InputComponentP::className="InputComponentP";
 
-// Real Components
+// Component interface
+
+Component::Component(const std::weak_ptr<Actor> owner) noexcept: owner(owner){
+    assert(!owner.expired() && "owner(Actor): expired");
+}
+
+// Concrete Component
 
 void CollisionComponent::update(const float deltaTime) noexcept{
     assert(!owner.expired() && "owner(Actor): expired");
@@ -41,13 +44,14 @@ void CollisionComponent::update(const float deltaTime) noexcept{
             // 충돌 후 처리
             const auto collision_result=col_box - pos_diff_abs;
 
-            assert(!_owner->queryComponent(typeid(MoveComponent).name()).expired());
-            assert(!_opponent->queryComponent(typeid(MoveComponent).name()).expired());
+            #error "MoveComponent랑 상속관계인 경우..."
+            assert(!_owner->queryComponent(MoveComponent::className).expired());
+            assert(!_opponent->queryComponent(MoveComponent::className).expired());
             auto& myVel=std::dynamic_pointer_cast<MoveComponent>(
-                _owner->queryComponent(typeid(MoveComponent).name()).lock()
+                _owner->queryComponent(MoveComponent::className).lock()
             )->velocity();
             auto& opVel=std::dynamic_pointer_cast<MoveComponent>(
-                _opponent->queryComponent(typeid(MoveComponent).name()).lock()
+                _opponent->queryComponent(MoveComponent::className).lock()
             )->velocity();
 
             // 상대 속도

@@ -1,9 +1,9 @@
+#include <SDL2/SDL.h>
+
 #include "Game.hpp"
 
-#include "SDL2/SDL.h"
-
 int main(int argc, char* argv[]){
-    auto game=Game::Factory::make<Game>();
+    auto game=Game::Factory::make<p1pingpong>();
     
     game->runLoop();
 

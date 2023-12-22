@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cassert>
 #include <memory>
 #include <vector>
 
@@ -11,23 +10,20 @@
 class Component{
 public:
     struct Factory{
-        template<typename T>
-        static std::shared_ptr<T> make(const std::weak_ptr<class Actor> actor) noexcept{
-            std::shared_ptr<Component> comp=std::make_shared<T>(actor);
+        template<typename Concrete> requires std::derived_from<Concrete, Component>
+        static std::shared_ptr<Concrete> make(const std::weak_ptr<class Actor> actor) noexcept{
+            struct make_shared_enabler: public Concrete{
+                make_shared_enabler(const std::weak_ptr<class Actor> actor):Concrete(actor){}
+            };
+            std::shared_ptr<Component> comp=std::make_shared<make_shared_enabler>(actor);
             comp->load(comp);
             actor.lock()->appendComponent(comp);
-            return std::static_pointer_cast<T>(comp);
+            return std::static_pointer_cast<Concrete>(comp);
         }
         Factory()=delete;
         ~Factory()=delete;
     };
-    // updateOrder이 작을수록 더 빨리 갱신
-    // input 계열: 100 to 199
-    // 연산 계열: 200 to 299
-    // output계열: 300 to 399
-    Component(const std::weak_ptr<class Actor> owner) noexcept: owner(owner){
-        assert(!owner.expired() && "owner(Actor): expired");
-    }
+public:
     virtual ~Component()=default;
     
     virtual void update(const float deltaTime)=0;
@@ -36,6 +32,12 @@ public:
     virtual const std::string& getName() const noexcept=0;
     int getUpdateOrder() const noexcept{ return updateOrder; }
     void setUpdateOrder(const int uo) noexcept{ updateOrder=uo; }
+protected:
+    // updateOrder이 작을수록 더 빨리 갱신
+    // input 계열: 100 to 199
+    // 연산 계열: 200 to 299
+    // output계열: 300 to 399
+    Component(const std::weak_ptr<class Actor> owner) noexcept;
 private:
     virtual void load(const std::weak_ptr<Component> self) noexcept{}
 protected:
@@ -45,33 +47,30 @@ protected:
     int updateOrder=0;
 };
 
-// Real Components
+// Concrete Component
 
 // 충돌 처리 컴포넌트
-class CollisionComponent final: public Component{
+class CollisionComponent: public Component{
 public:
-    CollisionComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
-        updateOrder=200;
-    }
     void update(const float deltaTime) noexcept override;
 
     const std::string& getName() const noexcept override{ return className; }
     void allow(const std::weak_ptr<class Actor> opponent) noexcept{
         opponents.emplace_back(opponent);
     }
-private:
+protected:
+    CollisionComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
+        updateOrder=200;
+    }
+public:
     static const std::string className;
+private:
     std::vector<std::weak_ptr<class Actor>> opponents;
 };
 
 // 2D Graphics interface
 class DrawComponent: public Component{
 public:
-    // drawOrder이 작을수록 더 뒤에 위치
-    // 배경 계열: 100 to 199
-    // 일반 오브젝트 계열: 200 to 299
-    // player계열: 300 to 399
-    DrawComponent(const std::weak_ptr<class Actor> owner) noexcept;
     virtual ~DrawComponent()=default;
 
     virtual void update(const float deltaTime) noexcept override{}
@@ -79,60 +78,67 @@ public:
 
     virtual const std::string& getName() const noexcept override{ return className; }
     int getDrawOrder() const noexcept{ return drawOrder; }
+protected:
+    // drawOrder이 작을수록 더 뒤에 위치
+    // 배경 계열: 100 to 199
+    // 일반 오브젝트 계열: 200 to 299
+    // player계열: 300 to 399
+    DrawComponent(const std::weak_ptr<class Actor> owner) noexcept;
 private:
     void load(const std::weak_ptr<Component> self) noexcept override;
+public:
+    static const std::string className;
 protected:
     // 그리기 순서(화가 알고리즘)
     int drawOrder=0;
-private:
-    static const std::string className;
 };
 
 // Color Box 텍스처
-class BoxComponent final: public DrawComponent{
+class BoxComponent: public DrawComponent{
 public:
     struct Color{
         using byte=uint8_t;
         byte r=0, g=0, b=0, a=255;
     };
 public:
-    BoxComponent(const std::weak_ptr<class Actor> owner) noexcept: DrawComponent(owner){
-        drawOrder=200;
-    }
     ~BoxComponent()=default;
 
     void draw(class SDL_Renderer* renderer) noexcept override;
 
     const std::string& getName() const noexcept override{ return className; }
     void setTexture(const Color& color, const Vector2& size) noexcept;
-private:
+protected:
+    BoxComponent(const std::weak_ptr<class Actor> owner) noexcept: DrawComponent(owner){
+        drawOrder=200;
+    }
+public:
     static const std::string className;
+private:
     Color color;
 };
 
 // 단일 스프라이트 텍스처
 class SpriteComponent: public DrawComponent{
 public:
-    SpriteComponent(const std::weak_ptr<class Actor> owner) noexcept: DrawComponent(owner){
-        drawOrder=201;
-    }
     virtual ~SpriteComponent()=default;
 
     virtual void draw(class SDL_Renderer* renderer) noexcept override;
 
     virtual const std::string& getName() const noexcept override{ return className; }
     virtual void setTexture(class SDL_Texture* texture) noexcept;
-private:
+protected:
+    SpriteComponent(const std::weak_ptr<class Actor> owner) noexcept: DrawComponent(owner){
+        drawOrder=201;
+    }
+public:
     static const std::string className;
+private:
     class SDL_Texture* texture;
 };
 
 // 애니메이션 텍스처
-class AnimSpriteComponent final: public SpriteComponent{
+class AnimSpriteComponent: public SpriteComponent{
 public:
-    AnimSpriteComponent(const std::weak_ptr<class Actor> owner) noexcept: SpriteComponent(owner){
-        drawOrder=202;
-    }
     ~AnimSpriteComponent()=default;
 
     // 애니메이션을 프레임마다 갱신
@@ -146,8 +152,13 @@ public:
     // 애니메이션 FPS
     float getAnimFPS() const noexcept{ return animFPS; }
     void setAnimFPS(const float fps) noexcept{ animFPS=fps; }
-private:
+protected:
+    AnimSpriteComponent(const std::weak_ptr<class Actor> owner) noexcept: SpriteComponent(owner){
+        drawOrder=202;
+    }
+public:
     static const std::string className;
+private:
     std::vector<class SDL_Texture*> animTextures;
     // 현재 프레임
     float currFrame=0.0f;
@@ -155,11 +166,8 @@ private:
 };
 
 // 스크롤되는 배경
-class BGSpriteComponent final: public SpriteComponent{
+class BGSpriteComponent: public SpriteComponent{
 public:
-    BGSpriteComponent(const std::weak_ptr<class Actor> owner) noexcept: SpriteComponent(owner){
-        drawOrder=100;
-    }
     ~BGSpriteComponent()=default;
     
     void update(const float deltaTime) noexcept override;
@@ -171,8 +179,13 @@ public:
     void setScreenSize(const Vector2& size) noexcept{ screenSize=size; }
     float getScrollSpeed() const noexcept{ return scrollSpeed; }
     void setScrollSpeed(const float speed) noexcept{ scrollSpeed=speed; }
-private:
+protected:
+    BGSpriteComponent(const std::weak_ptr<class Actor> owner) noexcept: SpriteComponent(owner){
+        drawOrder=100;
+    }
+public:
     static const std::string className;
+private:
     struct BGTexture{
         class SDL_Texture* texture;
         // 화면이 시작하는 위치
@@ -185,33 +198,31 @@ private:
 
 class MoveComponent: public Component{
 public:
-    MoveComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
-        updateOrder=100;
-    }
     ~MoveComponent()=default;
 
     void update(const float deltaTime) noexcept override;
 
     virtual const std::string& getName() const noexcept override{ return className; }
+protected:
+    MoveComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
+        updateOrder=100;
+    }
 public:
     // unit per second
     class Velocity{
     public:
         Vector2& operator()() noexcept{ return velocity; }
-        Vector2& operator()(Math::Real rotation, float forwardSpeed){
+        Vector2& operator()(Math::Real rotation, float forwardSpeed) noexcept{
             return velocity = Vector2::forward(rotation) * forwardSpeed;
         }
     private:
         Vector2 velocity;
     } velocity;
-private:
+public:
     static const std::string className;
 };
-class InputComponent final: public MoveComponent{
+class InputComponent: public MoveComponent{
 public:
-    InputComponent(std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){
-        updateOrder=99;
-    }
     ~InputComponent()=default;
 
     void processInput(const uint8_t* keyState) noexcept override;
@@ -221,20 +232,21 @@ public:
     void setXNKey(const uint8_t key) noexcept{ xNegativeKey=key; }
     void setYPKey(const uint8_t key) noexcept{ yPositiveKey=key; }
     void setYNKey(const uint8_t key) noexcept{ yNegativeKey=key; }
-private:
+protected:
+    InputComponent(std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){
+        updateOrder=99;
+    }
+public:
     static const std::string className;
+private:
     uint8_t xPositiveKey;
     uint8_t xNegativeKey;
     uint8_t yPositiveKey;
     uint8_t yNegativeKey;
 };
 
-
 class AngularMoveComponent: public MoveComponent{
 public:
-    AngularMoveComponent(const std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){
-        updateOrder=100;
-    }
     ~AngularMoveComponent()=default;
 
     void update(const float deltaTime) noexcept override;
@@ -242,18 +254,20 @@ public:
     virtual const std::string& getName() const noexcept override{ return className; }
     void setForwardSpeed(const float speed) noexcept{ forwardSpeed=speed; }
     void setAngularSpeed(const Math::Radian speed) noexcept{ angularSpeed=speed; }
-private:
+protected:
+    AngularMoveComponent(const std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){
+        updateOrder=100;
+    }
+public:
     static const std::string className;
+private:
     // unit per second
     float forwardSpeed;
     // radian per second
     Math::Radian angularSpeed;
 };
-class InputComponentP final: public AngularMoveComponent{
+class InputComponentP: public AngularMoveComponent{
 public:
-    InputComponentP(std::weak_ptr<class Actor> owner) noexcept: AngularMoveComponent(owner){
-        updateOrder=99;
-    }
     ~InputComponentP()=default;
 
     void processInput(const uint8_t* keyState) noexcept override;
@@ -265,8 +279,13 @@ public:
     void setBackwardKey(const uint8_t key) noexcept{ backwardKey=key; }
     void setClockwiseKey(const uint8_t key) noexcept{ clockwiseKey=key; }
     void setCounterClockwiseKey(const uint8_t key) noexcept{ counterClockwiseKey=key; }
-private:
+protected:
+    InputComponentP(std::weak_ptr<class Actor> owner) noexcept: AngularMoveComponent(owner){
+        updateOrder=99;
+    }
+public:
     static const std::string className;
+private:
     float forwardSpeedPreset;
     Math::Radian angularSpeedPreset;
 

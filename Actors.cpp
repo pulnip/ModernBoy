@@ -1,11 +1,13 @@
 #include <algorithm>
 #include <cassert>
-#include <typeinfo>
 
 #include <SDL2/SDL.h>
 
 #include "Actors.hpp"
 #include "Components.hpp"
+#include "Game.hpp"
+
+// Actor interface
 
 Actor::Actor(const std::weak_ptr<Game> game) noexcept: game(game){
     assert(!game.expired() && "game: expired");
@@ -51,7 +53,7 @@ void Actor::orderComponents() noexcept{
     isOrdered=true;
 }
 
-// Real Actors
+// Concrete Actor
 
 Paddle::Paddle(const std::weak_ptr<Game> game) noexcept: Actor(game){
     position={15.0f, 384.0f};
@@ -75,6 +77,7 @@ void Wall::load(const std::weak_ptr<Actor> self) noexcept{
 }
 
 Ball::Ball(const std::weak_ptr<Game> game) noexcept: Actor(game){
+    position={1024.0f/2, 768.0f/2};
     scale=5.0f;
 }
 void Ball::updateActor(const float deltaTime) noexcept{

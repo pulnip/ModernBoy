@@ -45,52 +45,6 @@ Game::Game() noexcept{
     // return true;
 }
 
-void Game::load(const std::weak_ptr<Game> self) noexcept{
-    // ping-pong
-
-    // auto ceil=new Wall(this, 1024/2, 15/2, 1024, 15);
-    // auto floor=new Wall(this, 1024/2, 768-15/2, 1024, 15);
-    // auto rightWall=new Wall(this, 1024-15/2, 768/2, 15, 768);
-
-    // auto paddle=new Paddle(this);
-    // paddle->CollideAllow(ceil);
-    // paddle->CollideAllow(floor);
-
-    // auto ball=new Ball(this, 1024/2, 768/2, 15, 15);
-    // ball->CollideAllow(ceil);
-    // ball->CollideAllow(floor);
-    // ball->CollideAllow(rightWall);
-    // ball->CollideAllow(paddle);
-    auto ship=Actor::Factory::make<Ship>(self);
-
-	// Create actor for the background (this doesn't need a subclass)
-    auto bgActor=Actor::Factory::make<Actor>(self);
-    bgActor->position=Vector2{512.0f, 384.0f};
-	// Create the "far back" background
-	auto fbg=Component::Factory::make<BGSpriteComponent>(bgActor);
-	fbg->setScreenSize(Vector2{1024.0f, 768.0f});
-	std::vector<SDL_Texture*> fbgtexs = {
-		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Farback01.png"),
-		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Farback02.png")
-	};
-	fbg->setBGTextures(fbgtexs);
-	fbg->setScrollSpeed(-100.0f);
-	// Create the closer background
-    auto cbg=Component::Factory::make<BGSpriteComponent>(bgActor);
-    cbg->setUpdateOrder(101);
-	cbg->setScreenSize(Vector2{1024.0f, 768.0f});
-	std::vector<SDL_Texture*> cbgtexs={
-		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Stars.png"),
-		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Stars.png")
-	};
-	cbg->setBGTextures(cbgtexs);
-	cbg->setScrollSpeed(-200.0f);
-
-    for(int i=0; i<20; ++i){
-        auto asteroid=Actor::Factory::make<Asteroid>(self);
-    }
-}
-
 void Game::shutDown() noexcept{
     for(auto key: textures) SDL_DestroyTexture(key.second);
     SDL_DestroyRenderer(renderer);
@@ -246,4 +200,59 @@ SDL_Texture* Game::loadTexture(const char* fileName) noexcept{
         return nullptr;
     }
     return texture;
+}
+
+void p1pingpong::load(const std::weak_ptr<Game> self) noexcept{
+    auto ceil=Actor::Factory::make<Wall>(self);
+    ceil->position={1024.0f/2, 15.0f/2};
+    ceil->baseSize={1024.0f, 15.0f};
+
+    auto floor=Actor::Factory::make<Wall>(self);
+    floor->position={1024.0f/2, 768.0f - 15.0f/2};
+    floor->baseSize={1024.0f, 15.0f};
+
+    auto rightWall=Actor::Factory::make<Wall>(self);
+    rightWall->position={1024.0f - 15.0f/2, 768.0f/2};
+    rightWall->baseSize={15.0f, 768.0f};
+
+    auto paddle=Actor::Factory::make<Paddle>(self);
+    paddle->collideAllow(ceil);
+    paddle->collideAllow(floor);
+
+    auto ball=Actor::Factory::make<Ball>(self);
+    ball->collideAllow(ceil);
+    ball->collideAllow(floor);
+    ball->collideAllow(rightWall);
+    ball->collideAllow(paddle);
+}
+
+void spaceShip::load(const std::weak_ptr<Game> self) noexcept{
+    auto ship=Actor::Factory::make<Ship>(self);
+
+	// Create actor for the background (this doesn't need a subclass)
+    auto bgActor=Actor::Factory::make<Actor>(self);
+    bgActor->position=Vector2{512.0f, 384.0f};
+	// Create the "far back" background
+	auto fbg=Component::Factory::make<BGSpriteComponent>(bgActor);
+	fbg->setScreenSize(Vector2{1024.0f, 768.0f});
+	std::vector<SDL_Texture*> fbgtexs = {
+		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Farback01.png"),
+		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Farback02.png")
+	};
+	fbg->setBGTextures(fbgtexs);
+	fbg->setScrollSpeed(-100.0f);
+	// Create the closer background
+    auto cbg=Component::Factory::make<BGSpriteComponent>(bgActor);
+    cbg->setUpdateOrder(101);
+	cbg->setScreenSize(Vector2{1024.0f, 768.0f});
+	std::vector<SDL_Texture*> cbgtexs={
+		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Stars.png"),
+		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Stars.png")
+	};
+	cbg->setBGTextures(cbgtexs);
+	cbg->setScrollSpeed(-200.0f);
+
+    for(int i=0; i<20; ++i){
+        auto asteroid=Actor::Factory::make<Asteroid>(self);
+    }
 }
