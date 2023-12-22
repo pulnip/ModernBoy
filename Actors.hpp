@@ -1,6 +1,9 @@
 #pragma once
 
+#include <map>
 #include <memory>
+#include <ranges>
+#include <string>
 #include <vector>
 
 #include "Game.hpp"
@@ -48,18 +51,20 @@ public:
     Vector2 getSize() const noexcept{ return scale*baseSize; }
 
     void appendComponent(const std::shared_ptr<class Component> component) noexcept;
+    std::weak_ptr<class Component> queryComponent(const std::string& name) noexcept;
 private:
     void orderComponents() noexcept;
     virtual void load(const std::weak_ptr<Actor> self) noexcept{}
 public:
     Vector2 position;
-    Vector2 velocity;
     Vector2 baseSize;
     Math::Real scale=1.0;
     Math::Radian rotation=0.0;
 protected:
     // 액터 구현체가 보유한 컴포넌트들
-    std::vector<std::weak_ptr<class Component>> components;
+    std::vector<std::shared_ptr<class Component>> components;
+    std::map<std::string, std::shared_ptr<class Component>> componentMap;
+    // std::ranges
 
     State state=EActive;
     const std::weak_ptr<class Game> game;
@@ -72,14 +77,14 @@ private:
 class Paddle final: public Actor{
 public:
     Paddle(const std::weak_ptr<class Game> game) noexcept;
-    void updateActor(float deltaTime) noexcept override;
+    void updateActor(float deltaTime) noexcept override{}
     void collideAllow(const std::weak_ptr<Actor> opponent) noexcept;
 private:
     void load(const std::weak_ptr<Actor> self) noexcept override;
 private:
     std::shared_ptr<class BoxComponent> bc;
     std::shared_ptr<class CollisionComponent> cc;
-    std::shared_ptr<class InputComponentA> ic;
+    std::shared_ptr<class InputComponent> ic;
 };
 
 class Wall final: public Actor{
@@ -102,6 +107,7 @@ private:
 private:
     std::shared_ptr<class AnimSpriteComponent> sc;
     std::shared_ptr<class CollisionComponent> cc;
+    std::shared_ptr<class MoveComponent> mc;
 };
 
 class Ship final: public Actor{

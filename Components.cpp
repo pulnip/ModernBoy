@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <typeinfo>
 
 #include <SDL2/SDL.h>
 
@@ -27,31 +28,38 @@ void CollisionComponent::update(const float deltaTime) noexcept{
         // AABB 알고리즘으로 충돌 판정
         if(pos_diff_abs <= col_box){            
             // 충돌 후 처리
+            const auto collision_result=col_box - pos_diff_abs;
+
+            assert(!_owner->queryComponent(typeid(MoveComponent).name()).expired());
+            assert(!_opponent->queryComponent(typeid(MoveComponent).name()).expired());
+            auto& myVel=std::dynamic_pointer_cast<MoveComponent>(
+                _owner->queryComponent(typeid(MoveComponent).name()).lock()
+            )->velocity();
+            auto& opVel=std::dynamic_pointer_cast<MoveComponent>(
+                _opponent->queryComponent(typeid(MoveComponent).name()).lock()
+            )->velocity();
 
             // 상대 속도
-            const auto myVel = _owner->velocity;
-            const auto opVel = _opponent->velocity;
             const auto vel_diff = opVel - myVel;
 
-            const auto collision_result=col_box - pos_diff_abs;
             // x축 면이 닿았음.
             if(collision_result.x < collision_result.y){
                 // 해당 면으로 접근 중
                 if(pos_diff.x * vel_diff.x < 0){
                     #ifdef TOTALLY_INELASTIC_COLLISION
                     // 완전 비탄성 충돌
-                    _owner->velocity=Vector2{0, _owner->velocity.y};
+                    myVel.x=0;
                     #else
-                    _owner->velocity=Vector2{Math::reflect(myVel.x, opVel.x), myVel.y};
+                    myVel.x=Math::reflect(myVel.x, opVel.x);
                     #endif
                 }
             }
             else{
                 if(pos_diff.y * vel_diff.y < 0){
                     #ifdef TOTALLY_INELASTIC_COLLISION
-                    _owner->velocity=Vector2{_owner->velocity.x, 0};
+                    myVel.y=0;
                     #else
-                    _owner->velocity=Vector2{_owner->velocity.x, Math::reflect(myVel.y, opVel.y)};
+                    myVel.y=Math::reflect(myVel.y, opVel.y);
                     #endif
                 }
             }
@@ -206,42 +214,39 @@ void BGSpriteComponent::setBGTextures(const std::vector<SDL_Texture*>& textures)
     }
 }
 
+void MoveComponent::update(const float deltaTime) noexcept{
+    assert(!owner.expired() && "owner: expired");
+    const auto _owner=owner.lock();
+
+    _owner->position += velocity() * deltaTime;
+}
+void InputComponent::processInput(const uint8_t* keyState) noexcept{
+    short dir=0;
+    if(keyState[xPositiveKey]) dir += 1;
+    if(keyState[xNegativeKey]) dir -= 1;
+    velocity().x *= dir;
+
+    dir=0;
+    if(keyState[yPositiveKey]) dir += 1;
+    if(keyState[yNegativeKey]) dir -= 1;
+    velocity().y *= dir;
+}
+
 void AngularMoveComponent::update(const float deltaTime) noexcept{
     assert(!owner.expired() && "owner: expired");
     const auto _owner=owner.lock();
 
-    _owner->rotation=_owner->rotation + angularSpeed*deltaTime;
-    
-    if(!Math::NearZero(forwardSpeed)){
-        _owner->velocity=Vector2::forward(_owner->rotation)*forwardSpeed*deltaTime;
-    }
+    _owner->position += velocity(_owner->rotation, forwardSpeed) * deltaTime;
+    _owner->rotation += angularSpeed * deltaTime;
 }
 void InputComponentP::processInput(const uint8_t* keyState) noexcept{
     short dir=0;
     if(keyState[forwardKey]) dir += 1;
     if(keyState[backwardKey]) dir -= 1;
-    setForwardSpeed(dir * forwardMoveSpeed);
+    setForwardSpeed(dir * forwardSpeedPreset);
 
     dir=0;
     if(keyState[clockwiseKey]) dir += 1;
     if(keyState[counterClockwiseKey]) dir -= 1;
-    setAngularSpeed(dir * angularMoveSpeed);
-}
-
-void AbsoluteMoveComponent::update(const float deltaTime) noexcept{
-    assert(!owner.expired() && "owner: expired");
-    const auto _owner=owner.lock();
-
-    _owner->velocity=_owner->velocity + moveVelocity*deltaTime;
-}
-void InputComponentA::processInput(const uint8_t* keyState) noexcept{
-    short dir=0;
-    if(keyState[xPositiveKey]) dir += 1;
-    if(keyState[xNegativeKey]) dir -= 1;
-    moveVelocity.x *= dir;
-
-    dir=0;
-    if(keyState[yPositiveKey]) dir += 1;
-    if(keyState[yNegativeKey]) dir -= 1;
-    moveVelocity.y *= dir;
+    setAngularSpeed(dir * angularSpeedPreset);
 }

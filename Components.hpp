@@ -28,18 +28,18 @@ public:
     Component(const std::weak_ptr<class Actor> owner) noexcept: owner(owner){
         assert(!owner.expired() && "owner(Actor): expired");
     }
-    virtual ~Component(){
-        assert(!owner.expired() && "owner(Actor): expired");
-    }
+    virtual ~Component()=default;
     
     virtual void update(const float deltaTime)=0;
     virtual void processInput(const uint8_t* keyState){}
 
+    const std::string& getName() const noexcept{ return componentName; }
     int getUpdateOrder() const noexcept{ return updateOrder; }
     void setUpdateOrder(const int uo) noexcept{ updateOrder=uo; }
 private:
     virtual void load(const std::weak_ptr<Component> self) noexcept{}
 protected:
+    std::string componentName;
     // 소유자 액터
     const std::weak_ptr<class Actor> owner;
     // 컴포넌트의 업데이트 순서
@@ -169,73 +169,32 @@ private:
     float scrollSpeed=0.0f;
 };
 
-class AngularMoveComponent: public Component{
+class MoveComponent: public Component{
 public:
-    AngularMoveComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
+    MoveComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
         updateOrder=100;
     }
-    ~AngularMoveComponent()=default;
+    ~MoveComponent()=default;
 
     void update(const float deltaTime) noexcept override;
-
-    float getAngularSpeed() const noexcept{ return angularSpeed; }
-    void setAngularSpeed(const float speed) noexcept{ angularSpeed=speed; }
-    float getForwardSpeed() const noexcept{ return forwardSpeed; }
-    void setForwardSpeed(const float speed) noexcept{ forwardSpeed=speed; }
-protected:
-    // radian per second
-    float angularSpeed;
-    // unit per second
-    float forwardSpeed;
-};
-class InputComponentP final: public AngularMoveComponent{
 public:
-    InputComponentP(std::weak_ptr<class Actor> owner) noexcept: AngularMoveComponent(owner){
+    // unit per second
+    class Velocity{
+    public:
+        Vector2& operator()() noexcept{ return velocity; }
+        Vector2& operator()(Math::Real rotation, float forwardSpeed){
+            return velocity = Vector2::forward(rotation) * forwardSpeed;
+        }
+    private:
+        Vector2 velocity;
+    } velocity;
+};
+class InputComponent final: public MoveComponent{
+public:
+    InputComponent(std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){
         updateOrder=99;
     }
-    ~InputComponentP()=default;
-
-    void processInput(const uint8_t* keyState) noexcept override;
-
-    float getForwardMoveSpeed() const noexcept{ return forwardMoveSpeed; }
-    void setForwardMoveSpeed(const float speed) noexcept{ forwardMoveSpeed=speed; }
-    float getAngularMoveSpeed() const noexcept{ return angularMoveSpeed; }
-    void setAngularMoveSpeed(const float radian) noexcept{ angularMoveSpeed=radian; }
-    void setForwardKey(const uint8_t key) noexcept{ forwardKey=key; }
-    void setBackwardKey(const uint8_t key) noexcept{ backwardKey=key; }
-    void setClockwiseKey(const uint8_t key) noexcept{ clockwiseKey=key; }
-    void setCounterClockwiseKey(const uint8_t key) noexcept{ counterClockwiseKey=key; }
-private:
-    float forwardMoveSpeed;
-    float angularMoveSpeed;
-
-    uint8_t forwardKey;
-    uint8_t backwardKey;
-    uint8_t clockwiseKey;
-    uint8_t counterClockwiseKey;
-};
-
-class AbsoluteMoveComponent: public Component{
-public:
-    AbsoluteMoveComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
-        updateOrder=100;
-    }
-    ~AbsoluteMoveComponent()=default;
-
-    void update(const float deltaTime) noexcept override;
-
-    const Vector2& getMoveVelocity() const noexcept{ return moveVelocity; }
-    void setMoveVelocity(const Vector2& v){ moveVelocity=v; }
-protected:
-    // unit per second
-    Vector2 moveVelocity;
-};
-class InputComponentA final: public AbsoluteMoveComponent{
-public:
-    InputComponentA(std::weak_ptr<class Actor> owner) noexcept: AbsoluteMoveComponent(owner){
-        updateOrder=99;
-    }
-    ~InputComponentA()=default;
+    ~InputComponent()=default;
 
     void processInput(const uint8_t* keyState) noexcept override;
 
@@ -248,4 +207,47 @@ private:
     uint8_t xNegativeKey;
     uint8_t yPositiveKey;
     uint8_t yNegativeKey;
+};
+
+
+class AngularMoveComponent: public MoveComponent{
+public:
+    AngularMoveComponent(const std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){
+        updateOrder=100;
+    }
+    ~AngularMoveComponent()=default;
+
+    void update(const float deltaTime) noexcept override;
+
+    void setForwardSpeed(const float speed) noexcept{ forwardSpeed=speed; }
+    void setAngularSpeed(const Math::Radian speed) noexcept{ angularSpeed=speed; }
+private:
+    // unit per second
+    float forwardSpeed;
+    // radian per second
+    Math::Radian angularSpeed;
+};
+class InputComponentP final: public AngularMoveComponent{
+public:
+    InputComponentP(std::weak_ptr<class Actor> owner) noexcept: AngularMoveComponent(owner){
+        updateOrder=99;
+    }
+    ~InputComponentP()=default;
+
+    void processInput(const uint8_t* keyState) noexcept override;
+public:
+    void setForwardSpeedPreset(const float speed) noexcept{ forwardSpeedPreset=speed; }
+    void setAngularSpeedPreset(const Math::Radian speed) noexcept{ angularSpeedPreset=speed; }
+    void setForwardKey(const uint8_t key) noexcept{ forwardKey=key; }
+    void setBackwardKey(const uint8_t key) noexcept{ backwardKey=key; }
+    void setClockwiseKey(const uint8_t key) noexcept{ clockwiseKey=key; }
+    void setCounterClockwiseKey(const uint8_t key) noexcept{ counterClockwiseKey=key; }
+private:
+    float forwardSpeedPreset;
+    Math::Radian angularSpeedPreset;
+
+    uint8_t forwardKey;
+    uint8_t backwardKey;
+    uint8_t clockwiseKey;
+    uint8_t counterClockwiseKey;
 };

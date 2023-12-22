@@ -7,12 +7,20 @@
 
 #include "Math.hpp"
 
-class Game: public std::enable_shared_from_this<Game>{
+class Game{
 public:
-    Game() noexcept=default;
+    struct Factory{
+        template<typename T>
+        static std::shared_ptr<T> make() noexcept{
+            std::shared_ptr<Game> game=std::make_shared<T>();
+            game->load(game);
+            return std::static_pointer_cast<T>(game);
+        }
+        Factory()=delete;
+        ~Factory()=delete;
+    };
+    Game() noexcept;
     ~Game()=default;
-    // 게임 초기화
-    bool initialize() noexcept;
     // 게임이 끝나기 전까지 게임 루프를 실행
     void runLoop() noexcept;
     // 게임 종료
@@ -25,7 +33,7 @@ public:
     void removeDrawable(const std::weak_ptr<class DrawComponent> drawable) noexcept;
 private:
     // 게임 세계의 액터를 로드
-    void loadData() noexcept;
+    void load(const std::weak_ptr<Game> self) noexcept;
     // 게임 루프를 위한 헬퍼 함수
     void processInput() noexcept;
     void updateGame() noexcept;

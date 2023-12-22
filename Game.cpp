@@ -8,11 +8,11 @@
 #include "Components.hpp"
 #include "Game.hpp"
 
-bool Game::initialize() noexcept{
+Game::Game() noexcept{
     int sdlResult=SDL_Init(SDL_INIT_VIDEO);
     if(sdlResult != 0 ){
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
-        return false;
+        // return false;
     }
 
     window=SDL_CreateWindow(
@@ -23,7 +23,7 @@ bool Game::initialize() noexcept{
     );
     if(!window){
         SDL_Log("Failed to create window: %s", SDL_GetError());
-        return false;
+        // return false;
     }
 
     renderer=SDL_CreateRenderer(
@@ -33,21 +33,19 @@ bool Game::initialize() noexcept{
     );
     if(!renderer){
         SDL_Log("Failed to create renderer: %s", SDL_GetError());
-        return false;
+        // return false;
     }
 
     // Init SDL Image Library
     if(IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG){
         SDL_Log("Unable to initialize SDL_image: %s", SDL_GetError());
-        return false;
+        // return false;
     }
 
-    loadData();
-
-    return true;
+    // return true;
 }
 
-void Game::loadData() noexcept{
+void Game::load(const std::weak_ptr<Game> self) noexcept{
     // ping-pong
 
     // auto ceil=new Wall(this, 1024/2, 15/2, 1024, 15);
@@ -63,36 +61,33 @@ void Game::loadData() noexcept{
     // ball->CollideAllow(floor);
     // ball->CollideAllow(rightWall);
     // ball->CollideAllow(paddle);
-    auto w=weak_from_this();
-    auto ship=Actor::Factory::make<Ship>(weak_from_this());
+    auto ship=Actor::Factory::make<Ship>(self);
 
 	// Create actor for the background (this doesn't need a subclass)
-    auto bgActor=Actor::Factory::make<Actor>(weak_from_this());
+    auto bgActor=Actor::Factory::make<Actor>(self);
     bgActor->position=Vector2{512.0f, 384.0f};
 	// Create the "far back" background
 	auto fbg=Component::Factory::make<BGSpriteComponent>(bgActor);
-    bgActor->appendComponent(fbg);
 	fbg->setScreenSize(Vector2{1024.0f, 768.0f});
 	std::vector<SDL_Texture*> fbgtexs = {
-		getTexture("../resource/Farback01.png"),
-		getTexture("../resource/Farback02.png")
+		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Farback01.png"),
+		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Farback02.png")
 	};
 	fbg->setBGTextures(fbgtexs);
 	fbg->setScrollSpeed(-100.0f);
 	// Create the closer background
     auto cbg=Component::Factory::make<BGSpriteComponent>(bgActor);
-    bgActor->appendComponent(cbg);
     cbg->setUpdateOrder(101);
 	cbg->setScreenSize(Vector2{1024.0f, 768.0f});
 	std::vector<SDL_Texture*> cbgtexs={
-		getTexture("../resource/Stars.png"),
-		getTexture("../resource/Stars.png")
+		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Stars.png"),
+		getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Stars.png")
 	};
 	cbg->setBGTextures(cbgtexs);
 	cbg->setScrollSpeed(-200.0f);
 
     for(int i=0; i<20; ++i){
-        auto asteroid=Actor::Factory::make<Asteroid>(weak_from_this());
+        auto asteroid=Actor::Factory::make<Asteroid>(self);
     }
 }
 
@@ -175,7 +170,7 @@ void Game::processInput() noexcept{
     }
 
     isUpdatingActors=true;
-    for(auto actor: actors){
+    for(auto& actor: actors){
         actor->processInput(keyState);
     }
     isUpdatingActors=false;
