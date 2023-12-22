@@ -2,7 +2,6 @@
 
 #include <map>
 #include <memory>
-#include <ranges>
 #include <string>
 #include <vector>
 
@@ -63,8 +62,8 @@ public:
 protected:
     // 액터 구현체가 보유한 컴포넌트들
     std::vector<std::shared_ptr<class Component>> components;
+    // queryComponent에서 사용
     std::map<std::string, std::shared_ptr<class Component>> componentMap;
-    // std::ranges
 
     State state=EActive;
     const std::weak_ptr<class Game> game;

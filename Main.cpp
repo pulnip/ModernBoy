@@ -8,6 +8,5 @@ int main(int argc, char* argv[]){
     game->runLoop();
 
     game->shutDown();
-
     return 0;
 }

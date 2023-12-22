@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cassert>
+#include <typeinfo>
 
 #include <SDL2/SDL.h>
 
@@ -62,9 +63,6 @@ void Paddle::load(const std::weak_ptr<Actor> self) noexcept{
     bc=Component::Factory::make<BoxComponent>(self);
     cc=Component::Factory::make<CollisionComponent>(self);
     ic=Component::Factory::make<InputComponent>(self);
-    appendComponent(bc);
-    appendComponent(cc);
-    appendComponent(ic);
 
     bc->setTexture({}, {15.0f, 120.0f});
 
@@ -74,7 +72,6 @@ void Paddle::load(const std::weak_ptr<Actor> self) noexcept{
 Wall::Wall(const std::weak_ptr<Game> game) noexcept: Actor(game){}
 void Wall::load(const std::weak_ptr<Actor> self) noexcept{
     bc=Component::Factory::make<BoxComponent>(self);
-    appendComponent(bc);
 }
 
 Ball::Ball(const std::weak_ptr<Game> game) noexcept: Actor(game){
@@ -95,9 +92,6 @@ void Ball::load(const std::weak_ptr<Actor> self) noexcept{
     sc=Component::Factory::make<AnimSpriteComponent>(self);
     cc=Component::Factory::make<CollisionComponent>(self);
     mc=Component::Factory::make<MoveComponent>(self);
-    appendComponent(sc);
-    appendComponent(cc);
-    appendComponent(mc);
 
     auto _game=game.lock();
     std::vector<SDL_Texture*> anims={
@@ -118,8 +112,6 @@ Actor(game){
 void Ship::load(const std::weak_ptr<Actor> self) noexcept{
     sc=Component::Factory::make<AnimSpriteComponent>(self);
     ic=Component::Factory::make<InputComponentP>(self);
-    appendComponent(sc);
-    appendComponent(ic);
 
     auto _game=game.lock();
     std::vector<SDL_Texture*> anims={
@@ -149,8 +141,6 @@ Actor(game){
 void Asteroid::load(const std::weak_ptr<Actor> self) noexcept{
     sc=Component::Factory::make<AnimSpriteComponent>(self);
     mc=Component::Factory::make<AngularMoveComponent>(self);
-    appendComponent(sc);
-    appendComponent(mc);
 
     sc->setTexture(game.lock()->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Asteroid.png"));
 

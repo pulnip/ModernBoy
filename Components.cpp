@@ -9,6 +9,17 @@
 #include "Components.hpp"
 #include "Game.hpp"
 
+const std::string CollisionComponent::className="CollisionComponent";
+const std::string DrawComponent::className="DrawComponent";
+const std::string BoxComponent::className="BoxComponent";
+const std::string SpriteComponent::className="SpriteComponent";
+const std::string AnimSpriteComponent::className="AnimSpriteComponent";
+const std::string BGSpriteComponent::className="BGSpriteComponent";
+const std::string MoveComponent::className="MoveComponent";
+const std::string InputComponent::className="InputComponent";
+const std::string AngularMoveComponent::className="AngularMoveComponent";
+const std::string InputComponentP::className="InputComponentP";
+
 // Real Components
 
 void CollisionComponent::update(const float deltaTime) noexcept{
