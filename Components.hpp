@@ -228,6 +228,7 @@ public:
     void processInput(const uint8_t* keyState) noexcept override;
 
     const std::string& getName() const noexcept override{ return className; }
+    void setSpeedPreset(const Vector2& v) noexcept{ speedPreset=v; }
     void setXPKey(const uint8_t key) noexcept{ xPositiveKey=key; }
     void setXNKey(const uint8_t key) noexcept{ xNegativeKey=key; }
     void setYPKey(const uint8_t key) noexcept{ yPositiveKey=key; }
@@ -239,6 +240,8 @@ protected:
 public:
     static const std::string className;
 private:
+    Vector2 speedPreset;
+
     uint8_t xPositiveKey;
     uint8_t xNegativeKey;
     uint8_t yPositiveKey;

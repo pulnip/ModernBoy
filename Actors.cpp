@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cassert>
+#include <unordered_map>
 
 #include <SDL2/SDL.h>
 
@@ -38,7 +39,21 @@ void Actor::updateComponents(const float deltaTime) noexcept{
 
 void Actor::appendComponent(const std::shared_ptr<Component> component) noexcept{
     components.emplace_back(component);
-    componentMap[component->getName()]=component;
+
+    static const std::unordered_map<std::string, std::string> m{
+        {CollisionComponent::className, CollisionComponent::className},
+        {DrawComponent::className,       DrawComponent::className},
+        {BoxComponent::className,        DrawComponent::className},
+        {SpriteComponent::className,     DrawComponent::className},
+        {AnimSpriteComponent::className, DrawComponent::className},
+        {BGSpriteComponent::className,   DrawComponent::className},
+        {MoveComponent::className,        MoveComponent::className},
+        {InputComponent::className,       MoveComponent::className},
+        {AngularMoveComponent::className, MoveComponent::className},
+        {InputComponentP::className,      MoveComponent::className}
+    };
+    const auto name=(*m.find(component->getName())).second;
+    componentMap[name]=component;
     isOrdered=false;
 }
 std::weak_ptr<Component> Actor::queryComponent(const std::string& name) noexcept{
@@ -69,11 +84,19 @@ void Paddle::load(const std::weak_ptr<Actor> self) noexcept{
     bc->setTexture({}, {15.0f, 120.0f});
 
     ic->velocity()={0, 300.0f};
+
+    ic->setSpeedPreset(Vector2{0.0f, 300.0f});
+
+    ic->setXPKey(SDL_SCANCODE_D);
+    ic->setXNKey(SDL_SCANCODE_A);
+    ic->setYPKey(SDL_SCANCODE_S);
+    ic->setYNKey(SDL_SCANCODE_W);
 }
 
 Wall::Wall(const std::weak_ptr<Game> game) noexcept: Actor(game){}
 void Wall::load(const std::weak_ptr<Actor> self) noexcept{
     bc=Component::Factory::make<BoxComponent>(self);
+    mc=Component::Factory::make<MoveComponent>(self);
 }
 
 Ball::Ball(const std::weak_ptr<Game> game) noexcept: Actor(game){

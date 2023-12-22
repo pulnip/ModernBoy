@@ -44,7 +44,6 @@ void CollisionComponent::update(const float deltaTime) noexcept{
             // 충돌 후 처리
             const auto collision_result=col_box - pos_diff_abs;
 
-            #error "MoveComponent랑 상속관계인 경우..."
             assert(!_owner->queryComponent(MoveComponent::className).expired());
             assert(!_opponent->queryComponent(MoveComponent::className).expired());
             auto& myVel=std::dynamic_pointer_cast<MoveComponent>(
@@ -239,12 +238,12 @@ void InputComponent::processInput(const uint8_t* keyState) noexcept{
     short dir=0;
     if(keyState[xPositiveKey]) dir += 1;
     if(keyState[xNegativeKey]) dir -= 1;
-    velocity().x *= dir;
+    velocity().x = dir * speedPreset.x;
 
     dir=0;
     if(keyState[yPositiveKey]) dir += 1;
     if(keyState[yNegativeKey]) dir -= 1;
-    velocity().y *= dir;
+    velocity().y = dir * speedPreset.y;
 }
 
 void AngularMoveComponent::update(const float deltaTime) noexcept{

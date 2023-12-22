@@ -101,6 +101,7 @@ private:
     void load(const std::weak_ptr<Actor> self) noexcept override;
 private:
     std::shared_ptr<class BoxComponent> bc;
+    std::shared_ptr<class MoveComponent> mc;
 };
 
 class Ball: public Actor, public std::enable_shared_from_this<Ball>{
