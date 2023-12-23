@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -26,7 +28,7 @@ public:
 public:
     virtual ~Component()=default;
     
-    virtual void update(const float deltaTime)=0;
+    virtual void update(const float deltaTime) noexcept=0;
     virtual void processInput(const uint8_t* keyState){}
 
     virtual const std::string& getName() const noexcept=0;
@@ -83,7 +85,9 @@ protected:
     // 배경 계열: 100 to 199
     // 일반 오브젝트 계열: 200 to 299
     // player계열: 300 to 399
-    DrawComponent(const std::weak_ptr<class Actor> owner) noexcept;
+    DrawComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
+        updateOrder=300;
+    }
 private:
     void load(const std::weak_ptr<Component> self) noexcept override;
 public:
@@ -92,7 +96,6 @@ protected:
     // 그리기 순서(화가 알고리즘)
     int drawOrder=0;
 };
-
 // Color Box 텍스처
 class BoxComponent: public DrawComponent{
 public:
@@ -116,7 +119,6 @@ public:
 private:
     Color color;
 };
-
 // 단일 스프라이트 텍스처
 class SpriteComponent: public DrawComponent{
 public:
@@ -135,7 +137,6 @@ public:
 private:
     class SDL_Texture* texture;
 };
-
 // 애니메이션 텍스처
 class AnimSpriteComponent: public SpriteComponent{
 public:
@@ -164,7 +165,6 @@ private:
     float currFrame=0.0f;
     float animFPS=8.0f;
 };
-
 // 스크롤되는 배경
 class BGSpriteComponent: public SpriteComponent{
 public:
@@ -205,7 +205,7 @@ public:
     virtual const std::string& getName() const noexcept override{ return className; }
 protected:
     MoveComponent(const std::weak_ptr<class Actor> owner) noexcept: Component(owner){
-        updateOrder=100;
+        updateOrder=201;
     }
 public:
     // unit per second
@@ -221,36 +221,6 @@ public:
 public:
     static const std::string className;
 };
-class InputComponent: public MoveComponent{
-public:
-    ~InputComponent()=default;
-
-    void processInput(const uint8_t* keyState) noexcept override;
-
-    const std::string& getName() const noexcept override{ return className; }
-    void setSpeedPreset(const Vector2& v) noexcept{ speedPreset=v; }
-    void setXPKey(const uint8_t key) noexcept{ xPositiveKey=key; }
-    void setXNKey(const uint8_t key) noexcept{ xNegativeKey=key; }
-    void setYPKey(const uint8_t key) noexcept{ yPositiveKey=key; }
-    void setYNKey(const uint8_t key) noexcept{ yNegativeKey=key; }
-protected:
-    InputComponent(std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){
-        #warning InputComponent is NOT MoveComponent
-        // ic가 mc에 v값을 query하는 형태로 변경
-        // updateOrder: ic(100) -> cc(200) -> mc(201)
-        updateOrder=99;
-    }
-public:
-    static const std::string className;
-private:
-    Vector2 speedPreset;
-
-    uint8_t xPositiveKey;
-    uint8_t xNegativeKey;
-    uint8_t yPositiveKey;
-    uint8_t yNegativeKey;
-};
-
 class AngularMoveComponent: public MoveComponent{
 public:
     ~AngularMoveComponent()=default;
@@ -261,9 +231,7 @@ public:
     void setForwardSpeed(const float speed) noexcept{ forwardSpeed=speed; }
     void setAngularSpeed(const Math::Radian speed) noexcept{ angularSpeed=speed; }
 protected:
-    AngularMoveComponent(const std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){
-        updateOrder=100;
-    }
+    AngularMoveComponent(const std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){}
 public:
     static const std::string className;
 private:
@@ -272,11 +240,44 @@ private:
     // radian per second
     Math::Radian angularSpeed;
 };
-class InputComponentP: public AngularMoveComponent{
+
+#warning "make key map"
+class InputComponent: public Component{
 public:
-    ~InputComponentP()=default;
+    ~InputComponent()=default;
 
     void processInput(const uint8_t* keyState) noexcept override;
+    virtual void update(const float deltaTime) noexcept override{}
+
+    const std::string& getName() const noexcept override{ return className; }
+    void setKey(const uint8_t key, std::function<void(void)> behavior);
+    void setSpeedPreset(const Vector2& v) noexcept{ speedPreset=v; }
+    void setXPKey(const uint8_t key) noexcept{ xPositiveKey=key; }
+    void setXNKey(const uint8_t key) noexcept{ xNegativeKey=key; }
+    void setYPKey(const uint8_t key) noexcept{ yPositiveKey=key; }
+    void setYNKey(const uint8_t key) noexcept{ yNegativeKey=key; }
+protected:
+    InputComponent(std::weak_ptr<class Actor> owner) noexcept: Component(owner){
+        updateOrder=100;
+    }
+public:
+    static const std::string className;
+protected:
+    std::map<uint8_t, std::function<void(void)>> keymap;
+private:
+    Vector2 speedPreset;
+
+    uint8_t xPositiveKey;
+    uint8_t xNegativeKey;
+    uint8_t yPositiveKey;
+    uint8_t yNegativeKey;
+};
+class AngularInputComponent: public InputComponent{
+public:
+    ~AngularInputComponent()=default;
+
+    void processInput(const uint8_t* keyState) noexcept override;
+    void update(const float deltaTime) noexcept override{}
 
     const std::string& getName() const noexcept override{ return className; }
     void setForwardSpeedPreset(const float speed) noexcept{ forwardSpeedPreset=speed; }
@@ -286,9 +287,7 @@ public:
     void setClockwiseKey(const uint8_t key) noexcept{ clockwiseKey=key; }
     void setCounterClockwiseKey(const uint8_t key) noexcept{ counterClockwiseKey=key; }
 protected:
-    InputComponentP(std::weak_ptr<class Actor> owner) noexcept: AngularMoveComponent(owner){
-        updateOrder=99;
-    }
+    AngularInputComponent(std::weak_ptr<class Actor> owner) noexcept: InputComponent(owner){}
 public:
     static const std::string className;
 private:

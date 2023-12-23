@@ -13,9 +13,9 @@ const std::string SpriteComponent::className="SpriteComponent";
 const std::string AnimSpriteComponent::className="AnimSpriteComponent";
 const std::string BGSpriteComponent::className="BGSpriteComponent";
 const std::string MoveComponent::className="MoveComponent";
-const std::string InputComponent::className="InputComponent";
 const std::string AngularMoveComponent::className="AngularMoveComponent";
-const std::string InputComponentP::className="InputComponentP";
+const std::string InputComponent::className="InputComponent";
+const std::string AngularInputComponent::className="AngularInputComponent";
 
 // Component interface
 
@@ -40,18 +40,16 @@ void CollisionComponent::update(const float deltaTime) noexcept{
         const auto col_box = (_owner->getSize() + _opponent->getSize())/2;
 
         // AABB 알고리즘으로 충돌 판정
-        if(pos_diff_abs <= col_box){            
+        if(pos_diff_abs <= col_box){
             // 충돌 후 처리
             const auto collision_result=col_box - pos_diff_abs;
 
-            assert(!_owner->queryComponent(MoveComponent::className).expired());
-            assert(!_opponent->queryComponent(MoveComponent::className).expired());
-            auto& myVel=std::dynamic_pointer_cast<MoveComponent>(
-                _owner->queryComponent(MoveComponent::className).lock()
-            )->velocity();
-            auto& opVel=std::dynamic_pointer_cast<MoveComponent>(
-                _opponent->queryComponent(MoveComponent::className).lock()
-            )->velocity();
+            auto my_wmc=_owner->queryComponent(MoveComponent::className);
+            auto op_wmc=_opponent->queryComponent(MoveComponent::className);
+            assert(!my_wmc.expired());
+            assert(!op_wmc.expired());
+            auto& myVel=std::dynamic_pointer_cast<MoveComponent>(my_wmc.lock())->velocity();
+            auto& opVel=std::dynamic_pointer_cast<MoveComponent>(op_wmc.lock())->velocity();
 
             // 상대 속도
             const auto vel_diff = opVel - myVel;
@@ -80,8 +78,6 @@ void CollisionComponent::update(const float deltaTime) noexcept{
         }
     }
 }
-
-DrawComponent::DrawComponent(const std::weak_ptr<Actor> owner) noexcept: Component(owner){}
 
 void DrawComponent::load(const std::weak_ptr<Component> self) noexcept{
     assert(!owner.lock()->getGame().expired() && "game: expired");
@@ -235,18 +231,6 @@ void MoveComponent::update(const float deltaTime) noexcept{
 
     _owner->position += velocity() * deltaTime;
 }
-void InputComponent::processInput(const uint8_t* keyState) noexcept{
-    short dir=0;
-    if(keyState[xPositiveKey]) dir += 1;
-    if(keyState[xNegativeKey]) dir -= 1;
-    velocity().x = dir * speedPreset.x;
-
-    dir=0;
-    if(keyState[yPositiveKey]) dir += 1;
-    if(keyState[yNegativeKey]) dir -= 1;
-    velocity().y = dir * speedPreset.y;
-}
-
 void AngularMoveComponent::update(const float deltaTime) noexcept{
     assert(!owner.expired() && "owner: expired");
     const auto _owner=owner.lock();
@@ -254,14 +238,40 @@ void AngularMoveComponent::update(const float deltaTime) noexcept{
     _owner->position += velocity(_owner->rotation, forwardSpeed) * deltaTime;
     _owner->rotation += angularSpeed * deltaTime;
 }
-void InputComponentP::processInput(const uint8_t* keyState) noexcept{
+
+void InputComponent::processInput(const uint8_t* keyState) noexcept{
+    assert(!owner.expired() && "owner: expired");
+    const auto _owner=owner.lock();
+
+    const auto wmc=_owner->queryComponent(MoveComponent::className);
+    assert(!wmc.expired());
+    auto& v=std::dynamic_pointer_cast<MoveComponent>(wmc.lock())->velocity();
+
+    short dir=0;
+    if(keyState[xPositiveKey]) dir += 1;
+    if(keyState[xNegativeKey]) dir -= 1;
+    v.x = dir * speedPreset.x;
+
+    dir=0;
+    if(keyState[yPositiveKey]) dir += 1;
+    if(keyState[yNegativeKey]) dir -= 1;
+    v.y = dir * speedPreset.y;
+}
+void AngularInputComponent::processInput(const uint8_t* keyState) noexcept{
+    assert(!owner.expired() && "owner: expired");
+    const auto _owner=owner.lock();
+
+    const auto wmc=_owner->queryComponent(AngularMoveComponent::className);
+    assert(!wmc.expired());
+    auto mc=std::dynamic_pointer_cast<AngularMoveComponent>(wmc.lock());
+
     short dir=0;
     if(keyState[forwardKey]) dir += 1;
     if(keyState[backwardKey]) dir -= 1;
-    setForwardSpeed(dir * forwardSpeedPreset);
+    mc->setForwardSpeed(dir * forwardSpeedPreset);
 
     dir=0;
     if(keyState[clockwiseKey]) dir += 1;
     if(keyState[counterClockwiseKey]) dir -= 1;
-    setAngularSpeed(dir * angularSpeedPreset);
+    mc->setAngularSpeed(dir * angularSpeedPreset);
 }

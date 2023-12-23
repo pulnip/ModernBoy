@@ -90,6 +90,7 @@ private:
     std::shared_ptr<class BoxComponent> bc;
     std::shared_ptr<class CollisionComponent> cc;
     std::shared_ptr<class InputComponent> ic;
+    std::shared_ptr<class MoveComponent> mc;
 };
 
 class Wall: public Actor{
@@ -125,7 +126,8 @@ private:
     void load(const std::weak_ptr<Actor> self) noexcept override;
 private:
     std::shared_ptr<class AnimSpriteComponent> sc;
-    std::shared_ptr<class InputComponentP> ic;
+    std::shared_ptr<class AngularInputComponent> ic;
+    std::shared_ptr<class AngularMoveComponent> mc;
 };
 
 class Asteroid: public Actor{

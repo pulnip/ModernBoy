@@ -8,6 +8,8 @@
 #include "Components.hpp"
 #include "Game.hpp"
 
+using cf=Component::Factory;
+
 // Actor interface
 
 Actor::Actor(const std::weak_ptr<Game> game) noexcept: game(game){
@@ -48,9 +50,9 @@ void Actor::appendComponent(const std::shared_ptr<Component> component) noexcept
         {AnimSpriteComponent::className, DrawComponent::className},
         {BGSpriteComponent::className,   DrawComponent::className},
         {MoveComponent::className,        MoveComponent::className},
-        {InputComponent::className,       MoveComponent::className},
         {AngularMoveComponent::className, MoveComponent::className},
-        {InputComponentP::className,      MoveComponent::className}
+        {InputComponent::className,        InputComponent::className},
+        {AngularInputComponent::className, InputComponent::className}
     };
     const auto name=(*m.find(component->getName())).second;
     componentMap[name]=component;
@@ -77,13 +79,12 @@ void Paddle::collideAllow(const std::weak_ptr<Actor> opponent) noexcept{
     cc->allow(opponent);
 }
 void Paddle::load(const std::weak_ptr<Actor> self) noexcept{
-    bc=Component::Factory::make<BoxComponent>(self);
-    cc=Component::Factory::make<CollisionComponent>(self);
-    ic=Component::Factory::make<InputComponent>(self);
+    bc=cf::make<BoxComponent>(self);
+    cc=cf::make<CollisionComponent>(self);
+    ic=cf::make<InputComponent>(self);
+    mc=cf::make<MoveComponent>(self);
 
     bc->setTexture({}, {15.0f, 120.0f});
-
-    ic->velocity()={0, 300.0f};
 
     ic->setSpeedPreset(Vector2{0.0f, 300.0f});
 
@@ -95,8 +96,8 @@ void Paddle::load(const std::weak_ptr<Actor> self) noexcept{
 
 Wall::Wall(const std::weak_ptr<Game> game) noexcept: Actor(game){}
 void Wall::load(const std::weak_ptr<Actor> self) noexcept{
-    bc=Component::Factory::make<BoxComponent>(self);
-    mc=Component::Factory::make<MoveComponent>(self);
+    bc=cf::make<BoxComponent>(self);
+    mc=cf::make<MoveComponent>(self);
 }
 
 Ball::Ball(const std::weak_ptr<Game> game) noexcept: Actor(game){
@@ -115,9 +116,9 @@ void Ball::collideAllow(const std::weak_ptr<Actor> opponent) noexcept{
     cc->allow(opponent);
 }
 void Ball::load(const std::weak_ptr<Actor> self) noexcept{
-    sc=Component::Factory::make<AnimSpriteComponent>(self);
-    cc=Component::Factory::make<CollisionComponent>(self);
-    mc=Component::Factory::make<MoveComponent>(self);
+    sc=cf::make<AnimSpriteComponent>(self);
+    cc=cf::make<CollisionComponent>(self);
+    mc=cf::make<MoveComponent>(self);
 
     auto _game=game.lock();
     std::vector<SDL_Texture*> anims={
@@ -136,8 +137,9 @@ Actor(game){
     position={500.0f, 500.0f};
 }
 void Ship::load(const std::weak_ptr<Actor> self) noexcept{
-    sc=Component::Factory::make<AnimSpriteComponent>(self);
-    ic=Component::Factory::make<InputComponentP>(self);
+    sc=cf::make<AnimSpriteComponent>(self);
+    ic=cf::make<AngularInputComponent>(self);
+    mc=cf::make<AngularMoveComponent>(self);
 
     auto _game=game.lock();
     std::vector<SDL_Texture*> anims={
@@ -165,8 +167,8 @@ Actor(game){
     rotation = Math::random(0, 1024)/Math::PI;
 }
 void Asteroid::load(const std::weak_ptr<Actor> self) noexcept{
-    sc=Component::Factory::make<AnimSpriteComponent>(self);
-    mc=Component::Factory::make<AngularMoveComponent>(self);
+    sc=cf::make<AnimSpriteComponent>(self);
+    mc=cf::make<AngularMoveComponent>(self);
 
     sc->setTexture(game.lock()->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Asteroid.png"));
 
