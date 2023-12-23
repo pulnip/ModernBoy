@@ -235,6 +235,9 @@ public:
     void setYNKey(const uint8_t key) noexcept{ yNegativeKey=key; }
 protected:
     InputComponent(std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){
+        #warning InputComponent is NOT MoveComponent
+        // ic가 mc에 v값을 query하는 형태로 변경
+        // updateOrder: ic(100) -> cc(200) -> mc(201)
         updateOrder=99;
     }
 public:

@@ -88,6 +88,7 @@ void DrawComponent::load(const std::weak_ptr<Component> self) noexcept{
     owner.lock()->getGame().lock()->appendDrawable(
         std::static_pointer_cast<DrawComponent>(self.lock())
     );
+    updateOrder=300;
 }
 
 void BoxComponent::draw(SDL_Renderer* renderer) noexcept{
