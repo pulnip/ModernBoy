@@ -46,7 +46,7 @@ private:
     void updateComponents(const float deltaTime) noexcept;
 public:
     // 특정 액터에 특화된 업데이트 코드
-    virtual void updateActor(float deltaTime){}
+    virtual void updateActor(const float deltaTime) noexcept{}
 public:
     // Getters/Setters
     const State& getState() const noexcept{ return state; }
@@ -82,7 +82,7 @@ class Paddle: public Actor{
 protected:
     Paddle(const std::weak_ptr<class Game> game) noexcept;
 public:
-    void updateActor(float deltaTime) noexcept override{}
+    void updateActor(const float deltaTime) noexcept override;
     void collideAllow(const std::weak_ptr<Actor> opponent) noexcept;
 private:
     void load(const std::weak_ptr<Actor> self) noexcept override;
@@ -96,8 +96,6 @@ private:
 class Wall: public Actor{
 protected:
     Wall(const std::weak_ptr<class Game> game) noexcept;
-public:
-    void updateActor(float deltaTime) override{}
 private:
     void load(const std::weak_ptr<Actor> self) noexcept override;
 private:
@@ -120,14 +118,16 @@ private:
 };
 
 class Ship: public Actor{
+public:
+    void updateActor(float deltaTime) noexcept override;
 protected:
     Ship(const std::weak_ptr<class Game> game) noexcept;
 private:
     void load(const std::weak_ptr<Actor> self) noexcept override;
 private:
     std::shared_ptr<class AnimSpriteComponent> sc;
-    std::shared_ptr<class AngularInputComponent> ic;
-    std::shared_ptr<class AngularMoveComponent> mc;
+    std::shared_ptr<class InputComponent> ic;
+    std::shared_ptr<class MoveComponent> mc;
 };
 
 class Asteroid: public Actor{
@@ -137,5 +137,5 @@ private:
     void load(const std::weak_ptr<Actor> self) noexcept override;
 private:
     std::shared_ptr<class SpriteComponent> sc;
-    std::shared_ptr<class AngularMoveComponent> mc;
+    std::shared_ptr<class MoveComponent> mc;
 };

@@ -50,9 +50,7 @@ void Actor::appendComponent(const std::shared_ptr<Component> component) noexcept
         {AnimSpriteComponent::className, DrawComponent::className},
         {BGSpriteComponent::className,   DrawComponent::className},
         {MoveComponent::className,        MoveComponent::className},
-        {AngularMoveComponent::className, MoveComponent::className},
-        {InputComponent::className,        InputComponent::className},
-        {AngularInputComponent::className, InputComponent::className}
+        {InputComponent::className,        InputComponent::className}
     };
     const auto name=(*m.find(component->getName())).second;
     componentMap[name]=component;
@@ -72,6 +70,11 @@ void Actor::orderComponents() noexcept{
 
 // Concrete Actor
 
+// Paddle
+
+void Paddle::updateActor(const float deltaTime) noexcept{
+    mc->velocity.y=0;
+}
 Paddle::Paddle(const std::weak_ptr<Game> game) noexcept: Actor(game){
     position={15.0f, 384.0f};
 }
@@ -86,19 +89,23 @@ void Paddle::load(const std::weak_ptr<Actor> self) noexcept{
 
     bc->setTexture({}, {15.0f, 120.0f});
 
-    ic->setSpeedPreset(Vector2{0.0f, 300.0f});
-
-    ic->setXPKey(SDL_SCANCODE_D);
-    ic->setXNKey(SDL_SCANCODE_A);
-    ic->setYPKey(SDL_SCANCODE_S);
-    ic->setYNKey(SDL_SCANCODE_W);
+    ic->setKey(SDL_SCANCODE_S, [&v_y=mc->velocity.y](){
+        v_y += 300.0f;
+    });
+    ic->setKey(SDL_SCANCODE_W, [&v_y=mc->velocity.y](){
+        v_y += -300.0f;
+    });
 }
+
+// Wall
 
 Wall::Wall(const std::weak_ptr<Game> game) noexcept: Actor(game){}
 void Wall::load(const std::weak_ptr<Actor> self) noexcept{
     bc=cf::make<BoxComponent>(self);
     mc=cf::make<MoveComponent>(self);
 }
+
+// Ball
 
 Ball::Ball(const std::weak_ptr<Game> game) noexcept: Actor(game){
     position={1024.0f/2, 768.0f/2};
@@ -129,17 +136,23 @@ void Ball::load(const std::weak_ptr<Actor> self) noexcept{
     };
     sc->setAnimTextures(anims);
 
-    mc->velocity()={-200.0f, 235.0f};
+    mc->velocity={-200.0f, 235.0f};
 }
 
+// Ship
+
+void Ship::updateActor(const float deltaTime) noexcept{
+    mc->velocity={0.0f, 0.0f};
+    mc->rotationVelocity=0.0;
+}
 Ship::Ship(const std::weak_ptr<Game> game) noexcept:
 Actor(game){
     position={500.0f, 500.0f};
 }
 void Ship::load(const std::weak_ptr<Actor> self) noexcept{
     sc=cf::make<AnimSpriteComponent>(self);
-    ic=cf::make<AngularInputComponent>(self);
-    mc=cf::make<AngularMoveComponent>(self);
+    ic=cf::make<InputComponent>(self);
+    mc=cf::make<MoveComponent>(self);
 
     auto _game=game.lock();
     std::vector<SDL_Texture*> anims={
@@ -150,13 +163,21 @@ void Ship::load(const std::weak_ptr<Actor> self) noexcept{
     };
     sc->setAnimTextures(anims);
 
-    ic->setForwardSpeedPreset(300.0f);
-    ic->setAngularSpeedPreset(Math::PI);
-    ic->setForwardKey(SDL_SCANCODE_D);
-    ic->setBackwardKey(SDL_SCANCODE_A);
-    ic->setClockwiseKey(SDL_SCANCODE_E);
-    ic->setCounterClockwiseKey(SDL_SCANCODE_Q);
+    ic->setKey(SDL_SCANCODE_Q, [&rv=mc->rotationVelocity](){
+        rv += -Math::PI;
+    });
+    ic->setKey(SDL_SCANCODE_E, [&rv=mc->rotationVelocity](){
+        rv += Math::PI;
+    });
+    ic->setKey(SDL_SCANCODE_D, [&v=mc->velocity, &r=rotation](){
+        v += Vector2::forward(r) * 300.0f;
+    });
+    ic->setKey(SDL_SCANCODE_A, [&v=mc->velocity, &r=rotation](){
+        v += Vector2::forward(r) * -300.0f;
+    });
 }
+
+// Asteroid
 
 Asteroid::Asteroid(const std::weak_ptr<Game> game) noexcept:
 Actor(game){
@@ -168,9 +189,10 @@ Actor(game){
 }
 void Asteroid::load(const std::weak_ptr<Actor> self) noexcept{
     sc=cf::make<AnimSpriteComponent>(self);
-    mc=cf::make<AngularMoveComponent>(self);
+    mc=cf::make<MoveComponent>(self);
 
     sc->setTexture(game.lock()->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Asteroid.png"));
 
-    mc->setForwardSpeed(150.0f);
+    mc->velocity = Vector2::forward(Math::random(-Math::PI, Math::PI)) * Math::random(0, 300);
+    mc->rotationVelocity = Math::random(-Math::PI/2, Math::PI/2);
 }

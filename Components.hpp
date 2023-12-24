@@ -209,53 +209,27 @@ protected:
     }
 public:
     // unit per second
-    class Velocity{
-    public:
-        Vector2& operator()() noexcept{ return velocity; }
-        Vector2& operator()(Math::Real rotation, float forwardSpeed) noexcept{
-            return velocity = Vector2::forward(rotation) * forwardSpeed;
-        }
-    private:
-        Vector2 velocity;
-    } velocity;
+    Vector2 velocity;
+    Math::Radian rotationVelocity;
 public:
     static const std::string className;
 };
-class AngularMoveComponent: public MoveComponent{
-public:
-    ~AngularMoveComponent()=default;
-
-    void update(const float deltaTime) noexcept override;
-
-    virtual const std::string& getName() const noexcept override{ return className; }
-    void setForwardSpeed(const float speed) noexcept{ forwardSpeed=speed; }
-    void setAngularSpeed(const Math::Radian speed) noexcept{ angularSpeed=speed; }
-protected:
-    AngularMoveComponent(const std::weak_ptr<class Actor> owner) noexcept: MoveComponent(owner){}
-public:
-    static const std::string className;
-private:
-    // unit per second
-    float forwardSpeed;
-    // radian per second
-    Math::Radian angularSpeed;
-};
-
-#warning "make key map"
 class InputComponent: public Component{
 public:
     ~InputComponent()=default;
 
-    void processInput(const uint8_t* keyState) noexcept override;
-    virtual void update(const float deltaTime) noexcept override{}
+    void processInput(const uint8_t* keyState) noexcept override{
+        inputResult = keyState;
+    }
+    virtual void update(const float deltaTime) noexcept override;
 
     const std::string& getName() const noexcept override{ return className; }
-    void setKey(const uint8_t key, std::function<void(void)> behavior);
-    void setSpeedPreset(const Vector2& v) noexcept{ speedPreset=v; }
-    void setXPKey(const uint8_t key) noexcept{ xPositiveKey=key; }
-    void setXNKey(const uint8_t key) noexcept{ xNegativeKey=key; }
-    void setYPKey(const uint8_t key) noexcept{ yPositiveKey=key; }
-    void setYNKey(const uint8_t key) noexcept{ yNegativeKey=key; }
+    void setKey(const uint8_t key, std::function<void(void)> behavior){
+        keymap[key]=behavior;
+    }
+    void setIfNotKey(std::function<void(void)> behavior){
+        behaviorInStandBy=behavior;
+    }
 protected:
     InputComponent(std::weak_ptr<class Actor> owner) noexcept: Component(owner){
         updateOrder=100;
@@ -264,38 +238,7 @@ public:
     static const std::string className;
 protected:
     std::map<uint8_t, std::function<void(void)>> keymap;
+    std::function<void(void)> behaviorInStandBy=[](){};
 private:
-    Vector2 speedPreset;
-
-    uint8_t xPositiveKey;
-    uint8_t xNegativeKey;
-    uint8_t yPositiveKey;
-    uint8_t yNegativeKey;
-};
-class AngularInputComponent: public InputComponent{
-public:
-    ~AngularInputComponent()=default;
-
-    void processInput(const uint8_t* keyState) noexcept override;
-    void update(const float deltaTime) noexcept override{}
-
-    const std::string& getName() const noexcept override{ return className; }
-    void setForwardSpeedPreset(const float speed) noexcept{ forwardSpeedPreset=speed; }
-    void setAngularSpeedPreset(const Math::Radian speed) noexcept{ angularSpeedPreset=speed; }
-    void setForwardKey(const uint8_t key) noexcept{ forwardKey=key; }
-    void setBackwardKey(const uint8_t key) noexcept{ backwardKey=key; }
-    void setClockwiseKey(const uint8_t key) noexcept{ clockwiseKey=key; }
-    void setCounterClockwiseKey(const uint8_t key) noexcept{ counterClockwiseKey=key; }
-protected:
-    AngularInputComponent(std::weak_ptr<class Actor> owner) noexcept: InputComponent(owner){}
-public:
-    static const std::string className;
-private:
-    float forwardSpeedPreset;
-    Math::Radian angularSpeedPreset;
-
-    uint8_t forwardKey;
-    uint8_t backwardKey;
-    uint8_t clockwiseKey;
-    uint8_t counterClockwiseKey;
+    const uint8_t* inputResult;
 };

@@ -3,7 +3,7 @@
 #include "Game.hpp"
 
 int main(int argc, char* argv[]){
-    auto game=Game::Factory::make<p1pingpong>();
+    auto game=Game::Factory::make<spaceShip>();
     
     game->runLoop();
 
