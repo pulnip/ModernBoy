@@ -2,9 +2,11 @@
 
 #include "Game.hpp"
 
-int main(int argc, char* argv[]){
-    auto game=Game::Factory::make<spaceShip>();
-    
+int
+main(int argc, char* argv[])
+{
+    auto game = Game::Factory::make<spaceShip>();
+
     game->runLoop();
 
     game->shutDown();
