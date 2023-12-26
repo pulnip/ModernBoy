@@ -67,10 +67,6 @@ _deps
 *_LOCAL_*.txt
 *_REMOTE_*.txt
 
-### Obsidian ###
-# config dir
-.obsidian/
-
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json

@@ -7,9 +7,15 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}",
+                "--std=gnu++23",
+                "${workspaceFolder}/Math.cpp",
+                "${workspaceFolder}/Components.cpp",
+                "${workspaceFolder}/Actors.cpp",
+                "${workspaceFolder}/Game.cpp",
+                "${workspaceFolder}/main.cpp",
+                "-lSDL2::SDL2", "-lSDL2::SDL2main", "-lSDL2::SDL2_image",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "main.exe"
             ],
             "options": {
                 "cwd": "C:/msys64/mingw64/bin"
