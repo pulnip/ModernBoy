@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "Alias.hpp"
 #include "Math.hpp"
 
 // Actor interface
@@ -22,27 +23,24 @@ class Actor
     };
 
   public:
-    struct Factory
+    template<typename Concrete>
+        requires std::derived_from<Concrete, Actor>
+    struct make_shared_enabler : public Concrete
     {
-        template<typename Concrete>
-            requires std::derived_from<Concrete, Actor>
-        static std::shared_ptr<Concrete> make(const std::weak_ptr<class Game> game) noexcept
+        make_shared_enabler(const std::weak_ptr<class Game> game)
+          : Concrete(game)
         {
-            struct make_shared_enabler : public Concrete
-            {
-                make_shared_enabler(const std::weak_ptr<class Game> game)
-                  : Concrete(game)
-                {
-                }
-            };
-            std::shared_ptr<Actor> actor = std::make_shared<make_shared_enabler>(game);
-            actor->load(actor);
-            game.lock()->appendActor(actor);
-            return std::static_pointer_cast<Concrete>(actor);
         }
-        Factory() = delete;
-        ~Factory() = delete;
     };
+    template<typename Concrete>
+        requires std::derived_from<Concrete, Actor>
+    static auto make(const std::weak_ptr<class Game> game) noexcept
+    {
+        auto actor = std::make_shared<make_shared_enabler<Concrete>>(game);
+        actor->Actor::load(actor);
+        game.lock()->appendActor(actor);
+        return actor;
+    }
 
   protected:
     Actor(const std::weak_ptr<class Game> game) noexcept;
@@ -101,14 +99,16 @@ class Actor
 
 class Paddle : public Actor
 {
-  protected:
-    Paddle(const std::weak_ptr<class Game> game) noexcept;
+    template<typename Concrete>
+        requires std::derived_from<Concrete, Actor>
+    friend class Actor::make_shared_enabler;
 
   public:
     void updateActor(const float deltaTime) noexcept override;
-    void collideAllow(const std::weak_ptr<Actor> opponent) noexcept;
+    void allowCollision(const std::weak_ptr<Actor> opponent) noexcept;
 
   private:
+    Paddle(const std::weak_ptr<class Game> game) noexcept;
     void load(const std::weak_ptr<Actor> self) noexcept override;
 
   private:
@@ -120,10 +120,12 @@ class Paddle : public Actor
 
 class Wall : public Actor
 {
-  protected:
-    Wall(const std::weak_ptr<class Game> game) noexcept;
+    template<typename Concrete>
+        requires std::derived_from<Concrete, Actor>
+    friend class Actor::make_shared_enabler;
 
   private:
+    Wall(const std::weak_ptr<class Game> game) noexcept;
     void load(const std::weak_ptr<Actor> self) noexcept override;
 
   private:
@@ -132,16 +134,17 @@ class Wall : public Actor
 };
 
 class Ball : public Actor
-  , public std::enable_shared_from_this<Ball>
 {
-  protected:
-    Ball(const std::weak_ptr<class Game> game) noexcept;
+    template<typename Concrete>
+        requires std::derived_from<Concrete, Actor>
+    friend class Actor::make_shared_enabler;
 
   public:
     void updateActor(const float deltaTime) noexcept override;
-    void collideAllow(const std::weak_ptr<Actor> opponent) noexcept;
+    void allowCollision(const std::weak_ptr<Actor> opponent) noexcept;
 
   private:
+    Ball(const std::weak_ptr<class Game> game) noexcept;
     void load(const std::weak_ptr<Actor> self) noexcept override;
 
   private:
@@ -152,13 +155,15 @@ class Ball : public Actor
 
 class Ship : public Actor
 {
+    template<typename Concrete>
+        requires std::derived_from<Concrete, Actor>
+    friend class Actor::make_shared_enabler;
+
   public:
     void updateActor(float deltaTime) noexcept override;
 
-  protected:
-    Ship(const std::weak_ptr<class Game> game) noexcept;
-
   private:
+    Ship(const std::weak_ptr<class Game> game) noexcept;
     void load(const std::weak_ptr<Actor> self) noexcept override;
 
   private:
@@ -169,10 +174,12 @@ class Ship : public Actor
 
 class Asteroid : public Actor
 {
-  protected:
-    Asteroid(const std::weak_ptr<class Game> game) noexcept;
+    template<typename Concrete>
+        requires std::derived_from<Concrete, Actor>
+    friend class Actor::make_shared_enabler;
 
   private:
+    Asteroid(const std::weak_ptr<class Game> game) noexcept;
     void load(const std::weak_ptr<Actor> self) noexcept override;
 
   private:

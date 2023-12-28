@@ -226,36 +226,36 @@ Game::loadTexture(const char* fileName) noexcept
 void
 p1pingpong::load(const std::weak_ptr<Game> self) noexcept
 {
-    auto ceil = Actor::Factory::make<Wall>(self);
+    auto ceil = Actor::make<Wall>(self);
     ceil->position = { 1024.0f / 2, 15.0f / 2 };
     ceil->baseSize = { 1024.0f, 15.0f };
 
-    auto floor = Actor::Factory::make<Wall>(self);
+    auto floor = Actor::make<Wall>(self);
     floor->position = { 1024.0f / 2, 768.0f - 15.0f / 2 };
     floor->baseSize = { 1024.0f, 15.0f };
 
-    auto rightWall = Actor::Factory::make<Wall>(self);
+    auto rightWall = Actor::make<Wall>(self);
     rightWall->position = { 1024.0f - 15.0f / 2, 768.0f / 2 };
     rightWall->baseSize = { 15.0f, 768.0f };
 
-    auto paddle = Actor::Factory::make<Paddle>(self);
-    paddle->collideAllow(ceil);
-    paddle->collideAllow(floor);
+    auto paddle = Actor::make<Paddle>(self);
+    paddle->allowCollision(ceil);
+    paddle->allowCollision(floor);
 
-    auto ball = Actor::Factory::make<Ball>(self);
-    ball->collideAllow(ceil);
-    ball->collideAllow(floor);
-    ball->collideAllow(rightWall);
-    ball->collideAllow(paddle);
+    auto ball = Actor::make<Ball>(self);
+    ball->allowCollision(ceil);
+    ball->allowCollision(floor);
+    ball->allowCollision(rightWall);
+    ball->allowCollision(paddle);
 }
 
 void
 spaceShip::load(const std::weak_ptr<Game> self) noexcept
 {
-    auto ship = Actor::Factory::make<Ship>(self);
+    auto ship = Actor::make<Ship>(self);
 
     // Create actor for the background (this doesn't need a subclass)
-    auto bgActor = Actor::Factory::make<Actor>(self);
+    auto bgActor = Actor::make<Actor>(self);
     bgActor->position = Vector2{ 512.0f, 384.0f };
     // Create the "far back" background
     auto fbg = Component::Factory::make<BGSpriteComponent>(bgActor);
@@ -278,6 +278,6 @@ spaceShip::load(const std::weak_ptr<Game> self) noexcept
     cbg->setScrollSpeed(-200.0f);
 
     for (int i = 0; i < 20; ++i) {
-        auto asteroid = Actor::Factory::make<Asteroid>(self);
+        auto asteroid = Actor::make<Asteroid>(self);
     }
 }

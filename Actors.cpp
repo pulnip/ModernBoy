@@ -97,7 +97,7 @@ Paddle::Paddle(const std::weak_ptr<Game> game) noexcept
     position = { 15.0f, 384.0f };
 }
 void
-Paddle::collideAllow(const std::weak_ptr<Actor> opponent) noexcept
+Paddle::allowCollision(const std::weak_ptr<Actor> opponent) noexcept
 {
     cc->allow(opponent);
 }
@@ -151,7 +151,7 @@ Ball::updateActor(const float deltaTime) noexcept
     }
 }
 void
-Ball::collideAllow(const std::weak_ptr<Actor> opponent) noexcept
+Ball::allowCollision(const std::weak_ptr<Actor> opponent) noexcept
 {
     cc->allow(opponent);
 }
