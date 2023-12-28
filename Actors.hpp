@@ -9,6 +9,15 @@
 #include "Alias.hpp"
 #include "Math.hpp"
 
+template<typename Concrete>
+struct make_shared_enabler : public Concrete
+{
+    make_shared_enabler(const std::weak_ptr<class Game> game)
+      : Concrete(game)
+    {
+    }
+};
+
 // Actor interface
 
 class Actor
@@ -22,24 +31,17 @@ class Actor
         EDead
     };
 
+    using ptr = std::shared_ptr<Actor>;
+
   public:
-    template<typename Concrete>
-        requires std::derived_from<Concrete, Actor>
-    struct make_shared_enabler : public Concrete
-    {
-        make_shared_enabler(const std::weak_ptr<class Game> game)
-          : Concrete(game)
-        {
-        }
-    };
     template<typename Concrete>
         requires std::derived_from<Concrete, Actor>
     static auto make(const std::weak_ptr<class Game> game) noexcept
     {
-        auto actor = std::make_shared<make_shared_enabler<Concrete>>(game);
-        actor->Actor::load(actor);
+        ptr actor = std::make_shared<make_shared_enabler<Concrete>>(game);
+        actor->load(actor);
         game.lock()->appendActor(actor);
-        return actor;
+        return std::static_pointer_cast<Concrete>(actor);
     }
 
   protected:
@@ -100,8 +102,7 @@ class Actor
 class Paddle : public Actor
 {
     template<typename Concrete>
-        requires std::derived_from<Concrete, Actor>
-    friend class Actor::make_shared_enabler;
+    friend class make_shared_enabler;
 
   public:
     void updateActor(const float deltaTime) noexcept override;
@@ -121,8 +122,7 @@ class Paddle : public Actor
 class Wall : public Actor
 {
     template<typename Concrete>
-        requires std::derived_from<Concrete, Actor>
-    friend class Actor::make_shared_enabler;
+    friend class make_shared_enabler;
 
   private:
     Wall(const std::weak_ptr<class Game> game) noexcept;
@@ -136,8 +136,7 @@ class Wall : public Actor
 class Ball : public Actor
 {
     template<typename Concrete>
-        requires std::derived_from<Concrete, Actor>
-    friend class Actor::make_shared_enabler;
+    friend class make_shared_enabler;
 
   public:
     void updateActor(const float deltaTime) noexcept override;
@@ -156,8 +155,7 @@ class Ball : public Actor
 class Ship : public Actor
 {
     template<typename Concrete>
-        requires std::derived_from<Concrete, Actor>
-    friend class Actor::make_shared_enabler;
+    friend class make_shared_enabler;
 
   public:
     void updateActor(float deltaTime) noexcept override;
@@ -175,8 +173,7 @@ class Ship : public Actor
 class Asteroid : public Actor
 {
     template<typename Concrete>
-        requires std::derived_from<Concrete, Actor>
-    friend class Actor::make_shared_enabler;
+    friend class make_shared_enabler;
 
   private:
     Asteroid(const std::weak_ptr<class Game> game) noexcept;
