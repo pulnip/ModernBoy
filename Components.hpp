@@ -9,20 +9,15 @@
 
 // Component interface
 
-class Component
-{
+class Component {
   public:
-    struct Factory
-    {
-        template<typename Concrete>
+    struct Factory {
+        template <typename Concrete>
             requires std::derived_from<Concrete, Component>
-        static std::shared_ptr<Concrete> make(const std::weak_ptr<class Actor> actor) noexcept
-        {
-            struct make_shared_enabler : public Concrete
-            {
+        static std::shared_ptr<Concrete> make(const std::weak_ptr<class Actor> actor) noexcept {
+            struct make_shared_enabler : public Concrete {
                 make_shared_enabler(const std::weak_ptr<class Actor> actor)
-                  : Concrete(actor)
-                {
+                    : Concrete(actor) {
                 }
             };
             std::shared_ptr<Component> comp = std::make_shared<make_shared_enabler>(actor);
@@ -38,9 +33,9 @@ class Component
     virtual ~Component() = default;
 
     virtual void update(const float deltaTime) noexcept = 0;
-    virtual void processInput(const uint8_t* keyState) {}
+    virtual void processInput(const uint8_t *keyState) {}
 
-    virtual const std::string& getName() const noexcept = 0;
+    virtual const std::string &getName() const noexcept = 0;
     int getUpdateOrder() const noexcept { return updateOrder; }
     void setUpdateOrder(const int uo) noexcept { updateOrder = uo; }
 
@@ -66,21 +61,18 @@ class Component
 // CollisionComponent
 
 // 충돌 처리 컴포넌트
-class CollisionComponent : public Component
-{
+class CollisionComponent : public Component {
   public:
     void update(const float deltaTime) noexcept override;
 
-    const std::string& getName() const noexcept override { return className; }
-    void allow(const std::weak_ptr<class Actor> opponent) noexcept
-    {
+    const std::string &getName() const noexcept override { return className; }
+    void allow(const std::weak_ptr<class Actor> opponent) noexcept {
         opponents.emplace_back(opponent);
     }
 
   protected:
     CollisionComponent(const std::weak_ptr<class Actor> owner) noexcept
-      : Component(owner)
-    {
+        : Component(owner) {
         updateOrder = 200;
     }
 
@@ -94,15 +86,14 @@ class CollisionComponent : public Component
 // Draw Component
 
 // 2D Graphics interface
-class DrawComponent : public Component
-{
+class DrawComponent : public Component {
   public:
     virtual ~DrawComponent() = default;
 
     virtual void update(const float deltaTime) noexcept override {}
-    virtual void draw(class SDL_Renderer* renderer) = 0;
+    virtual void draw(class SDL_Renderer *renderer) = 0;
 
-    virtual const std::string& getName() const noexcept override { return className; }
+    virtual const std::string &getName() const noexcept override { return className; }
     int getDrawOrder() const noexcept { return drawOrder; }
 
   protected:
@@ -111,8 +102,7 @@ class DrawComponent : public Component
     // 일반 오브젝트 계열: 200 to 299
     // player계열: 300 to 399
     DrawComponent(const std::weak_ptr<class Actor> owner) noexcept
-      : Component(owner)
-    {
+        : Component(owner) {
         updateOrder = 300;
     }
 
@@ -130,11 +120,9 @@ class DrawComponent : public Component
 // Box Component
 
 // Color Box 텍스처
-class BoxComponent : public DrawComponent
-{
+class BoxComponent : public DrawComponent {
   public:
-    struct TrueColor
-    {
+    struct TrueColor {
         using Channel = uint8_t;
         Channel red = 0, green = 0, blue = 0, alpha = 255;
     };
@@ -142,15 +130,14 @@ class BoxComponent : public DrawComponent
   public:
     ~BoxComponent() = default;
 
-    void draw(class SDL_Renderer* renderer) noexcept override;
+    void draw(class SDL_Renderer *renderer) noexcept override;
 
-    const std::string& getName() const noexcept override { return className; }
-    void setTexture(const TrueColor& color, const Vector2& size) noexcept;
+    const std::string &getName() const noexcept override { return className; }
+    void setTexture(const TrueColor &color, const Vector2 &size) noexcept;
 
   protected:
     BoxComponent(const std::weak_ptr<class Actor> owner) noexcept
-      : DrawComponent(owner)
-    {
+        : DrawComponent(owner) {
         drawOrder = 200;
     }
 
@@ -164,20 +151,18 @@ class BoxComponent : public DrawComponent
 // Sprite Component
 
 // 단일 스프라이트 텍스처
-class SpriteComponent : public DrawComponent
-{
+class SpriteComponent : public DrawComponent {
   public:
     virtual ~SpriteComponent() = default;
 
-    virtual void draw(class SDL_Renderer* renderer) noexcept override;
+    virtual void draw(class SDL_Renderer *renderer) noexcept override;
 
-    virtual const std::string& getName() const noexcept override { return className; }
-    virtual void setTexture(class SDL_Texture* texture) noexcept;
+    virtual const std::string &getName() const noexcept override { return className; }
+    virtual void setTexture(class SDL_Texture *texture) noexcept;
 
   protected:
     SpriteComponent(const std::weak_ptr<class Actor> owner) noexcept
-      : DrawComponent(owner)
-    {
+        : DrawComponent(owner) {
         drawOrder = 201;
     }
 
@@ -185,24 +170,22 @@ class SpriteComponent : public DrawComponent
     static const std::string className;
 
   private:
-    class SDL_Texture* texture;
+    class SDL_Texture *texture;
 };
 
 // Animation Sprite Component
 
 // 애니메이션 텍스처
-class AnimSpriteComponent : public SpriteComponent
-{
+class AnimSpriteComponent : public SpriteComponent {
   public:
     ~AnimSpriteComponent() = default;
 
     // 애니메이션을 프레임마다 갱신
     void update(const float deltaTime) noexcept override;
 
-    const std::string& getName() const noexcept override { return className; }
+    const std::string &getName() const noexcept override { return className; }
     // 애니메이션에 사용되는 텍스처 설정
-    void setAnimTextures(const std::vector<class SDL_Texture*>& textures)
-    {
+    void setAnimTextures(const std::vector<class SDL_Texture *> &textures) {
         animTextures = textures;
     }
     // 애니메이션 FPS
@@ -211,8 +194,7 @@ class AnimSpriteComponent : public SpriteComponent
 
   protected:
     AnimSpriteComponent(const std::weak_ptr<class Actor> owner) noexcept
-      : SpriteComponent(owner)
-    {
+        : SpriteComponent(owner) {
         drawOrder = 202;
     }
 
@@ -220,7 +202,7 @@ class AnimSpriteComponent : public SpriteComponent
     static const std::string className;
 
   private:
-    std::vector<class SDL_Texture*> animTextures;
+    std::vector<class SDL_Texture *> animTextures;
     // 현재 프레임
     float currFrame = 0.0f;
     float animFPS = 8.0f;
@@ -229,25 +211,23 @@ class AnimSpriteComponent : public SpriteComponent
 // Background Sprite Component
 
 // 스크롤되는 배경
-class BGSpriteComponent : public SpriteComponent
-{
+class BGSpriteComponent : public SpriteComponent {
   public:
     ~BGSpriteComponent() = default;
 
     void update(const float deltaTime) noexcept override;
-    void draw(class SDL_Renderer* renderer) noexcept override;
+    void draw(class SDL_Renderer *renderer) noexcept override;
 
-    const std::string& getName() const noexcept override { return className; }
+    const std::string &getName() const noexcept override { return className; }
     // 배경용 텍스처 설정
-    void setBGTextures(const std::vector<class SDL_Texture*>& textures) noexcept;
-    void setScreenSize(const Vector2& size) noexcept { screenSize = size; }
+    void setBGTextures(const std::vector<class SDL_Texture *> &textures) noexcept;
+    void setScreenSize(const Vector2 &size) noexcept { screenSize = size; }
     float getScrollSpeed() const noexcept { return scrollSpeed; }
     void setScrollSpeed(const float speed) noexcept { scrollSpeed = speed; }
 
   protected:
     BGSpriteComponent(const std::weak_ptr<class Actor> owner) noexcept
-      : SpriteComponent(owner)
-    {
+        : SpriteComponent(owner) {
         drawOrder = 100;
     }
 
@@ -255,9 +235,8 @@ class BGSpriteComponent : public SpriteComponent
     static const std::string className;
 
   private:
-    struct BGTexture
-    {
-        class SDL_Texture* texture;
+    struct BGTexture {
+        class SDL_Texture *texture;
         // 화면이 시작하는 위치
         float offset_x;
     };
@@ -268,19 +247,17 @@ class BGSpriteComponent : public SpriteComponent
 
 // Move Component
 
-class MoveComponent : public Component
-{
+class MoveComponent : public Component {
   public:
     ~MoveComponent() = default;
 
     void update(const float deltaTime) noexcept override;
 
-    virtual const std::string& getName() const noexcept override { return className; }
+    virtual const std::string &getName() const noexcept override { return className; }
 
   protected:
     MoveComponent(const std::weak_ptr<class Actor> owner) noexcept
-      : Component(owner)
-    {
+        : Component(owner) {
         updateOrder = 201;
     }
 
@@ -295,29 +272,24 @@ class MoveComponent : public Component
 
 // Input Component
 
-class InputComponent : public Component
-{
+class InputComponent : public Component {
   public:
-    void processInput(const uint8_t* keyState) noexcept override
-    {
+    void processInput(const uint8_t *keyState) noexcept override {
         inputResult = keyState;
     }
     virtual void update(const float deltaTime) noexcept override;
 
-    const std::string& getName() const noexcept override { return className; }
-    void setKey(const uint8_t key, std::function<void(void)> behavior)
-    {
+    const std::string &getName() const noexcept override { return className; }
+    void setKey(const uint8_t key, std::function<void(void)> behavior) {
         keymap[key] = behavior;
     }
-    void setIfNotKey(std::function<void(void)> behavior)
-    {
+    void setIfNotKey(std::function<void(void)> behavior) {
         behaviorInStandBy = behavior;
     }
 
   protected:
     InputComponent(const std::weak_ptr<class Actor> owner) noexcept
-      : Component(owner)
-    {
+        : Component(owner) {
         updateOrder = 100;
     }
 
@@ -329,15 +301,13 @@ class InputComponent : public Component
     std::function<void(void)> behaviorInStandBy = []() {};
 
   private:
-    const uint8_t* inputResult;
+    const uint8_t *inputResult;
 };
 
 // AI Component
 
-class AIComponent : public Component
-{
-    enum State
-    {
+class AIComponent : public Component {
+    enum State {
         Death,
         Patrol,
         Attack
@@ -345,8 +315,7 @@ class AIComponent : public Component
 
   public:
     AIComponent(const std::weak_ptr<class Actor> owner) noexcept
-      : Component(owner)
-    {
+        : Component(owner) {
         updateOrder = 150;
     }
     void update(const float deltaTime) noexcept override;

@@ -18,8 +18,7 @@ const std::string InputComponent::className = "InputComponent";
 // interface
 
 Component::Component(const std::weak_ptr<Actor> owner) noexcept
-  : owner(owner)
-{
+    : owner(owner) {
     assert(!owner.expired() && "owner(Actor): expired");
 }
 
@@ -27,9 +26,7 @@ Component::Component(const std::weak_ptr<Actor> owner) noexcept
 
 // Collision Component
 
-void
-CollisionComponent::update(const float deltaTime) noexcept
-{
+void CollisionComponent::update(const float deltaTime) noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     const auto _owner = owner.lock();
 
@@ -52,8 +49,8 @@ CollisionComponent::update(const float deltaTime) noexcept
             auto op_wmc = _opponent->queryComponent(MoveComponent::className);
             assert(!my_wmc.expired());
             assert(!op_wmc.expired());
-            auto& myVel = std::dynamic_pointer_cast<MoveComponent>(my_wmc.lock())->velocity;
-            auto& opVel = std::dynamic_pointer_cast<MoveComponent>(op_wmc.lock())->velocity;
+            auto &myVel = std::dynamic_pointer_cast<MoveComponent>(my_wmc.lock())->velocity;
+            auto &opVel = std::dynamic_pointer_cast<MoveComponent>(op_wmc.lock())->velocity;
 
             // 상대 속도
             const auto vel_diff = opVel - myVel;
@@ -84,20 +81,16 @@ CollisionComponent::update(const float deltaTime) noexcept
 
 // Draw Component
 
-void
-DrawComponent::load(const std::weak_ptr<Component> self) noexcept
-{
+void DrawComponent::load(const std::weak_ptr<Component> self) noexcept {
     assert(!owner.lock()->getGame().expired() && "game: expired");
     owner.lock()->getGame().lock()->appendDrawable(
-      std::static_pointer_cast<DrawComponent>(self.lock()));
+        std::static_pointer_cast<DrawComponent>(self.lock()));
     updateOrder = 300;
 }
 
 // Box Component
 
-void
-BoxComponent::draw(SDL_Renderer* renderer) noexcept
-{
+void BoxComponent::draw(SDL_Renderer *renderer) noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     const auto _owner = owner.lock();
 
@@ -118,9 +111,7 @@ BoxComponent::draw(SDL_Renderer* renderer) noexcept
                            color.alpha);
     SDL_RenderFillRect(renderer, &rect);
 }
-void
-BoxComponent::setTexture(const TrueColor& color, const Vector2& size) noexcept
-{
+void BoxComponent::setTexture(const TrueColor &color, const Vector2 &size) noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     BoxComponent::color = color;
     owner.lock()->baseSize = size;
@@ -128,9 +119,7 @@ BoxComponent::setTexture(const TrueColor& color, const Vector2& size) noexcept
 
 // Sprite Component
 
-void
-SpriteComponent::draw(SDL_Renderer* renderer) noexcept
-{
+void SpriteComponent::draw(SDL_Renderer *renderer) noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     const auto _owner = owner.lock();
 
@@ -156,9 +145,7 @@ SpriteComponent::draw(SDL_Renderer* renderer) noexcept
                      nullptr,
                      SDL_FLIP_NONE);
 }
-void
-SpriteComponent::setTexture(SDL_Texture* texture) noexcept
-{
+void SpriteComponent::setTexture(SDL_Texture *texture) noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     const auto _owner = owner.lock();
     SpriteComponent::texture = texture;
@@ -169,14 +156,12 @@ SpriteComponent::setTexture(SDL_Texture* texture) noexcept
                      nullptr,
                      &width,
                      &height);
-    owner.lock()->baseSize = Vector2{ static_cast<float>(width), static_cast<float>(height) };
+    owner.lock()->baseSize = Vector2{static_cast<float>(width), static_cast<float>(height)};
 }
 
 // Animation Sprite Component
 
-void
-AnimSpriteComponent::update(const float deltaTime) noexcept
-{
+void AnimSpriteComponent::update(const float deltaTime) noexcept {
     SpriteComponent::update(deltaTime);
 
     // 애니메이션에 사용된 텍스처 개수
@@ -195,12 +180,10 @@ AnimSpriteComponent::update(const float deltaTime) noexcept
 
 // Scrollable Background Sprite Component
 
-void
-BGSpriteComponent::update(const float deltaTime) noexcept
-{
+void BGSpriteComponent::update(const float deltaTime) noexcept {
     SpriteComponent::update(deltaTime);
 
-    for (auto& bg : BGTextures) {
+    for (auto &bg : BGTextures) {
         // 텍스처 위치(offset)를 스크롤 스피드만큼 왼쪽으로 이동.
         bg.offset_x += scrollSpeed * deltaTime;
 
@@ -222,11 +205,9 @@ BGSpriteComponent::update(const float deltaTime) noexcept
         }
     }
 }
-void
-BGSpriteComponent::draw(SDL_Renderer* renderer) noexcept
-{
+void BGSpriteComponent::draw(SDL_Renderer *renderer) noexcept {
     // const auto origin = _owner->position - mScreenSize/2;
-    for (auto& bg : BGTextures) {
+    for (auto &bg : BGTextures) {
         SDL_Rect rect;
         rect.w = static_cast<int>(screenSize.x);
         rect.h = static_cast<int>(screenSize.y);
@@ -241,22 +222,18 @@ BGSpriteComponent::draw(SDL_Renderer* renderer) noexcept
                        &rect);
     }
 }
-void
-BGSpriteComponent::setBGTextures(const std::vector<SDL_Texture*>& textures) noexcept
-{
+void BGSpriteComponent::setBGTextures(const std::vector<SDL_Texture *> &textures) noexcept {
     int count = 0;
     for (auto tex : textures) {
         BGTextures.emplace_back(BGTexture{
-          tex, count * screenSize.x });
+            tex, count * screenSize.x});
         ++count;
     }
 }
 
 // Move Component
 
-void
-MoveComponent::update(const float deltaTime) noexcept
-{
+void MoveComponent::update(const float deltaTime) noexcept {
     assert(!owner.expired() && "owner: expired");
     const auto _owner = owner.lock();
 
@@ -266,12 +243,10 @@ MoveComponent::update(const float deltaTime) noexcept
 
 // Input Component
 
-void
-InputComponent::update(const float deltaTime) noexcept
-{
+void InputComponent::update(const float deltaTime) noexcept {
     uint8_t pressedCount = 0;
 
-    for (auto& pair : keymap) {
+    for (auto &pair : keymap) {
         if (inputResult[pair.first]) {
             pressedCount += 1;
             pair.second();
@@ -282,4 +257,4 @@ InputComponent::update(const float deltaTime) noexcept
     }
 }
 
-// 
+//

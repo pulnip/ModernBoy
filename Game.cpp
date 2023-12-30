@@ -8,8 +8,7 @@
 #include "Components.hpp"
 #include "Game.hpp"
 
-Game::Game() noexcept
-{
+Game::Game() noexcept {
     int sdlResult = SDL_Init(SDL_INIT_VIDEO);
     if (sdlResult != 0) {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
@@ -17,21 +16,21 @@ Game::Game() noexcept
     }
 
     window = SDL_CreateWindow(
-      "Game Programming in C++",
-      100,
-      100,
-      1024,
-      768,
-      0);
+        "Game Programming in C++",
+        100,
+        100,
+        1024,
+        768,
+        0);
     if (!window) {
         SDL_Log("Failed to create window: %s", SDL_GetError());
         // return false;
     }
 
     renderer = SDL_CreateRenderer(
-      window,
-      -1,
-      SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        window,
+        -1,
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!renderer) {
         SDL_Log("Failed to create renderer: %s", SDL_GetError());
         // return false;
@@ -46,9 +45,7 @@ Game::Game() noexcept
     // return true;
 }
 
-void
-Game::shutDown() noexcept
-{
+void Game::shutDown() noexcept {
     for (auto key : textures)
         SDL_DestroyTexture(key.second);
     SDL_DestroyRenderer(renderer);
@@ -56,9 +53,7 @@ Game::shutDown() noexcept
     SDL_Quit();
 }
 
-void
-Game::runLoop() noexcept
-{
+void Game::runLoop() noexcept {
     isRunning = true;
 
     while (isRunning) {
@@ -68,9 +63,7 @@ Game::runLoop() noexcept
     }
 }
 
-void
-Game::appendActor(const std::shared_ptr<Actor> actor) noexcept
-{
+void Game::appendActor(const std::shared_ptr<Actor> actor) noexcept {
     if (isUpdatingActors) {
         pendingActors.emplace_back(actor);
     } else {
@@ -78,9 +71,8 @@ Game::appendActor(const std::shared_ptr<Actor> actor) noexcept
     }
 }
 
-SDL_Texture*
-Game::getTexture(const char* fileName) noexcept
-{
+SDL_Texture *
+Game::getTexture(const char *fileName) noexcept {
     auto texture = textures[fileName];
     if (texture != nullptr)
         return texture;
@@ -88,9 +80,7 @@ Game::getTexture(const char* fileName) noexcept
     return textures[fileName] = loadTexture(fileName);
 }
 
-void
-Game::appendDrawable(const std::weak_ptr<DrawComponent> drawable) noexcept
-{
+void Game::appendDrawable(const std::weak_ptr<DrawComponent> drawable) noexcept {
     assert(!drawable.expired() && "drawable: expired");
     auto it = drawables.cbegin();
 
@@ -106,28 +96,24 @@ Game::appendDrawable(const std::weak_ptr<DrawComponent> drawable) noexcept
     drawables.insert(it, drawable);
 }
 
-void
-Game::removeDrawable(const std::weak_ptr<DrawComponent> drawable) noexcept
-{
+void Game::removeDrawable(const std::weak_ptr<DrawComponent> drawable) noexcept {
     assert(!drawable.expired() && "drawable: expired");
 
     drawables.erase(
-      std::find_if(drawables.cbegin(), drawables.cend(), [&drawable](const auto& d) {
-          assert(!d.expired() && "d: expired");
-          return drawable.lock().get() == d.lock().get();
-      }));
+        std::find_if(drawables.cbegin(), drawables.cend(), [&drawable](const auto &d) {
+            assert(!d.expired() && "d: expired");
+            return drawable.lock().get() == d.lock().get();
+        }));
 }
 
-void
-Game::processInput() noexcept
-{
+void Game::processInput() noexcept {
     SDL_Event event;
     // 큐에 여전히 이벤트가 남아있는 동안
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
-            case SDL_QUIT:
-                isRunning = false;
-                break;
+        case SDL_QUIT:
+            isRunning = false;
+            break;
         }
     }
 
@@ -138,15 +124,13 @@ Game::processInput() noexcept
     }
 
     isUpdatingActors = true;
-    for (auto& actor : actors) {
+    for (auto &actor : actors) {
         actor->processInput(keyState);
     }
     isUpdatingActors = false;
 }
 
-void
-Game::updateGame() noexcept
-{
+void Game::updateGame() noexcept {
     // 마지막 프레임 이후로 최소한 16ms가 경과할 때까지 대기
     while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksCount + 16))
         ;
@@ -182,9 +166,7 @@ Game::updateGame() noexcept
     }
 }
 
-void
-Game::generateOutput() noexcept
-{
+void Game::generateOutput() noexcept {
     // 후면 버퍼를 단색으로 클리어
     SDL_SetRenderDrawColor(renderer,
                            0,
@@ -203,11 +185,10 @@ Game::generateOutput() noexcept
     SDL_RenderPresent(renderer);
 }
 
-SDL_Texture*
-Game::loadTexture(const char* fileName) noexcept
-{
+SDL_Texture *
+Game::loadTexture(const char *fileName) noexcept {
     // 파일로부터 로딩
-    SDL_Surface* surf = IMG_Load(fileName);
+    SDL_Surface *surf = IMG_Load(fileName);
     if (!surf) {
         SDL_Log("Failed to load texture file %s", fileName);
         return nullptr;
@@ -223,20 +204,18 @@ Game::loadTexture(const char* fileName) noexcept
     return texture;
 }
 
-void
-p1pingpong::load(const std::weak_ptr<Game> self) noexcept
-{
+void p1pingpong::load(const std::weak_ptr<Game> self) noexcept {
     auto ceil = Actor::make<Wall>(self);
-    ceil->position = { 1024.0f / 2, 15.0f / 2 };
-    ceil->baseSize = { 1024.0f, 15.0f };
+    ceil->position = {1024.0f / 2, 15.0f / 2};
+    ceil->baseSize = {1024.0f, 15.0f};
 
     auto floor = Actor::make<Wall>(self);
-    floor->position = { 1024.0f / 2, 768.0f - 15.0f / 2 };
-    floor->baseSize = { 1024.0f, 15.0f };
+    floor->position = {1024.0f / 2, 768.0f - 15.0f / 2};
+    floor->baseSize = {1024.0f, 15.0f};
 
     auto rightWall = Actor::make<Wall>(self);
-    rightWall->position = { 1024.0f - 15.0f / 2, 768.0f / 2 };
-    rightWall->baseSize = { 15.0f, 768.0f };
+    rightWall->position = {1024.0f - 15.0f / 2, 768.0f / 2};
+    rightWall->baseSize = {15.0f, 768.0f};
 
     auto paddle = Actor::make<Paddle>(self);
     paddle->allowCollision(ceil);
@@ -249,31 +228,27 @@ p1pingpong::load(const std::weak_ptr<Game> self) noexcept
     ball->allowCollision(paddle);
 }
 
-void
-spaceShip::load(const std::weak_ptr<Game> self) noexcept
-{
+void spaceShip::load(const std::weak_ptr<Game> self) noexcept {
     auto ship = Actor::make<Ship>(self);
 
     // Create actor for the background (this doesn't need a subclass)
     auto bgActor = Actor::make<Actor>(self);
-    bgActor->position = Vector2{ 512.0f, 384.0f };
+    bgActor->position = Vector2{512.0f, 384.0f};
     // Create the "far back" background
     auto fbg = Component::Factory::make<BGSpriteComponent>(bgActor);
-    fbg->setScreenSize(Vector2{ 1024.0f, 768.0f });
-    std::vector<SDL_Texture*> fbgtexs = {
+    fbg->setScreenSize(Vector2{1024.0f, 768.0f});
+    std::vector<SDL_Texture *> fbgtexs = {
         getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Farback01.png"),
-        getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Farback02.png")
-    };
+        getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Farback02.png")};
     fbg->setBGTextures(fbgtexs);
     fbg->setScrollSpeed(-100.0f);
     // Create the closer background
     auto cbg = Component::Factory::make<BGSpriteComponent>(bgActor);
     cbg->setUpdateOrder(101);
-    cbg->setScreenSize(Vector2{ 1024.0f, 768.0f });
-    std::vector<SDL_Texture*> cbgtexs = {
+    cbg->setScreenSize(Vector2{1024.0f, 768.0f});
+    std::vector<SDL_Texture *> cbgtexs = {
         getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Stars.png"),
-        getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Stars.png")
-    };
+        getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Stars.png")};
     cbg->setBGTextures(cbgtexs);
     cbg->setScrollSpeed(-200.0f);
 

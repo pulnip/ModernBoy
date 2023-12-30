@@ -9,23 +9,19 @@
 #include "Alias.hpp"
 #include "Math.hpp"
 
-template<typename Concrete>
-struct make_shared_enabler : public Concrete
-{
+template <typename Concrete>
+struct make_shared_enabler : public Concrete {
     make_shared_enabler(const std::weak_ptr<class Game> game)
-      : Concrete(game)
-    {
+        : Concrete(game) {
     }
 };
 
 // Actor interface
 
-class Actor
-{
+class Actor {
   public:
     // 액터의 상태를 추적하는 데 사용
-    enum State
-    {
+    enum State {
         EActive,
         EPaused,
         EDead
@@ -34,10 +30,9 @@ class Actor
     using ptr = std::shared_ptr<Actor>;
 
   public:
-    template<typename Concrete>
+    template <typename Concrete>
         requires std::derived_from<Concrete, Actor>
-    static auto make(const std::weak_ptr<class Game> game) noexcept
-    {
+    static auto make(const std::weak_ptr<class Game> game) noexcept {
         ptr actor = std::make_shared<make_shared_enabler<Concrete>>(game);
         actor->load(actor);
         game.lock()->appendActor(actor);
@@ -51,9 +46,9 @@ class Actor
     virtual ~Actor() = default;
 
     // Game에서 input을 받는 함수
-    void processInput(const uint8_t* keyState) noexcept;
+    void processInput(const uint8_t *keyState) noexcept;
     // 특정 액터를 위한 입력 코드
-    virtual void processActorInput(const uint8_t* keyState) {}
+    virtual void processActorInput(const uint8_t *keyState) {}
     // Game에서 호출하는 함수
     void update(const float deltaTime) noexcept;
 
@@ -66,13 +61,13 @@ class Actor
 
   public:
     // Getters/Setters
-    const State& getState() const noexcept { return state; }
-    const std::weak_ptr<class Game>& getGame() const noexcept { return game; }
+    const State &getState() const noexcept { return state; }
+    const std::weak_ptr<class Game> &getGame() const noexcept { return game; }
 
     Vector2 getSize() const noexcept { return scale * baseSize; }
 
     void appendComponent(const std::shared_ptr<class Component> component) noexcept;
-    std::weak_ptr<class Component> queryComponent(const std::string& name) noexcept;
+    std::weak_ptr<class Component> queryComponent(const std::string &name) noexcept;
 
   private:
     void orderComponents() noexcept;
@@ -99,9 +94,8 @@ class Actor
 
 // Concrete Actor
 
-class Paddle : public Actor
-{
-    template<typename Concrete>
+class Paddle : public Actor {
+    template <typename Concrete>
     friend class make_shared_enabler;
 
   public:
@@ -119,9 +113,8 @@ class Paddle : public Actor
     std::shared_ptr<class MoveComponent> mc;
 };
 
-class Wall : public Actor
-{
-    template<typename Concrete>
+class Wall : public Actor {
+    template <typename Concrete>
     friend class make_shared_enabler;
 
   private:
@@ -133,9 +126,8 @@ class Wall : public Actor
     std::shared_ptr<class MoveComponent> mc;
 };
 
-class Ball : public Actor
-{
-    template<typename Concrete>
+class Ball : public Actor {
+    template <typename Concrete>
     friend class make_shared_enabler;
 
   public:
@@ -152,9 +144,8 @@ class Ball : public Actor
     std::shared_ptr<class MoveComponent> mc;
 };
 
-class Ship : public Actor
-{
-    template<typename Concrete>
+class Ship : public Actor {
+    template <typename Concrete>
     friend class make_shared_enabler;
 
   public:
@@ -170,9 +161,8 @@ class Ship : public Actor
     std::shared_ptr<class MoveComponent> mc;
 };
 
-class Asteroid : public Actor
-{
-    template<typename Concrete>
+class Asteroid : public Actor {
+    template <typename Concrete>
     friend class make_shared_enabler;
 
   private:
