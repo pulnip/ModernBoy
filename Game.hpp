@@ -5,24 +5,10 @@
 #include <memory>
 #include <vector>
 
-class Game {
+#include "Makable.hpp"
+
+class Game : public Makable<Game, void> {
   public:
-    struct Factory {
-        template <typename Concrete>
-            requires std::derived_from<Concrete, Game>
-        static std::shared_ptr<Concrete> make() noexcept {
-            struct make_shared_enabler : public Concrete {
-                make_shared_enabler()
-                    : Concrete() {
-                }
-            };
-            std::shared_ptr<Game> game = std::make_shared<make_shared_enabler>();
-            game->load(game);
-            return std::static_pointer_cast<Concrete>(game);
-        }
-        Factory() = delete;
-        ~Factory() = delete;
-    };
     ~Game() = default;
 
     // 게임이 끝나기 전까지 게임 루프를 실행
@@ -41,7 +27,7 @@ class Game {
 
   private:
     // 게임 세계의 액터를 로드
-    virtual void load(const std::weak_ptr<Game> self) noexcept = 0;
+    virtual void postConstruct(std::shared_ptr<Game> self) noexcept = 0;
 
     // 게임 루프를 위한 헬퍼 함수
     void processInput() noexcept;
@@ -73,7 +59,7 @@ class p1pingpong : public Game {
     p1pingpong() noexcept = default;
 
   private:
-    void load(const std::weak_ptr<Game> self) noexcept override;
+    void postConstruct(std::shared_ptr<Game> self) noexcept override;
 };
 
 class spaceShip : public Game {
@@ -81,5 +67,5 @@ class spaceShip : public Game {
     spaceShip() noexcept = default;
 
   private:
-    void load(const std::weak_ptr<Game> self) noexcept override;
+    void postConstruct(std::shared_ptr<Game> self) noexcept override;
 };

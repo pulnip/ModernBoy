@@ -204,7 +204,7 @@ Game::loadTexture(const char *fileName) noexcept {
     return texture;
 }
 
-void p1pingpong::load(const std::weak_ptr<Game> self) noexcept {
+void p1pingpong::postConstruct(std::shared_ptr<Game> self) noexcept {
     auto ceil = Actor::make<Wall>(self);
     ceil->position = {1024.0f / 2, 15.0f / 2};
     ceil->baseSize = {1024.0f, 15.0f};
@@ -228,7 +228,7 @@ void p1pingpong::load(const std::weak_ptr<Game> self) noexcept {
     ball->allowCollision(paddle);
 }
 
-void spaceShip::load(const std::weak_ptr<Game> self) noexcept {
+void spaceShip::postConstruct(std::shared_ptr<Game> self) noexcept {
     auto ship = Actor::make<Ship>(self);
 
     // Create actor for the background (this doesn't need a subclass)
