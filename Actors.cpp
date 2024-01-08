@@ -1,66 +1,63 @@
 #include <algorithm>
 #include <cassert>
-#include <unordered_map>
+#include <ranges>
 
 #include <SDL2/SDL.h>
 
 #include "Actors.hpp"
 #include "Components.hpp"
-#include "Game.hpp"
-
-using cf = Component::Factory;
+#include "SubEngine.hpp"
 
 // Actor interface
-
-Actor::Actor(const std::weak_ptr<Game> game) noexcept
-    : game(game) {
-    assert(!game.expired() && "game: expired");
-}
 
 void Actor::processInput(const uint8_t *keyState) noexcept {
     if (state != EActive)
         return;
 
-    for (auto &comp : components) {
+    for (auto &comp : components | std::views::values) {
         comp->processInput(keyState);
     }
     processActorInput(keyState);
 }
-void Actor::update(const float deltaTime) noexcept {
+
+void Actor::update(const float &deltaTime) noexcept {
     if (state != EActive)
         return;
 
     updateComponents(deltaTime);
     updateActor(deltaTime);
 }
-void Actor::updateComponents(const float deltaTime) noexcept {
+
+void Actor::onNotify(std::shared_ptr<Component> comp, Observable_msg msg) {
+    switch (msg) {
+    case Observable_msg::CONSTRUCTED:
+        appendComponent(comp);
+        break;
+    case Observable_msg::DESTRUCTED:
+        components.erase(comp->getName());
+    }
+}
+
+void Actor::appendComponent(const std::shared_ptr<Component> component) noexcept {
+    components.emplace(component->getName(), component);
+    orderedComponents.emplace(component);
+}
+std::weak_ptr<Component> Actor::queryComponent(const std::string &name) noexcept {
+    return componentMap[name];
+}
+
+Actor::Actor(const std::weak_ptr<Game> game) noexcept
+    : game(game) {
+    assert(!game.expired() && "game: expired");
+}
+
+void Actor::updateComponents(const float &deltaTime) noexcept {
     if (!isOrdered) {
         orderComponents();
     }
     for (auto &comp : components) {
         comp->update(deltaTime);
     }
-}
-
-void Actor::appendComponent(const std::shared_ptr<Component> component) noexcept {
-    components.emplace_back(component);
-
-    static const std::unordered_map<std::string, std::string> m{
-        {CollisionComponent::className, CollisionComponent::className},
-        {DrawComponent::className, DrawComponent::className},
-        {BoxComponent::className, DrawComponent::className},
-        {SpriteComponent::className, DrawComponent::className},
-        {AnimSpriteComponent::className, DrawComponent::className},
-        {BGSpriteComponent::className, DrawComponent::className},
-        {MoveComponent::className, MoveComponent::className},
-        {InputComponent::className, InputComponent::className}};
-    const auto name = (*m.find(component->getName())).second;
-    componentMap[name] = component;
-    isOrdered = false;
-}
-std::weak_ptr<Component>
-Actor::queryComponent(const std::string &name) noexcept {
-    return componentMap[name];
 }
 void Actor::orderComponents() noexcept {
     std::sort(components.begin(), components.end(), [](const auto &lhs, const auto &rhs) -> bool {
@@ -73,7 +70,7 @@ void Actor::orderComponents() noexcept {
 
 // Paddle
 
-void Paddle::updateActor(const float deltaTime) noexcept {
+void Paddle::updateActor(const float &deltaTime) noexcept {
     mc->velocity.y = 0;
 }
 Paddle::Paddle(const std::weak_ptr<Game> game) noexcept
@@ -116,7 +113,7 @@ Ball::Ball(const std::weak_ptr<Game> game) noexcept
     position = {1024.0f / 2, 768.0f / 2};
     scale = 5.0f;
 }
-void Ball::updateActor(const float deltaTime) noexcept {
+void Ball::updateActor(const float &deltaTime) noexcept {
     assert(!game.expired() && "game: expired");
     // position += velocity * deltaTime;
 
@@ -145,7 +142,7 @@ void Ball::load(const std::weak_ptr<Actor> self) noexcept {
 
 // Ship
 
-void Ship::updateActor(const float deltaTime) noexcept {
+void Ship::updateActor(const float &deltaTime) noexcept {
     mc->velocity = {0.0f, 0.0f};
     mc->rotationVelocity = 0.0;
 }

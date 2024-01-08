@@ -1,24 +1,26 @@
 #pragma once
 
 #include <concepts>
+#include <list>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
-#include <vector>
 
-#include "Alias.hpp"
+#include "Makable.hpp"
 #include "Math.hpp"
+#include "Observable.hpp"
+#include "Observer.hpp"
 
-template <typename Concrete>
-struct make_shared_enabler : public Concrete {
-    make_shared_enabler(const std::weak_ptr<class Game> game)
-        : Concrete(game) {
-    }
-};
+class SubEngine;
+class Component;
+enum class ComponentName;
 
 // Actor interface
 
-class Actor {
+class Actor : public std::enable_shared_from_this<Actor>, public Makable<Actor, SubEngine>, public Observer<Component>, public Observable<Actor> {
+    friend class Component;
+
   public:
     // 액터의 상태를 추적하는 데 사용
     enum State {
@@ -26,21 +28,6 @@ class Actor {
         EPaused,
         EDead
     };
-
-    using ptr = std::shared_ptr<Actor>;
-
-  public:
-    template <typename Concrete>
-        requires std::derived_from<Concrete, Actor>
-    static auto make(const std::weak_ptr<class Game> game) noexcept {
-        ptr actor = std::make_shared<make_shared_enabler<Concrete>>(game);
-        actor->load(actor);
-        game.lock()->appendActor(actor);
-        return std::static_pointer_cast<Concrete>(actor);
-    }
-
-  protected:
-    Actor(const std::weak_ptr<class Game> game) noexcept;
 
   public:
     virtual ~Actor() = default;
@@ -50,28 +37,26 @@ class Actor {
     // 특정 액터를 위한 입력 코드
     virtual void processActorInput(const uint8_t *keyState) {}
     // Game에서 호출하는 함수
-    void update(const float deltaTime) noexcept;
-
-  private:
-    void updateComponents(const float deltaTime) noexcept;
-
-  public:
+    void update(const float &deltaTime) noexcept;
     // 특정 액터에 특화된 업데이트 코드
-    virtual void updateActor(const float deltaTime) noexcept {}
+    virtual void updateActor(const float &deltaTime) noexcept {}
 
-  public:
     // Getters/Setters
     const State &getState() const noexcept { return state; }
-    const std::weak_ptr<class Game> &getGame() const noexcept { return game; }
-
+    const std::weak_ptr<SubEngine> &getActorManager() const noexcept { return owner; }
     Vector2 getSize() const noexcept { return scale * baseSize; }
 
-    void appendComponent(const std::shared_ptr<class Component> component) noexcept;
-    std::weak_ptr<class Component> queryComponent(const std::string &name) noexcept;
+    void onNotify(std::shared_ptr<Component> comp, Observable_msg msg);
+    void appendComponent(const std::shared_ptr<Component> component) noexcept;
+    std::weak_ptr<Component> queryComponent(const ComponentName name) noexcept;
+
+  protected:
+    Actor(const std::weak_ptr<SubEngine> manager) noexcept;
+    virtual void postConstruct() noexcept {}
 
   private:
+    void updateComponents(const float &deltaTime) noexcept;
     void orderComponents() noexcept;
-    virtual void load(const std::weak_ptr<Actor> self) noexcept {}
 
   public:
     Vector2 position;
@@ -80,31 +65,32 @@ class Actor {
     Math::Radian rotation = 0.0;
 
   protected:
-    // 액터 구현체가 보유한 컴포넌트들
-    std::vector<std::shared_ptr<class Component>> components;
-    // queryComponent에서 사용
-    std::map<std::string, std::shared_ptr<class Component>> componentMap;
-
+    const std::weak_ptr<SubEngine> owner;
     State state = EActive;
-    const std::weak_ptr<class Game> game;
-
-  private:
-    bool isOrdered = true;
+    // 액터 구현체가 보유한 컴포넌트들
+    std::map<ComponentName, std::shared_ptr<Component>> components;
+    struct comp_update_order {
+        using ptr = std::shared_ptr<Component>;
+        bool operator()(const ptr &lhs, const ptr &rhs) {
+            return lhs->getUpdateOrder() < rhs->getUpdateOrder();
+        }
+    };
+    std::multiset<std::shared_ptr<Component>, comp_update_order> orderedComponents;
 };
 
 // Concrete Actor
 
 class Paddle : public Actor {
-    template <typename Concrete>
-    friend class make_shared_enabler;
-
   public:
-    void updateActor(const float deltaTime) noexcept override;
+    void updateActor(const float &deltaTime) noexcept override;
+
     void allowCollision(const std::weak_ptr<Actor> opponent) noexcept;
 
+  protected:
+    Paddle(const std::weak_ptr<SubEngine> owner) noexcept;
+
   private:
-    Paddle(const std::weak_ptr<class Game> game) noexcept;
-    void load(const std::weak_ptr<Actor> self) noexcept override;
+    void postConstruct() noexcept override;
 
   private:
     std::shared_ptr<class BoxComponent> bc;
@@ -114,12 +100,11 @@ class Paddle : public Actor {
 };
 
 class Wall : public Actor {
-    template <typename Concrete>
-    friend class make_shared_enabler;
-
   private:
-    Wall(const std::weak_ptr<class Game> game) noexcept;
-    void load(const std::weak_ptr<Actor> self) noexcept override;
+    Wall(const std::weak_ptr<SubEngine> owner) noexcept;
+
+  protected:
+    void postConstruct() noexcept override;
 
   private:
     std::shared_ptr<class BoxComponent> bc;
@@ -127,16 +112,15 @@ class Wall : public Actor {
 };
 
 class Ball : public Actor {
-    template <typename Concrete>
-    friend class make_shared_enabler;
-
   public:
-    void updateActor(const float deltaTime) noexcept override;
+    void updateActor(const float &deltaTime) noexcept override;
     void allowCollision(const std::weak_ptr<Actor> opponent) noexcept;
 
+  protected:
+    Ball(const std::weak_ptr<SubEngine> owner) noexcept;
+
   private:
-    Ball(const std::weak_ptr<class Game> game) noexcept;
-    void load(const std::weak_ptr<Actor> self) noexcept override;
+    void postConstruct() noexcept override;
 
   private:
     std::shared_ptr<class AnimSpriteComponent> sc;
@@ -145,15 +129,14 @@ class Ball : public Actor {
 };
 
 class Ship : public Actor {
-    template <typename Concrete>
-    friend class make_shared_enabler;
-
   public:
-    void updateActor(float deltaTime) noexcept override;
+    void updateActor(const float &deltaTime) noexcept override;
+
+  protected:
+    Ship(const std::weak_ptr<SubEngine> owner) noexcept;
 
   private:
-    Ship(const std::weak_ptr<class Game> game) noexcept;
-    void load(const std::weak_ptr<Actor> self) noexcept override;
+    void postConstruct() noexcept override;
 
   private:
     std::shared_ptr<class AnimSpriteComponent> sc;
@@ -162,12 +145,11 @@ class Ship : public Actor {
 };
 
 class Asteroid : public Actor {
-    template <typename Concrete>
-    friend class make_shared_enabler;
+  public:
+    Asteroid(const std::weak_ptr<SubEngine> owner) noexcept;
 
   private:
-    Asteroid(const std::weak_ptr<class Game> game) noexcept;
-    void load(const std::weak_ptr<Actor> self) noexcept override;
+    void postConstruct() noexcept override;
 
   private:
     std::shared_ptr<class SpriteComponent> sc;

@@ -13,12 +13,12 @@ struct Makable {
         };
 
         std::shared_ptr<Derived> derived = std::make_shared<ctor_proxy>(owner);
-        std::static_pointer_cast<Makable>(derived)->postConstruct(derived);
+        std::static_pointer_cast<Makable>(derived)->postConstruct();
         return derived;
     }
 
   private:
-    virtual void postConstruct(std::shared_ptr<Base> self) noexcept = 0;
+    virtual void postConstruct() noexcept = 0;
 };
 
 template <class Base>
@@ -31,10 +31,10 @@ struct Makable<Base, void> {
         };
 
         std::shared_ptr<Derived> derived = std::make_shared<ctor_proxy>();
-        std::static_pointer_cast<Makable>(derived)->postConstruct(derived);
+        std::static_pointer_cast<Makable>(derived)->postConstruct();
         return derived;
     }
 
   private:
-    virtual void postConstruct(std::shared_ptr<Base> self) noexcept = 0;
+    virtual void postConstruct() noexcept = 0;
 };

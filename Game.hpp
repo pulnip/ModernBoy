@@ -6,8 +6,11 @@
 #include <vector>
 
 #include "Makable.hpp"
+#include "Observer.hpp"
 
-class Game : public Makable<Game, void> {
+class SubEngine;
+
+class Game : public Makable<Game, void>, Observer<SubEngine> {
   public:
     ~Game() = default;
 
@@ -27,7 +30,7 @@ class Game : public Makable<Game, void> {
 
   private:
     // 게임 세계의 액터를 로드
-    virtual void postConstruct(std::shared_ptr<Game> self) noexcept = 0;
+    virtual void postConstruct(std::shared_ptr<Game> self) noexcept override = 0;
 
     // 게임 루프를 위한 헬퍼 함수
     void processInput() noexcept;

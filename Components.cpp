@@ -2,31 +2,30 @@
 
 #include <SDL2/SDL.h>
 
-#include "Actors.hpp"
 #include "Components.hpp"
-#include "Game.hpp"
 
-const std::string CollisionComponent::className = "CollisionComponent";
-const std::string DrawComponent::className = "DrawComponent";
-const std::string BoxComponent::className = "BoxComponent";
-const std::string SpriteComponent::className = "SpriteComponent";
-const std::string AnimSpriteComponent::className = "AnimSpriteComponent";
-const std::string BGSpriteComponent::className = "BGSpriteComponent";
-const std::string MoveComponent::className = "MoveComponent";
-const std::string InputComponent::className = "InputComponent";
+#include "Actors.hpp"
+#include "SubEngine.hpp"
 
 // interface
 
-Component::Component(const std::weak_ptr<Actor> owner) noexcept
-    : owner(owner) {
-    assert(!owner.expired() && "owner(Actor): expired");
+Component::~Component() {
+    notify(shared_from_this(), Observable_msg::DESTRUCTED);
+}
+
+Component::Component(const std::weak_ptr<Actor> owner) noexcept : owner(owner) {
+    subscribe(owner);
+}
+
+void Component::postConstruct() noexcept {
+    notify(shared_from_this(), Observable_msg::CONSTRUCTED);
 }
 
 // Concrete
 
 // Collision Component
 
-void CollisionComponent::update(const float deltaTime) noexcept {
+void CollisionComponent::update(const float &deltaTime) noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     const auto _owner = owner.lock();
 
@@ -45,8 +44,8 @@ void CollisionComponent::update(const float deltaTime) noexcept {
             // 충돌 후 처리
             const auto collision_result = col_box - pos_diff_abs;
 
-            auto my_wmc = _owner->queryComponent(MoveComponent::className);
-            auto op_wmc = _opponent->queryComponent(MoveComponent::className);
+            auto my_wmc = _owner->queryComponent(ComponentName::MoveComponent);
+            auto op_wmc = _opponent->queryComponent(ComponentName::MoveComponent);
             assert(!my_wmc.expired());
             assert(!op_wmc.expired());
             auto &myVel = std::dynamic_pointer_cast<MoveComponent>(my_wmc.lock())->velocity;
@@ -81,11 +80,17 @@ void CollisionComponent::update(const float deltaTime) noexcept {
 
 // Draw Component
 
-void DrawComponent::load(const std::weak_ptr<Component> self) noexcept {
-    assert(!owner.lock()->getGame().expired() && "game: expired");
-    owner.lock()->getGame().lock()->appendDrawable(
-        std::static_pointer_cast<DrawComponent>(self.lock()));
-    updateOrder = 300;
+void DrawComponent::postConstruct() noexcept {
+    Component::postConstruct();
+
+    if (!owner.expired()) {
+        Observable<DrawComponent>::subscribe(
+            owner.lock()->querySubEngine(SubEngineName::RenderingEngine));
+
+        Observable<DrawComponent>::notify(
+            std::static_pointer_cast<DrawComponent>(shared_from_this()),
+            Observable_msg::CONSTRUCTED);
+    }
 }
 
 // Box Component
@@ -161,7 +166,7 @@ void SpriteComponent::setTexture(SDL_Texture *texture) noexcept {
 
 // Animation Sprite Component
 
-void AnimSpriteComponent::update(const float deltaTime) noexcept {
+void AnimSpriteComponent::update(const float &deltaTime) noexcept {
     SpriteComponent::update(deltaTime);
 
     // 애니메이션에 사용된 텍스처 개수
@@ -180,7 +185,7 @@ void AnimSpriteComponent::update(const float deltaTime) noexcept {
 
 // Scrollable Background Sprite Component
 
-void BGSpriteComponent::update(const float deltaTime) noexcept {
+void BGSpriteComponent::update(const float &deltaTime) noexcept {
     SpriteComponent::update(deltaTime);
 
     for (auto &bg : BGTextures) {
@@ -233,7 +238,7 @@ void BGSpriteComponent::setBGTextures(const std::vector<SDL_Texture *> &textures
 
 // Move Component
 
-void MoveComponent::update(const float deltaTime) noexcept {
+void MoveComponent::update(const float &deltaTime) noexcept {
     assert(!owner.expired() && "owner: expired");
     const auto _owner = owner.lock();
 
@@ -243,7 +248,7 @@ void MoveComponent::update(const float deltaTime) noexcept {
 
 // Input Component
 
-void InputComponent::update(const float deltaTime) noexcept {
+void InputComponent::update(const float &deltaTime) noexcept {
     uint8_t pressedCount = 0;
 
     for (auto &pair : keymap) {

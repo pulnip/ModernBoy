@@ -11,7 +11,11 @@ bool NearZero(const Real x) noexcept;
 
 using Degree = Real;
 using Radian = Real;
+#if __INTELLISENSE__
+constexpr Real PI = 3.14159265;
+#else
 constexpr Real PI = std::asin(1) * 2;
+#endif
 
 Degree toDegree(const Radian r) noexcept;
 Radian toRadian(const Degree d) noexcept;
