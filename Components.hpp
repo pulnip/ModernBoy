@@ -8,6 +8,10 @@
 #include "Makable.hpp"
 #include "Math.hpp"
 #include "Observable.hpp"
+#include "PubSubMessage.hpp"
+
+class ColorRect;
+class Sprite;
 
 class Actor;
 
@@ -31,7 +35,7 @@ enum class ComponentName {
 
 // Component interface
 
-class Component : public std::enable_shared_from_this<Component>, public Makable<Component, Actor>, public Observable<Component> {
+class Component : public std::enable_shared_from_this<Component>, public Makable<Component, Actor>, public Observable<PSMSG::Lifetime, std::shared_ptr<Component>> {
   public:
     virtual ~Component();
 
@@ -85,7 +89,7 @@ class CollisionComponent : public Component {
 // Draw Component
 
 // 2D Graphics interface
-class DrawComponent : public Component, public Observable<DrawComponent> {
+class DrawComponent : public Component {
   public:
     virtual void update(const float &deltaTime) noexcept override {}
     virtual void draw(class SDL_Renderer *renderer) = 0;
@@ -116,7 +120,7 @@ class DrawComponent : public Component, public Observable<DrawComponent> {
 // Box Component
 
 // Color Box 텍스처
-class BoxComponent : public DrawComponent {
+class BoxComponent : public DrawComponent, public Observable<ColorRect> {
   public:
     struct TrueColor {
         using Channel = uint8_t;
@@ -143,7 +147,7 @@ class BoxComponent : public DrawComponent {
 // Sprite Component
 
 // 단일 스프라이트 텍스처
-class SpriteComponent : public DrawComponent {
+class SpriteComponent : public DrawComponent, public Observable<Sprite> {
   public:
     virtual void draw(class SDL_Renderer *renderer) noexcept override;
 

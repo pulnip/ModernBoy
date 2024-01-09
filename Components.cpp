@@ -10,7 +10,7 @@
 // interface
 
 Component::~Component() {
-    notify(shared_from_this(), Observable_msg::DESTRUCTED);
+    notify(shared_from_this(), PSMSG::Lifetime::DESTRUCTED);
 }
 
 Component::Component(const std::weak_ptr<Actor> owner) noexcept : owner(owner) {
@@ -18,7 +18,7 @@ Component::Component(const std::weak_ptr<Actor> owner) noexcept : owner(owner) {
 }
 
 void Component::postConstruct() noexcept {
-    notify(shared_from_this(), Observable_msg::CONSTRUCTED);
+    notify(shared_from_this(), PSMSG::Lifetime::CONSTRUCTED);
 }
 
 // Concrete
@@ -44,12 +44,17 @@ void CollisionComponent::update(const float &deltaTime) noexcept {
             // 충돌 후 처리
             const auto collision_result = col_box - pos_diff_abs;
 
-            auto my_wmc = _owner->queryComponent(ComponentName::MoveComponent);
-            auto op_wmc = _opponent->queryComponent(ComponentName::MoveComponent);
-            assert(!my_wmc.expired());
-            assert(!op_wmc.expired());
-            auto &myVel = std::dynamic_pointer_cast<MoveComponent>(my_wmc.lock())->velocity;
-            auto &opVel = std::dynamic_pointer_cast<MoveComponent>(op_wmc.lock())->velocity;
+            auto my_owmc = _owner->queryComponent(ComponentName::MoveComponent);
+            auto op_owmc = _opponent->queryComponent(ComponentName::MoveComponent);
+            assert(!(my_owmc.has_value() && op_owmc.has_value()));
+            assert(my_owmc.value().expired() || op_owmc.value().expired());
+
+            auto &myVel = std::dynamic_pointer_cast<MoveComponent>(
+                              my_owmc.value().lock())
+                              ->velocity;
+            auto &opVel = std::dynamic_pointer_cast<MoveComponent>(
+                              op_owmc.value().lock())
+                              ->velocity;
 
             // 상대 속도
             const auto vel_diff = opVel - myVel;
@@ -89,7 +94,7 @@ void DrawComponent::postConstruct() noexcept {
 
         Observable<DrawComponent>::notify(
             std::static_pointer_cast<DrawComponent>(shared_from_this()),
-            Observable_msg::CONSTRUCTED);
+            ComponentMsg::CONSTRUCTED);
     }
 }
 

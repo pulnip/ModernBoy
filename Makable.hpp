@@ -3,15 +3,16 @@
 #include <concepts>
 #include <memory>
 
+// Makable for Owned Object
+
 template <class Base, class Owner>
 struct Makable {
     template <class Derived>
         requires std::derived_from<Derived, Base>
-    static auto make(std::shared_ptr<Owner> owner) noexcept {
+    static auto make(const std::weak_ptr<Owner> owner) noexcept {
         struct ctor_proxy : public Derived {
-            ctor_proxy(std::shared_ptr<Owner> owner) noexcept : Derived(owner) {}
+            ctor_proxy(const std::weak_ptr<Owner> owner) noexcept : Derived(owner) {}
         };
-
         std::shared_ptr<Derived> derived = std::make_shared<ctor_proxy>(owner);
         std::static_pointer_cast<Makable>(derived)->postConstruct();
         return derived;
@@ -21,6 +22,8 @@ struct Makable {
     virtual void postConstruct() noexcept = 0;
 };
 
+// Makable for Non-Owned Object
+
 template <class Base>
 struct Makable<Base, void> {
     template <class Derived>
@@ -29,7 +32,6 @@ struct Makable<Base, void> {
         struct ctor_proxy : public Derived {
             ctor_proxy() noexcept : Derived() {}
         };
-
         std::shared_ptr<Derived> derived = std::make_shared<ctor_proxy>();
         std::static_pointer_cast<Makable>(derived)->postConstruct();
         return derived;

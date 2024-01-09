@@ -1,24 +1,37 @@
 #pragma once
 
 #include <concepts>
-#include <list>
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
-#include <string>
 
 #include "Makable.hpp"
 #include "Math.hpp"
 #include "Observable.hpp"
 #include "Observer.hpp"
+#include "PubSubMessage.hpp"
 
-class SubEngine;
+class ActorManager;
+class GameLogic;
+enum class GameStatus;
+
 class Component;
+class CollisionComponent;
+class DrawComponent;
+class BoxComponent;
+class SpriteComponent;
+class AnimSpriteComponent;
+class BGSpriteComponent;
+class MoveComponent;
+class InputComponent;
+// class AIComponent;
+
 enum class ComponentName;
 
 // Actor interface
 
-class Actor : public std::enable_shared_from_this<Actor>, public Makable<Actor, SubEngine>, public Observer<Component>, public Observable<Actor> {
+class Actor : public std::enable_shared_from_this<Actor>, public Makable<Actor, ActorManager>, public Observer<std::shared_ptr<Component>, PSMSG::Lifetime>, public Observable<std::shared_ptr<Actor>, PSMSG::Lifetime> {
     friend class Component;
 
   public:
@@ -43,20 +56,20 @@ class Actor : public std::enable_shared_from_this<Actor>, public Makable<Actor, 
 
     // Getters/Setters
     const State &getState() const noexcept { return state; }
-    const std::weak_ptr<SubEngine> &getActorManager() const noexcept { return owner; }
+    const std::weak_ptr<ActorManager> &getActorManager() const noexcept { return owner; }
     Vector2 getSize() const noexcept { return scale * baseSize; }
 
-    void onNotify(std::shared_ptr<Component> comp, Observable_msg msg);
+    void onNotify(std::shared_ptr<Component> comp, PSMSG::Lifetime msg);
     void appendComponent(const std::shared_ptr<Component> component) noexcept;
-    std::weak_ptr<Component> queryComponent(const ComponentName name) noexcept;
+    std::optional<std::weak_ptr<Component>>
+    queryComponent(const ComponentName name) noexcept;
 
   protected:
-    Actor(const std::weak_ptr<SubEngine> manager) noexcept;
+    Actor(const std::weak_ptr<ActorManager> manager) noexcept;
     virtual void postConstruct() noexcept {}
 
   private:
     void updateComponents(const float &deltaTime) noexcept;
-    void orderComponents() noexcept;
 
   public:
     Vector2 position;
@@ -65,67 +78,64 @@ class Actor : public std::enable_shared_from_this<Actor>, public Makable<Actor, 
     Math::Radian rotation = 0.0;
 
   protected:
-    const std::weak_ptr<SubEngine> owner;
+    const std::weak_ptr<ActorManager> owner;
     State state = EActive;
     // 액터 구현체가 보유한 컴포넌트들
     std::map<ComponentName, std::shared_ptr<Component>> components;
-    struct comp_update_order {
-        using ptr = std::shared_ptr<Component>;
-        bool operator()(const ptr &lhs, const ptr &rhs) {
-            return lhs->getUpdateOrder() < rhs->getUpdateOrder();
-        }
-    };
+    struct comp_update_order;
     std::multiset<std::shared_ptr<Component>, comp_update_order> orderedComponents;
 };
 
 // Concrete Actor
 
-class Paddle : public Actor {
+class Paddle : public Actor, public Observable<GameStatus> {
   public:
     void updateActor(const float &deltaTime) noexcept override;
 
     void allowCollision(const std::weak_ptr<Actor> opponent) noexcept;
 
   protected:
-    Paddle(const std::weak_ptr<SubEngine> owner) noexcept;
+    Paddle(const std::weak_ptr<ActorManager> owner) noexcept;
 
   private:
     void postConstruct() noexcept override;
 
   private:
-    std::shared_ptr<class BoxComponent> bc;
-    std::shared_ptr<class CollisionComponent> cc;
-    std::shared_ptr<class InputComponent> ic;
-    std::shared_ptr<class MoveComponent> mc;
+    std::shared_ptr<BoxComponent> bc;
+    std::shared_ptr<CollisionComponent> cc;
+    std::shared_ptr<InputComponent> ic;
+    std::shared_ptr<MoveComponent> mc;
 };
 
 class Wall : public Actor {
   private:
-    Wall(const std::weak_ptr<SubEngine> owner) noexcept;
+    Wall(const std::weak_ptr<ActorManager> owner) noexcept;
 
   protected:
     void postConstruct() noexcept override;
 
   private:
-    std::shared_ptr<class BoxComponent> bc;
-    std::shared_ptr<class MoveComponent> mc;
+    std::shared_ptr<BoxComponent> bc;
+    std::shared_ptr<MoveComponent> mc;
 };
 
-class Ball : public Actor {
+class Ball : public Actor, public Observable<GameStatus> {
   public:
     void updateActor(const float &deltaTime) noexcept override;
     void allowCollision(const std::weak_ptr<Actor> opponent) noexcept;
 
   protected:
-    Ball(const std::weak_ptr<SubEngine> owner) noexcept;
+    Ball(const std::weak_ptr<ActorManager> owner) noexcept;
 
   private:
     void postConstruct() noexcept override;
 
   private:
-    std::shared_ptr<class AnimSpriteComponent> sc;
-    std::shared_ptr<class CollisionComponent> cc;
-    std::shared_ptr<class MoveComponent> mc;
+    std::weak_ptr<GameLogic> gl;
+
+    std::shared_ptr<AnimSpriteComponent> sc;
+    std::shared_ptr<CollisionComponent> cc;
+    std::shared_ptr<MoveComponent> mc;
 };
 
 class Ship : public Actor {
@@ -133,25 +143,25 @@ class Ship : public Actor {
     void updateActor(const float &deltaTime) noexcept override;
 
   protected:
-    Ship(const std::weak_ptr<SubEngine> owner) noexcept;
+    Ship(const std::weak_ptr<ActorManager> owner) noexcept;
 
   private:
     void postConstruct() noexcept override;
 
   private:
-    std::shared_ptr<class AnimSpriteComponent> sc;
-    std::shared_ptr<class InputComponent> ic;
-    std::shared_ptr<class MoveComponent> mc;
+    std::shared_ptr<AnimSpriteComponent> sc;
+    std::shared_ptr<InputComponent> ic;
+    std::shared_ptr<MoveComponent> mc;
 };
 
 class Asteroid : public Actor {
   public:
-    Asteroid(const std::weak_ptr<SubEngine> owner) noexcept;
+    Asteroid(const std::weak_ptr<ActorManager> owner) noexcept;
 
   private:
     void postConstruct() noexcept override;
 
   private:
-    std::shared_ptr<class SpriteComponent> sc;
-    std::shared_ptr<class MoveComponent> mc;
+    std::shared_ptr<SpriteComponent> sc;
+    std::shared_ptr<MoveComponent> mc;
 };

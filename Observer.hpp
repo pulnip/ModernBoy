@@ -1,19 +1,26 @@
 #pragma once
 
-#include <memory>
-
-template <typename T>
+template <typename MSG, typename T>
 class Observable;
 
-enum class Observable_msg;
-
-template <typename T>
+template <typename MSG, typename T = void>
 class Observer {
-    friend class Observable<T>;
+    friend class Observable<MSG, T>;
 
   public:
     virtual ~Observer() = default;
 
   private:
-    virtual void onNotify(std::shared_ptr<T> observable, Observable_msg msg) = 0;
+    virtual void onNotify(MSG msg, T t) = 0;
+};
+
+template <typename MSG>
+class Observer<MSG, void> {
+    friend class Observable<MSG, void>;
+
+  public:
+    virtual ~Observer() = default;
+
+  private:
+    virtual void onNotify(MSG msg) = 0;
 };
