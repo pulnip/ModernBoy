@@ -31,7 +31,7 @@ enum class ComponentName;
 
 // Actor interface
 
-class Actor : public std::enable_shared_from_this<Actor>, public Makable<Actor, ActorManager>, public Observer<std::shared_ptr<Component>, PSMSG::Lifetime>, public Observable<std::shared_ptr<Actor>, PSMSG::Lifetime> {
+class Actor : public std::enable_shared_from_this<Actor>, public Makable<Actor, ActorManager>, public Observer<PSMSG::Lifetime, std::shared_ptr<Component>>, public Observable<PSMSG::Lifetime, std::shared_ptr<Actor>> {
     friend class Component;
 
   public:
@@ -59,14 +59,14 @@ class Actor : public std::enable_shared_from_this<Actor>, public Makable<Actor, 
     const std::weak_ptr<ActorManager> &getActorManager() const noexcept { return owner; }
     Vector2 getSize() const noexcept { return scale * baseSize; }
 
-    void onNotify(std::shared_ptr<Component> comp, PSMSG::Lifetime msg);
+    void onNotify(PSMSG::Lifetime msg, std::shared_ptr<Component> comp) noexcept override;
     void appendComponent(const std::shared_ptr<Component> component) noexcept;
     std::optional<std::weak_ptr<Component>>
     queryComponent(const ComponentName name) noexcept;
 
   protected:
     Actor(const std::weak_ptr<ActorManager> manager) noexcept;
-    virtual void postConstruct() noexcept {}
+    virtual void postConstruct() noexcept override;
 
   private:
     void updateComponents(const float &deltaTime) noexcept;

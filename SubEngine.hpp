@@ -10,6 +10,7 @@
 #include "Observable.hpp"
 #include "Observer.hpp"
 #include "PubSubMessage.hpp"
+#include "Skin.hpp"
 
 class Game;
 class Actor;
@@ -18,12 +19,14 @@ enum class SubEngineName {
     SubEngine,
 
     ResourceManager,
+    SDL_ResourceManager,
     InputSystem,
     GameLogic,
     PhysicsSimulator,
     SoundEngine,
     GraphicsEngine,
-    ActorManager,
+    SDL_GraphicsEngine,
+    ActorManager
 };
 
 // interface
@@ -32,8 +35,12 @@ class SubEngine : public std::enable_shared_from_this<SubEngine>, public Makable
   public:
     virtual ~SubEngine() = default;
 
+  protected:
+    SubEngine(const std::weak_ptr<Game> owner) noexcept;
+    virtual void postConstruct() noexcept override;
+
   private:
-    virtual void postConstruct() noexcept override = 0;
+    std::weak_ptr<Game> owner;
 };
 
 // Resource Manager
@@ -48,13 +55,24 @@ class ResourceManager : public SubEngine {
 };
 
 class SDL_Texture;
+class SDL_Renderer;
 
 class SDL_ResourceManager : public ResourceManager<SDL_Texture *> {
+    friend class Game;
+
   public:
+    ~SDL_ResourceManager();
+
     std::optional<SDL_Texture *> getSkin(const std::string &fileName) noexcept override;
 
   private:
     SDL_Texture *loadTexture(const std::string &fileName) noexcept;
+    void setContext(const std::shared_ptr<SDL_Renderer *> context) noexcept {
+        this->context = context;
+    }
+
+  private:
+    std::weak_ptr<SDL_Renderer *> context;
 };
 
 // Input System
@@ -89,37 +107,38 @@ class SoundEngine : public SubEngine {};
 
 // Graphics Engine
 
-class TrueColor;
-class SDL_Sprite;
-
 class GraphicsEngine : public SubEngine, public Observer<ColorRect> {
   private:
+    virtual void postConstruct() noexcept override = 0;
     virtual void onNotify(ColorRect rect) noexcept override = 0;
 };
 
 class SDL_GraphicsEngine : public GraphicsEngine, public Observer<SDL_Sprite> {
+  public:
+    ~SDL_GraphicsEngine();
+
+    void initBackground();
+    void changeColorBuffer();
+
   private:
+    void postConstruct() noexcept override;
+
     void onNotify(ColorRect rect) noexcept;
     void onNotify(SDL_Sprite sprite) noexcept;
-};
 
-struct TrueColor {
-    using Channel = uint8_t;
-    Channel red = 0, green = 0, blue = 0, alpha = 255;
-};
-struct ColorRect {
-    TrueColor color;
-    Vector2 position;
-    Math::Radian rotation = 0.0;
-};
-
-class SDL_Texture;
-struct SDL_Sprite {
-    SDL_Texture *texture;
-    Vector2 position;
-    Math::Radian rotation = 0.0;
+  private:
+    std::shared_ptr<SDL_Window *> window;
+    std::shared_ptr<SDL_Renderer *> renderer;
 };
 
 // Actor Manager
 
-class ActorManager : public SubEngine, public Observer<PSMSG::Lifetime, std::shared_ptr<Actor>> {};
+class ActorManager : public SubEngine, public Observer<PSMSG::Lifetime, std::shared_ptr<Actor>> {
+  public:
+    std::optional<std::weak_ptr<SubEngine>>
+    requestSubEngine(const SubEngineName name) noexcept;
+
+  private:
+    void postConstruct() noexcept override;
+    void onNotify(PSMSG::Lifetime lifetime, std::shared_ptr<Actor> actor) noexcept override;
+};

@@ -30,7 +30,7 @@ void Actor::update(const float &deltaTime) noexcept {
     updateActor(deltaTime);
 }
 
-void Actor::onNotify(std::shared_ptr<Component> comp, PSMSG::Lifetime msg) {
+void Actor::onNotify(PSMSG::Lifetime msg, std::shared_ptr<Component> comp) noexcept {
     switch (msg) {
     case PSMSG::Lifetime::CONSTRUCTED:
         appendComponent(comp);
@@ -53,8 +53,12 @@ Actor::queryComponent(const ComponentName name) noexcept {
     return result->second;
 }
 
-Actor::Actor(const std::weak_ptr<ActorManager> owner) noexcept
-    : owner(owner) {
+Actor::Actor(const std::weak_ptr<ActorManager> owner) noexcept : owner(owner) {
+    subscribe(owner);
+}
+
+void Actor::postConstruct() noexcept {
+    notify(PSMSG::Lifetime::CONSTRUCTED, shared_from_this());
 }
 
 void Actor::updateComponents(const float &deltaTime) noexcept {
@@ -93,7 +97,8 @@ void Paddle::postConstruct() noexcept {
     mc = Component::make<MoveComponent>(self);
 
     bc->setTexture({}, {15.0f, 120.0f});
-
+    bc->Observable<ColorRect>::subscribe(std::dynamic_pointer_cast<GraphicsEngine>(
+        owner.lock()->requestSubEngine(SubEngineName::GraphicsEngine).value().lock()));
     ic->setKey(SDL_SCANCODE_S, [&v_y = mc->velocity.y]() {
         v_y += 300.0f;
     });
@@ -112,6 +117,9 @@ void Wall::postConstruct() noexcept {
 
     bc = Component::make<BoxComponent>(self);
     mc = Component::make<MoveComponent>(self);
+
+    bc->Observable<ColorRect>::subscribe(std::dynamic_pointer_cast<GraphicsEngine>(
+        owner.lock()->requestSubEngine(SubEngineName::GraphicsEngine).value().lock()));
 }
 
 // Ball
@@ -139,15 +147,39 @@ void Ball::postConstruct() noexcept {
     cc = Component::make<CollisionComponent>(self);
     mc = Component::make<MoveComponent>(self);
 
-    auto manager = owner.lock();
-    std::vector<SDL_Texture *> anims = {
-        manager->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/pigeon_1.png"),
-        manager->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/pigeon_2.png"),
-        manager->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/pigeon_3.png"),
-        manager->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/pigeon_2.png")};
-    sc->setAnimTextures(anims);
-
     mc->velocity = {-200.0f, 235.0f};
+    sc->Observable<SDL_Sprite>::subscribe(std::dynamic_pointer_cast<SDL_GraphicsEngine>(
+        owner.lock()->requestSubEngine(SubEngineName::SDL_GraphicsEngine).value().lock()));
+
+    if (owner.expired()) {
+        return;
+    }
+    auto o = owner.lock()->requestSubEngine(SubEngineName::SDL_ResourceManager);
+
+    if (!o.has_value()) {
+        return;
+    }
+    auto wpManager = o.value();
+
+    if (o.value().expired()) {
+        return;
+    }
+    auto manager = std::dynamic_pointer_cast<SDL_ResourceManager>(wpManager.lock());
+
+    std::vector<std::optional<SDL_Texture *>> opAnims = {
+        manager->getSkin("pigeon_1.png"),
+        manager->getSkin("pigeon_2.png"),
+        manager->getSkin("pigeon_3.png"),
+        manager->getSkin("pigeon_2.png")};
+
+    std::vector<SDL_Texture *> anims;
+    for (auto &o : opAnims) {
+        if (o.has_value()) {
+            anims.emplace_back(o.value());
+        }
+    }
+
+    sc->setAnimTextures(anims);
 }
 
 // Ship
@@ -167,14 +199,6 @@ void Ship::postConstruct() noexcept {
     ic = Component::make<InputComponent>(self);
     mc = Component::make<MoveComponent>(self);
 
-    auto _game = owner.lock();
-    std::vector<SDL_Texture *> anims = {
-        _game->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Ship01.png"),
-        _game->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Ship02.png"),
-        _game->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Ship03.png"),
-        _game->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Ship04.png")};
-    sc->setAnimTextures(anims);
-
     ic->setKey(SDL_SCANCODE_Q, [&rv = mc->rotationVelocity]() {
         rv += -Math::PI;
     });
@@ -187,6 +211,36 @@ void Ship::postConstruct() noexcept {
     ic->setKey(SDL_SCANCODE_A, [&v = mc->velocity, &r = rotation]() {
         v += Vector2::forward(r) * -300.0f;
     });
+
+    if (owner.expired()) {
+        return;
+    }
+    auto o = owner.lock()->requestSubEngine(SubEngineName::SDL_ResourceManager);
+
+    if (!o.has_value()) {
+        return;
+    }
+    auto wpManager = o.value();
+
+    if (o.value().expired()) {
+        return;
+    }
+    auto manager = std::dynamic_pointer_cast<SDL_ResourceManager>(wpManager.lock());
+
+    std::vector<std::optional<SDL_Texture *>> opAnims = {
+        manager->getSkin("Ship01.png"),
+        manager->getSkin("Ship02.png"),
+        manager->getSkin("Ship03.png"),
+        manager->getSkin("Ship04.png")};
+
+    std::vector<SDL_Texture *> anims;
+    for (auto &o : opAnims) {
+        if (o.has_value()) {
+            anims.emplace_back(o.value());
+        }
+    }
+
+    sc->setAnimTextures(anims);
 }
 
 // Asteroid
@@ -204,8 +258,27 @@ void Asteroid::postConstruct() noexcept {
     sc = Component::make<AnimSpriteComponent>(self);
     mc = Component::make<MoveComponent>(self);
 
-    sc->setTexture(owner.lock()->getTexture("C:/Users/choiw/Documents/GameEngineDevelopment/resource/Asteroid.png"));
-
     mc->velocity = Vector2::forward(Math::random(-Math::PI, Math::PI)) * Math::random(0, 300);
     mc->rotationVelocity = Math::random(-Math::PI / 2, Math::PI / 2);
+
+    if (owner.expired()) {
+        return;
+    }
+    auto o = owner.lock()->requestSubEngine(SubEngineName::SDL_ResourceManager);
+
+    if (!o.has_value()) {
+        return;
+    }
+    auto wpManager = o.value();
+
+    if (o.value().expired()) {
+        return;
+    }
+    auto manager = std::dynamic_pointer_cast<SDL_ResourceManager>(wpManager.lock());
+    auto oTexture = manager->getSkin("Asteroid.png");
+
+    if (!oTexture.has_value()) {
+        return;
+    }
+    sc->setTexture(oTexture.value());
 }

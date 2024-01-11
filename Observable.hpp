@@ -3,9 +3,12 @@
 #include <list>
 #include <memory>
 
+#include "my_concepts.hpp"
+
 #include "Observer.hpp"
 
 template <typename MSG, typename T = void>
+    requires(!deref_able<MSG>)
 class Observable {
   public:
     virtual ~Observable() = default;
@@ -39,6 +42,7 @@ class Observable {
 };
 
 template <typename MSG>
+    requires(!deref_able<MSG>)
 class Observable<MSG, void> {
   public:
     virtual ~Observable() = default;

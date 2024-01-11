@@ -12,44 +12,10 @@ Game::Game() noexcept {
     int sdlResult = SDL_Init(SDL_INIT_VIDEO);
     if (sdlResult != 0) {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
-        // return false;
     }
-
-    window = SDL_CreateWindow(
-        "Game Programming in C++",
-        100,
-        100,
-        1024,
-        768,
-        0);
-    if (!window) {
-        SDL_Log("Failed to create window: %s", SDL_GetError());
-        // return false;
-    }
-
-    renderer = SDL_CreateRenderer(
-        window,
-        -1,
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!renderer) {
-        SDL_Log("Failed to create renderer: %s", SDL_GetError());
-        // return false;
-    }
-
-    // Init SDL Image Library
-    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
-        SDL_Log("Unable to initialize SDL_image: %s", SDL_GetError());
-        // return false;
-    }
-
-    // return true;
 }
 
 void Game::shutDown() noexcept {
-    for (auto key : textures)
-        SDL_DestroyTexture(key.second);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
@@ -183,25 +149,6 @@ void Game::generateOutput() noexcept {
 
     // 전면 버퍼와 후면 버퍼 교환
     SDL_RenderPresent(renderer);
-}
-
-SDL_Texture *
-Game::loadTexture(const char *fileName) noexcept {
-    // 파일로부터 로딩
-    SDL_Surface *surf = IMG_Load(fileName);
-    if (!surf) {
-        SDL_Log("Failed to load texture file %s", fileName);
-        return nullptr;
-    }
-
-    // 텍스쳐 생성
-    auto texture = SDL_CreateTextureFromSurface(renderer, surf);
-    SDL_FreeSurface(surf);
-    if (!texture) {
-        SDL_Log("Failed to convert surface to texture for %s", fileName);
-        return nullptr;
-    }
-    return texture;
 }
 
 void p1pingpong::postConstruct(std::shared_ptr<Game> self) noexcept {

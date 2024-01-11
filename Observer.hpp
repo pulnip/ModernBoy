@@ -1,9 +1,13 @@
 #pragma once
 
+#include "my_concepts.hpp"
+
 template <typename MSG, typename T>
+    requires(!deref_able<MSG>)
 class Observable;
 
 template <typename MSG, typename T = void>
+    requires(!deref_able<MSG>)
 class Observer {
     friend class Observable<MSG, T>;
 
@@ -15,6 +19,7 @@ class Observer {
 };
 
 template <typename MSG>
+    requires(!deref_able<MSG>)
 class Observer<MSG, void> {
     friend class Observable<MSG, void>;
 

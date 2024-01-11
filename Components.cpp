@@ -9,16 +9,12 @@
 
 // interface
 
-Component::~Component() {
-    notify(shared_from_this(), PSMSG::Lifetime::DESTRUCTED);
-}
-
 Component::Component(const std::weak_ptr<Actor> owner) noexcept : owner(owner) {
     subscribe(owner);
 }
 
 void Component::postConstruct() noexcept {
-    notify(shared_from_this(), PSMSG::Lifetime::CONSTRUCTED);
+    notify(PSMSG::Lifetime::CONSTRUCTED, shared_from_this());
 }
 
 // Concrete
@@ -88,76 +84,48 @@ void CollisionComponent::update(const float &deltaTime) noexcept {
 void DrawComponent::postConstruct() noexcept {
     Component::postConstruct();
 
-    if (!owner.expired()) {
-        Observable<DrawComponent>::subscribe(
-            owner.lock()->querySubEngine(SubEngineName::RenderingEngine));
-
-        Observable<DrawComponent>::notify(
-            std::static_pointer_cast<DrawComponent>(shared_from_this()),
-            ComponentMsg::CONSTRUCTED);
-    }
+#warning "subscribe graphics engine?"
 }
 
 // Box Component
 
-void BoxComponent::draw(SDL_Renderer *renderer) noexcept {
+void BoxComponent::draw() noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     const auto _owner = owner.lock();
 
-    SDL_Rect rect;
-    const auto size = _owner->getSize();
     const auto pos = _owner->position;
-    // 소유자의 배율 값으로 크기 조절
-    rect.w = static_cast<int>(size.x);
-    rect.h = static_cast<int>(size.y);
-    // 중심 위치로 좌상단 좌표 계산
-    rect.x = static_cast<int>(pos.x - rect.w / 2);
-    rect.y = static_cast<int>(pos.y - rect.h / 2);
+    // size = base size * scale;
+    const auto size = _owner->getSize();
+    const auto rotation = _owner->rotation;
 
-    SDL_SetRenderDrawColor(renderer,
-                           color.red,
-                           color.green,
-                           color.blue,
-                           color.alpha);
-    SDL_RenderFillRect(renderer, &rect);
+    ColorRect rect = {pos, size, rotation, color};
+
+    Observable<ColorRect>::notify(rect);
 }
 void BoxComponent::setTexture(const TrueColor &color, const Vector2 &size) noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
-    BoxComponent::color = color;
+    this->color = color;
     owner.lock()->baseSize = size;
 }
 
 // Sprite Component
 
-void SpriteComponent::draw(SDL_Renderer *renderer) noexcept {
+void SpriteComponent::draw() noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     const auto _owner = owner.lock();
 
-    SDL_Rect rect;
-    const auto size = _owner->getSize();
     const auto pos = _owner->position;
-    // 소유자의 배율 값으로 크기 조절
-    rect.w = static_cast<int>(size.x);
-    rect.h = static_cast<int>(size.y);
-    // 중심 위치로 좌상단 좌표 계산
-    rect.x = static_cast<int>(pos.x - rect.w / 2);
-    rect.y = static_cast<int>(pos.y - rect.h / 2);
+    // size = base size * scale;
+    const auto size = _owner->getSize();
+    const auto rotation = _owner->rotation;
 
-    SDL_RenderCopyEx(renderer,
-                     texture,
-                     // 텍스처의 특정 영역 (nullptr은 전체영역)
-                     nullptr,
-                     // 어느 위치에, 어느 크기로 렌더링할 지
-                     &rect,
-                     // 라디안을 각도로 변환
-                     Math::toDegree(_owner->rotation),
-                     // 회전 중심점
-                     nullptr,
-                     SDL_FLIP_NONE);
+    SDL_Sprite sprite = {pos, size, rotation, texture};
+    Observable<SDL_Sprite>::notify(sprite);
 }
 void SpriteComponent::setTexture(SDL_Texture *texture) noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     const auto _owner = owner.lock();
+
     SpriteComponent::texture = texture;
 
     int width, height;
@@ -215,21 +183,16 @@ void BGSpriteComponent::update(const float &deltaTime) noexcept {
         }
     }
 }
-void BGSpriteComponent::draw(SDL_Renderer *renderer) noexcept {
-    // const auto origin = _owner->position - mScreenSize/2;
+void BGSpriteComponent::draw() noexcept {
     for (auto &bg : BGTextures) {
-        SDL_Rect rect;
-        rect.w = static_cast<int>(screenSize.x);
-        rect.h = static_cast<int>(screenSize.y);
-        // rect.x = static_cast<int>(_owner->position.x - rect.w/2 + bg.mOffset.x);
-        // rect.y = static_cast<int>(_owner->position.y - rect.h/2 + bg.mOffset.y);
-        rect.x = static_cast<int>(bg.offset_x);
-        rect.y = 0.0f;
+        SDL_Sprite sprite = {
+            // transform position: top-left to center
+            Vector2{bg.offset_x, 0.0f} + screenSize / 2,
+            screenSize,
+            0.0,
+            bg.texture};
 
-        SDL_RenderCopy(renderer,
-                       bg.texture,
-                       nullptr,
-                       &rect);
+        Observable<SDL_Sprite>::notify(sprite);
     }
 }
 void BGSpriteComponent::setBGTextures(const std::vector<SDL_Texture *> &textures) noexcept {

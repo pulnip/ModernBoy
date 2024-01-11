@@ -9,9 +9,7 @@
 #include "Math.hpp"
 #include "Observable.hpp"
 #include "PubSubMessage.hpp"
-
-class ColorRect;
-class Sprite;
+#include "Skin.hpp"
 
 class Actor;
 
@@ -37,7 +35,7 @@ enum class ComponentName {
 
 class Component : public std::enable_shared_from_this<Component>, public Makable<Component, Actor>, public Observable<PSMSG::Lifetime, std::shared_ptr<Component>> {
   public:
-    virtual ~Component();
+    virtual ~Component() = default;
 
     virtual void processInput(const uint8_t *keyState) {}
     virtual void update(const float &deltaTime) noexcept = 0;
@@ -92,7 +90,7 @@ class CollisionComponent : public Component {
 class DrawComponent : public Component {
   public:
     virtual void update(const float &deltaTime) noexcept override {}
-    virtual void draw(class SDL_Renderer *renderer) = 0;
+    virtual void draw() = 0;
 
     virtual ComponentName getName() const noexcept override {
         return ComponentName::DrawComponent;
@@ -119,16 +117,13 @@ class DrawComponent : public Component {
 
 // Box Component
 
+class TrueColor;
+class ColorRect;
+
 // Color Box 텍스처
 class BoxComponent : public DrawComponent, public Observable<ColorRect> {
   public:
-    struct TrueColor {
-        using Channel = uint8_t;
-        Channel red = 0, green = 0, blue = 0, alpha = 255;
-    };
-
-  public:
-    void draw(class SDL_Renderer *renderer) noexcept override;
+    void draw() noexcept override;
 
     ComponentName getName() const noexcept override {
         return ComponentName::BoxComponent;
@@ -146,15 +141,18 @@ class BoxComponent : public DrawComponent, public Observable<ColorRect> {
 
 // Sprite Component
 
+class SDL_Texture;
+class SDL_Sprite;
+
 // 단일 스프라이트 텍스처
-class SpriteComponent : public DrawComponent, public Observable<Sprite> {
+class SpriteComponent : public DrawComponent, public Observable<SDL_Sprite> {
   public:
-    virtual void draw(class SDL_Renderer *renderer) noexcept override;
+    virtual void draw() noexcept override;
 
     virtual ComponentName getName() const noexcept override {
         return ComponentName::SpriteComponent;
     }
-    virtual void setTexture(class SDL_Texture *texture) noexcept;
+    virtual void setTexture(SDL_Texture *texture) noexcept;
 
   protected:
     SpriteComponent(const std::weak_ptr<Actor> owner) noexcept
@@ -162,7 +160,7 @@ class SpriteComponent : public DrawComponent, public Observable<Sprite> {
         drawOrder = 201;
     }
 
-    class SDL_Texture *texture;
+    SDL_Texture *texture;
 };
 
 // Animation Sprite Component
@@ -202,7 +200,7 @@ class AnimSpriteComponent : public SpriteComponent {
 class BGSpriteComponent : public SpriteComponent {
   public:
     void update(const float &deltaTime) noexcept override;
-    void draw(class SDL_Renderer *renderer) noexcept override;
+    void draw() noexcept override;
 
     ComponentName getName() const noexcept override {
         return ComponentName::BGSpriteComponent;
