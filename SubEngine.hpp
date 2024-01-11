@@ -31,23 +31,30 @@ enum class SubEngineName {
 class SubEngine : public std::enable_shared_from_this<SubEngine>, public Makable<SubEngine, Game>, public Observable<PSMSG::Lifetime, std::shared_ptr<SubEngine>> {
   public:
     virtual ~SubEngine() = default;
+
+  private:
+    virtual void postConstruct() noexcept override = 0;
 };
 
 // Resource Manager
 
+template <typename Skin>
 class ResourceManager : public SubEngine {
+  public:
+    virtual std::optional<Skin> getSkin(const std::string &fileName) noexcept = 0;
+
+  protected:
+    std::map<const std::string, Skin> skins;
 };
 
 class SDL_Texture;
 
-class SDL_ResourceManager : public ResourceManager {
+class SDL_ResourceManager : public ResourceManager<SDL_Texture *> {
   public:
-    std::optional<SDL_Texture *> getTexture(const std::string &fileName) noexcept;
+    std::optional<SDL_Texture *> getSkin(const std::string &fileName) noexcept override;
 
   private:
     SDL_Texture *loadTexture(const std::string &fileName) noexcept;
-
-    std::map<const std::string, SDL_Texture *> textures;
 };
 
 // Input System
