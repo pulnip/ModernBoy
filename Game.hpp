@@ -10,9 +10,22 @@
 
 class SubEngine;
 
-class Game : public Makable<Game, void>, Observer<SubEngine> {
+class SDL_ResourceManager;
+class InputSystem;
+class SDL_InputSystem;
+class GameLogic;
+class PhysicsSimulator;
+class SoundEngine;
+class GraphicsEngine;
+class SDL_GraphicsEngine;
+class ActorManager;
+
+class GameEngine : public std::enable_shared_from_this<GameEngine>, public Makable<GameEngine>, public Observer<SubEngine> {
+};
+
+class SDL_GameEngine : public GameEngine {
   public:
-    ~Game() = default;
+    ~SDL_GameEngine();
 
     // 게임이 끝나기 전까지 게임 루프를 실행
     void runLoop() noexcept;
@@ -26,12 +39,10 @@ class Game : public Makable<Game, void>, Observer<SubEngine> {
     void removeDrawable(const std::weak_ptr<class DrawComponent> drawable) noexcept;
 
   protected:
-    Game() noexcept;
+    SDL_GameEngine() noexcept;
+    virtual void postConstruct() noexcept override;
 
   private:
-    // 게임 세계의 액터를 로드
-    virtual void postConstruct(std::shared_ptr<Game> self) noexcept override = 0;
-
     // 게임 루프를 위한 헬퍼 함수
     void processInput() noexcept;
     void updateGame() noexcept;
@@ -41,11 +52,12 @@ class Game : public Makable<Game, void>, Observer<SubEngine> {
     class SDL_Texture *loadTexture(const char *fileName) noexcept;
 
   private:
+    std::shared_ptr<SDL_ResourceManager> resourceManager;
+    std::shared_ptr<SDL_InputSystem> inputSystem;
+    std::shared_ptr<GameLogic> game;
+    std::shared_ptr<SDL_GraphicsEngine> graphicsEngine;
+
     const uint8_t *keyState;
-    // SDL이 생성한 윈도우
-    class SDL_Window *window;
-    class SDL_Renderer *renderer;
-    std::map<const std::string, class SDL_Texture *> textures;
 
     // 게임이 계속 실행돼야 하는지를 판단
     bool isRunning = false;
@@ -57,18 +69,18 @@ class Game : public Makable<Game, void>, Observer<SubEngine> {
     std::vector<std::weak_ptr<class DrawComponent>> drawables;
 };
 
-class p1pingpong : public Game {
+class p1pingpong : public SDL_GameEngine {
   public:
     p1pingpong() noexcept = default;
 
   private:
-    void postConstruct(std::shared_ptr<Game> self) noexcept override;
+    void postConstruct() noexcept override;
 };
 
-class spaceShip : public Game {
+class spaceShip : public SDL_GameEngine {
   public:
     spaceShip() noexcept = default;
 
   private:
-    void postConstruct(std::shared_ptr<Game> self) noexcept override;
+    void postConstruct() noexcept override;
 };

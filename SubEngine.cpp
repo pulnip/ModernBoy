@@ -5,7 +5,7 @@
 
 #include "SubEngine.hpp"
 
-SubEngine::SubEngine(const std::weak_ptr<Game> owner) noexcept
+SubEngine::SubEngine(const std::weak_ptr<GameEngine> owner) noexcept
     : owner(owner) {}
 
 void SubEngine::postConstruct() noexcept {
@@ -20,6 +20,19 @@ SDL_ResourceManager::~SDL_ResourceManager() {
 
         SDL_Log("Texture Unloaded: %s", file.c_str());
     }
+}
+
+void SDL_GraphicsEngine::initBackground() noexcept {
+    // 후면 버퍼를 단색으로 클리어
+    SDL_SetRenderDrawColor(*renderer,
+                           0, 0, 255, // 파란 배경
+                           255);
+
+    SDL_RenderClear(*renderer);
+}
+
+void SDL_GraphicsEngine::changeColorBuffer() noexcept {
+    SDL_RenderPresent(*renderer);
 }
 
 std::optional<SDL_Texture *>
@@ -71,6 +84,31 @@ SDL_ResourceManager::loadTexture(const std::string &fileName) noexcept {
     return texture;
 }
 
+// Input System
+InputSystem::InputSystem(const std::weak_ptr<GameEngine> owner) noexcept : SubEngine(owner) {}
+
+void SDL_InputSystem::update(const float &deltaTime) noexcept {
+    SDL_Event event;
+    // 큐에 여전히 이벤트가 남아있는 동안
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_QUIT:
+            Observable<GameStatus>::notify(GameStatus::FORCE_QUIT);
+            break;
+        }
+    }
+
+    const uint8_t *keyState = SDL_GetKeyboardState(nullptr);
+    // ESC로 게임 종료
+    if (keyState[SDL_SCANCODE_ESCAPE]) {
+        Observable<GameStatus>::notify(GameStatus::FORCE_QUIT);
+    }
+}
+
+SDL_InputSystem::SDL_InputSystem(const std::weak_ptr<GameEngine> owner) noexcept : InputSystem(owner) {}
+
+// Graphics Engine
+
 SDL_GraphicsEngine::~SDL_GraphicsEngine() {
     SDL_DestroyRenderer(*renderer);
     SDL_DestroyWindow(*window);
@@ -80,7 +118,7 @@ void SDL_GraphicsEngine::postConstruct() noexcept {
     SubEngine::postConstruct();
 
     window = std::make_shared<SDL_Window *>(SDL_CreateWindow(
-        "Game Programming in C++",
+        "GameEngine Programming in C++",
         100,
         100,
         1024,

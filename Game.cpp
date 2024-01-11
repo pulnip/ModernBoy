@@ -7,19 +7,37 @@
 #include "Actors.hpp"
 #include "Components.hpp"
 #include "Game.hpp"
+#include "SubEngine.hpp"
 
-Game::Game() noexcept {
+SDL_GameEngine::~SDL_GameEngine() {
+    SDL_Quit();
+}
+
+SDL_GameEngine::SDL_GameEngine() noexcept {
     int sdlResult = SDL_Init(SDL_INIT_VIDEO);
     if (sdlResult != 0) {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
     }
 }
 
-void Game::shutDown() noexcept {
+void SDL_GameEngine::postConstruct() noexcept {
+    auto self = weak_from_this();
+
+    resourceManager = SubEngine::make<SDL_ResourceManager>(self);
+    inputSystem = SubEngine::make<SDL_InputSystem>(self);
+    game = SubEngine::make<GameLogic>(self);
+    graphicsEngine = SubEngine::make<SDL_GraphicsEngine>(self);
+
+    inputSystem->Observable<GameStatus>::subscribe(game);
+}
+
+// deprecated
+
+void SDL_GameEngine::shutDown() noexcept {
     SDL_Quit();
 }
 
-void Game::runLoop() noexcept {
+void SDL_GameEngine::runLoop() noexcept {
     isRunning = true;
 
     while (isRunning) {
@@ -29,7 +47,7 @@ void Game::runLoop() noexcept {
     }
 }
 
-void Game::appendActor(const std::shared_ptr<Actor> actor) noexcept {
+void SDL_GameEngine::appendActor(const std::shared_ptr<Actor> actor) noexcept {
     if (isUpdatingActors) {
         pendingActors.emplace_back(actor);
     } else {
@@ -37,66 +55,7 @@ void Game::appendActor(const std::shared_ptr<Actor> actor) noexcept {
     }
 }
 
-SDL_Texture *
-Game::getTexture(const char *fileName) noexcept {
-    auto texture = textures[fileName];
-    if (texture != nullptr)
-        return texture;
-
-    return textures[fileName] = loadTexture(fileName);
-}
-
-void Game::appendDrawable(const std::weak_ptr<DrawComponent> drawable) noexcept {
-    assert(!drawable.expired() && "drawable: expired");
-    auto it = drawables.cbegin();
-
-    const int myDrawOrder = drawable.lock()->getDrawOrder();
-    for (; it != drawables.cend(); ++it) {
-        assert(!(*it).expired() && "it: expired");
-        // mSprites는 이미 정렬되어 있음.
-        // sprite보다 그리기 순서가 큰 요소 앞에 삽입해야함.
-        if ((*it).lock()->getDrawOrder() > myDrawOrder)
-            break;
-    }
-
-    drawables.insert(it, drawable);
-}
-
-void Game::removeDrawable(const std::weak_ptr<DrawComponent> drawable) noexcept {
-    assert(!drawable.expired() && "drawable: expired");
-
-    drawables.erase(
-        std::find_if(drawables.cbegin(), drawables.cend(), [&drawable](const auto &d) {
-            assert(!d.expired() && "d: expired");
-            return drawable.lock().get() == d.lock().get();
-        }));
-}
-
-void Game::processInput() noexcept {
-    SDL_Event event;
-    // 큐에 여전히 이벤트가 남아있는 동안
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-        case SDL_QUIT:
-            isRunning = false;
-            break;
-        }
-    }
-
-    keyState = SDL_GetKeyboardState(nullptr);
-    // ESC로 게임 종료
-    if (keyState[SDL_SCANCODE_ESCAPE]) {
-        isRunning = false;
-    }
-
-    isUpdatingActors = true;
-    for (auto &actor : actors) {
-        actor->processInput(keyState);
-    }
-    isUpdatingActors = false;
-}
-
-void Game::updateGame() noexcept {
+void SDL_GameEngine::updateGame() noexcept {
     // 마지막 프레임 이후로 최소한 16ms가 경과할 때까지 대기
     while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksCount + 16))
         ;
@@ -116,6 +75,9 @@ void Game::updateGame() noexcept {
     }
     isUpdatingActors = false;
 
+    // 전면 버퍼와 후면 버퍼 교환
+    graphicsEngine->changeColorBuffer();
+
     // 대기 중인 액터를 활성화
     for (auto pending : pendingActors) {
         actors.emplace_back(pending);
@@ -132,26 +94,7 @@ void Game::updateGame() noexcept {
     }
 }
 
-void Game::generateOutput() noexcept {
-    // 후면 버퍼를 단색으로 클리어
-    SDL_SetRenderDrawColor(renderer,
-                           0,
-                           0,
-                           255, // 파란 배경
-                           255);
-    SDL_RenderClear(renderer);
-
-    // 전체 게임 장면 그리기
-    for (auto d : drawables) {
-        assert(!d.expired() && "d: expired");
-        d.lock()->draw(renderer);
-    }
-
-    // 전면 버퍼와 후면 버퍼 교환
-    SDL_RenderPresent(renderer);
-}
-
-void p1pingpong::postConstruct(std::shared_ptr<Game> self) noexcept {
+void p1pingpong::postConstruct(std::shared_ptr<SDL_GameEngine> self) noexcept {
     auto ceil = Actor::make<Wall>(self);
     ceil->position = {1024.0f / 2, 15.0f / 2};
     ceil->baseSize = {1024.0f, 15.0f};
@@ -175,7 +118,7 @@ void p1pingpong::postConstruct(std::shared_ptr<Game> self) noexcept {
     ball->allowCollision(paddle);
 }
 
-void spaceShip::postConstruct(std::shared_ptr<Game> self) noexcept {
+void spaceShip::postConstruct(std::shared_ptr<SDL_GameEngine> self) noexcept {
     auto ship = Actor::make<Ship>(self);
 
     // Create actor for the background (this doesn't need a subclass)
