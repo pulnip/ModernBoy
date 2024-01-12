@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <memory>
 
 template <typename MSG, typename type_hint = void>
 class Observable;

@@ -33,7 +33,7 @@ enum class ComponentName {
 
 // Component interface
 
-class Component : public Makable<Component, Actor>, public Observable<PSMSG::Lifetime, Component> {
+class Component : public Makable<Component, Actor>, public Observable<Lifetime, Component> {
   public:
     virtual ~Component() = default;
 

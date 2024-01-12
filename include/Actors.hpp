@@ -31,7 +31,7 @@ enum class ComponentName;
 
 // Actor interface
 
-class Actor : public Makable<Actor, ActorManager>, public Observer<PSMSG::Lifetime, Component>, public Observable<PSMSG::Lifetime, Actor> {
+class Actor : public Makable<Actor, ActorManager>, public Observer<Lifetime, Component>, public Observable<Lifetime, Actor> {
     friend class Component;
 
   public:

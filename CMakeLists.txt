@@ -14,7 +14,14 @@ find_package(SDL2_image REQUIRED)
 add_executable(${PROJECT_NAME}
     main.cpp
     Game.cpp
-    SubEngine.cpp
+    ActorManager.cpp
+    GameLogic.cpp
+    GraphicsEngine.cpp
+    GraphicsEngineWithSDL.cpp
+    InputSystemWithSDL.cpp
+    PhysicsSimulator.cpp
+    ResourceManagerWithSDL.cpp
+    SoundEngine.cpp
     Actors.cpp
     Components.cpp
     Math.cpp

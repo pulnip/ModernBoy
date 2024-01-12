@@ -4,10 +4,16 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+#include "ActorManager.hpp"
 #include "Actors.hpp"
 #include "Components.hpp"
 #include "Game.hpp"
-#include "SubEngine.hpp"
+#include "GameLogic.hpp"
+#include "GraphicsEngineWithSDL.hpp"
+#include "InputSystemWithSDL.hpp"
+#include "PhysicsSimulator.hpp"
+#include "ResourceManagerWithSDL.hpp"
+#include "SoundEngine.hpp"
 
 void GameEngine::run() noexcept {
     static uint32_t ticksCount = 0;
@@ -51,11 +57,11 @@ void SDL_GameEngine::postConstruct() noexcept {
     auto self = weak_from_this();
 
     // dependency injection
-    resourceManager = SubEngine::make<SDL_ResourceManager>(self);
-    inputSystem = SubEngine::make<SDL_InputSystem>(self);
+    resourceManager = SubEngine::make<ResourceManagerWithSDL>(self);
+    inputSystem = SubEngine::make<InputSystemWithSDL>(self);
     gameLogic = SubEngine::make<GameLogic>(self);
     actorManager = SubEngine::make<ActorManager>(self);
-    graphicsEngine = SubEngine::make<SDL_GraphicsEngine>(self);
+    graphicsEngine = SubEngine::make<GraphicsEngineWithSDL>(self);
 
     inputSystem->Observable<GameStatus>::subscribe(gameLogic);
 }

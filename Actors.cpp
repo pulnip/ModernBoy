@@ -4,9 +4,11 @@
 
 #include <SDL2/SDL.h>
 
+#include "ActorManager.hpp"
 #include "Actors.hpp"
 #include "Components.hpp"
-#include "SubEngine.hpp"
+#include "GraphicsEngineWithSDL.hpp"
+#include "ResourceManagerWithSDL.hpp"
 
 // Actor interface
 
@@ -31,7 +33,6 @@ void Actor::update(const float &deltaTime) noexcept {
 }
 
 void Actor::onNotify(MSG_t msg, spObservable comp) noexcept {
-    using namespace PSMSG;
     switch (msg) {
     case Lifetime::CONSTRUCTED:
         appendComponent(comp);
@@ -62,7 +63,7 @@ Actor::Actor(const std::weak_ptr<ActorManager> owner) noexcept : owner(owner) {
 }
 
 void Actor::postConstruct() noexcept {
-    notify(PSMSG::Lifetime::CONSTRUCTED);
+    notify(Lifetime::CONSTRUCTED);
 }
 
 void Actor::updateComponents(const float &deltaTime) noexcept {
@@ -149,13 +150,13 @@ void Ball::postConstruct() noexcept {
     mc = Component::make<MoveComponent>(self);
 
     mc->velocity = {-200.0f, 235.0f};
-    sc->Observable<SDL_Sprite>::subscribe(std::dynamic_pointer_cast<SDL_GraphicsEngine>(
-        owner.lock()->requestSubEngine(SubEngineName::SDL_GraphicsEngine).value().lock()));
+    sc->Observable<SDL_Sprite>::subscribe(std::dynamic_pointer_cast<GraphicsEngineWithSDL>(
+        owner.lock()->requestSubEngine(SubEngineName::GraphicsEngine).value().lock()));
 
     if (owner.expired()) {
         return;
     }
-    auto o = owner.lock()->requestSubEngine(SubEngineName::SDL_ResourceManager);
+    auto o = owner.lock()->requestSubEngine(SubEngineName::ResourceManager);
 
     if (!o.has_value()) {
         return;
@@ -165,7 +166,7 @@ void Ball::postConstruct() noexcept {
     if (o.value().expired()) {
         return;
     }
-    auto manager = std::dynamic_pointer_cast<SDL_ResourceManager>(wpManager.lock());
+    auto manager = std::dynamic_pointer_cast<ResourceManagerWithSDL>(wpManager.lock());
 
     std::vector<std::optional<SDL_Texture *>> opAnims = {
         manager->getTexture("pigeon_1.png"),
@@ -216,7 +217,7 @@ void Ship::postConstruct() noexcept {
     if (owner.expired()) {
         return;
     }
-    auto o = owner.lock()->requestSubEngine(SubEngineName::SDL_ResourceManager);
+    auto o = owner.lock()->requestSubEngine(SubEngineName::ResourceManager);
 
     if (!o.has_value()) {
         return;
@@ -226,7 +227,7 @@ void Ship::postConstruct() noexcept {
     if (o.value().expired()) {
         return;
     }
-    auto manager = std::dynamic_pointer_cast<SDL_ResourceManager>(wpManager.lock());
+    auto manager = std::dynamic_pointer_cast<ResourceManagerWithSDL>(wpManager.lock());
 
     std::vector<std::optional<SDL_Texture *>> opAnims = {
         manager->getTexture("Ship01.png"),
@@ -265,7 +266,7 @@ void Asteroid::postConstruct() noexcept {
     if (owner.expired()) {
         return;
     }
-    auto o = owner.lock()->requestSubEngine(SubEngineName::SDL_ResourceManager);
+    auto o = owner.lock()->requestSubEngine(SubEngineName::ResourceManager);
 
     if (!o.has_value()) {
         return;
@@ -275,7 +276,7 @@ void Asteroid::postConstruct() noexcept {
     if (o.value().expired()) {
         return;
     }
-    auto manager = std::dynamic_pointer_cast<SDL_ResourceManager>(wpManager.lock());
+    auto manager = std::dynamic_pointer_cast<ResourceManagerWithSDL>(wpManager.lock());
     auto oTexture = manager->getTexture("Asteroid.png");
 
     if (!oTexture.has_value()) {

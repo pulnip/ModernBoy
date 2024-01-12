@@ -15,7 +15,7 @@ Component::Component(const std::weak_ptr<Actor> owner) noexcept : owner(owner) {
 }
 
 void Component::postConstruct() noexcept {
-    notify(PSMSG::Lifetime::CONSTRUCTED);
+    notify(Lifetime::CONSTRUCTED);
 }
 
 // Concrete
