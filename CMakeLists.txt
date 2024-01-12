@@ -11,14 +11,22 @@ enable_testing()
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 
-add_executable(GameEngineDevelopment
+add_executable(${PROJECT_NAME}
     main.cpp
     Game.cpp
+    SubEngine.cpp
     Actors.cpp
     Components.cpp
     Math.cpp
 )
-target_link_libraries(${PROJECT_NAME} SDL2::SDL2main SDL2::SDL2 SDL2_image::SDL2_image)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_link_libraries(${PROJECT_NAME}
+    SDL2::SDL2main
+    SDL2::SDL2
+    SDL2_image::SDL2_image
+)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

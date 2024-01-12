@@ -3,10 +3,9 @@
 #include "Game.hpp"
 
 int main(int argc, char *argv[]) {
-    auto game = Game::make<p1pingpong>();
+    auto game = GameEngine::make<p1pingpong>();
 
-    game->runLoop();
+    game->run();
 
-    game->shutDown();
     return 0;
 }

@@ -9,6 +9,33 @@
 #include "Game.hpp"
 #include "SubEngine.hpp"
 
+void GameEngine::run() noexcept {
+    static uint32_t ticksCount = 0;
+    // 마지막 프레임 이후로 최소한 16ms가 경과할 때까지 대기
+    while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksCount + 16))
+        ;
+
+    // 델타 시간은 현재 프레임의 틱 값과 이전 프레임 틱 값의 차다.
+    float deltaTime = (SDL_GetTicks() - ticksCount) / 1000.0f; // ms -> s
+    // 최대 델타 시간 값은 0.05s
+    deltaTime = std::min(0.05f, deltaTime);
+    // 다음 프레임을 위해 틱 값을 갱신
+    ticksCount = SDL_GetTicks();
+
+    while (gameLogic->isReady()) {
+        // process input
+        inputSystem->update(deltaTime);
+
+        // update game
+        gameLogic->update(deltaTime);
+        // update actor
+        actorManager->update(deltaTime);
+
+        // generate output
+        graphicsEngine->update(deltaTime);
+    }
+}
+
 SDL_GameEngine::~SDL_GameEngine() {
     SDL_Quit();
 }
@@ -23,78 +50,20 @@ SDL_GameEngine::SDL_GameEngine() noexcept {
 void SDL_GameEngine::postConstruct() noexcept {
     auto self = weak_from_this();
 
+    // dependency injection
     resourceManager = SubEngine::make<SDL_ResourceManager>(self);
     inputSystem = SubEngine::make<SDL_InputSystem>(self);
-    game = SubEngine::make<GameLogic>(self);
+    gameLogic = SubEngine::make<GameLogic>(self);
+    actorManager = SubEngine::make<ActorManager>(self);
     graphicsEngine = SubEngine::make<SDL_GraphicsEngine>(self);
 
-    inputSystem->Observable<GameStatus>::subscribe(game);
+    inputSystem->Observable<GameStatus>::subscribe(gameLogic);
 }
 
 // deprecated
-
-void SDL_GameEngine::shutDown() noexcept {
-    SDL_Quit();
-}
-
-void SDL_GameEngine::runLoop() noexcept {
-    isRunning = true;
-
-    while (isRunning) {
-        processInput();
-        updateGame();
-        generateOutput();
-    }
-}
-
-void SDL_GameEngine::appendActor(const std::shared_ptr<Actor> actor) noexcept {
-    if (isUpdatingActors) {
-        pendingActors.emplace_back(actor);
-    } else {
-        actors.emplace_back(actor);
-    }
-}
-
-void SDL_GameEngine::updateGame() noexcept {
-    // 마지막 프레임 이후로 최소한 16ms가 경과할 때까지 대기
-    while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksCount + 16))
-        ;
-
-    // 델타 시간은 현재 프레임의 틱 값과 이전 프레임 틱 값의 차다.
-    float deltaTime = (SDL_GetTicks() - ticksCount) / 1000.0f; // ms -> s
-    // 최대 델타 시간 값은 0.05s
-    deltaTime = std::min(0.05f, deltaTime);
-
-    // 다음 프레임을 위해 틱 값을 갱신
-    ticksCount = SDL_GetTicks();
-
-    // 모든 액터를 갱신
-    isUpdatingActors = true;
-    for (auto actor : actors) {
-        actor->update(deltaTime);
-    }
-    isUpdatingActors = false;
-
-    // 전면 버퍼와 후면 버퍼 교환
-    graphicsEngine->changeColorBuffer();
-
-    // 대기 중인 액터를 활성화
-    for (auto pending : pendingActors) {
-        actors.emplace_back(pending);
-    }
-    pendingActors.clear();
-
-    // 죽은 액터를 제거
-    for (auto it = actors.begin(); it != actors.end();) {
-        if ((*it)->getState() == Actor::EDead) {
-            actors.erase(it++);
-        } else {
-            ++it;
-        }
-    }
-}
-
-void p1pingpong::postConstruct(std::shared_ptr<SDL_GameEngine> self) noexcept {
+void p1pingpong::postConstruct() noexcept {
+    SDL_GameEngine::postConstruct();
+#ifdef MUSI
     auto ceil = Actor::make<Wall>(self);
     ceil->position = {1024.0f / 2, 15.0f / 2};
     ceil->baseSize = {1024.0f, 15.0f};
@@ -116,9 +85,13 @@ void p1pingpong::postConstruct(std::shared_ptr<SDL_GameEngine> self) noexcept {
     ball->allowCollision(floor);
     ball->allowCollision(rightWall);
     ball->allowCollision(paddle);
+#endif
 }
 
-void spaceShip::postConstruct(std::shared_ptr<SDL_GameEngine> self) noexcept {
+void spaceShip::postConstruct() noexcept {
+    SDL_GameEngine::postConstruct();
+
+#ifdef MUSI
     auto ship = Actor::make<Ship>(self);
 
     // Create actor for the background (this doesn't need a subclass)
@@ -145,4 +118,5 @@ void spaceShip::postConstruct(std::shared_ptr<SDL_GameEngine> self) noexcept {
     for (int i = 0; i < 20; ++i) {
         auto asteroid = Actor::make<Asteroid>(self);
     }
+#endif
 }

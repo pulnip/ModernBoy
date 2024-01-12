@@ -5,6 +5,7 @@
 #include "Components.hpp"
 
 #include "Actors.hpp"
+#include "PubSubMessage.hpp"
 #include "SubEngine.hpp"
 
 // interface
@@ -14,7 +15,7 @@ Component::Component(const std::weak_ptr<Actor> owner) noexcept : owner(owner) {
 }
 
 void Component::postConstruct() noexcept {
-    notify(PSMSG::Lifetime::CONSTRUCTED, shared_from_this());
+    notify(PSMSG::Lifetime::CONSTRUCTED);
 }
 
 // Concrete
@@ -98,9 +99,9 @@ void BoxComponent::draw() noexcept {
     const auto size = _owner->getSize();
     const auto rotation = _owner->rotation;
 
-    ColorRect rect = {pos, size, rotation, color};
+    ColorRect rect = {{pos, size}, rotation, color};
 
-    Observable<ColorRect>::notify(rect);
+    this->Observable<ColorRect>::notify(rect);
 }
 void BoxComponent::setTexture(const TrueColor &color, const Vector2 &size) noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
@@ -119,7 +120,7 @@ void SpriteComponent::draw() noexcept {
     const auto size = _owner->getSize();
     const auto rotation = _owner->rotation;
 
-    SDL_Sprite sprite = {pos, size, rotation, texture};
+    SDL_Sprite sprite = {{pos, size}, rotation, texture};
     Observable<SDL_Sprite>::notify(sprite);
 }
 void SpriteComponent::setTexture(SDL_Texture *texture) noexcept {
@@ -186,9 +187,9 @@ void BGSpriteComponent::update(const float &deltaTime) noexcept {
 void BGSpriteComponent::draw() noexcept {
     for (auto &bg : BGTextures) {
         SDL_Sprite sprite = {
-            // transform position: top-left to center
-            Vector2{bg.offset_x, 0.0f} + screenSize / 2,
-            screenSize,
+            {// transform position: top-left to center
+             Vector2{bg.offset_x, 0.0f} + screenSize / 2,
+             screenSize},
             0.0,
             bg.texture};
 

@@ -1,43 +1,26 @@
+#include <cassert>
 #include <ranges>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+#include "Actors.hpp"
+#include "Components.hpp"
 #include "SubEngine.hpp"
-
-SubEngine::SubEngine(const std::weak_ptr<GameEngine> owner) noexcept
-    : owner(owner) {}
-
-void SubEngine::postConstruct() noexcept {
-    notify(PSMSG::Lifetime::CONSTRUCTED, shared_from_this());
-}
 
 // Resource Manager
 
 SDL_ResourceManager::~SDL_ResourceManager() {
-    for (auto &[file, skin] : skins) {
-        SDL_DestroyTexture(skin);
+    for (auto &[file, texture] : textures) {
+        SDL_DestroyTexture(texture);
 
         SDL_Log("Texture Unloaded: %s", file.c_str());
     }
 }
 
-void SDL_GraphicsEngine::initBackground() noexcept {
-    // 후면 버퍼를 단색으로 클리어
-    SDL_SetRenderDrawColor(*renderer,
-                           0, 0, 255, // 파란 배경
-                           255);
-
-    SDL_RenderClear(*renderer);
-}
-
-void SDL_GraphicsEngine::changeColorBuffer() noexcept {
-    SDL_RenderPresent(*renderer);
-}
-
 std::optional<SDL_Texture *>
-SDL_ResourceManager::getSkin(const std::string &fileName) noexcept {
-    auto [it, skinNotLoaded] = skins.try_emplace(fileName, nullptr);
+SDL_ResourceManager::getTexture(const std::string &fileName) noexcept {
+    auto [it, skinNotLoaded] = textures.try_emplace(fileName, nullptr);
     auto &texture = it->second;
 
     if (skinNotLoaded) {
@@ -48,6 +31,10 @@ SDL_ResourceManager::getSkin(const std::string &fileName) noexcept {
         return std::nullopt;
     }
     return texture;
+}
+
+void SDL_ResourceManager::postConstruct() noexcept {
+#warning "set Context?"
 }
 
 constexpr bool HW_RENDERING = false;
@@ -85,8 +72,6 @@ SDL_ResourceManager::loadTexture(const std::string &fileName) noexcept {
 }
 
 // Input System
-InputSystem::InputSystem(const std::weak_ptr<GameEngine> owner) noexcept : SubEngine(owner) {}
-
 void SDL_InputSystem::update(const float &deltaTime) noexcept {
     SDL_Event event;
     // 큐에 여전히 이벤트가 남아있는 동안
@@ -105,9 +90,77 @@ void SDL_InputSystem::update(const float &deltaTime) noexcept {
     }
 }
 
-SDL_InputSystem::SDL_InputSystem(const std::weak_ptr<GameEngine> owner) noexcept : InputSystem(owner) {}
+void SDL_InputSystem::postConstruct() noexcept {
+#warning "Not defined"
+}
+
+// Game Logic
+
+void GameLogic::update(const float &deltaTime) noexcept {
+#warning "Not defined"
+}
+
+void GameLogic::postConstruct() noexcept {
+#warning "Not defined"
+}
+
+void GameLogic::onNotify(GameStatus status) noexcept {
+    switch (status) {
+    case GameStatus::GAME_OVER:
+        SDL_Log("Game Over");
+        break;
+    case GameStatus::FORCE_QUIT:
+        SDL_Log("Force Quit");
+        break;
+    case GameStatus::UNEXPECTED:
+        SDL_Log("Unexpected");
+        break;
+    default:
+        SDL_Log("wtf");
+    }
+    ready = false;
+#warning "Not defined"
+}
+
+// Sound Engine
+
+void SoundEngine::update(const float &deltaTime) noexcept {
+#warning "Not defined"
+}
+
+void SoundEngine::postConstruct() noexcept {
+#warning "Not defined"
+}
+
+// Physics Simulator
+
+void PhysicsSimulator::update(const float &deltaTime) noexcept {
+#warning "Not defined"
+}
+
+void PhysicsSimulator::postConstruct() noexcept {
+#warning "Not defined"
+}
+
+void PhysicsSimulator::onNotify(Matter matter) noexcept {
+#warning "Not defined"
+}
 
 // Graphics Engine
+
+bool GraphicsEngine::DrawOrder::operator()(const Drawable &lhs, const Drawable &rhs) const {
+    return lhs->getDrawOrder() < rhs->getDrawOrder();
+}
+
+void GraphicsEngine::update(const float &deltaTime) noexcept {
+    prepareRendering();
+
+    for (auto &drawable : drawables) {
+        drawable->draw();
+    }
+
+    finalizeRendering();
+}
 
 SDL_GraphicsEngine::~SDL_GraphicsEngine() {
     SDL_DestroyRenderer(*renderer);
@@ -115,8 +168,6 @@ SDL_GraphicsEngine::~SDL_GraphicsEngine() {
 }
 
 void SDL_GraphicsEngine::postConstruct() noexcept {
-    SubEngine::postConstruct();
-
     window = std::make_shared<SDL_Window *>(SDL_CreateWindow(
         "GameEngine Programming in C++",
         100,
@@ -143,6 +194,20 @@ void SDL_GraphicsEngine::postConstruct() noexcept {
         SDL_Log("Unable to initialize SDL_image: %s", SDL_GetError());
         return;
     }
+}
+
+void SDL_GraphicsEngine::initBackground() noexcept {
+    // 후면 버퍼를 단색으로 클리어
+    SDL_SetRenderDrawColor(*renderer,
+                           0, 0, 255, // 파란 배경
+                           255);
+
+    SDL_RenderClear(*renderer);
+}
+
+void SDL_GraphicsEngine::changeColorBuffer() noexcept {
+    // 전면 버퍼와 후면 버퍼 교환
+    SDL_RenderPresent(*renderer);
 }
 
 void SDL_GraphicsEngine::onNotify(ColorRect rect) noexcept {
@@ -186,4 +251,69 @@ void SDL_GraphicsEngine::onNotify(SDL_Sprite sprite) noexcept {
                      // 회전 중심점
                      nullptr,
                      SDL_FLIP_NONE);
+}
+
+// Actor Manager
+
+std::optional<std::weak_ptr<SubEngine>>
+ActorManager::requestSubEngine(const SubEngineName name) noexcept {
+#warning "Not Defined"
+    return std::nullopt;
+}
+
+void ActorManager::update(const float &deltaTime) noexcept {
+    isUpdatingActors = true;
+    // 모든 액터를 갱신
+    for (auto &actor : actors) {
+        actor->update(deltaTime);
+    }
+    isUpdatingActors = false;
+
+    // 대기 중인 액터를 활성화
+    for (auto &actor : pendingActors) {
+        actors.emplace_back(actor);
+    }
+    pendingActors.clear();
+
+    // 죽은 액터를 제거
+    actors.erase(std::remove_if(
+                     actors.begin(), actors.end(), [](const auto &actor) {
+                         return actor->getState() == Actor::EDead;
+                     }),
+                 actors.end());
+}
+
+void ActorManager::postConstruct() noexcept {
+#warning "Not defined"
+}
+
+void ActorManager::onNotify(MSG_t lifetime, spObservable actor) noexcept {
+    using namespace PSMSG;
+    switch (lifetime) {
+    case Lifetime::CONSTRUCTED:
+        appendActor(actor);
+        break;
+    case Lifetime::DESTRUCTED:
+        removeActor(actor);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void ActorManager::appendActor(const std::shared_ptr<Actor> actor) noexcept {
+    if (isUpdatingActors) {
+        pendingActors.emplace_back(actor);
+    } else {
+        actors.emplace_back(actor);
+    }
+}
+
+void ActorManager::removeActor(const std::shared_ptr<Actor> actor) noexcept {
+    const auto it = actors.erase(std::remove(actors.begin(), actors.end(), actor));
+
+    // actor not found in actors
+    if (it == actors.end()) {
+        pendingActors.erase(std::remove(actors.begin(), actors.end(), actor));
+    }
 }

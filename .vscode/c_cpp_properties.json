@@ -3,8 +3,9 @@
         {
             "name": "Win32",
             "includePath": [
+                "C:/msys64/mingw64/include",
                 "${workspaceFolder}/**",
-                "C:/msys64/mingw64/include"
+                "${workspaceFolder}/include"
             ],
             "defines": [
                 "_DEBUG",

@@ -30,13 +30,17 @@ void Actor::update(const float &deltaTime) noexcept {
     updateActor(deltaTime);
 }
 
-void Actor::onNotify(PSMSG::Lifetime msg, std::shared_ptr<Component> comp) noexcept {
+void Actor::onNotify(MSG_t msg, spObservable comp) noexcept {
+    using namespace PSMSG;
     switch (msg) {
-    case PSMSG::Lifetime::CONSTRUCTED:
+    case Lifetime::CONSTRUCTED:
         appendComponent(comp);
         break;
-    case PSMSG::Lifetime::DESTRUCTED:
+    case Lifetime::DESTRUCTED:
         components.erase(comp->getName());
+        break;
+    default:
+        assert(false);
     }
 }
 
@@ -58,7 +62,7 @@ Actor::Actor(const std::weak_ptr<ActorManager> owner) noexcept : owner(owner) {
 }
 
 void Actor::postConstruct() noexcept {
-    notify(PSMSG::Lifetime::CONSTRUCTED, shared_from_this());
+    notify(PSMSG::Lifetime::CONSTRUCTED);
 }
 
 void Actor::updateComponents(const float &deltaTime) noexcept {
@@ -67,12 +71,9 @@ void Actor::updateComponents(const float &deltaTime) noexcept {
     }
 }
 
-struct Actor::comp_update_order {
-    using ptr = std::shared_ptr<Component>;
-    bool operator()(const ptr &lhs, const ptr &rhs) const {
-        return lhs->getUpdateOrder() < rhs->getUpdateOrder();
-    }
-};
+bool Actor::UpdateOrder::operator()(const ptr &lhs, const ptr &rhs) const {
+    return lhs->getUpdateOrder() < rhs->getUpdateOrder();
+}
 
 // Concrete Actor
 
@@ -167,10 +168,10 @@ void Ball::postConstruct() noexcept {
     auto manager = std::dynamic_pointer_cast<SDL_ResourceManager>(wpManager.lock());
 
     std::vector<std::optional<SDL_Texture *>> opAnims = {
-        manager->getSkin("pigeon_1.png"),
-        manager->getSkin("pigeon_2.png"),
-        manager->getSkin("pigeon_3.png"),
-        manager->getSkin("pigeon_2.png")};
+        manager->getTexture("pigeon_1.png"),
+        manager->getTexture("pigeon_2.png"),
+        manager->getTexture("pigeon_3.png"),
+        manager->getTexture("pigeon_2.png")};
 
     std::vector<SDL_Texture *> anims;
     for (auto &o : opAnims) {
@@ -228,10 +229,10 @@ void Ship::postConstruct() noexcept {
     auto manager = std::dynamic_pointer_cast<SDL_ResourceManager>(wpManager.lock());
 
     std::vector<std::optional<SDL_Texture *>> opAnims = {
-        manager->getSkin("Ship01.png"),
-        manager->getSkin("Ship02.png"),
-        manager->getSkin("Ship03.png"),
-        manager->getSkin("Ship04.png")};
+        manager->getTexture("Ship01.png"),
+        manager->getTexture("Ship02.png"),
+        manager->getTexture("Ship03.png"),
+        manager->getTexture("Ship04.png")};
 
     std::vector<SDL_Texture *> anims;
     for (auto &o : opAnims) {
@@ -275,7 +276,7 @@ void Asteroid::postConstruct() noexcept {
         return;
     }
     auto manager = std::dynamic_pointer_cast<SDL_ResourceManager>(wpManager.lock());
-    auto oTexture = manager->getSkin("Asteroid.png");
+    auto oTexture = manager->getTexture("Asteroid.png");
 
     if (!oTexture.has_value()) {
         return;
