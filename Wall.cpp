@@ -1,9 +1,9 @@
-#include "Wall.hpp"
-#include "ActorManager.hpp"
-#include "BoxComponent.hpp"
-#include "Component.hpp"
-#include "GraphicsEngine.hpp"
-#include "MoveComponent.hpp"
+#include "Actor/Wall.hpp"
+#include "Component/BoxComponent.hpp"
+#include "Component/Component.hpp"
+#include "Component/MoveComponent.hpp"
+#include "SubEngine/ActorManager.hpp"
+#include "SubEngine/GraphicsEngine.hpp"
 
 Wall::Wall(const std::weak_ptr<ActorManager> owner) noexcept
     : Actor(owner) {

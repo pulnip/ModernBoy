@@ -1,5 +1,5 @@
-#include "Component.hpp"
-#include "Actor.hpp"
+#include "Component/Component.hpp"
+#include "Actor/Actor.hpp"
 #include "PubSubMessage.hpp"
 
 Component::Component(const std::weak_ptr<Actor> owner) noexcept : owner(owner) {

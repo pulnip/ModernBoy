@@ -1,14 +1,14 @@
 #include <SDL2/SDL_keyboard.h>
 
-#include "ActorManager.hpp"
-#include "BoxComponent.hpp"
-#include "CollisionComponent.hpp"
-#include "Component.hpp"
-#include "GraphicsEngine.hpp"
-#include "InputComponent.hpp"
-#include "MoveComponent.hpp"
-#include "Paddle.hpp"
-#include "SubEngine.hpp"
+#include "Actor/Paddle.hpp"
+#include "Component/BoxComponent.hpp"
+#include "Component/CollisionComponent.hpp"
+#include "Component/Component.hpp"
+#include "Component/InputComponent.hpp"
+#include "Component/MoveComponent.hpp"
+#include "SubEngine/ActorManager.hpp"
+#include "SubEngine/GraphicsEngine.hpp"
+#include "SubEngine/SubEngine.hpp"
 
 void Paddle::updateActor(const float &deltaTime) noexcept {
     mc->velocity.y = 0;

@@ -1,7 +1,7 @@
 #include <cassert>
 
-#include "Actor.hpp"
-#include "MoveComponent.hpp"
+#include "Actor/Actor.hpp"
+#include "Component/MoveComponent.hpp"
 
 void MoveComponent::update(const float &deltaTime) noexcept {
     assert(!owner.expired() && "owner: expired");

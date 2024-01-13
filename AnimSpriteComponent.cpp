@@ -1,4 +1,4 @@
-#include "AnimSpriteComponent.hpp"
+#include "Component/AnimSpriteComponent.hpp"
 
 void AnimSpriteComponent::update(const float &deltaTime) noexcept {
     SpriteComponent::update(deltaTime);

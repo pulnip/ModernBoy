@@ -1,7 +1,7 @@
 #include <SDL2/SDL_log.h>
 
-#include "GameLogic.hpp"
 #include "PubSubMessage.hpp"
+#include "SubEngine/GameLogic.hpp"
 
 void GameLogic::update(const float &deltaTime) noexcept {
 #warning "Not defined"

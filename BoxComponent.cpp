@@ -1,7 +1,7 @@
 #include <cassert>
 
-#include "Actor.hpp"
-#include "BoxComponent.hpp"
+#include "Actor/Actor.hpp"
+#include "Component/BoxComponent.hpp"
 
 void BoxComponent::draw() noexcept {
     assert(!owner.expired() && "owner(Actor): expired");

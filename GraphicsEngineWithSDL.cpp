@@ -2,7 +2,7 @@
 #include <SDL2/SDL_log.h>
 #include <SDL2/SDL_render.h>
 
-#include "GraphicsEngineWithSDL.hpp"
+#include "SubEngine/GraphicsEngineWithSDL.hpp"
 
 GraphicsEngineWithSDL::~GraphicsEngineWithSDL() {
     SDL_DestroyRenderer(*renderer);

@@ -1,7 +1,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_log.h>
 
-#include "ResourceManagerWithSDL.hpp"
+#include "SubEngine/ResourceManagerWithSDL.hpp"
 
 ResourceManagerWithSDL::~ResourceManagerWithSDL() {
     for (auto &[file, texture] : textures) {

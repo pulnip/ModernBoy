@@ -2,9 +2,9 @@
 
 #include "SDL2/SDL_render.h"
 
-#include "Actor.hpp"
+#include "Actor/Actor.hpp"
+#include "Component/SpriteComponent.hpp"
 #include "Skin.hpp"
-#include "SpriteComponent.hpp"
 
 void SpriteComponent::draw() noexcept {
     assert(!owner.expired() && "owner(Actor): expired");

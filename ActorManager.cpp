@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <cassert>
 
-#include "Actor.hpp"
-#include "ActorManager.hpp"
+#include "Actor/Actor.hpp"
 #include "PubSubMessage.hpp"
+#include "SubEngine/ActorManager.hpp"
 
 std::optional<std::weak_ptr<SubEngine>>
 ActorManager::requestSubEngine(const SubEngineName name) noexcept {

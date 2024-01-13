@@ -1,12 +1,12 @@
 #include <SDL2/SDL_keyboard.h>
 
-#include "ActorManager.hpp"
-#include "AnimSpriteComponent.hpp"
-#include "Component.hpp"
-#include "InputComponent.hpp"
-#include "MoveComponent.hpp"
-#include "ResourceManagerWithSDL.hpp"
-#include "Ship.hpp"
+#include "Actor/Ship.hpp"
+#include "Component/AnimSpriteComponent.hpp"
+#include "Component/Component.hpp"
+#include "Component/InputComponent.hpp"
+#include "Component/MoveComponent.hpp"
+#include "SubEngine/ActorManager.hpp"
+#include "SubEngine/ResourceManagerWithSDL.hpp"
 
 void Ship::updateActor(const float &deltaTime) noexcept {
     mc->velocity = {0.0f, 0.0f};

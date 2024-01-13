@@ -1,4 +1,4 @@
-#include "BGSpriteComponent.hpp"
+#include "Component/BGSpriteComponent.hpp"
 #include "Skin.hpp"
 
 void BGSpriteComponent::update(const float &deltaTime) noexcept {

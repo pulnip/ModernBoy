@@ -1,11 +1,11 @@
 #include <SDL2/SDL.h>
 
-#include "ActorManager.hpp"
-#include "GameEngineWithSDL.hpp"
-#include "GameLogic.hpp"
-#include "GraphicsEngineWithSDL.hpp"
-#include "InputSystemWithSDL.hpp"
-#include "ResourceManagerWithSDL.hpp"
+#include "GameEngine/GameEngineWithSDL.hpp"
+#include "SubEngine/ActorManager.hpp"
+#include "SubEngine/GameLogic.hpp"
+#include "SubEngine/GraphicsEngineWithSDL.hpp"
+#include "SubEngine/InputSystemWithSDL.hpp"
+#include "SubEngine/ResourceManagerWithSDL.hpp"
 
 GameEngineWithSDL::~GameEngineWithSDL() {
     SDL_Quit();

@@ -1,10 +1,10 @@
 #include <cassert>
 #include <ranges>
 
-#include "Actor.hpp"
-#include "ActorManager.hpp"
-#include "Component.hpp"
+#include "Actor/Actor.hpp"
+#include "Component/Component.hpp"
 #include "PubSubMessage.hpp"
+#include "SubEngine/ActorManager.hpp"
 
 void Actor::processInput(const uint8_t *keyState) noexcept {
     if (state != EActive)

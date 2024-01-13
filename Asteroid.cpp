@@ -1,9 +1,9 @@
-#include "Asteroid.hpp"
-#include "ActorManager.hpp"
-#include "AnimSpriteComponent.hpp"
-#include "Component.hpp"
-#include "MoveComponent.hpp"
-#include "ResourceManagerWithSDL.hpp"
+#include "Actor/Asteroid.hpp"
+#include "Component/AnimSpriteComponent.hpp"
+#include "Component/Component.hpp"
+#include "Component/MoveComponent.hpp"
+#include "SubEngine/ActorManager.hpp"
+#include "SubEngine/ResourceManagerWithSDL.hpp"
 
 Asteroid::Asteroid(const std::weak_ptr<ActorManager> owner) noexcept
     : Actor(owner) {

@@ -1,15 +1,15 @@
 #include <cassert>
 #include <vector>
 
-#include "ActorManager.hpp"
-#include "AnimSpriteComponent.hpp"
-#include "Ball.hpp"
-#include "CollisionComponent.hpp"
-#include "Component.hpp"
-#include "GraphicsEngineWithSDL.hpp"
-#include "MoveComponent.hpp"
+#include "Actor/Ball.hpp"
+#include "Component/AnimSpriteComponent.hpp"
+#include "Component/CollisionComponent.hpp"
+#include "Component/Component.hpp"
+#include "Component/MoveComponent.hpp"
 #include "PubSubMessage.hpp"
-#include "ResourceManagerWithSDL.hpp"
+#include "SubEngine/ActorManager.hpp"
+#include "SubEngine/GraphicsEngineWithSDL.hpp"
+#include "SubEngine/ResourceManagerWithSDL.hpp"
 
 Ball::Ball(const std::weak_ptr<ActorManager> owner) noexcept
     : Actor(owner) {

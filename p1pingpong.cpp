@@ -1,4 +1,4 @@
-#include "p1pingpong.hpp"
+#include "GameEngine/p1pingpong.hpp"
 
 void p1pingpong::postConstruct() noexcept {
     GameEngineWithSDL::postConstruct();

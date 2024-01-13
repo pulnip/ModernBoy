@@ -1,4 +1,4 @@
-#include "InputComponent.hpp"
+#include "Component/InputComponent.hpp"
 
 void InputComponent::update(const float &deltaTime) noexcept {
     uint8_t pressedCount = 0;

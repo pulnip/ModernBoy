@@ -1,6 +1,6 @@
 #include <SDL2/SDL_main.h>
 
-#include "p1pingpong.hpp"
+#include "GameEngine/p1pingpong.hpp"
 
 int main(int argc, char *argv[]) {
     auto game = GameEngine::make<p1pingpong>();

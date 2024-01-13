@@ -2,11 +2,11 @@
 
 #include <SDL2/SDL_timer.h>
 
-#include "ActorManager.hpp"
-#include "GameEngine.hpp"
-#include "GameLogic.hpp"
-#include "GraphicsEngine.hpp"
-#include "InputSystem.hpp"
+#include "GameEngine/GameEngine.hpp"
+#include "SubEngine/ActorManager.hpp"
+#include "SubEngine/GameLogic.hpp"
+#include "SubEngine/GraphicsEngine.hpp"
+#include "SubEngine/InputSystem.hpp"
 
 void GameEngine::run() noexcept {
     static uint32_t ticksCount = 0;
