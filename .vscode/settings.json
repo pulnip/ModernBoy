@@ -55,6 +55,7 @@
         "span": "cpp",
         "ranges": "cpp",
         "typeindex": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "cassert": "cpp"
     }
 }

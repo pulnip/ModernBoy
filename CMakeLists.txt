@@ -13,7 +13,10 @@ find_package(SDL2_image REQUIRED)
 
 add_executable(${PROJECT_NAME}
     main.cpp
-    Game.cpp
+    GameEngine.cpp
+    GameEngineWithSDL.cpp
+    p1pingpong.cpp
+    spaceship.cpp
     ActorManager.cpp
     GameLogic.cpp
     GraphicsEngine.cpp
@@ -22,8 +25,21 @@ add_executable(${PROJECT_NAME}
     PhysicsSimulator.cpp
     ResourceManagerWithSDL.cpp
     SoundEngine.cpp
-    Actors.cpp
-    Components.cpp
+    Actor.cpp
+    Asteroid.cpp
+    Ball.cpp
+    Paddle.cpp
+    Ship.cpp
+    Wall.cpp
+    Component.cpp
+    CollisionComponent.cpp
+    DrawComponent.cpp
+    BoxComponent.cpp
+    SpriteComponent.cpp
+    AnimSpriteComponent.cpp
+    BGSpriteComponent.cpp
+    MoveComponent.cpp
+    InputComponent.cpp
     Math.cpp
 )
 
