@@ -92,3 +92,23 @@ class Property<value_type, false, true> final {
   private:
     std::unique_ptr<value_type> value;
 };
+
+// Property for Identity Class
+template <not_pointer value_type>
+class Property<value_type, false, false> final {
+  public:
+    Property(Property &&other): value(std::move(other.value)){}
+
+    // Destructor
+    ~Property() = default;
+
+    // Getter
+    inline value_type &operator()() { return *value; }
+    inline value_type &operator()(const value_type &t) { return *value = t; }
+    inline value_type &operator()(value_type &&t) { return value = std::make_unique<value_type>(t); }
+    // Setter
+    inline void operator=(Property &&o) { value = std::move(o.value); }
+
+  private:
+    std::unique_ptr<value_type> value;
+};
