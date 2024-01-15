@@ -11,39 +11,51 @@ enable_testing()
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 
+add_compile_options(-fmodules-ts)
+
 add_executable(${PROJECT_NAME}
     main.cpp
-    GameEngine.cpp
-    GameEngineWithSDL.cpp
-    p1pingpong.cpp
-    spaceship.cpp
-    ActorManager.cpp
-    GameLogic.cpp
-    GraphicsEngine.cpp
-    GraphicsEngineWithSDL.cpp
-    InputSystemWithSDL.cpp
-    PhysicsSimulator.cpp
-    ResourceManagerWithSDL.cpp
-    SoundEngine.cpp
-    Actor.cpp
-    Asteroid.cpp
-    Ball.cpp
-    Paddle.cpp
-    Ship.cpp
-    Wall.cpp
-    Component.cpp
-    CollisionComponent.cpp
-    DrawComponent.cpp
-    BoxComponent.cpp
-    SpriteComponent.cpp
-    AnimSpriteComponent.cpp
-    BGSpriteComponent.cpp
-    MoveComponent.cpp
-    InputComponent.cpp
-    Math.cpp
+
+    src/GameEngine.cpp
+    src/ActorManager.cpp
+    src/GraphicsEngine.cpp
+    src/GameLogic.cpp
+    src/PhysicsSimulator.cpp
+    src/SoundEngine.cpp
+    src/Actor.cpp
+    src/Component.cpp
+    src/CollisionComponent.cpp
+    src/DrawComponent.cpp
+    src/MoveComponent.cpp
+    src/InputComponent.cpp
+    src/Math.cpp
+    src/Timer_default.cpp
+
+    GameEngineWithSDL/src/GameEngineWithSDL.cpp
+    GameEngineWithSDL/src/GraphicsEngineWithSDL.cpp
+    GameEngineWithSDL/src/InputSystemWithSDL.cpp
+    GameEngineWithSDL/src/ResourceManagerWithSDL.cpp
+    GameEngineWithSDL/src/BoxComponent.cpp
+    GameEngineWithSDL/src/SpriteComponent.cpp
+    GameEngineWithSDL/src/AnimSpriteComponent.cpp
+    GameEngineWithSDL/src/BGSpriteComponent.cpp
+    GameEngineWithSDL/src/TimerWithSDL.cpp
+
+    Game/src/p1pingpong.cpp
+    Game/src/spaceship.cpp
+    Game/src/Asteroid.cpp
+    Game/src/Ball.cpp
+    Game/src/Paddle.cpp
+    Game/src/Ship.cpp
+    Game/src/Wall.cpp
+
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/GameEngineWithSDL/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/Game/include
+)
 
 target_link_libraries(${PROJECT_NAME}
     SDL2::SDL2main

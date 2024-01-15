@@ -10,6 +10,8 @@ class GameLogic;
 class ActorManager;
 class GraphicsEngine;
 
+class Timer;
+
 class GameEngine : public Makable<GameEngine>, public std::enable_shared_from_this<GameEngine> {
   public:
     GameEngine() = default;
@@ -26,4 +28,6 @@ class GameEngine : public Makable<GameEngine>, public std::enable_shared_from_th
     std::shared_ptr<GameLogic> gameLogic;
     std::shared_ptr<ActorManager> actorManager;
     std::shared_ptr<GraphicsEngine> graphicsEngine;
+
+    std::shared_ptr<Timer> timer;
 };

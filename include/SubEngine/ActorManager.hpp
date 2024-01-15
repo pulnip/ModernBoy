@@ -4,9 +4,10 @@
 #include <vector>
 
 #include "Observer.hpp"
-#include "SubEngine.hpp"
+#include "PubSubMessage.hpp"
 
-enum class Lifetime;
+#include "SubEngine/SubEngine.hpp"
+
 class Actor;
 
 class ActorManager : public SubEngine, public Observer<Lifetime, Actor> {

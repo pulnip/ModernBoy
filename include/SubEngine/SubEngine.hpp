@@ -4,7 +4,7 @@
 
 #include "Makable.hpp"
 
-class GameEngine;
+#include "GameEngine/GameEngine.hpp"
 
 enum class SubEngineName {
     SubEngine,

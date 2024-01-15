@@ -26,7 +26,7 @@ struct Makable {
 template <class Base>
 struct Makable<Base, void> {
     template <class Derived>
-        requires std::derived_from<Derived, Base>
+        requires std::derived_from<Derived, Base> || std::same_as<Derived, Base>
     static auto make() noexcept {
         struct ctor_proxy : public Derived {
             ctor_proxy() noexcept : Derived() {}

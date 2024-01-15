@@ -56,6 +56,16 @@
         "ranges": "cpp",
         "typeindex": "cpp",
         "variant": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "chrono": "cpp",
+        "charconv": "cpp",
+        "ctime": "cpp",
+        "ratio": "cpp",
+        "format": "cpp",
+        "iomanip": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp",
+        "*.ixx": "cpp"
     }
 }
