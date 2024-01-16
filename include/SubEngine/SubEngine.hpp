@@ -28,9 +28,6 @@ class SubEngine : public Makable<SubEngine, GameEngine> {
     virtual void update(const float &deltaTime) noexcept = 0;
 
   protected:
-    SubEngine(const OwnerRef owner) noexcept : owner(owner) {}
+    SubEngine() noexcept=default;
     virtual void postConstruct() noexcept override = 0;
-
-  private:
-    OwnerRef owner;
 };

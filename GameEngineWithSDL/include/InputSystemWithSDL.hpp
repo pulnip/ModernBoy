@@ -7,7 +7,7 @@ class InputSystemWithSDL : public InputSystem {
     void update(const float &deltaTime) noexcept override;
 
   protected:
-    InputSystemWithSDL(const OwnerRef owner) noexcept : InputSystem(owner) {}
+    InputSystemWithSDL() noexcept=default;
 
   private:
     void postConstruct() noexcept override;

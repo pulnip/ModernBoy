@@ -14,8 +14,7 @@
 
 #include "Ball.hpp"
 
-Ball::Ball(const std::weak_ptr<ActorManager> owner) noexcept
-    : Actor(owner) {
+Ball::Ball() noexcept{
     position = {1024.0f / 2, 768.0f / 2};
     scale = 5.0f;
 }
@@ -23,14 +22,14 @@ void Ball::updateActor(const float &deltaTime) noexcept {
     assert(!owner.expired() && "owner: expired");
     // position += velocity * deltaTime;
 
-    if (position.x < -getSize().x) {
+    if (position.x < getSize().x) {
         Observable<GameStatus>::notify(GameStatus::GAME_OVER);
     }
 }
 void Ball::allowCollision(const std::weak_ptr<Actor> opponent) noexcept {
     cc->allow(opponent);
 }
-void Ball::postConstruct() noexcept {
+void Ball::injectDependency() noexcept {
     auto self = weak_from_this();
 
     sc = Component::make<AnimSpriteComponent>(self);

@@ -10,7 +10,7 @@ class PhysicsSimulator : public SubEngine, public Observer<Matter> {
     void update(const float &deltaTime) noexcept override;
 
   protected:
-    PhysicsSimulator(const OwnerRef owner) noexcept : SubEngine(owner) {}
+    PhysicsSimulator() noexcept=default;
 
   private:
     void postConstruct() noexcept override;

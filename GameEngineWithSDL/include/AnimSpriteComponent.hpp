@@ -21,8 +21,7 @@ class AnimSpriteComponent : public SpriteComponent {
     void setAnimFPS(const float fps) noexcept { animFPS = fps; }
 
   protected:
-    AnimSpriteComponent(const std::weak_ptr<Actor> owner) noexcept
-        : SpriteComponent(owner) {
+    AnimSpriteComponent() noexcept{
         drawOrder = 202;
     }
 

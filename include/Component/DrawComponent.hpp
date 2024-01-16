@@ -18,8 +18,7 @@ class DrawComponent : public Component {
     // 배경 계열: 100 to 199
     // 일반 오브젝트 계열: 200 to 299
     // player계열: 300 to 399
-    DrawComponent(const std::weak_ptr<Actor> owner) noexcept
-        : Component(owner) {
+    DrawComponent() noexcept{
         updateOrder = 300;
     }
 

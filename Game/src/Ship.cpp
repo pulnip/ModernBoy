@@ -14,11 +14,10 @@ void Ship::updateActor(const float &deltaTime) noexcept {
     mc->velocity = {0.0f, 0.0f};
     mc->rotationVelocity = 0.0;
 }
-Ship::Ship(const std::weak_ptr<ActorManager> owner) noexcept
-    : Actor(owner) {
+Ship::Ship() noexcept{
     position = {500.0f, 500.0f};
 }
-void Ship::postConstruct() noexcept {
+void Ship::injectDependency() noexcept {
     auto self = weak_from_this();
 
     sc = Component::make<AnimSpriteComponent>(self);

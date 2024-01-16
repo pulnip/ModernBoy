@@ -21,8 +21,7 @@ class BGSpriteComponent : public SpriteComponent {
     void setScrollSpeed(const float speed) noexcept { scrollSpeed = speed; }
 
   protected:
-    BGSpriteComponent(const std::weak_ptr<Actor> owner) noexcept
-        : SpriteComponent(owner) {
+    BGSpriteComponent() noexcept{
         drawOrder = 100;
     }
 

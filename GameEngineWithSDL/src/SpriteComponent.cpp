@@ -12,10 +12,10 @@ void SpriteComponent::draw() noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     const auto _owner = owner.lock();
 
-    const auto pos = _owner->position;
+    const auto pos = _owner->getPosition();
     // size = base size * scale;
     const auto size = _owner->getSize();
-    const auto rotation = _owner->rotation;
+    const auto rotation = _owner->getRotation();
 
     SDL_Sprite sprite = {{pos, size}, rotation, texture};
     Observable<SDL_Sprite>::notify(sprite);
@@ -33,5 +33,5 @@ void SpriteComponent::setTexture(SDL_Texture *texture) noexcept {
                      nullptr,
                      &width,
                      &height);
-    owner.lock()->baseSize = Vector2{static_cast<float>(width), static_cast<float>(height)};
+    owner.lock()->setBaseSize(Vector2{static_cast<float>(width), static_cast<float>(height)});
 }

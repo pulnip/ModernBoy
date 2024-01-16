@@ -14,7 +14,7 @@ class GraphicsEngineWithSDL : public GraphicsEngine, public Observer<SDL_Sprite>
     }
 
   protected:
-    GraphicsEngineWithSDL(const OwnerRef owner) noexcept : GraphicsEngine(owner) {}
+    GraphicsEngineWithSDL() noexcept=default;
 
   private:
     void postConstruct() noexcept override;

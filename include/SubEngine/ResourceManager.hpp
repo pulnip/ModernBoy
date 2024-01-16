@@ -4,7 +4,7 @@
 
 class ResourceManager : public SubEngine {
   protected:
-    ResourceManager(const OwnerRef owner) noexcept : SubEngine(owner) {}
+    ResourceManager() noexcept=default;
 
   private:
     void update(const float &deltaTime) noexcept override {}

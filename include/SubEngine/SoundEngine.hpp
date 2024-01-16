@@ -7,7 +7,7 @@ class SoundEngine : public SubEngine {
     void update(const float &deltaTime) noexcept override;
 
   protected:
-    SoundEngine(const OwnerRef owner) noexcept : SubEngine(owner) {}
+    SoundEngine() noexcept=default;
 
   private:
     void postConstruct() noexcept override;

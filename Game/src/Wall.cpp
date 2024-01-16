@@ -6,10 +6,7 @@
 
 #include "Wall.hpp"
 
-Wall::Wall(const std::weak_ptr<ActorManager> owner) noexcept
-    : Actor(owner) {
-}
-void Wall::postConstruct() noexcept {
+void Wall::injectDependency() noexcept {
     auto self = weak_from_this();
 
     bc = Component::make<BoxComponent>(self);

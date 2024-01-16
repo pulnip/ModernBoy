@@ -7,6 +7,6 @@ void MoveComponent::update(const float &deltaTime) noexcept {
     assert(!owner.expired() && "owner: expired");
     const auto _owner = owner.lock();
 
-    _owner->position += velocity * deltaTime;
-    _owner->rotation += rotationVelocity * deltaTime;
+    _owner->setPosition(_owner->getPosition() + velocity * deltaTime);
+    _owner->setRotation(_owner->getRotation() + rotationVelocity * deltaTime);
 }

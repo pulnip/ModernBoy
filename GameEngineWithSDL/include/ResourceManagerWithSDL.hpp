@@ -17,7 +17,7 @@ class ResourceManagerWithSDL : public ResourceManager {
     std::optional<SDL_Texture *> getTexture(const std::string &fileName) noexcept;
 
   protected:
-    ResourceManagerWithSDL(const OwnerRef owner) noexcept : ResourceManager(owner) {}
+    ResourceManagerWithSDL() noexcept=default;
 
   private:
     void postConstruct() noexcept override;

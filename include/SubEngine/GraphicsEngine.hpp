@@ -21,7 +21,7 @@ class GraphicsEngine : public SubEngine, public Observer<ColorRect> {
     void update(const float &deltaTime) noexcept override;
 
   protected:
-    GraphicsEngine(const OwnerRef owner) noexcept : SubEngine(owner) {}
+    GraphicsEngine() noexcept=default;
 
   private:
     virtual void postConstruct() noexcept override = 0;

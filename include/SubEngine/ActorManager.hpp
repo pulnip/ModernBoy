@@ -8,26 +8,26 @@
 
 #include "SubEngine/SubEngine.hpp"
 
-class Actor;
+#include "gefwd.hpp"
 
-class ActorManager : public SubEngine, public Observer<Lifetime, Actor> {
+class ActorManager : public SubEngine, public Observer<Lifetime, IActor> {
   public:
     std::optional<std::weak_ptr<SubEngine>>
     requestSubEngine(const SubEngineName name) noexcept;
     void update(const float &deltaTime) noexcept override;
 
   protected:
-    ActorManager(const OwnerRef owner) noexcept : SubEngine(owner) {}
+    ActorManager() noexcept=default;
 
   private:
     void postConstruct() noexcept override;
     void onNotify(MSG_t lifetime, spObservable actor) noexcept override;
 
-    void appendActor(const std::shared_ptr<Actor> actor) noexcept;
-    void removeActor(const std::shared_ptr<Actor> actor) noexcept;
+    void appendActor(const std::shared_ptr<IActor> actor) noexcept;
+    void removeActor(const std::shared_ptr<IActor> actor) noexcept;
 
   private:
     bool isUpdatingActors = false;
-    std::vector<std::shared_ptr<Actor>> actors;
-    std::vector<std::shared_ptr<Actor>> pendingActors;
+    std::vector<std::shared_ptr<IActor>> actors;
+    std::vector<std::shared_ptr<IActor>> pendingActors;
 };

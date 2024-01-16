@@ -20,7 +20,6 @@ class Observable_impl {
         observers.remove(std::move(o));
     }
 
-  protected:
     void notify(MSG msg) {
         remove_if_expired();
 
@@ -68,3 +67,4 @@ class Observable<MSG, void> : public Observable_impl<MSG, void> {
         target.lock()->onNotify(msg);
     }
 };
+

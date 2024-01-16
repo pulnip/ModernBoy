@@ -14,8 +14,7 @@ class BoxComponent : public DrawComponent, public Observable<ColorRect> {
     void setTexture(const TrueColor &color, const Vector2 &size) noexcept;
 
   protected:
-    BoxComponent(const std::weak_ptr<Actor> owner) noexcept
-        : DrawComponent(owner) {
+    BoxComponent() noexcept{
         drawOrder = 200;
     }
 

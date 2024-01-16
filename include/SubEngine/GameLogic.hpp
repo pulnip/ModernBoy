@@ -11,7 +11,7 @@ class GameLogic : public SubEngine, public Observer<GameStatus> {
     bool isReady() const noexcept { return ready; }
 
   protected:
-    GameLogic(const OwnerRef owner) noexcept : SubEngine(owner) {}
+    GameLogic() noexcept=default;
 
   private:
     void postConstruct() noexcept override;

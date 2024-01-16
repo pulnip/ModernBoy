@@ -20,7 +20,7 @@ void GameEngine::run() noexcept {
         auto deltaTime = std::min(0.05f, timer->getDeltaTime() / 1000.0f);
 
         // process input
-        inputSystem->update(deltaTime);
+        std::static_pointer_cast<SubEngine>(inputSystem)->update(deltaTime);
 
         // update game
         gameLogic->update(deltaTime);

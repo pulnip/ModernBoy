@@ -15,8 +15,7 @@ void Paddle::updateActor(const float &deltaTime) noexcept {
     mc->velocity.y = 0;
 }
 
-Paddle::Paddle(const std::weak_ptr<ActorManager> owner) noexcept
-    : Actor(owner) {
+Paddle::Paddle() noexcept{
     position = {15.0f, 384.0f};
 }
 
@@ -24,7 +23,7 @@ void Paddle::allowCollision(const std::weak_ptr<Actor> opponent) noexcept {
     cc->allow(opponent);
 }
 
-void Paddle::postConstruct() noexcept {
+void Paddle::injectDependency() noexcept {
     auto self = weak_from_this();
 
     bc = Component::make<BoxComponent>(self);

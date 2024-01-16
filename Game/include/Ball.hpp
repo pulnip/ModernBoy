@@ -15,10 +15,10 @@ class Ball : public Actor, public Observable<GameStatus> {
     void allowCollision(const std::weak_ptr<Actor> opponent) noexcept;
 
   protected:
-    Ball(const std::weak_ptr<ActorManager> owner) noexcept;
+    Ball() noexcept;
 
   private:
-    void postConstruct() noexcept override;
+    void injectDependency() noexcept override;
 
   private:
     std::weak_ptr<GameLogic> gl;

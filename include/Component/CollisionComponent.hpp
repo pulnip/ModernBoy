@@ -3,12 +3,13 @@
 #include <vector>
 
 #include "Component.hpp"
+#include "gefwd.hpp"
 
 class CollisionComponent : public Component {
   public:
     void update(const float &deltaTime) noexcept override;
 
-    void allow(const std::weak_ptr<Actor> opponent) noexcept {
+    void allow(const std::weak_ptr<IActor> opponent) noexcept {
         opponents.emplace_back(opponent);
     }
 
@@ -17,11 +18,10 @@ class CollisionComponent : public Component {
     }
 
   protected:
-    CollisionComponent(const std::weak_ptr<Actor> owner) noexcept
-        : Component(owner) {
+    CollisionComponent() noexcept{
         updateOrder = 200;
     }
 
   private:
-    std::vector<std::weak_ptr<class Actor>> opponents;
+    std::vector<std::weak_ptr<IActor>> opponents;
 };

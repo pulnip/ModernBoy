@@ -13,8 +13,7 @@ class SpriteComponent : public DrawComponent, public Observable<SDL_Sprite> {
     virtual void setTexture(SDL_Texture *texture) noexcept;
 
   protected:
-    SpriteComponent(const std::weak_ptr<Actor> owner) noexcept
-        : DrawComponent(owner) {
+    SpriteComponent() noexcept{
         drawOrder = 201;
     }
 

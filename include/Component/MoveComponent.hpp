@@ -12,8 +12,7 @@ class MoveComponent : public Component {
     }
 
   protected:
-    MoveComponent(const std::weak_ptr<Actor> owner) noexcept
-        : Component(owner) {
+    MoveComponent() noexcept{
         updateOrder = 201;
     }
 

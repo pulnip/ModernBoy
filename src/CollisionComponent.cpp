@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include "Actor/Actor.hpp"
+#include "Actor/IActor.hpp"
 #include "Component/CollisionComponent.hpp"
 #include "Component/MoveComponent.hpp"
 
@@ -13,8 +13,8 @@ void CollisionComponent::update(const float &deltaTime) noexcept {
         const auto _opponent = opponent.lock();
 
         // 위치의 차이
-        const auto pos_diff = _opponent->position - _owner->position;
-        const auto pos_diff_abs = Vector2::abs(_opponent->position - _owner->position);
+        const auto pos_diff = _opponent->getPosition() - _owner->getPosition();
+        const auto pos_diff_abs = Vector2::abs(_opponent->getPosition() - _owner->getPosition());
         // 충돌 판정 박스
         const auto col_box = (_owner->getSize() + _opponent->getSize()) / 2;
 

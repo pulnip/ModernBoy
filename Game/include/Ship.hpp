@@ -11,10 +11,10 @@ class Ship : public Actor {
     void updateActor(const float &deltaTime) noexcept override;
 
   protected:
-    Ship(const std::weak_ptr<ActorManager> owner) noexcept;
+    Ship() noexcept;
 
   private:
-    void postConstruct() noexcept override;
+    void injectDependency() noexcept override;
 
   private:
     std::shared_ptr<AnimSpriteComponent> sc;

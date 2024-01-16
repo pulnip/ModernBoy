@@ -7,10 +7,10 @@ void BoxComponent::draw() noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     const auto _owner = owner.lock();
 
-    const auto pos = _owner->position;
+    const auto pos = _owner->getPosition();
     // size = base size * scale;
     const auto size = _owner->getSize();
-    const auto rotation = _owner->rotation;
+    const auto rotation = _owner->getRotation();
 
     ColorRect rect = {{pos, size}, rotation, color};
 
@@ -20,5 +20,5 @@ void BoxComponent::draw() noexcept {
 void BoxComponent::setTexture(const TrueColor &color, const Vector2 &size) noexcept {
     assert(!owner.expired() && "owner(Actor): expired");
     this->color = color;
-    owner.lock()->baseSize = size;
+    owner.lock()->setBaseSize(size);
 }
