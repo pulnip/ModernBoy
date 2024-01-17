@@ -23,7 +23,7 @@ class DrawComponent : public Component {
     }
 
   private:
-    void postConstruct() noexcept override;
+    void injectDependency() noexcept override final;
 
   protected:
     // 그리기 순서(화가 알고리즘)

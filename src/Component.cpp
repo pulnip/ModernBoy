@@ -5,4 +5,6 @@
 void Component::postConstruct() noexcept {
     subscribe(owner);
     notify(Lifetime::CONSTRUCTED);
+
+    injectDependency();
 }

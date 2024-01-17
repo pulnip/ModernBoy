@@ -14,10 +14,13 @@ class Component: public IComponent,
 
   protected:
     Component() noexcept=default;
-    virtual void postConstruct() noexcept override;
+    void postConstruct() noexcept override final;
 
   private:
-    int getUpdateOrder() const noexcept override { return updateOrder; }
+    int getUpdateOrder() const noexcept override final { return updateOrder; }
+
+  private:
+    virtual void injectDependency() noexcept=0;
 
   protected:
     // 컴포넌트의 업데이트 순서

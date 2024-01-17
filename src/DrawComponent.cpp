@@ -1,6 +1,5 @@
 #include "Component/DrawComponent.hpp"
 
-void DrawComponent::postConstruct() noexcept {
-    Component::postConstruct();
+void DrawComponent::injectDependency() noexcept {
 #warning "subscribe graphics engine?"
 }

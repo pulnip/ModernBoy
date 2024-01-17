@@ -15,10 +15,6 @@ class Actor: public IActor,
   public:
     virtual ~Actor() = default;
 
-  private:
-    // 특정 액터에 특화된 업데이트 코드
-    virtual void updateActor(const float& deltaTime) noexcept = 0;
-
   protected:
     Actor() noexcept=default;
 
@@ -33,7 +29,6 @@ class Actor: public IActor,
 
   private:
     void postConstruct() noexcept override final;
-    virtual void injectDependency() noexcept=0;
 
     void update(const float& deltaTime) noexcept override final;
     const State& getState() const noexcept override final{ return state; }
@@ -42,6 +37,11 @@ class Actor: public IActor,
     std::optional<std::weak_ptr<IComponent>>
     queryComponent(const ComponentName name) noexcept override final;
     void onNotify(MSG_t msg, spObservable comp) noexcept override final;
+
+  private:
+    // 특정 액터에 특화된 업데이트 코드
+    virtual void updateActor(const float& deltaTime) noexcept = 0;
+    virtual void injectDependency() noexcept=0;
 
   protected:
     State state = State::EActive;
