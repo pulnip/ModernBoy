@@ -21,6 +21,8 @@ class CollisionComponent : public Component {
     CollisionComponent() noexcept{
         updateOrder = 200;
     }
+    void injectDependency() noexcept override{}
+
 
   private:
     std::vector<std::weak_ptr<IActor>> opponents;

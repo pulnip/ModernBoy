@@ -1,5 +1,7 @@
 #pragma once
 
+struct Vector2;
+
 enum class Lifetime;
 enum class GameStatus;
 
@@ -22,3 +24,5 @@ class Actor;
 class IComponent;
 class Component;
 enum class ComponentName;
+class DrawComponent;
+class MoveComponent;

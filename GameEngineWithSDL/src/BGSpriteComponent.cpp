@@ -1,9 +1,7 @@
 #include "BGSpriteComponent.hpp"
-#include "Skin.hpp"
 
 void BGSpriteComponent::update(const float &deltaTime) noexcept {
-    SpriteComponent::update(deltaTime);
-
+    #warning "To Do"
     for (auto &bg : BGTextures) {
         // 텍스처 위치(offset)를 스크롤 스피드만큼 왼쪽으로 이동.
         bg.offset_x += scrollSpeed * deltaTime;

@@ -15,7 +15,6 @@ void Ship::updateActor(const float &deltaTime) noexcept {
     mc->rotationVelocity = 0.0;
 }
 Ship::Ship() noexcept{
-    position = {500.0f, 500.0f};
 }
 void Ship::injectDependency() noexcept {
     auto self = weak_from_this();
@@ -24,16 +23,18 @@ void Ship::injectDependency() noexcept {
     ic = Component::make<InputComponent>(self);
     mc = Component::make<MoveComponent>(self);
 
-    ic->setKey(SDL_SCANCODE_Q, [&rv = mc->rotationVelocity]() {
+    mc->position = {500.0f, 500.0f};
+
+    ic->setKey(SDL_SCANCODE_Q, [&rv = mc->rotationVelocity()]() {
         rv += -Math::PI;
     });
-    ic->setKey(SDL_SCANCODE_E, [&rv = mc->rotationVelocity]() {
+    ic->setKey(SDL_SCANCODE_E, [&rv = mc->rotationVelocity()]() {
         rv += Math::PI;
     });
-    ic->setKey(SDL_SCANCODE_D, [&v = mc->velocity, &r = rotation]() {
+    ic->setKey(SDL_SCANCODE_D, [&v = mc->velocity(), &r = mc->rotation()]() {
         v += Vector2::forward(r) * 300.0f;
     });
-    ic->setKey(SDL_SCANCODE_A, [&v = mc->velocity, &r = rotation]() {
+    ic->setKey(SDL_SCANCODE_A, [&v = mc->velocity(), &r = mc->rotation()]() {
         v += Vector2::forward(r) * -300.0f;
     });
 

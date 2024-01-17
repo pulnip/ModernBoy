@@ -10,6 +10,7 @@ concept not_pointer = std::negation_v<std::is_pointer<T>>;
 template <not_pointer value_type, bool = std::copyable<value_type>, bool = std::movable<value_type>>
 class Property final {
   public:
+    Property():value(std::make_unique<value_type>()){}
     // Copy Constructor
     Property(const Property &o) : value(std::make_unique<value_type>(*o.value)) {}
     Property(const value_type &t) : value(std::make_unique<value_type>(t)) {}
@@ -39,6 +40,7 @@ class Property final {
 template <not_pointer value_type>
 class Property<value_type, true, false> final {
   public:
+    Property():value(std::make_unique<value_type>()){}
     // Copy Constructor
     Property(const Property &o) : value(std::make_unique<value_type>(*o.value)) {}
     Property(const value_type &t) : value(std::make_unique<value_type>(t)) {}
@@ -68,6 +70,7 @@ class Property<value_type, true, false> final {
 template <not_pointer value_type>
 class Property<value_type, false, true> final {
   public:
+    Property():value(std::make_unique<value_type>()){}
     // Copy Constructor
     Property(const Property &o) = delete;
     Property(const value_type &t) = delete;
@@ -97,6 +100,7 @@ class Property<value_type, false, true> final {
 template <not_pointer value_type>
 class Property<value_type, false, false> final {
   public:
+    Property():value(std::make_unique<value_type>()){}
     Property(Property &&other): value(std::move(other.value)){}
 
     // Destructor

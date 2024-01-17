@@ -12,11 +12,7 @@
 #include "Paddle.hpp"
 
 void Paddle::updateActor(const float &deltaTime) noexcept {
-    mc->velocity.y = 0;
-}
-
-Paddle::Paddle() noexcept{
-    position = {15.0f, 384.0f};
+    mc->velocity().y=0.0f;
 }
 
 void Paddle::allowCollision(const std::weak_ptr<Actor> opponent) noexcept {
@@ -31,13 +27,14 @@ void Paddle::injectDependency() noexcept {
     ic = Component::make<InputComponent>(self);
     mc = Component::make<MoveComponent>(self);
 
+    mc->position={15.0f, 384.0f};
     bc->setTexture({}, {15.0f, 120.0f});
     bc->Observable<ColorRect>::subscribe(std::dynamic_pointer_cast<GraphicsEngine>(
         owner.lock()->requestSubEngine(SubEngineName::GraphicsEngine).value().lock()));
-    ic->setKey(SDL_SCANCODE_S, [&v_y = mc->velocity.y]() {
+    ic->setKey(SDL_SCANCODE_S, [&v_y = mc->velocity().y]() {
         v_y += 300.0f;
     });
-    ic->setKey(SDL_SCANCODE_W, [&v_y = mc->velocity.y]() {
+    ic->setKey(SDL_SCANCODE_W, [&v_y = mc->velocity().y]() {
         v_y += -300.0f;
     });
 }

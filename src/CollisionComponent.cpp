@@ -5,25 +5,27 @@
 #include "Component/MoveComponent.hpp"
 
 void CollisionComponent::update(const float &deltaTime) noexcept {
-    assert(!owner.expired() && "owner(Actor): expired");
-    const auto _owner = owner.lock();
+#warning "move to physicsSimulator"
+/*
+    assert(!owner.expired());
+    const auto mc = owner.lock();
 
     for (auto opponent : opponents) {
         assert(!opponent.expired() && "opponent(Actor): expired");
         const auto _opponent = opponent.lock();
 
         // 위치의 차이
-        const auto pos_diff = _opponent->getPosition() - _owner->getPosition();
-        const auto pos_diff_abs = Vector2::abs(_opponent->getPosition() - _owner->getPosition());
+        const auto pos_diff = _opponent->getPosition() - mc->getPosition();
+        const auto pos_diff_abs = Vector2::abs(_opponent->getPosition() - mc->getPosition());
         // 충돌 판정 박스
-        const auto col_box = (_owner->getSize() + _opponent->getSize()) / 2;
+        const auto col_box = (mc->getSize() + _opponent->getSize()) / 2;
 
         // AABB 알고리즘으로 충돌 판정
         if (pos_diff_abs <= col_box) {
             // 충돌 후 처리
             const auto collision_result = col_box - pos_diff_abs;
 
-            auto my_owmc = _owner->queryComponent(ComponentName::MoveComponent);
+            auto my_owmc = mc->queryComponent(ComponentName::MoveComponent);
             auto op_owmc = _opponent->queryComponent(ComponentName::MoveComponent);
             assert(!(my_owmc.has_value() && op_owmc.has_value()));
             assert(my_owmc.value().expired() || op_owmc.value().expired());
@@ -46,7 +48,7 @@ void CollisionComponent::update(const float &deltaTime) noexcept {
                     // 완전 비탄성 충돌
                     myVel.x = 0;
 #else
-                    myVel.x = Math::reflect(myVel.x, opVel.x);
+                    myVel().x = Math::reflect(myVel().x, opVel().x);
 #endif
                 }
             } else {
@@ -54,10 +56,11 @@ void CollisionComponent::update(const float &deltaTime) noexcept {
 #ifdef TOTALLY_INELASTIC_COLLISION
                     myVel.y = 0;
 #else
-                    myVel.y = Math::reflect(myVel.y, opVel.y);
+                    myVel().y = Math::reflect(myVel().y, opVel().y);
 #endif
                 }
             }
         }
     }
+*/
 }

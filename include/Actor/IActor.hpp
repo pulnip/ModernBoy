@@ -21,15 +21,6 @@ class IActor: public Observer<Lifetime, IComponent> {
     getActorManager() const noexcept = 0;
     virtual std::optional<std::weak_ptr<IComponent>>
     queryComponent(const ComponentName name) noexcept = 0;
-
-    // Should Move to MoveComponent
-    virtual const Vector2& getPosition() const noexcept = 0;
-    virtual void setPosition(const Vector2 pos) noexcept = 0;
-    virtual void setBaseSize(const Vector2& bsize) noexcept = 0;
-    virtual Vector2 getSize() const noexcept = 0;
-    virtual const Math::Real& getScale() const noexcept = 0;
-    virtual const Math::Real& getRotation() const noexcept = 0;
-    virtual void setRotation(const Math::Real& rot) noexcept = 0;
 };
 
 enum class IActor::State {

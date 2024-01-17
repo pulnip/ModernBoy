@@ -26,6 +26,8 @@ class InputComponent: public Component,
 
   protected:
     InputComponent() noexcept{ updateOrder = 100; }
+    void injectDependency() noexcept override{}
+
 
   protected:
     std::map<uint8_t, std::function<void(void)>> ifPressed;

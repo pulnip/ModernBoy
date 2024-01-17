@@ -1,18 +1,19 @@
+#include "Math.hpp"
 #include "AnimSpriteComponent.hpp"
 
 void AnimSpriteComponent::update(const float &deltaTime) noexcept {
-    SpriteComponent::update(deltaTime);
-
     // 애니메이션에 사용된 텍스처 개수
-    const int tex_num = animTextures.size();
+    const Math::Real tex_num = animTextures.size();
     // 텍스처가 없을 경우
-    if (tex_num <= 0)
-        return;
+    if (tex_num < 1) return;
 
     // 현재 프레임 갱신
-    currFrame += animFPS * deltaTime;
+    currFrame += animFPS * deltaTime * 0.001;
     // 0 <= mCurrFrame < tex_num 이도록
-    currFrame -= static_cast<int>(currFrame) / tex_num * tex_num;
+    currFrame = Math::wrap(
+        static_cast<Math::Real>(currFrame),
+        0.0, tex_num
+    );
 
     setTexture(animTextures[static_cast<int>(currFrame)]);
 }

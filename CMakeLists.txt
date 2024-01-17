@@ -26,6 +26,7 @@ add_executable(${PROJECT_NAME}
     src/Component.cpp
     src/CollisionComponent.cpp
     src/DrawComponent.cpp
+    src/BoxComponent.cpp
     src/MoveComponent.cpp
     src/InputComponent.cpp
     src/Math.cpp
@@ -35,7 +36,6 @@ add_executable(${PROJECT_NAME}
     GameEngineWithSDL/src/GraphicsEngineWithSDL.cpp
     GameEngineWithSDL/src/InputSystemWithSDL.cpp
     GameEngineWithSDL/src/ResourceManagerWithSDL.cpp
-    GameEngineWithSDL/src/BoxComponent.cpp
     GameEngineWithSDL/src/SpriteComponent.cpp
     GameEngineWithSDL/src/AnimSpriteComponent.cpp
     GameEngineWithSDL/src/BGSpriteComponent.cpp

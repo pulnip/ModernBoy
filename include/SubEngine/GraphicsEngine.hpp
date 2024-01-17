@@ -6,8 +6,7 @@
 #include "Observer.hpp"
 #include "Skin.hpp"
 #include "SubEngine.hpp"
-
-class DrawComponent;
+#include "gefwd.hpp"
 
 class GraphicsEngine : public SubEngine, public Observer<ColorRect> {
   private:

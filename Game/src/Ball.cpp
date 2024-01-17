@@ -14,15 +14,15 @@
 
 #include "Ball.hpp"
 
-Ball::Ball() noexcept{
-    position = {1024.0f / 2, 768.0f / 2};
-    scale = 5.0f;
-}
 void Ball::updateActor(const float &deltaTime) noexcept {
     assert(!owner.expired() && "owner: expired");
     // position += velocity * deltaTime;
 
-    if (position.x < getSize().x) {
+    auto query=queryComponent(ComponentName::MoveComponent);
+    assert(query.has_value() && !query.value().expired());
+    auto mc=std::dynamic_pointer_cast<MoveComponent>(query.value().lock());
+
+    if (mc->position().x < mc->baseSize().x) {
         Observable<GameStatus>::notify(GameStatus::GAME_OVER);
     }
 }
@@ -36,7 +36,10 @@ void Ball::injectDependency() noexcept {
     cc = Component::make<CollisionComponent>(self);
     mc = Component::make<MoveComponent>(self);
 
-    mc->velocity = {-200.0f, 235.0f};
+    mc->position={1024.0f / 2, 768.0f / 2};
+    mc->scale=5.0f;
+    mc->velocity={-200.0f, 235.0f};
+    
     sc->Observable<SDL_Sprite>::subscribe(std::dynamic_pointer_cast<GraphicsEngineWithSDL>(
         owner.lock()->requestSubEngine(SubEngineName::GraphicsEngine).value().lock()));
 

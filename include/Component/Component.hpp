@@ -46,8 +46,9 @@ enum class ComponentName {
 
 class NullComponent: public Component{
   private:
-    void update(const float& deltaTime) noexcept override{}
-    ComponentName getName() const noexcept override{
+    void update(const float& deltaTime) noexcept override final{}
+    ComponentName getName() const noexcept override final{
         return ComponentName::NullComponent;
     }
+    void injectDependency() noexcept override final{}
 };
