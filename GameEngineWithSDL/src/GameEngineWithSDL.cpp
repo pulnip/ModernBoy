@@ -21,10 +21,9 @@ GameEngineWithSDL::GameEngineWithSDL() noexcept {
     }
 }
 
-void GameEngineWithSDL::postConstruct() noexcept {
+void GameEngineWithSDL::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    // dependency injection
     resourceManager = SubEngine::make<ResourceManagerWithSDL>(self);
     inputSystem = SubEngine::make<InputSystemWithSDL>(self);
     gameLogic = SubEngine::make<GameLogic>(self);

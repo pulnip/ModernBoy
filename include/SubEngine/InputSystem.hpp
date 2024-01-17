@@ -26,6 +26,10 @@ class InputSystem : public SubEngine, public Observable<GameStatus> {
   protected:
     InputSystem() noexcept=default;
     virtual void postConstruct() noexcept override = 0;
+        SubEngineName getName() const noexcept override{
+        return SubEngineName::InputSystem;
+    }
+
 
   private:
     virtual void update(const float& deltaTime) noexcept override = 0;

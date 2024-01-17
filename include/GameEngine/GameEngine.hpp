@@ -1,26 +1,30 @@
 #pragma once
 
-#include <memory>
+#include <map>
+#include <functional>
 
 #include "Makable.hpp"
+#include "IGameEngine.hpp"
 
-class ResourceManager;
-class InputSystem;
-class GameLogic;
-class ActorManager;
-class GraphicsEngine;
-
-class Timer;
-
-class GameEngine : public Makable<GameEngine>, public std::enable_shared_from_this<GameEngine> {
+class GameEngine: public IGameEngine,
+    public Makable<GameEngine>
+{
   public:
-    GameEngine() = default;
     virtual ~GameEngine() = default;
 
-    void run() noexcept;
+
+  protected:
+    GameEngine() = default;
 
   private:
-    virtual void postConstruct() noexcept override = 0;
+    void postConstruct() noexcept override final;
+    void onNotify(MSG_t msg, spObservable se) noexcept override final;
+    void run() noexcept override final;
+    std::shared_ptr<SubEngine>
+    query(const SubEngineName name) noexcept override final;
+
+  private:
+    virtual void injectDependency() noexcept=0;
 
   protected:
     std::shared_ptr<ResourceManager> resourceManager;
@@ -28,6 +32,7 @@ class GameEngine : public Makable<GameEngine>, public std::enable_shared_from_th
     std::shared_ptr<GameLogic> gameLogic;
     std::shared_ptr<ActorManager> actorManager;
     std::shared_ptr<GraphicsEngine> graphicsEngine;
+    std::map<SubEngineName, std::shared_ptr<SubEngine>> subEngines;
 
     std::shared_ptr<Timer> timer;
 };

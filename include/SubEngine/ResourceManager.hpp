@@ -8,4 +8,7 @@ class ResourceManager : public SubEngine {
 
   private:
     void update(const float &deltaTime) noexcept override {}
+        SubEngineName getName() const noexcept override{
+        return SubEngineName::ResourceManager;
+    }
 };

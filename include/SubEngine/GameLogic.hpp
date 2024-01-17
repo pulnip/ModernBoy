@@ -16,6 +16,10 @@ class GameLogic : public SubEngine, public Observer<GameStatus> {
   private:
     void postConstruct() noexcept override;
     void onNotify(GameStatus status) noexcept override;
+        SubEngineName getName() const noexcept override{
+        return SubEngineName::GameLogic;
+    }
+
 
   private:
     bool ready = true;

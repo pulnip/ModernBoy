@@ -10,7 +10,9 @@
 
 #include "gefwd.hpp"
 
-class ActorManager : public SubEngine, public Observer<Lifetime, IActor> {
+class ActorManager: public SubEngine,
+    public Observer<Lifetime, IActor>
+{
   public:
     std::optional<std::weak_ptr<SubEngine>>
     requestSubEngine(const SubEngineName name) noexcept;
@@ -22,6 +24,9 @@ class ActorManager : public SubEngine, public Observer<Lifetime, IActor> {
   private:
     void postConstruct() noexcept override;
     void onNotify(MSG_t lifetime, spObservable actor) noexcept override;
+    SubEngineName getName() const noexcept override{
+        return SubEngineName::ActorManager;
+    }
 
     void appendActor(const std::shared_ptr<IActor> actor) noexcept;
     void removeActor(const std::shared_ptr<IActor> actor) noexcept;

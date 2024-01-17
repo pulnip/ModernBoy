@@ -3,7 +3,7 @@
 #include "p1pingpong.hpp"
 
 int main(int argc, char *argv[]) {
-    auto game = GameEngine::make<p1pingpong>();
+    std::shared_ptr<IGameEngine> game = GameEngine::make<p1pingpong>();
 
     game->run();
 

@@ -15,4 +15,8 @@ class PhysicsSimulator : public SubEngine, public Observer<Matter> {
   private:
     void postConstruct() noexcept override;
     void onNotify(Matter matter) noexcept override;
+        SubEngineName getName() const noexcept override{
+        return SubEngineName::PhysicsSimulator;
+    }
+
 };

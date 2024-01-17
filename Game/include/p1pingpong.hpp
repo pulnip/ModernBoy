@@ -7,5 +7,5 @@ class p1pingpong : public GameEngineWithSDL {
     p1pingpong() noexcept = default;
 
   private:
-    void postConstruct() noexcept override;
+    void injectDependency() noexcept override final;
 };

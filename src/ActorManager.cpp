@@ -7,6 +7,10 @@
 
 std::optional<std::weak_ptr<SubEngine>>
 ActorManager::requestSubEngine(const SubEngineName name) noexcept {
+    assert(!owner.expired());
+    auto gameEngine=owner.lock();
+
+    // auto query=gameEngine->
 #warning "Not Defined"
     return std::nullopt;
 }

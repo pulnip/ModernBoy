@@ -17,6 +17,7 @@ class PhysicsSimulator;
 class SoundEngine;
 class GraphicsEngine;
 class ActorManager;
+class Timer;
 
 class IActor;
 class Actor;

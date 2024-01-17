@@ -25,6 +25,10 @@ class GraphicsEngine : public SubEngine, public Observer<ColorRect> {
   private:
     virtual void postConstruct() noexcept override = 0;
     virtual void onNotify(ColorRect rect) noexcept override = 0;
+        SubEngineName getName() const noexcept override{
+        return SubEngineName::GraphicsEngine;
+    }
+
 
     virtual void prepareRendering() noexcept = 0;
     virtual void finalizeRendering() noexcept = 0;

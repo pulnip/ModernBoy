@@ -1,7 +1,7 @@
 #include "p1pingpong.hpp"
 
-void p1pingpong::postConstruct() noexcept {
-    GameEngineWithSDL::postConstruct();
+void p1pingpong::injectDependency() noexcept {
+    GameEngineWithSDL::injectDependency();
 #ifdef MUSI
     auto ceil = Actor::make<Wall>(self);
     ceil->position = {1024.0f / 2, 15.0f / 2};

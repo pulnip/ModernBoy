@@ -3,20 +3,8 @@
 #include <memory>
 
 #include "Makable.hpp"
-
+#include "gefwd.hpp"
 #include "GameEngine/GameEngine.hpp"
-
-enum class SubEngineName {
-    SubEngine,
-
-    ResourceManager,
-    InputSystem,
-    GameLogic,
-    PhysicsSimulator,
-    SoundEngine,
-    GraphicsEngine,
-    ActorManager
-};
 
 class SubEngine : public Makable<SubEngine, GameEngine> {
   protected:
@@ -26,8 +14,19 @@ class SubEngine : public Makable<SubEngine, GameEngine> {
     virtual ~SubEngine() = default;
 
     virtual void update(const float &deltaTime) noexcept = 0;
+    virtual SubEngineName getName() const noexcept=0;
 
   protected:
     SubEngine() noexcept=default;
     virtual void postConstruct() noexcept override = 0;
+};
+
+enum class SubEngineName {
+    ActorManager,
+    GameLogic,
+    GraphicsEngine,
+    InputSystem,
+    PhysicsSimulator,
+    ResourceManager,
+    SoundEngine
 };

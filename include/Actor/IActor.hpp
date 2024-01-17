@@ -21,6 +21,9 @@ class IActor: public Observer<Lifetime, IComponent> {
     getActorManager() const noexcept = 0;
     virtual std::optional<std::weak_ptr<IComponent>>
     queryComponent(const ComponentName name) noexcept = 0;
+
+  protected:
+    IActor() noexcept=default;
 };
 
 enum class IActor::State {

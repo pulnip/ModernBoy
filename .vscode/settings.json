@@ -65,6 +65,7 @@
         "semaphore": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "unordered_set": "cpp"
     }
 }

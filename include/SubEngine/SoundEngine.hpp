@@ -11,4 +11,8 @@ class SoundEngine : public SubEngine {
 
   private:
     void postConstruct() noexcept override;
+        SubEngineName getName() const noexcept override{
+        return SubEngineName::SoundEngine;
+    }
+
 };
