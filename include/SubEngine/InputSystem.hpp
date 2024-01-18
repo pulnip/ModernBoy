@@ -3,10 +3,8 @@
 #include <cstdint>
 #include <map>
 
-#include "Observer.hpp"
 #include "Observable.hpp"
 #include "SubEngine.hpp"
-#include "gefwd.hpp"
 
 struct Key {
     enum class Status {
@@ -16,8 +14,13 @@ struct Key {
     uint8_t key;
 };
 
-class InputSystem : public SubEngine, public Observable<GameStatus> {
+class InputSystem: public SubEngine,
+    public Observable<GameStatus>
+{
   public:
+    virtual ~InputSystem()=default;
+    virtual void update(const float& deltaTime) noexcept override=0;
+
     void registerKey(
         const uint8_t key,
         const std::weak_ptr<Observer<Key>> subscriber
@@ -25,14 +28,14 @@ class InputSystem : public SubEngine, public Observable<GameStatus> {
 
   protected:
     InputSystem() noexcept=default;
-    virtual void postConstruct() noexcept override = 0;
-        SubEngineName getName() const noexcept override{
+
+  private:
+    SubEngineName getName() const noexcept override final{
         return SubEngineName::InputSystem;
     }
 
-
   private:
-    virtual void update(const float& deltaTime) noexcept override = 0;
+    virtual void injectDependency() noexcept override=0;
 
   protected:
     std::map<uint8_t, Observable<Key>> keyMap;
@@ -40,11 +43,13 @@ class InputSystem : public SubEngine, public Observable<GameStatus> {
 
 class NullInputSystem: public InputSystem{
   private:
-    void postConstruct() noexcept override final{}
     void update(const float&) noexcept override final{}
+    void injectDependency() noexcept override final{}
 };
 
+// for std input
 class InputSystem_default: public InputSystem{
   private:
     void update(const float& deltaTime) noexcept override final;
+    void injectDependency() noexcept override final{}
 };

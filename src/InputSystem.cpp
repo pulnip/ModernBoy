@@ -1,11 +1,4 @@
-#include <iostream>
-#include <string>
-#include <iostream>
-#include <set>
-#include <algorithm>
-
 #include "SubEngine/InputSystem.hpp"
-#include "Component/InputComponent.hpp"
 
 void InputSystem::registerKey(
     const uint8_t key,
@@ -17,6 +10,10 @@ void InputSystem::registerKey(
 
     it->second.subscribe(subscriber);
 }
+
+#include <iostream>
+#include <set>
+#include <string>
 
 void InputSystem_default::update(const float& deltaTime) noexcept{
     std::set<char> log;

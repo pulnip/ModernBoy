@@ -31,19 +31,12 @@ void Asteroid::injectDependency() noexcept {
     {
         return;
     }
-    auto o = owner.lock()->requestSubEngine(SubEngineName::ResourceManager);
+    auto o=owner.lock()->query(SubEngineName::ResourceManager);
 
-    if (!o.has_value())
-    {
-        return;
-    }
-    auto wpManager = o.value();
+    if (!o.has_value()) return;
+    if (o.value()==nullptr) return;
 
-    if (o.value().expired())
-    {
-        return;
-    }
-    auto manager = std::dynamic_pointer_cast<ResourceManagerWithSDL>(wpManager.lock());
+    auto manager = std::dynamic_pointer_cast<ResourceManagerWithSDL>(o.value());
     auto oTexture = manager->getTexture("Asteroid.png");
 
     if (!oTexture.has_value())

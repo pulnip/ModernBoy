@@ -41,22 +41,16 @@ void Ball::injectDependency() noexcept {
     mc->velocity={-200.0f, 235.0f};
     
     sc->Observable<SDL_Sprite>::subscribe(std::dynamic_pointer_cast<GraphicsEngineWithSDL>(
-        owner.lock()->requestSubEngine(SubEngineName::GraphicsEngine).value().lock()));
+        owner.lock()->query(SubEngineName::GraphicsEngine).value()));
 
     if (owner.expired()) {
         return;
     }
-    auto o = owner.lock()->requestSubEngine(SubEngineName::ResourceManager);
+    auto o = owner.lock()->query(SubEngineName::ResourceManager);
 
-    if (!o.has_value()) {
-        return;
-    }
-    auto wpManager = o.value();
-
-    if (o.value().expired()) {
-        return;
-    }
-    auto manager = std::dynamic_pointer_cast<ResourceManagerWithSDL>(wpManager.lock());
+    if (!o.has_value()) return;
+    if (o.value() == nullptr) return;
+    auto manager = std::dynamic_pointer_cast<ResourceManagerWithSDL>(o.value());
 
     std::vector<std::optional<SDL_Texture *>> opAnims = {
         manager->getTexture("pigeon_1.png"),

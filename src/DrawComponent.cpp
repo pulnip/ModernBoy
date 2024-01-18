@@ -23,11 +23,11 @@ void DrawComponent::injectDependency() noexcept {
     assert(!wpActorManager.expired());
     auto actorManager=wpActorManager.lock();
     {
-        auto query=actorManager->requestSubEngine(SubEngineName::GraphicsEngine);
+        auto query=actorManager->query(SubEngineName::GraphicsEngine);
 
-        assert(query.has_value() and !query.value().expired());
+        assert(query.has_value());
         graphicsEngine=std::dynamic_pointer_cast<GraphicsEngine>(
-            query.value().lock()
+            query.value()
         );
     }
 }

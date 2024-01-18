@@ -16,12 +16,14 @@ add_compile_options(-fmodules-ts)
 add_executable(${PROJECT_NAME}
     main.cpp
 
+    src/Math.cpp
     src/GameEngine.cpp
+    src/SubEngine.cpp
     src/ActorManager.cpp
     src/GraphicsEngine.cpp
     src/GameLogic.cpp
     src/PhysicsSimulator.cpp
-    src/SoundEngine.cpp
+    src/Timer_default.cpp
     src/Actor.cpp
     src/Component.cpp
     src/CollisionComponent.cpp
@@ -29,8 +31,6 @@ add_executable(${PROJECT_NAME}
     src/BoxComponent.cpp
     src/MoveComponent.cpp
     src/InputComponent.cpp
-    src/Math.cpp
-    src/Timer_default.cpp
 
     GameEngineWithSDL/src/GameEngineWithSDL.cpp
     GameEngineWithSDL/src/GraphicsEngineWithSDL.cpp

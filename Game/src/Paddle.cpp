@@ -30,7 +30,7 @@ void Paddle::injectDependency() noexcept {
     mc->position={15.0f, 384.0f};
     bc->setTexture({}, {15.0f, 120.0f});
     bc->Observable<ColorRect>::subscribe(std::dynamic_pointer_cast<GraphicsEngine>(
-        owner.lock()->requestSubEngine(SubEngineName::GraphicsEngine).value().lock()));
+        owner.lock()->query(SubEngineName::GraphicsEngine).value()));
     ic->setKey(SDL_SCANCODE_S, [&v_y = mc->velocity().y]() {
         v_y += 300.0f;
     });

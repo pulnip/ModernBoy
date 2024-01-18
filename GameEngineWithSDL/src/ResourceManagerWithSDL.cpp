@@ -26,13 +26,13 @@ ResourceManagerWithSDL::getTexture(const std::string &fileName) noexcept {
     return texture;
 }
 
-void ResourceManagerWithSDL::postConstruct() noexcept {
+void ResourceManagerWithSDL::injectDependency() noexcept {
 #warning "set Context?"
 }
 
 constexpr bool HW_RENDERING = false;
 
-SDL_Texture *
+SDL_Texture*
 ResourceManagerWithSDL::loadTexture(const std::string &fileName) noexcept {
     SDL_Texture *texture;
 
@@ -62,4 +62,10 @@ ResourceManagerWithSDL::loadTexture(const std::string &fileName) noexcept {
     }
 
     return texture;
+}
+
+void ResourceManagerWithSDL::setContext(
+    const std::shared_ptr<SDL_Renderer*> context) noexcept
+{
+    this->context = context;
 }

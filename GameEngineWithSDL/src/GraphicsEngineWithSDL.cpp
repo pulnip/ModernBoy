@@ -2,6 +2,7 @@
 #include <SDL2/SDL_log.h>
 #include <SDL2/SDL_render.h>
 
+#include "Skin.hpp"
 #include "GraphicsEngineWithSDL.hpp"
 
 GraphicsEngineWithSDL::~GraphicsEngineWithSDL() {
@@ -9,7 +10,7 @@ GraphicsEngineWithSDL::~GraphicsEngineWithSDL() {
     SDL_DestroyWindow(*window);
 }
 
-void GraphicsEngineWithSDL::postConstruct() noexcept {
+void GraphicsEngineWithSDL::injectDependency() noexcept {
     window = std::make_shared<SDL_Window *>(SDL_CreateWindow(
         "GameEngine Programming in C++",
         100,

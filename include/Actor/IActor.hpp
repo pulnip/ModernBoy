@@ -3,7 +3,6 @@
 #include <memory>
 #include <optional>
 
-#include "Math.hpp"
 #include "Observer.hpp"
 #include "gefwd.hpp"
 

@@ -21,7 +21,7 @@ class GameEngine: public IGameEngine,
     void onNotify(MSG_t msg, spObservable se) noexcept override final;
     void run() noexcept override final;
     std::shared_ptr<SubEngine>
-    query(const SubEngineName name) noexcept override final;
+    find(const SubEngineName name) noexcept override final;
 
   private:
     virtual void injectDependency() noexcept=0;

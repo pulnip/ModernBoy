@@ -1,6 +1,7 @@
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_video.h>
 
+#include "Skin.hpp"
 #include "Component/DrawComponent.hpp"
 #include "SubEngine/GraphicsEngine.hpp"
 
@@ -17,3 +18,5 @@ void GraphicsEngine::update(const float &deltaTime) noexcept {
 
     finalizeRendering();
 }
+
+void NullGraphicsEngine::onNotify(ColorRect rect) noexcept{}

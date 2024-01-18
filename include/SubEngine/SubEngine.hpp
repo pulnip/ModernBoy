@@ -1,27 +1,10 @@
 #pragma once
 
-#include <memory>
-
 #include "Makable.hpp"
-#include "gefwd.hpp"
-#include "GameEngine/GameEngine.hpp"
-
-class SubEngine : public Makable<SubEngine, GameEngine> {
-  protected:
-    using OwnerRef = std::weak_ptr<GameEngine>;
-
-  public:
-    virtual ~SubEngine() = default;
-
-    virtual void update(const float &deltaTime) noexcept = 0;
-    virtual SubEngineName getName() const noexcept=0;
-
-  protected:
-    SubEngine() noexcept=default;
-    virtual void postConstruct() noexcept override = 0;
-};
+#include "ISubEngine.hpp"
 
 enum class SubEngineName {
+    SubEngine,
     ActorManager,
     GameLogic,
     GraphicsEngine,
@@ -29,4 +12,28 @@ enum class SubEngineName {
     PhysicsSimulator,
     ResourceManager,
     SoundEngine
+};
+
+class SubEngine: public ISubEngine,
+    public Makable<SubEngine, IGameEngine>
+{
+  public:
+    virtual ~SubEngine() = default;
+    std::optional<std::shared_ptr<ISubEngine>>
+    query(const SubEngineName name) noexcept final;
+
+  protected:
+    SubEngine() noexcept=default;
+
+  private:
+    void postConstruct() noexcept override final{ injectDependency(); }
+
+  private:
+    virtual void update(const float &deltaTime) noexcept override= 0;
+    virtual SubEngineName getName() const noexcept{
+        return SubEngineName::SubEngine;
+    }
+
+  private:
+    virtual void injectDependency() noexcept=0;
 };

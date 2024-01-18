@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-
 #include "Makable.hpp"
 
 class Timer : public Makable<Timer> {

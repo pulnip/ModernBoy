@@ -13,5 +13,5 @@ void Wall::injectDependency() noexcept {
     mc = Component::make<MoveComponent>(self);
 
     bc->Observable<ColorRect>::subscribe(std::dynamic_pointer_cast<GraphicsEngine>(
-        owner.lock()->requestSubEngine(SubEngineName::GraphicsEngine).value().lock()));
+        owner.lock()->query(SubEngineName::GraphicsEngine).value()));
 }

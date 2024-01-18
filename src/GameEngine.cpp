@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include "PubSubMessage.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "SubEngine/ActorManager.hpp"
 #include "SubEngine/GameLogic.hpp"
@@ -24,7 +25,7 @@ void GameEngine::run() noexcept {
         auto deltaTime = std::min(0.05f, timer->getDeltaTime() / 1000.0f);
 
         // process input
-        std::static_pointer_cast<SubEngine>(inputSystem)->update(deltaTime);
+        inputSystem->update(deltaTime);
 
         // update game
         gameLogic->update(deltaTime);
@@ -37,7 +38,7 @@ void GameEngine::run() noexcept {
 }
 
 std::shared_ptr<SubEngine>
-GameEngine::query(const SubEngineName name) noexcept{
+GameEngine::find(const SubEngineName name) noexcept{
     switch(name){
     case SubEngineName::ResourceManager:
         return resourceManager;

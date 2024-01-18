@@ -17,7 +17,7 @@ class GraphicsEngineWithSDL : public GraphicsEngine, public Observer<SDL_Sprite>
     GraphicsEngineWithSDL() noexcept=default;
 
   private:
-    void postConstruct() noexcept override;
+    void injectDependency() noexcept override;
 
     void onNotify(ColorRect rect) noexcept;
     void onNotify(SDL_Sprite sprite) noexcept;

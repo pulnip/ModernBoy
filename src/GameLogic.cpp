@@ -3,14 +3,6 @@
 #include "PubSubMessage.hpp"
 #include "SubEngine/GameLogic.hpp"
 
-void GameLogic::update(const float &deltaTime) noexcept {
-#warning "Not defined"
-}
-
-void GameLogic::postConstruct() noexcept {
-#warning "Not defined"
-}
-
 void GameLogic::onNotify(GameStatus status) noexcept {
     switch (status) {
     case GameStatus::GAME_OVER:
@@ -26,5 +18,4 @@ void GameLogic::onNotify(GameStatus status) noexcept {
         SDL_Log("wtf");
     }
     ready = false;
-#warning "Not defined"
 }

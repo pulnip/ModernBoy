@@ -10,5 +10,5 @@ class InputSystemWithSDL : public InputSystem {
     InputSystemWithSDL() noexcept=default;
 
   private:
-    void postConstruct() noexcept override;
+    void injectDependency() noexcept override;
 };

@@ -1,15 +1,13 @@
 #include "SubEngine/PhysicsSimulator.hpp"
-
 #include "Skin.hpp"
 
-void PhysicsSimulator::update(const float &deltaTime) noexcept {
+void NullPhysicsSimulator::onNotify(Matter matter) noexcept{}
+
+
+void PhysicsSimulator_default::update(const float &deltaTime) noexcept {
 #warning "Not defined"
 }
 
-void PhysicsSimulator::postConstruct() noexcept {
-#warning "Not defined"
-}
-
-void PhysicsSimulator::onNotify(Matter matter) noexcept {
+void PhysicsSimulator_default::onNotify(Matter matter) noexcept {
 #warning "Not defined"
 }

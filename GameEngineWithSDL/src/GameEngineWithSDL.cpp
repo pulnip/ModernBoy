@@ -1,14 +1,14 @@
 #include <SDL2/SDL.h>
 
+#include "GameEngineWithSDL.hpp"
+
 #include "SubEngine/ActorManager.hpp"
 #include "SubEngine/GameLogic.hpp"
-
 #include "GraphicsEngineWithSDL.hpp"
 #include "InputSystemWithSDL.hpp"
 #include "ResourceManagerWithSDL.hpp"
 #include "TimerWithSDL.hpp"
 
-#include "GameEngineWithSDL.hpp"
 
 GameEngineWithSDL::~GameEngineWithSDL() {
     SDL_Quit();
@@ -26,8 +26,8 @@ void GameEngineWithSDL::injectDependency() noexcept {
 
     resourceManager = SubEngine::make<ResourceManagerWithSDL>(self);
     inputSystem = SubEngine::make<InputSystemWithSDL>(self);
-    gameLogic = SubEngine::make<GameLogic>(self);
-    actorManager = SubEngine::make<ActorManager>(self);
+    gameLogic = SubEngine::make<NullGameLogic>(self);
+    actorManager = SubEngine::make<NullActorManager>(self);
     graphicsEngine = SubEngine::make<GraphicsEngineWithSDL>(self);
     timer = Timer::make<TimerWithSDL>();
 

@@ -2,7 +2,6 @@
 #include <SDL2/SDL_keyboard.h>
 
 #include "PubSubMessage.hpp"
-
 #include "InputSystemWithSDL.hpp"
 
 void InputSystemWithSDL::update(const float &deltaTime) noexcept {
@@ -23,6 +22,6 @@ void InputSystemWithSDL::update(const float &deltaTime) noexcept {
     }
 }
 
-void InputSystemWithSDL::postConstruct() noexcept {
+void InputSystemWithSDL::injectDependency() noexcept {
 #warning "Not defined"
 }

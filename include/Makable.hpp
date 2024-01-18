@@ -6,7 +6,8 @@
 // Makable for Owned Object
 
 template <class Base, class Owner = void>
-struct Makable {
+class Makable{
+  public:
     template <class Derived>
         requires std::derived_from<Derived, Base> || std::same_as<Derived, Base>
     static auto make(const std::weak_ptr<Owner> owner) noexcept {
@@ -21,6 +22,8 @@ struct Makable {
         return derived;
     }
 
+    const std::weak_ptr<Owner>& getOwner() const noexcept{ return owner; }
+
   private:
     virtual void postConstruct() noexcept = 0;
 
@@ -30,7 +33,8 @@ struct Makable {
 
 // Makable for Non-Owned Object
 template <class Base>
-struct Makable<Base, void> {
+class Makable<Base, void>{
+  public:
     template <class Derived>
         requires std::derived_from<Derived, Base> || std::same_as<Derived, Base>
     static auto make() noexcept {

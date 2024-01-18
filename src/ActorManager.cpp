@@ -1,19 +1,9 @@
 #include <algorithm>
 #include <cassert>
 
-#include "Actor/Actor.hpp"
 #include "PubSubMessage.hpp"
+#include "Actor/Actor.hpp"
 #include "SubEngine/ActorManager.hpp"
-
-std::optional<std::weak_ptr<SubEngine>>
-ActorManager::requestSubEngine(const SubEngineName name) noexcept {
-    assert(!owner.expired());
-    auto gameEngine=owner.lock();
-
-    // auto query=gameEngine->
-#warning "Not Defined"
-    return std::nullopt;
-}
 
 void ActorManager::update(const float& deltaTime) noexcept {
     isUpdatingActors = true;
@@ -30,16 +20,13 @@ void ActorManager::update(const float& deltaTime) noexcept {
     pendingActors.clear();
 
     // 죽은 액터를 제거
-    actors.erase(std::remove_if(actors.begin(), actors.end(),
-                                [](const auto& actor) {
-                                    return actor->getState() ==
-                                           Actor::State::EDead;
-                                }),
-                 actors.end());
-}
-
-void ActorManager::postConstruct() noexcept {
-#warning "Not defined"
+    actors.erase(
+        std::remove_if(actors.begin(), actors.end(),
+            [](const auto& actor) {
+                return actor->getState()==Actor::State::EDead;
+            }
+        ), actors.end()
+    );
 }
 
 void ActorManager::onNotify(MSG_t lifetime, spObservable actor) noexcept {
