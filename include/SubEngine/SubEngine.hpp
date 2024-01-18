@@ -20,7 +20,7 @@ class SubEngine: public ISubEngine,
     public Observable<Lifetime, ISubEngine>
 {
   public:
-    virtual ~SubEngine() = default;
+    virtual ~SubEngine();
 
   protected:
     SubEngine() noexcept=default;
