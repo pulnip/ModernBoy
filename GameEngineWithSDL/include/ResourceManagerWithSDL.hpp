@@ -24,7 +24,6 @@ class ResourceManagerWithSDL : public ResourceManager {
 
     // 이미지 로딩 과정 캡슐화
     SDL_Texture *loadTexture(const std::string &fileName) noexcept;
-    void setContext(const std::shared_ptr<SDL_Renderer*> context) noexcept;
 
   private:
     std::weak_ptr<SDL_Renderer*> context;

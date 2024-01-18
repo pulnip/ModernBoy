@@ -10,18 +10,22 @@ void InputSystemWithSDL::update(const float &deltaTime) noexcept {
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_QUIT:
-            Observable<GameStatus>::notify(GameStatus::FORCE_QUIT);
+            keyMap[0x1b].notify(
+                {Key::Status::PRESSED, 0x1b}
+            );
             break;
         }
     }
-
+    
     const uint8_t *keyState = SDL_GetKeyboardState(nullptr);
     // ESC로 게임 종료
     if (keyState[SDL_SCANCODE_ESCAPE]) {
-        Observable<GameStatus>::notify(GameStatus::FORCE_QUIT);
+        keyMap[0x1b].notify(
+            {Key::Status::PRESSED, 0x1b}
+        );
     }
 }
 
 void InputSystemWithSDL::injectDependency() noexcept {
-#warning "Not defined"
+    InputSystem::injectDependency();
 }

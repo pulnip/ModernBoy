@@ -1,16 +1,12 @@
 #include <cassert>
 
-#include "SubEngine/SubEngine.hpp"
+#include "PubSubMessage.hpp"
 #include "GameEngine/IGameEngine.hpp"
+#include "SubEngine/SubEngine.hpp"
 
-std::optional<std::shared_ptr<ISubEngine>>
-SubEngine::query(const SubEngineName name) noexcept{
-    assert(!owner.expired());
-    auto ge=owner.lock();
-    auto result=ge->find(name);
+void SubEngine::postConstruct() noexcept{
+    subscribe(owner);
+    notify(Lifetime::CONSTRUCTED);
 
-    if(result == nullptr){
-        return std::nullopt;
-    }
-    return result;
+    injectDependency();
 }

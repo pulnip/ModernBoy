@@ -5,7 +5,6 @@
 class SoundEngine: public SubEngine{
   public:
     virtual ~SoundEngine()=default;
-    virtual void update(const float &deltaTime) noexcept override=0;
 
   protected:
     SoundEngine() noexcept=default;
@@ -17,6 +16,7 @@ class SoundEngine: public SubEngine{
 
   private:
     virtual void injectDependency() noexcept override=0;
+    virtual void update(const float &deltaTime) noexcept override=0;
 };
 
 class NullSoundEngine: public SoundEngine{

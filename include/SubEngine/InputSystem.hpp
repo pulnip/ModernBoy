@@ -14,12 +14,9 @@ struct Key {
     uint8_t key;
 };
 
-class InputSystem: public SubEngine,
-    public Observable<GameStatus>
-{
+class InputSystem: public SubEngine{
   public:
     virtual ~InputSystem()=default;
-    virtual void update(const float& deltaTime) noexcept override=0;
 
     void registerKey(
         const uint8_t key,
@@ -33,9 +30,10 @@ class InputSystem: public SubEngine,
     SubEngineName getName() const noexcept override final{
         return SubEngineName::InputSystem;
     }
+    virtual void update(const float& deltaTime) noexcept override=0;
 
-  private:
-    virtual void injectDependency() noexcept override=0;
+  protected:
+    virtual void injectDependency() noexcept override;
 
   protected:
     std::map<uint8_t, Observable<Key>> keyMap;
@@ -43,13 +41,17 @@ class InputSystem: public SubEngine,
 
 class NullInputSystem: public InputSystem{
   private:
+    void injectDependency() noexcept override final{
+        InputSystem::injectDependency();
+    }
     void update(const float&) noexcept override final{}
-    void injectDependency() noexcept override final{}
 };
 
 // for std input
 class InputSystem_default: public InputSystem{
   private:
+    void injectDependency() noexcept override final{
+        InputSystem::injectDependency();
+    }
     void update(const float& deltaTime) noexcept override final;
-    void injectDependency() noexcept override final{}
 };

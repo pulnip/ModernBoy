@@ -40,7 +40,7 @@ void Ball::injectDependency() noexcept {
     mc->scale=5.0f;
     mc->velocity={-200.0f, 235.0f};
     
-    sc->Observable<SDL_Sprite>::subscribe(std::dynamic_pointer_cast<GraphicsEngineWithSDL>(
+    sc->Observable<SpriteForSDL>::subscribe(std::dynamic_pointer_cast<GraphicsEngineWithSDL>(
         owner.lock()->query(SubEngineName::GraphicsEngine).value()));
 
     if (owner.expired()) {

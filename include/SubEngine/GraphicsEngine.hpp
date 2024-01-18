@@ -16,7 +16,6 @@ class GraphicsEngine: public SubEngine,
 
   public:
     virtual ~GraphicsEngine() = default;
-    void update(const float &deltaTime) noexcept override final;
 
   protected:
     GraphicsEngine() noexcept=default;
@@ -25,10 +24,11 @@ class GraphicsEngine: public SubEngine,
     SubEngineName getName() const noexcept override final{
         return SubEngineName::GraphicsEngine;
     }
+    void update(const float &deltaTime) noexcept override final;
 
   private:
-    virtual void onNotify(ColorRect rect) noexcept override=0;
     virtual void injectDependency() noexcept override=0;
+    virtual void onNotify(ColorRect rect) noexcept override=0;
     virtual void prepareRendering() noexcept=0;
     virtual void finalizeRendering() noexcept=0;
 

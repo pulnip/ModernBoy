@@ -72,7 +72,7 @@ void GraphicsEngineWithSDL::onNotify(ColorRect rect) noexcept {
     SDL_RenderFillRect(*renderer, &_rect);
 }
 
-void GraphicsEngineWithSDL::onNotify(SDL_Sprite sprite) noexcept {
+void GraphicsEngineWithSDL::onNotify(SpriteForSDL sprite) noexcept {
     // transform position: center to top-left
     sprite.position = sprite.position - sprite.size / 2;
 

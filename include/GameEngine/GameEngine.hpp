@@ -5,34 +5,37 @@
 
 #include "Makable.hpp"
 #include "IGameEngine.hpp"
+#include "Observer.hpp"
 
 class GameEngine: public IGameEngine,
-    public Makable<GameEngine>
+    public Makable<GameEngine>,
+    public Observer<GameStatus>
 {
   public:
-    virtual ~GameEngine() = default;
+    using SubEngineMap=std::map<SubEngineName, std::shared_ptr<ISubEngine>>;
 
+  public:
+    virtual ~GameEngine() = default;
 
   protected:
     GameEngine() = default;
 
   private:
     void postConstruct() noexcept override final;
-    void onNotify(MSG_t msg, spObservable se) noexcept override final;
+    void onNotify(Lifetime msg, std::shared_ptr<ISubEngine> se) noexcept override final;
+    void onNotify(GameStatus status) noexcept override final;
+
     void run() noexcept override final;
-    std::shared_ptr<SubEngine>
+    std::shared_ptr<ISubEngine>
     find(const SubEngineName name) noexcept override final;
 
   private:
     virtual void injectDependency() noexcept=0;
 
   protected:
-    std::shared_ptr<ResourceManager> resourceManager;
-    std::shared_ptr<InputSystem> inputSystem;
-    std::shared_ptr<GameLogic> gameLogic;
-    std::shared_ptr<ActorManager> actorManager;
-    std::shared_ptr<GraphicsEngine> graphicsEngine;
-    std::map<SubEngineName, std::shared_ptr<SubEngine>> subEngines;
-
+    SubEngineMap subEngines;
     std::shared_ptr<Timer> timer;
+
+  private:
+    bool isRunning=false;
 };

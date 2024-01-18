@@ -1,3 +1,7 @@
+#include <cassert>
+
+#include "GameEngine/IGameEngine.hpp"
+#include "SubEngine/GameLogic.hpp"
 #include "SubEngine/InputSystem.hpp"
 
 void InputSystem::registerKey(
@@ -9,6 +13,16 @@ void InputSystem::registerKey(
     auto [it, loaded]=keyMap.try_emplace(key, dummy);
 
     it->second.subscribe(subscriber);
+}
+
+void InputSystem::injectDependency() noexcept{
+    assert(!owner.expired());
+    auto gl=std::dynamic_pointer_cast<GameLogic>(
+        owner.lock()->find(SubEngineName::GameLogic)
+    );
+
+    assert(gl!=nullptr);
+    registerKey(0x1b, gl);
 }
 
 #include <iostream>

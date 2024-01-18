@@ -9,13 +9,13 @@ void SpriteComponent::draw() noexcept {
     assert(!target.expired());
     const auto mc=target.lock();
 
-    SDL_Sprite sprite = {
+    SpriteForSDL sprite = {
         {mc->position(), spriteSize},
         mc->rotation(),
         texture
     };
 
-    Observable<SDL_Sprite>::notify(sprite);
+    Observable<SpriteForSDL>::notify(sprite);
 }
 
 void SpriteComponent::setTexture(SDL_Texture *texture) noexcept {
@@ -33,7 +33,7 @@ void SpriteComponent::setTexture(SDL_Texture *texture) noexcept {
 void SpriteComponent::injectDependency() noexcept{
     DrawComponent::injectDependency();
     assert(!graphicsEngine.expired());
-    Observable<SDL_Sprite>::subscribe(
+    Observable<SpriteForSDL>::subscribe(
         std::dynamic_pointer_cast<GraphicsEngineWithSDL>(graphicsEngine.lock())
     );
 }

@@ -9,9 +9,11 @@ class TimerWithSDL : public Timer {
   public:
     TimerWithSDL();
 
-    void reset() noexcept override;
-    void wait(const millisecond timeout) noexcept override;
-    millisecond getDeltaTime() noexcept override;
+  private:
+    void injectDependency() noexcept override final{}
+    void reset() noexcept override final;
+    void wait(const millisecond timeout) noexcept override final;
+    millisecond getDeltaTime() noexcept override final;
 
   private:
     time_point lastTimePoint;

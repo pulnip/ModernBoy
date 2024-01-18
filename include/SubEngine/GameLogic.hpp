@@ -1,35 +1,38 @@
 #pragma once
 
-#include "Observer.hpp"
+#include "Observable.hpp"
 #include "SubEngine.hpp"
 
 enum class GameStatus;
 
-class GameLogic : public SubEngine, public Observer<GameStatus> {
+class GameLogic: public SubEngine,
+    public Observable<GameStatus>,
+    public Observer<Key>
+{
   public:
     virtual ~GameLogic()=default;
-    virtual void update(const float &deltaTime) noexcept override=0;
-    
-    bool isReady() const noexcept { return ready; }
 
   protected:
     GameLogic() noexcept=default;
 
+
   private:
-    void onNotify(GameStatus status) noexcept override final;
     SubEngineName getName() const noexcept override final{
         return SubEngineName::GameLogic;
     }
+    void onNotify(Key key) noexcept override final;
+
+  protected:
+    virtual void injectDependency() noexcept override;
 
   private:
-    virtual void injectDependency() noexcept override=0;
-  
-  private:
-    bool ready = true;
+    virtual void update(const float &deltaTime) noexcept override=0;
 };
 
 class NullGameLogic: public GameLogic{
 private:
     void update(const float &deltaTime) noexcept override final{}
-    void injectDependency() noexcept override final{}
+    void injectDependency() noexcept override final{
+        GameLogic::injectDependency();
+    }
 };

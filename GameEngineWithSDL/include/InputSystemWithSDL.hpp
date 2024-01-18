@@ -4,11 +4,12 @@
 
 class InputSystemWithSDL : public InputSystem {
   public:
-    void update(const float &deltaTime) noexcept override;
+    ~InputSystemWithSDL()=default;
 
   protected:
     InputSystemWithSDL() noexcept=default;
 
   private:
-    void injectDependency() noexcept override;
+    void update(const float &deltaTime) noexcept override;
+    void injectDependency() noexcept override final;
 };

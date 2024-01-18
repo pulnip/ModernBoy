@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <vector>
 
 #include "Observer.hpp"
@@ -10,7 +11,10 @@ class ActorManager: public SubEngine,
 {
   public:
     virtual ~ActorManager()=default;
-    void update(const float &deltaTime) noexcept override final;
+
+    std::optional<std::shared_ptr<ISubEngine>>
+    query(const SubEngineName name) noexcept;
+
 
   protected:
     ActorManager() noexcept=default;
@@ -19,6 +23,7 @@ class ActorManager: public SubEngine,
     SubEngineName getName() const noexcept override final{
         return SubEngineName::ActorManager;
     }
+    void update(const float &deltaTime) noexcept override final;
 
     void onNotify(MSG_t lifetime, spObservable actor) noexcept override final;
     void appendActor(const std::shared_ptr<IActor> actor) noexcept;

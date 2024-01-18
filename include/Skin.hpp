@@ -22,7 +22,7 @@ struct ColorRect : Matter {
     TrueColor color;
 };
 
-struct SDL_Sprite : Matter {
+struct SpriteForSDL : Matter {
     Math::Radian rotation = 0.0;
     SDL_Texture *texture;
 };

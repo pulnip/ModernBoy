@@ -22,6 +22,7 @@ add_executable(${PROJECT_NAME}
     src/ActorManager.cpp
     src/GraphicsEngine.cpp
     src/GameLogic.cpp
+    src/InputSystem.cpp
     src/PhysicsSimulator.cpp
     src/Timer_default.cpp
     src/Actor.cpp

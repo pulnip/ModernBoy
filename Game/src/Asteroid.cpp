@@ -1,15 +1,10 @@
-#include "Component/Component.hpp"
-#include "Component/MoveComponent.hpp"
 #include "SubEngine/ActorManager.hpp"
-
-#include "AnimSpriteComponent.hpp"
 #include "ResourceManagerWithSDL.hpp"
 
+#include "Component/MoveComponent.hpp"
+#include "AnimSpriteComponent.hpp"
+
 #include "Asteroid.hpp"
-
-void func() {
-
-}
 
 Asteroid::Asteroid() noexcept{
 }
@@ -27,16 +22,14 @@ void Asteroid::injectDependency() noexcept {
     mc->velocity=Vector2::forward(Math::random(-Math::PI, Math::PI)) * Math::random(0, 300);
     mc->rotationVelocity=Math::random(-Math::PI / 2, Math::PI / 2);
 
-    if (owner.expired())
-    {
-        return;
-    }
-    auto o=owner.lock()->query(SubEngineName::ResourceManager);
+    if (owner.expired()) return;
+    auto actorManager=owner.lock();
+    auto query=actorManager->query(SubEngineName::ResourceManager);
 
-    if (!o.has_value()) return;
-    if (o.value()==nullptr) return;
+    if (!query.has_value()) return;
+    if (query.value()==nullptr) return;
 
-    auto manager = std::dynamic_pointer_cast<ResourceManagerWithSDL>(o.value());
+    auto manager = std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());
     auto oTexture = manager->getTexture("Asteroid.png");
 
     if (!oTexture.has_value())

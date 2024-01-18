@@ -2,8 +2,21 @@
 #include <cassert>
 
 #include "PubSubMessage.hpp"
-#include "Actor/Actor.hpp"
+#include "GameEngine/IGameEngine.hpp"
 #include "SubEngine/ActorManager.hpp"
+#include "Actor/Actor.hpp"
+
+std::optional<std::shared_ptr<ISubEngine>>
+ActorManager::query(const SubEngineName name) noexcept{
+    assert(!owner.expired());
+    auto ge=owner.lock();
+    auto result=ge->find(name);
+
+    if(result == nullptr){
+        return std::nullopt;
+    }
+    return result;
+}
 
 void ActorManager::update(const float& deltaTime) noexcept {
     isUpdatingActors = true;

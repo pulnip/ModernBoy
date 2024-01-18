@@ -6,15 +6,18 @@
 class Timer : public Makable<Timer> {
   public:
     using millisecond = uint64_t;
-
   public:
-    Timer() = default;
     virtual ~Timer() = default;
 
-    virtual void reset() noexcept = 0;
-    virtual void wait(const millisecond timeout) noexcept = 0;
-    virtual millisecond getDeltaTime() noexcept = 0;
+  protected:
+    Timer() = default;
 
   private:
-    void postConstruct() noexcept override {}
+    void postConstruct() noexcept override{}
+
+  public:
+    virtual void injectDependency() noexcept=0;
+    virtual void reset() noexcept=0;
+    virtual void wait(const millisecond timeout) noexcept=0;
+    virtual millisecond getDeltaTime() noexcept=0;
 };

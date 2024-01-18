@@ -11,7 +11,7 @@ enum class GameStatus;
 struct TrueColor;
 struct Matter;
 struct ColorRect;
-struct SDL_Sprite;
+struct SpriteForSDL;
 
 class IGameEngine;
 class GameEngine;

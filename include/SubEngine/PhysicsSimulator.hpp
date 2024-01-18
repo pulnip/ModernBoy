@@ -8,18 +8,18 @@ class PhysicsSimulator: public SubEngine,
 {
   public:
     virtual ~PhysicsSimulator()=default;
-    virtual void update(const float &deltaTime) noexcept override=0;
 
   protected:
     PhysicsSimulator() noexcept=default;
 
   private:
-    virtual void injectDependency() noexcept override final{}
+    void injectDependency() noexcept override final{}
     SubEngineName getName() const noexcept override{
         return SubEngineName::PhysicsSimulator;
     }
 
   private:
+    virtual void update(const float &deltaTime) noexcept override=0;
     virtual void onNotify(Matter matter) noexcept override=0;
 };
 

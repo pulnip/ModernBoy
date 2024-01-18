@@ -1,7 +1,10 @@
+#include <cassert>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_log.h>
 
 #include "ResourceManagerWithSDL.hpp"
+#include "GraphicsEngineWithSDL.hpp"
+#include "GameEngine/IGameEngine.hpp"
 
 ResourceManagerWithSDL::~ResourceManagerWithSDL() {
     for (auto &[file, texture] : textures) {
@@ -27,7 +30,13 @@ ResourceManagerWithSDL::getTexture(const std::string &fileName) noexcept {
 }
 
 void ResourceManagerWithSDL::injectDependency() noexcept {
-#warning "set Context?"
+    assert(!owner.expired());
+    auto geSDL=std::dynamic_pointer_cast<GraphicsEngineWithSDL>(
+        owner.lock()->find(SubEngineName::GraphicsEngine)
+    );
+
+    assert(geSDL!=nullptr);
+    context=geSDL->renderer;
 }
 
 constexpr bool HW_RENDERING = false;
@@ -62,10 +71,4 @@ ResourceManagerWithSDL::loadTexture(const std::string &fileName) noexcept {
     }
 
     return texture;
-}
-
-void ResourceManagerWithSDL::setContext(
-    const std::shared_ptr<SDL_Renderer*> context) noexcept
-{
-    this->context = context;
 }

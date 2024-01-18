@@ -4,7 +4,7 @@
 #include "Skin.hpp"
 
 // 단일 스프라이트 텍스처
-class SpriteComponent : public DrawComponent, public Observable<SDL_Sprite> {
+class SpriteComponent : public DrawComponent, public Observable<SpriteForSDL> {
   public:
     virtual void update(const float& deltaTime) noexcept override{}
     virtual void draw() noexcept override;
