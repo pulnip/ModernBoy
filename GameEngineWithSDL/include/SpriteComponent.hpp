@@ -8,9 +8,6 @@ class SpriteComponent : public DrawComponent, public Observable<SpriteForSDL> {
   public:
     virtual void update(const float& deltaTime) noexcept override{}
     virtual void draw() noexcept override;
-    virtual ComponentName getName() const noexcept override {
-        return ComponentName::SpriteComponent;
-    }
 
     virtual void setTexture(SDL_Texture *texture) noexcept;
 

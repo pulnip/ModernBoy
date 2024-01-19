@@ -10,22 +10,26 @@ void InputSystemWithSDL::update(const float &deltaTime) noexcept {
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_QUIT:
-            keyMap[0x1b].notify(
-                {Key::Status::PRESSED, 0x1b}
+            keyMap[SDL_SCANCODE_ESCAPE].notify(
+                {Key::Status::PRESSED, SDL_SCANCODE_ESCAPE}
             );
             break;
         }
     }
     
     const uint8_t *keyState = SDL_GetKeyboardState(nullptr);
-    // ESC로 게임 종료
-    if (keyState[SDL_SCANCODE_ESCAPE]) {
-        keyMap[0x1b].notify(
-            {Key::Status::PRESSED, 0x1b}
-        );
+
+    for(auto& [key, target]: keyMap){
+        if (keyState[key]) {
+            target.notify( {Key::Status::PRESSED, key} );
+        }
     }
 }
 
 void InputSystemWithSDL::injectDependency() noexcept {
     InputSystem::injectDependency();
+}
+
+uint8_t InputSystemWithSDL::escapeKeycode() const noexcept{
+    return SDL_SCANCODE_ESCAPE;
 }

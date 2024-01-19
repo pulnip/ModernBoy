@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <map>
 
-#include "Observable.hpp"
 #include "SubEngine.hpp"
 
 struct Key {
@@ -35,6 +34,9 @@ class InputSystem: public SubEngine{
   protected:
     virtual void injectDependency() noexcept override;
 
+  private:
+    virtual uint8_t escapeKeycode() const noexcept{ return 0x1b; }
+
   protected:
     std::map<uint8_t, Observable<Key>> keyMap;
 };
@@ -54,4 +56,6 @@ class InputSystem_default: public InputSystem{
         InputSystem::injectDependency();
     }
     void update(const float& deltaTime) noexcept override final;
+
+    uint8_t escapeKeycode() const noexcept override final{ return 'q'; }
 };

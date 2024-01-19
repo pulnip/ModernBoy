@@ -11,10 +11,8 @@ bool GraphicsEngine::DrawOrder::operator()(const Drawable &lhs, const Drawable &
 
 void GraphicsEngine::update(const float &deltaTime) noexcept {
     prepareRendering();
-
-    for (auto &drawable : drawables) {
-        drawable->draw();
-    }
+    
+    Observable<bool>::notify(true);
 
     finalizeRendering();
 }

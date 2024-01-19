@@ -12,4 +12,6 @@ class InputSystemWithSDL : public InputSystem {
   private:
     void update(const float &deltaTime) noexcept override;
     void injectDependency() noexcept override final;
+
+    uint8_t escapeKeycode() const noexcept override final;
 };

@@ -1,5 +1,4 @@
 #include <cassert>
-#include <SDL2/SDL_log.h>
 
 #include "PubSubMessage.hpp"
 #include "GameEngine/GameEngine.hpp"

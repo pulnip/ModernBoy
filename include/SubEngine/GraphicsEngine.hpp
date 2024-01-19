@@ -2,10 +2,10 @@
 
 #include <set>
 
-#include "Observer.hpp"
 #include "SubEngine.hpp"
 
 class GraphicsEngine: public SubEngine,
+    public Observable<bool>,
     public Observer<ColorRect>
 {
   private:

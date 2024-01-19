@@ -3,12 +3,10 @@
 #include <map>
 #include <functional>
 
-#include "Makable.hpp"
 #include "IGameEngine.hpp"
 #include "Observer.hpp"
 
 class GameEngine: public IGameEngine,
-    public Makable<GameEngine>,
     public Observer<GameStatus>
 {
   public:

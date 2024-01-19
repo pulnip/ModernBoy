@@ -14,12 +14,12 @@ class Makable{
         struct ctor_proxy: public Derived{
             ctor_proxy() noexcept: Derived(){}
         };
-        std::shared_ptr<Derived> derived = std::make_shared<ctor_proxy>();
-        std::static_pointer_cast<Makable>(derived)->owner=owner;
+        std::shared_ptr<Base> derived = std::make_shared<ctor_proxy>();
 
-        std::static_pointer_cast<Makable>(derived)->postConstruct();
+        derived->owner=owner;
+        derived->postConstruct();
 
-        return derived;
+        return std::static_pointer_cast<Derived>(derived);
     }
 
     const std::weak_ptr<Owner>& getOwner() const noexcept{ return owner; }

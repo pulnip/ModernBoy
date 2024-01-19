@@ -2,25 +2,28 @@
 
 #include "Component.hpp"
 
-class AIComponent : public Component {
+class AIComponent: public Component{
+  private:
     enum State {
         Death,
         Patrol,
         Attack
     };
-
   public:
-    void update(const float &deltaTime) noexcept override{
-#warning "NOT DEFINED"
-    }
+    virtual ~AIComponent()=default;
 
-    ComponentName getName() const noexcept override {
+  protected:
+    AIComponent() noexcept=default;
+    
+    void injectDependency() noexcept override{}
+
+  private:
+    ComponentName getName() const noexcept override final{
         return ComponentName::AIComponent;
     }
 
-  protected:
-    AIComponent(const std::weak_ptr<Actor> owner) noexcept
-        : Component(owner) {
-        updateOrder = 150;
-    }
+    int initUpdateOrder() const noexcept override final{ return 150; }
+
+  private:
+    void update(const float &deltaTime) noexcept override=0;
 };

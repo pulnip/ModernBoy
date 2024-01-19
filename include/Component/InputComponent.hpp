@@ -4,20 +4,14 @@
 #include <functional>
 #include <map>
 
-#include "Observer.hpp"
-#include "gefwd.hpp"
 #include "Component.hpp"
 
 class InputComponent: public Component,
     public Observer<Key>
 {
   public:
-    void update(const float &deltaTime) noexcept override final{}
-    void onNotify(Key key) noexcept override final;
+    virtual ~InputComponent()=default;
 
-    ComponentName getName() const noexcept override final{
-        return ComponentName::InputComponent;
-    }
     void setKey(
         const uint8_t key,
         std::function<void(void)> OnPressed,
@@ -25,11 +19,23 @@ class InputComponent: public Component,
     ) noexcept;
 
   protected:
-    InputComponent() noexcept{ updateOrder = 100; }
-    // must 
-    void injectDependency() noexcept override{}
+    InputComponent() noexcept=default;
+
+    void injectDependency() noexcept override final;
+
+  private:
+    void update(const float &deltaTime) noexcept override final{}
+    ComponentName getName() const noexcept override final{
+        return ComponentName::InputComponent;
+    }
+    int initUpdateOrder() const noexcept override final{ return 100; }
+
+    void onNotify(Key key) noexcept override final;
 
   protected:
     std::map<uint8_t, std::function<void(void)>> ifPressed;
     std::map<uint8_t, std::function<void(void)>> ifReleased;
+
+  private:
+    std::weak_ptr<InputSystem> inputSystem;
 };

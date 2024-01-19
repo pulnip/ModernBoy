@@ -4,20 +4,22 @@
 #include "Property.hpp"
 #include "Math.hpp"
 
-class MoveComponent : public Component {
+class MoveComponent: public Component{
     friend class Actor;
   public:
-    void update(const float &deltaTime) noexcept override;
-
-    ComponentName getName() const noexcept override {
-        return ComponentName::MoveComponent;
-    }
+    virtual ~MoveComponent()=default;
 
   protected:
-    MoveComponent() noexcept{
-        updateOrder = 201;
+    MoveComponent() noexcept=default;
+
+    virtual void injectDependency() noexcept override;
+
+  private:
+    void update(const float &deltaTime) noexcept override final;
+    ComponentName getName() const noexcept override final{
+        return ComponentName::MoveComponent;
     }
-    void injectDependency() noexcept override{}
+    int initUpdateOrder() const noexcept override final{ return 201; }
 
   public:
     Property<Vector2> position;

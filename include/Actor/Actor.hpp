@@ -3,40 +3,34 @@
 #include <map>
 #include <set>
 
-#include "Makable.hpp"
 #include "Observable.hpp"
-#include "gefwd.hpp"
 #include "IActor.hpp"
 
 class Actor: public IActor,
-    public Makable<Actor, ActorManager>,
     public Observable<Lifetime, IActor>
 {
   public:
-    virtual ~Actor() = default;
+    virtual ~Actor();
 
   protected:
     Actor() noexcept=default;
 
-    std::optional<std::weak_ptr<IComponent>>
-    queryComponent(const ComponentName name) noexcept override final;
-    const std::weak_ptr<ActorManager>&
-    getActorManager() const noexcept override final{ return owner; }
-
   private:
     void postConstruct() noexcept override final;
+    void onNotify(Lifetime msg, std::shared_ptr<IComponent> c) noexcept override final;
 
     void update(const float& deltaTime) noexcept override final;
-    const State& getState() const noexcept override final{ return state; }
-    void onNotify(MSG_t msg, spObservable comp) noexcept override final;
+    std::shared_ptr<IComponent>
+    find(const ComponentName name) noexcept override final;
+    std::optional<std::shared_ptr<ISubEngine>>
+    query(const SubEngineName name) noexcept override final;
 
   private:
     // 특정 액터에 특화된 업데이트 코드
-    virtual void updateActor(const float& deltaTime) noexcept = 0;
     virtual void injectDependency() noexcept=0;
+    virtual void updateActor(const float& deltaTime) noexcept=0;
 
   protected:
-    State state = State::EActive;
     struct UpdateOrder {
         using ptr = std::shared_ptr<IComponent>;
         bool operator()(const ptr& lhs, const ptr& rhs) const noexcept;
@@ -47,10 +41,13 @@ class Actor: public IActor,
 };
 
 class NullActor final: public Actor{
+  public:
+    ~NullActor()=default;
+
   protected:
     NullActor() noexcept=default;
 
   private:
-    void updateActor(const float& deltaTime) noexcept override final{}
     void injectDependency() noexcept override final{}
+    void updateActor(const float& deltaTime) noexcept override final{}
 };

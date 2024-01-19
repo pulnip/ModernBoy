@@ -11,9 +11,6 @@ class BGSpriteComponent : public SpriteComponent {
     void update(const float &deltaTime) noexcept override;
     void draw() noexcept override;
 
-    ComponentName getName() const noexcept override {
-        return ComponentName::BGSpriteComponent;
-    }
     // 배경용 텍스처 설정
     void setBGTextures(const std::vector<class SDL_Texture *> &textures) noexcept;
     void setScreenSize(const Vector2 &size) noexcept { screenSize = size; }

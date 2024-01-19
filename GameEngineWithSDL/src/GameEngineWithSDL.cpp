@@ -31,6 +31,7 @@ void GameEngineWithSDL::injectDependency() noexcept {
     // must call after GameLogic
     auto inputSystem = SubEngine::make<InputSystemWithSDL>(self);
 
-    auto actorManager = SubEngine::make<NullActorManager>(self);
+    // ActorManager
+
     timer = Timer::make<TimerWithSDL>();
 }

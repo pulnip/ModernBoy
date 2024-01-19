@@ -22,7 +22,7 @@ void InputSystem::injectDependency() noexcept{
     );
 
     assert(gl!=nullptr);
-    registerKey(0x1b, gl);
+    registerKey(escapeKeycode(), gl);
 }
 
 #include <iostream>

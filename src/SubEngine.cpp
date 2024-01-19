@@ -1,5 +1,5 @@
 #include <cassert>
-#include <iostream>
+
 #include "PubSubMessage.hpp"
 #include "GameEngine/IGameEngine.hpp"
 #include "SubEngine/SubEngine.hpp"

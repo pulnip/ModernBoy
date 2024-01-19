@@ -15,10 +15,10 @@ class Paddle : public Actor, public Observable<GameStatus> {
     void allowCollision(const std::weak_ptr<Actor> opponent) noexcept;
 
   protected:
-    Paddle() noexcept;
+    Paddle() noexcept=default;
 
   private:
-    void injectDependency() noexcept override;
+    void injectDependency() noexcept override final;
 
   private:
     std::shared_ptr<BoxComponent> bc;

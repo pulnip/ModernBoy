@@ -3,17 +3,38 @@
 #include "PubSubMessage.hpp"
 #include "SubEngine/ActorManager.hpp"
 #include "Actor/Actor.hpp"
-#include "Component/Component.hpp"
+#include "Component/IComponent.hpp"
 
-void Actor::postConstruct() noexcept {
+Actor::~Actor(){
+    if(!owner.expired()){
+        notify(Lifetime::DESTRUCTED);
+    }
+}
+
+void Actor::postConstruct() noexcept{
     subscribe(owner);
     notify(Lifetime::CONSTRUCTED);
     
     injectDependency();
 }
 
+void Actor::onNotify(Lifetime msg, std::shared_ptr<IComponent> comp) noexcept {
+    switch(msg){
+    case Lifetime::CONSTRUCTED:
+        components.emplace(comp->getName(), comp);
+        orderedComponents.emplace(comp);
+        break;
+    case Lifetime::DESTRUCTED:
+        components.erase(comp->getName());
+        orderedComponents.erase(comp);
+        break;
+    default:
+        assert(false);
+    }
+}
+
 void Actor::update(const float& deltaTime) noexcept {
-    if (state != State::EActive) return;
+    if (state!=State::EActive) return;
 
     for (auto& comp: orderedComponents) {
         comp->update(deltaTime);
@@ -21,27 +42,21 @@ void Actor::update(const float& deltaTime) noexcept {
     updateActor(deltaTime);
 }
 
-std::optional<std::weak_ptr<IComponent>>
-Actor::queryComponent(const ComponentName name) noexcept {
-    auto result = components.find(name);
-    if (result == components.end()) {
-        return std::nullopt;
+std::shared_ptr<IComponent>
+Actor::find(const ComponentName name) noexcept {
+    auto result=components.find(name);
+    if(result==components.end()){
+        return nullptr;
     }
     return result->second;
 }
 
-void Actor::onNotify(MSG_t msg, spObservable comp) noexcept {
-    switch (msg) {
-    case Lifetime::CONSTRUCTED:
-        components.emplace(comp->getName(), comp);
-        orderedComponents.emplace(comp);
-        break;
-    case Lifetime::DESTRUCTED:
-        components.erase(comp->getName());
-        break;
-    default:
-        assert(false);
-    }
+std::optional<std::shared_ptr<ISubEngine>>
+Actor::query(const SubEngineName name) noexcept{
+    assert(!owner.expired());
+    auto manager=owner.lock();
+
+    return manager->query(name);
 }
 
 bool Actor::UpdateOrder::operator()(const ptr& lhs, const ptr& rhs) const noexcept{

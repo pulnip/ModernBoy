@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Observer.hpp"
 #include "SubEngine.hpp"
 
 class PhysicsSimulator: public SubEngine,
