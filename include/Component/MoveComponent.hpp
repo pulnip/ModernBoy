@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Component.hpp"
 #include "Property.hpp"
 #include "Math.hpp"
+#include "Skin.hpp"
+#include "Component.hpp"
 
 class MoveComponent: public Component{
     friend class Actor;
@@ -22,11 +23,5 @@ class MoveComponent: public Component{
     int initUpdateOrder() const noexcept override final{ return 201; }
 
   public:
-    Property<Vector2> position;
-    Property<Vector2> baseSize;
-    Property<Math::Real> scale = 1.0;
-    Property<Math::Radian> rotation = 0.0;
-    // unit per second
-    Property<Vector2> velocity;
-    Property<Math::Radian> rotationVelocity;
+    Attribute_2D attr;
 };

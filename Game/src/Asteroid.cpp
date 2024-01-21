@@ -1,40 +1,35 @@
-#include "SubEngine/ActorManager.hpp"
-#include "ResourceManagerWithSDL.hpp"
+#include <cassert>
 
 #include "Component/MoveComponent.hpp"
 #include "AnimSpriteComponent.hpp"
-
 #include "Asteroid.hpp"
+#include "SubEngine/ActorManager.hpp"
+#include "ResourceManagerWithSDL.hpp"
 
-Asteroid::Asteroid() noexcept{
-}
+
 void Asteroid::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    sc = Component::make<AnimSpriteComponent>(self);
-    mc = Component::make<MoveComponent>(self);
+    auto mc = IComponent::make<MoveComponent>(self);
 
-    mc->position={
+    auto sc = IComponent::make<AnimSpriteComponent>(self);
+
+    mc->attr.position.linear={
         static_cast<float>(Math::random(0, 1024)),
         static_cast<float>(Math::random(0, 768))
     };
-    mc->rotation=Math::random(0, 1024) / Math::PI;
-    mc->velocity=Vector2::forward(Math::random(-Math::PI, Math::PI)) * Math::random(0, 300);
-    mc->rotationVelocity=Math::random(-Math::PI / 2, Math::PI / 2);
+    mc->attr.position.rotation=Math::random(0, 1024) / Math::PI;
+    mc->attr.velocity.linear=Vector2::forward(Math::random(-Math::PI, Math::PI)) * Math::random(0, 300);
+    mc->attr.velocity.rotation=Math::random(-Math::PI / 2, Math::PI / 2);
 
-    if (owner.expired()) return;
-    auto actorManager=owner.lock();
-    auto query=actorManager->query(SubEngineName::ResourceManager);
+    assert(!owner.expired());
+    auto query=owner.lock()->query(SubEngineName::ResourceManager);
 
-    if (!query.has_value()) return;
-    if (query.value()==nullptr) return;
+    assert(query.has_value());
+    auto manager=std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());
 
-    auto manager = std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());
-    auto oTexture = manager->getTexture("Asteroid.png");
+    auto q=manager->getTexture("Asteroid.png");
 
-    if (!oTexture.has_value())
-    {
-        return;
-    }
-    sc->setTexture(oTexture.value());
+    assert(q.has_value());
+    sc->setTexture(q.value());
 }

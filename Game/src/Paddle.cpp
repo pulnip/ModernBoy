@@ -1,44 +1,46 @@
 #include <SDL2/SDL_keyboard.h>
 
+#include "SubEngine/GraphicsEngine.hpp"
+#include "SubEngine/ActorManager.hpp"
+#include "Paddle.hpp"
 #include "Component/BoxComponent.hpp"
 #include "Component/CollisionComponent.hpp"
-#include "Component/Component.hpp"
 #include "Component/InputComponent.hpp"
 #include "Component/MoveComponent.hpp"
-#include "SubEngine/ActorManager.hpp"
-#include "SubEngine/GraphicsEngine.hpp"
-#include "SubEngine/SubEngine.hpp"
 
-#include "Paddle.hpp"
 
 void Paddle::updateActor(const float &deltaTime) noexcept {
-    mc->velocity().y=0.0f;
-}
-
-void Paddle::allowCollision(const std::weak_ptr<Actor> opponent) noexcept {
-    cc->allow(opponent);
+    static auto& mc_attr_v_y=std::static_pointer_cast<MoveComponent>(
+        find(ComponentName::MoveComponent)
+    )->attr.velocity.linear.y;
+    
+    mc_attr_v_y=0.0f;
 }
 
 void Paddle::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    // cc = Component::make<CollisionComponent>(self);
-    mc = Component::make<MoveComponent>(self);
+    // cc = IComponent::make<CollisionComponent>(self);
+    auto mc = IComponent::make<MoveComponent>(self);
 
-    bc = Component::make<BoxComponent>(self);
-    ic = Component::make<InputComponent>(self);
+    auto bc = IComponent::make<BoxComponent>(self);
+    auto ic = IComponent::make<InputComponent>(self);
 
-    mc->position={15.0f, 384.0f};
-    bc->setTexture({}, {15.0f, 120.0f});
+    mc->attr.set({
+        {15.0f, 384.0f}, {15.0f, 120.0f}
+    });
+
+    bc->setTexture({255, 255, 255, 100});
     bc->Observable<ColorRect>::subscribe(
         std::dynamic_pointer_cast<GraphicsEngine>(
             owner.lock()->query(SubEngineName::GraphicsEngine).value()
         )
     );
-    ic->setKey(SDL_SCANCODE_S, [&v_y = mc->velocity().y]() {
+
+    ic->setKey(SDL_SCANCODE_S, [&v_y = mc->attr.velocity.linear.y]() {
         v_y += 300.0f;
     });
-    ic->setKey(SDL_SCANCODE_W, [&v_y = mc->velocity().y]() {
+    ic->setKey(SDL_SCANCODE_W, [&v_y = mc->attr.velocity.linear.y]() {
         v_y += -300.0f;
     });
 }

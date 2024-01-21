@@ -11,6 +11,6 @@ void MoveComponent::update(const float &deltaTime) noexcept {
     assert(!owner.expired() && "owner: expired");
     const auto _owner = owner.lock();
 
-    position() += velocity() * deltaTime;
-    rotation() += rotationVelocity() * deltaTime;
+    Math::Real dt=deltaTime;
+    attr.update(dt);
 }

@@ -26,7 +26,8 @@ void GraphicsEngineWithSDL::injectDependency() noexcept {
     renderer = std::make_shared<SDL_Renderer *>(SDL_CreateRenderer(
         *window,
         -1,
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+    ));
     if (*renderer == nullptr) {
         SDL_Log("Failed to create renderer: %s", SDL_GetError());
         return;
@@ -37,6 +38,10 @@ void GraphicsEngineWithSDL::injectDependency() noexcept {
         SDL_Log("Unable to initialize SDL_image: %s", SDL_GetError());
         return;
     }
+
+    // SDL_SetRenderDrawBlendMode(*renderer,
+    //     SDL_BLENDMODE_BLEND
+    // );
 }
 
 void GraphicsEngineWithSDL::initBackground() noexcept {
@@ -53,34 +58,37 @@ void GraphicsEngineWithSDL::changeColorBuffer() noexcept {
     SDL_RenderPresent(*renderer);
 }
 
-void GraphicsEngineWithSDL::onNotify(ColorRect rect) noexcept {
+void GraphicsEngineWithSDL::onNotify(ColorRect r) noexcept {
+    // #error "Not linked"
+    SDL_Log("DRAW");
     // transform position: center to top-left
-    rect.position = rect.position - rect.size / 2;
+    r.rect.position = r.rect.position - r.rect.size / 2;
 
     auto _rect = SDL_Rect{
-        static_cast<int>(rect.position.x),
-        static_cast<int>(rect.position.y),
-        static_cast<int>(rect.size.x),
-        static_cast<int>(rect.size.y),
+        static_cast<int>(r.rect.position.x),
+        static_cast<int>(r.rect.position.y),
+        static_cast<int>(r.rect.size.x),
+        static_cast<int>(r.rect.size.y),
     };
-
+    
     SDL_SetRenderDrawColor(*renderer,
-                           rect.color.red,
-                           rect.color.green,
-                           rect.color.blue,
-                           rect.color.alpha);
+                           r.color.red,
+                           r.color.green,
+                           r.color.blue,
+                           r.color.alpha);
     SDL_RenderFillRect(*renderer, &_rect);
 }
 
-void GraphicsEngineWithSDL::onNotify(SpriteForSDL sprite) noexcept {
+void GraphicsEngineWithSDL::onNotify(SpriteForSDL sprite) noexcept{
     // transform position: center to top-left
-    sprite.position = sprite.position - sprite.size / 2;
+    sprite.spinRect.rect.position =
+        sprite.spinRect.rect.position - sprite.spinRect.rect.size / 2;
 
     auto _rect = SDL_Rect{
-        static_cast<int>(sprite.position.x),
-        static_cast<int>(sprite.position.y),
-        static_cast<int>(sprite.size.x),
-        static_cast<int>(sprite.size.y),
+        static_cast<int>(sprite.spinRect.rect.position.x),
+        static_cast<int>(sprite.spinRect.rect.position.y),
+        static_cast<int>(sprite.spinRect.rect.size.x),
+        static_cast<int>(sprite.spinRect.rect.size.y),
     };
 
     SDL_RenderCopyEx(*renderer,
@@ -90,7 +98,7 @@ void GraphicsEngineWithSDL::onNotify(SpriteForSDL sprite) noexcept {
                      // 어느 위치에, 어느 크기로 렌더링할 지
                      &_rect,
                      // 라디안을 각도로 변환
-                     Math::toDegree(sprite.rotation),
+                     Math::toDegree(sprite.spinRect.rotation),
                      // 회전 중심점
                      nullptr,
                      SDL_FLIP_NONE);

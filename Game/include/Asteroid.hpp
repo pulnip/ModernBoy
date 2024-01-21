@@ -2,17 +2,14 @@
 
 #include "Actor/Actor.hpp"
 
-class SpriteComponent;
-class MoveComponent;
-
-class Asteroid : public Actor {
+class Asteroid : public Actor{
   public:
-    Asteroid() noexcept;
+    ~Asteroid()=default;
+
+  protected:
+    Asteroid() noexcept=default;
 
   private:
+    void updateActor(const float&) noexcept override final{}
     void injectDependency() noexcept override;
-
-  private:
-    std::shared_ptr<SpriteComponent> sc;
-    std::shared_ptr<MoveComponent> mc;
 };

@@ -32,9 +32,9 @@ void Ball::allowCollision(const std::weak_ptr<Actor> opponent) noexcept {
 void Ball::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    sc = Component::make<AnimSpriteComponent>(self);
-    cc = Component::make<CollisionComponent>(self);
-    mc = Component::make<MoveComponent>(self);
+    sc = IComponent::make<AnimSpriteComponent>(self);
+    cc = IComponent::make<CollisionComponent>(self);
+    mc = IComponent::make<MoveComponent>(self);
 
     mc->position={1024.0f / 2, 768.0f / 2};
     mc->scale=5.0f;

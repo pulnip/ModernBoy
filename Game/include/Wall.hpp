@@ -2,17 +2,30 @@
 
 #include "Actor/Actor.hpp"
 
-class BoxComponent;
-class MoveComponent;
-
-class Wall : public Actor {
-  private:
-    Wall() noexcept=default;
+class Wall: public Actor{
+  public:
+    virtual ~Wall()=default;
 
   protected:
-    void injectDependency() noexcept override;
+    Wall() noexcept=default;
+
+    virtual void injectDependency() noexcept override;
 
   private:
-    std::shared_ptr<BoxComponent> bc;
-    std::shared_ptr<MoveComponent> mc;
+    void updateActor(const float&) noexcept override final{}
+};
+
+class Ceil: public Wall{
+  private:
+    void injectDependency() noexcept override final;
+};
+
+class Floor: public Wall{
+  private:
+    void injectDependency() noexcept override final;
+};
+
+class RightWall: public Wall{
+  private:
+    void injectDependency() noexcept override final;
 };

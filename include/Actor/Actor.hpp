@@ -15,13 +15,14 @@ class Actor: public IActor,
   protected:
     Actor() noexcept=default;
 
+    std::shared_ptr<IComponent>
+    find(const ComponentName name) noexcept override final;
+
   private:
     void postConstruct() noexcept override final;
     void onNotify(Lifetime msg, std::shared_ptr<IComponent> c) noexcept override final;
 
     void update(const float& deltaTime) noexcept override final;
-    std::shared_ptr<IComponent>
-    find(const ComponentName name) noexcept override final;
     std::optional<std::shared_ptr<ISubEngine>>
     query(const SubEngineName name) noexcept override final;
 

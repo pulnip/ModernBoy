@@ -3,10 +3,10 @@
 void spaceShip::injectDependency() noexcept {
     GameEngineWithSDL::injectDependency();
 #ifdef MUSI
-    auto ship = Actor::make<Ship>(self);
+    auto ship = IActor::make<Ship>(self);
 
     // Create actor for the background (this doesn't need a subclass)
-    auto bgActor = Actor::make<Actor>(self);
+    auto bgActor = IActor::make<Actor>(self);
     bgActor->position = Vector2{512.0f, 384.0f};
     // Create the "far back" background
     auto fbg = Component::Factory::make<BGSpriteComponent>(bgActor);
@@ -27,7 +27,7 @@ void spaceShip::injectDependency() noexcept {
     cbg->setScrollSpeed(-200.0f);
 
     for (int i = 0; i < 20; ++i) {
-        auto asteroid = Actor::make<Asteroid>(self);
+        auto asteroid = IActor::make<Asteroid>(self);
     }
 #endif
 }

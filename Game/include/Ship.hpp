@@ -2,22 +2,14 @@
 
 #include "Actor/Actor.hpp"
 
-class AnimSpriteComponent;
-class InputComponent;
-class MoveComponent;
-
-class Ship : public Actor {
+class Ship: public Actor{
   public:
-    void updateActor(const float &deltaTime) noexcept override;
+    ~Ship()=default;
 
   protected:
-    Ship() noexcept;
+    Ship() noexcept=default;
 
   private:
-    void injectDependency() noexcept override;
-
-  private:
-    std::shared_ptr<AnimSpriteComponent> sc;
-    std::shared_ptr<InputComponent> ic;
-    std::shared_ptr<MoveComponent> mc;
+    void updateActor(const float& deltaTime) noexcept override final;
+    void injectDependency() noexcept override final;
 };

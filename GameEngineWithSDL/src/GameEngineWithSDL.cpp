@@ -23,15 +23,13 @@ GameEngineWithSDL::GameEngineWithSDL() noexcept {
 void GameEngineWithSDL::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    auto graphicsEngine = SubEngine::make<GraphicsEngineWithSDL>(self);
+    ISubEngine::make<GraphicsEngineWithSDL>(self);
     // must call after graphicsEngine
-    auto resourceManager = SubEngine::make<ResourceManagerWithSDL>(self);
+    ISubEngine::make<ResourceManagerWithSDL>(self);
 
-    auto gameLogic = SubEngine::make<NullGameLogic>(self);
+    ISubEngine::make<NullGameLogic>(self);
     // must call after GameLogic
-    auto inputSystem = SubEngine::make<InputSystemWithSDL>(self);
-
-    // ActorManager
+    ISubEngine::make<InputSystemWithSDL>(self);
 
     timer = Timer::make<TimerWithSDL>();
 }

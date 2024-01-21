@@ -9,9 +9,11 @@ enum class GameStatus;
 
 // Defined in Skin.hpp
 struct TrueColor;
-struct Matter;
+struct Rect;
+struct SpinRect;
 struct ColorRect;
 struct SpriteForSDL;
+struct Attribute_2D;
 
 class IGameEngine;
 class GameEngine;
@@ -45,5 +47,8 @@ class Actor;
 class IComponent;
 class Component;
 enum class ComponentName;
+class CollisionComponent;
 class DrawComponent;
+class BoxComponent;
+class InputComponent;
 class MoveComponent;

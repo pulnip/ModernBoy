@@ -27,5 +27,5 @@ class ResourceManagerWithSDL : public ResourceManager {
 
   private:
     std::weak_ptr<SDL_Renderer*> context;
-    std::map<const std::string, SDL_Texture*> textures;
+    std::map<std::string, SDL_Texture*> textures;
 };

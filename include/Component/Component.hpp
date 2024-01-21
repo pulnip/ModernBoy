@@ -6,14 +6,19 @@
 enum class ComponentName{
     Component,
     NullComponent,
+
     CollisionComponent,
+
     DrawComponent,
     BoxComponent,
     SpriteComponent,
     AnimSpriteComponent,
     BGSpriteComponent,
+
     MoveComponent,
+
     InputComponent,
+
     AIComponent
 };
 

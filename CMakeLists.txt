@@ -44,14 +44,14 @@ add_executable(${PROJECT_NAME}
 
     Game/src/TestGame.cpp
     Game/src/ActorManagerForTest.cpp
+    Game/src/Paddle.cpp
+    Game/src/Wall.cpp
+    Game/src/Ship.cpp
+    Game/src/Asteroid.cpp
 
     # Game/src/p1pingpong.cpp
     # Game/src/spaceship.cpp
-    # Game/src/Asteroid.cpp
     # Game/src/Ball.cpp
-    Game/src/Paddle.cpp
-    # Game/src/Ship.cpp
-    # Game/src/Wall.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

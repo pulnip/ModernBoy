@@ -1,6 +1,5 @@
 #include <cassert>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_log.h>
 
 #include "ResourceManagerWithSDL.hpp"
 #include "GraphicsEngineWithSDL.hpp"
@@ -9,19 +8,21 @@
 ResourceManagerWithSDL::~ResourceManagerWithSDL() {
     for (auto &[file, texture] : textures) {
         SDL_DestroyTexture(texture);
-
-        SDL_Log("Texture Unloaded: %s", file.c_str());
     }
 }
 
 std::optional<SDL_Texture *>
 ResourceManagerWithSDL::getTexture(const std::string &fileName) noexcept {
-    auto [it, skinNotLoaded] = textures.try_emplace(fileName, nullptr);
+    auto [it, skinNotLoaded]=textures.try_emplace(
+        fileName, nullptr
+    );
     auto &texture = it->second;
+    static const std::string path="C:/Users/choiw/Documents/GameEngineDevelopment/resource/";
 
-    if (skinNotLoaded) {
-        texture = loadTexture(fileName);
+    if(skinNotLoaded){
+        texture = loadTexture(path + fileName);
     }
+
     // skin file itself not exist.
     if (texture == nullptr) {
         return std::nullopt;

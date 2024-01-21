@@ -10,30 +10,21 @@ void SpriteComponent::draw() noexcept {
     const auto mc=target.lock();
 
     SpriteForSDL sprite = {
-        {mc->position(), spriteSize},
-        mc->rotation(),
+        mc->attr.spinRect(),
         texture
     };
 
     Observable<SpriteForSDL>::notify(sprite);
 }
 
-void SpriteComponent::setTexture(SDL_Texture *texture) noexcept {
-    this->texture = texture;
-
-    int width, height;
-    SDL_QueryTexture(texture,
-                     nullptr,
-                     nullptr,
-                     &width,
-                     &height);
-    spriteSize={static_cast<float>(width), static_cast<float>(height)};
-}
-
 void SpriteComponent::injectDependency() noexcept{
     DrawComponent::injectDependency();
+    auto self=std::static_pointer_cast<SpriteComponent>(shared_from_this());
+
     assert(!graphicsEngine.expired());
-    Observable<SpriteForSDL>::subscribe(
-        std::dynamic_pointer_cast<GraphicsEngineWithSDL>(graphicsEngine.lock())
+    auto geSDL=std::dynamic_pointer_cast<GraphicsEngineWithSDL>(
+        graphicsEngine.lock()
     );
+    geSDL->Observable<bool>::subscribe(self);
+    Observable<SpriteForSDL>::subscribe(geSDL);
 }

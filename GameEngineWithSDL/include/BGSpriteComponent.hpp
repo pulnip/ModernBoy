@@ -22,6 +22,12 @@ class BGSpriteComponent : public SpriteComponent {
         drawOrder = 100;
     }
 
+  private:
+    ComponentName getName() const noexcept override final{
+        return ComponentName::BGSpriteComponent;
+    }
+
+  private:
     struct BGTexture {
         class SDL_Texture *texture;
         // 화면이 시작하는 위치

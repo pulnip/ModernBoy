@@ -16,7 +16,7 @@ class DrawComponent: public Component,
     virtual void injectDependency() noexcept override;
 
   private:
-    ComponentName getName() const noexcept override final{
+    virtual ComponentName getName() const noexcept override{
         return ComponentName::DrawComponent;
     }
     int initUpdateOrder() const noexcept override final{ return 300; }

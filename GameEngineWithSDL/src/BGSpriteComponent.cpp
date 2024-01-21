@@ -27,11 +27,13 @@ void BGSpriteComponent::update(const float &deltaTime) noexcept {
 void BGSpriteComponent::draw() noexcept {
     for (auto &bg : BGTextures) {
         SpriteForSDL sprite = {
-            {// transform position: top-left to center
-             Vector2{bg.offset_x, 0.0f} + screenSize / 2,
-             screenSize},
-            0.0,
-            bg.texture};
+            SpinRect{
+                Rect{ // transform position: top-left to center
+                    Vector2{bg.offset_x, 0.0f} + screenSize / 2,
+                    screenSize
+                },
+                0.0
+            }, bg.texture};
 
         Observable<SpriteForSDL>::notify(sprite);
     }

@@ -4,9 +4,8 @@
 #include "Component/MoveComponent.hpp"
 #include "SubEngine/GraphicsEngine.hpp"
 
-void BoxComponent::setTexture(const TrueColor &c, const Vector2 &size) noexcept {
+void BoxComponent::setTexture(const TrueColor &c) noexcept {
     color=c;
-    boxSize=size;
 }
 
 void BoxComponent::draw() noexcept {
@@ -14,8 +13,7 @@ void BoxComponent::draw() noexcept {
     const auto mc=target.lock();
 
     ColorRect rect = {
-        {mc->position(), boxSize},
-        mc->rotation(),
+        mc->attr.rect(),
         color
     };
 
@@ -24,10 +22,9 @@ void BoxComponent::draw() noexcept {
 
 void BoxComponent::injectDependency() noexcept{
     DrawComponent::injectDependency();
-
-    assert(!graphicsEngine.expired());
     auto self=std::static_pointer_cast<BoxComponent>(shared_from_this());
 
+    assert(!graphicsEngine.expired());
     graphicsEngine.lock()->Observable<bool>::subscribe(self);
     Observable<ColorRect>::subscribe(graphicsEngine);
 }

@@ -3,7 +3,7 @@
 #include "SubEngine.hpp"
 
 class PhysicsSimulator: public SubEngine,
-    public Observer<Matter>
+    public Observer<Attribute_2D>
 {
   public:
     virtual ~PhysicsSimulator()=default;
@@ -19,18 +19,18 @@ class PhysicsSimulator: public SubEngine,
 
   private:
     virtual void update(const float &deltaTime) noexcept override=0;
-    virtual void onNotify(Matter matter) noexcept override=0;
+    virtual void onNotify(Attribute_2D attr) noexcept override=0;
 };
 
 class NullPhysicsSimulator: public PhysicsSimulator{
   private:
     void update(const float &deltaTime) noexcept override final{}
-    void onNotify(Matter matter) noexcept override final;
+    void onNotify(Attribute_2D attr) noexcept override final;
 };
 
 // for Leges motus Newtoni
 class PhysicsSimulator_default: public PhysicsSimulator{
   private:
     void update(const float &deltaTime) noexcept override final;
-    void onNotify(Matter matter) noexcept override final;
+    void onNotify(Attribute_2D attr) noexcept override final;
 };

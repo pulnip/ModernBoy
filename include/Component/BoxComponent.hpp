@@ -11,7 +11,7 @@ class BoxComponent: public DrawComponent,
   public:
     ~BoxComponent()=default;
 
-    void setTexture(const TrueColor &color, const Vector2 &size) noexcept;
+    void setTexture(const TrueColor &color) noexcept;
 
   protected:
     BoxComponent() noexcept=default;
@@ -20,6 +20,9 @@ class BoxComponent: public DrawComponent,
     void draw() noexcept override final;
 
   private:
+    ComponentName getName() const noexcept override final{
+        return ComponentName::BoxComponent;
+    }
     void injectDependency() noexcept override final;
     void update(const float& deltaTime) noexcept override final{}
 
@@ -27,5 +30,4 @@ class BoxComponent: public DrawComponent,
 
   private:
     TrueColor color;
-    Vector2 boxSize;
 };

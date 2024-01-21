@@ -4,21 +4,29 @@
 #include "Skin.hpp"
 
 // 단일 스프라이트 텍스처
-class SpriteComponent : public DrawComponent, public Observable<SpriteForSDL> {
+class SpriteComponent: public DrawComponent,
+    public Observable<SpriteForSDL>
+{
   public:
-    virtual void update(const float& deltaTime) noexcept override{}
-    virtual void draw() noexcept override;
+    virtual ~SpriteComponent()=default;
 
-    virtual void setTexture(SDL_Texture *texture) noexcept;
+    void setTexture(SDL_Texture *t) noexcept{ texture=t; }
 
   protected:
-    SpriteComponent() noexcept{
-        drawOrder = 201;
-    }
+    SpriteComponent() noexcept=default;
+
+  public:
+    virtual void draw() noexcept override;
 
   private:
+    virtual ComponentName getName() const noexcept override{
+        return ComponentName::SpriteComponent;
+    }
     void injectDependency() noexcept override;
+    virtual void update(const float& deltaTime) noexcept override{}
 
+    int initDrawOrder() const noexcept override final{ return 201; }
+
+  private:
     SDL_Texture *texture;
-    Vector2 spriteSize;
 };
