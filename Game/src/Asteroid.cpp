@@ -10,17 +10,17 @@
 void Asteroid::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    auto mc = IComponent::make<MoveComponent>(self);
+    auto mc = Component::make<MoveComponent>(self);
+    auto sc = Component::make<AnimSpriteComponent>(self);
 
-    auto sc = IComponent::make<AnimSpriteComponent>(self);
-
-    mc->attr.position.linear={
+    mc->attr().position.linear={
         static_cast<float>(Math::random(0, 1024)),
         static_cast<float>(Math::random(0, 768))
     };
-    mc->attr.position.rotation=Math::random(0, 1024) / Math::PI;
-    mc->attr.velocity.linear=Vector2::forward(Math::random(-Math::PI, Math::PI)) * Math::random(0, 300);
-    mc->attr.velocity.rotation=Math::random(-Math::PI / 2, Math::PI / 2);
+    mc->attr().position.rotation=Math::random(0, 1024) / Math::PI;
+    mc->attr().velocity.linear=Vector2::forward(Math::random(-Math::PI, Math::PI)) * Math::random(0, 300);
+    mc->attr().velocity.rotation=Math::random(-Math::PI / 2, Math::PI / 2);
+    mc->attr().volume.base={64.0f, 64.0f};
 
     assert(!owner.expired());
     auto query=owner.lock()->query(SubEngineName::ResourceManager);

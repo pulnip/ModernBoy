@@ -14,16 +14,25 @@ class AIComponent: public Component{
 
   protected:
     AIComponent() noexcept=default;
-    
-    void injectDependency() noexcept override{}
 
   private:
     ComponentName getName() const noexcept override final{
         return ComponentName::AIComponent;
     }
-
     int initUpdateOrder() const noexcept override final{ return 150; }
 
+  protected:
+    virtual void injectDependency() noexcept override{}
+
   private:
-    void update(const float &deltaTime) noexcept override=0;
+    virtual void update(const float &deltaTime) noexcept override=0;
+};
+
+class NullAIComponent final: public AIComponent{
+public:
+    NullAIComponent() noexcept=default;
+    ~NullAIComponent()=default;
+
+private:
+    void update(const float& deltaTime) noexcept override final{}
 };

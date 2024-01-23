@@ -3,7 +3,9 @@
 #include <cstdint>
 #include "Makable.hpp"
 
-class Timer : public Makable<Timer> {
+class Timer:
+    public Makable<Timer>
+{
   public:
     using millisecond = uint64_t;
   public:
@@ -13,7 +15,7 @@ class Timer : public Makable<Timer> {
     Timer() = default;
 
   private:
-    void postConstruct() noexcept override{}
+    void postConstruct() noexcept override final{ injectDependency(); }
 
   public:
     virtual void injectDependency() noexcept=0;

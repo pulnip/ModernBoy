@@ -6,11 +6,12 @@
 
 #include "Component.hpp"
 
-class InputComponent: public Component,
+class InputComponent final: public Component,
     public Observer<Key>
 {
   public:
-    virtual ~InputComponent()=default;
+    InputComponent() noexcept=default;
+    ~InputComponent()=default;
 
     void setKey(
         const uint8_t key,
@@ -18,16 +19,13 @@ class InputComponent: public Component,
         std::function<void(void)> OnReleased=[](){}
     ) noexcept;
 
-  protected:
-    InputComponent() noexcept=default;
-
-    void injectDependency() noexcept override final;
-
   private:
-    void update(const float &deltaTime) noexcept override final{}
     ComponentName getName() const noexcept override final{
         return ComponentName::InputComponent;
     }
+    void update(const float &deltaTime) noexcept override final{}
+    void injectDependency() noexcept override final;
+
     int initUpdateOrder() const noexcept override final{ return 100; }
 
     void onNotify(Key key) noexcept override final;

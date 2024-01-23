@@ -1,4 +1,5 @@
 #include "Math.hpp"
+#include "Actor/Actor.hpp"
 #include "AnimSpriteComponent.hpp"
 
 void AnimSpriteComponent::update(const float &deltaTime) noexcept {
@@ -8,7 +9,7 @@ void AnimSpriteComponent::update(const float &deltaTime) noexcept {
     if (tex_num < 1) return;
 
     // 현재 프레임 갱신
-    currFrame += animFPS * deltaTime * 0.001;
+    currFrame += animFPS * deltaTime;
     // 0 <= mCurrFrame < tex_num 이도록
     currFrame = Math::wrap(
         static_cast<Math::Real>(currFrame),

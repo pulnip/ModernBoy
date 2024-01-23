@@ -3,11 +3,11 @@
 #include <optional>
 #include <vector>
 
-#include "Observer.hpp"
+#include "Ownership.hpp"
 #include "SubEngine/SubEngine.hpp"
 
 class ActorManager: public SubEngine,
-    public Observer<Lifetime, IActor>
+    public Owner<Actor>
 {
   public:
     virtual ~ActorManager()=default;
@@ -15,22 +15,24 @@ class ActorManager: public SubEngine,
     std::optional<std::shared_ptr<ISubEngine>>
     query(const SubEngineName name) noexcept;
 
-
   protected:
     ActorManager() noexcept=default;
+
+  private:
+    void appendActor(const std::shared_ptr<IActor> actor) noexcept;
+    void removeActor(const std::shared_ptr<IActor> actor) noexcept;
 
   private:
     SubEngineName getName() const noexcept override final{
         return SubEngineName::ActorManager;
     }
     void update(const float &deltaTime) noexcept override final;
+    void injectDependency() noexcept override final{ setAttribute(); }
 
-    void onNotify(MSG_t lifetime, spObservable actor) noexcept override final;
-    void appendActor(const std::shared_ptr<IActor> actor) noexcept;
-    void removeActor(const std::shared_ptr<IActor> actor) noexcept;
+    void onNotify(Lifetime lifetime, std::shared_ptr<Actor> actor) noexcept override final;
 
   private:
-    virtual void injectDependency() noexcept override=0;
+    virtual void setAttribute() noexcept=0;
 
   private:
     bool isUpdatingActors = false;
@@ -38,7 +40,7 @@ class ActorManager: public SubEngine,
     std::vector<std::shared_ptr<IActor>> pendingActors;
 };
 
-class NullActorManager: public ActorManager{
+class NullActorManager final: public ActorManager{
 private:
-    void injectDependency() noexcept override final{}
+    void setAttribute() noexcept override final{}
 };

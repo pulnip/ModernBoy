@@ -9,23 +9,15 @@ class SpriteComponent: public DrawComponent,
 {
   public:
     virtual ~SpriteComponent()=default;
+    SpriteComponent() noexcept=default;
 
     void setTexture(SDL_Texture *t) noexcept{ texture=t; }
 
-  protected:
-    SpriteComponent() noexcept=default;
-
-  public:
-    virtual void draw() noexcept override;
-
   private:
-    virtual ComponentName getName() const noexcept override{
-        return ComponentName::SpriteComponent;
-    }
-    void injectDependency() noexcept override;
+    virtual void draw() noexcept override;
     virtual void update(const float& deltaTime) noexcept override{}
-
-    int initDrawOrder() const noexcept override final{ return 201; }
+    virtual int initDrawOrder() const noexcept override{ return 201; }
+    virtual void setAttribute() noexcept override;
 
   private:
     SDL_Texture *texture;

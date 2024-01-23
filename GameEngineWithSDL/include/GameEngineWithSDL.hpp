@@ -10,5 +10,10 @@ class GameEngineWithSDL: public GameEngine,
 
   protected:
     GameEngineWithSDL() noexcept;
-    virtual void injectDependency() noexcept override;
+
+  private:
+    void injectDependency() noexcept override final;
+
+  private:
+    virtual void setAttribute() noexcept=0;
 };

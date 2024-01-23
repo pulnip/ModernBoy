@@ -10,17 +10,14 @@
 #include "SubEngine/InputSystem.hpp"
 #include "SubEngine/Timer.hpp"
 
-void GameEngine::postConstruct() noexcept{
-    injectDependency();
-}
-
-void GameEngine::onNotify(Lifetime msg, std::shared_ptr<ISubEngine> se) noexcept{
+void GameEngine::onNotify(Lifetime msg, std::shared_ptr<SubEngine> se) noexcept{
+    std::shared_ptr<ISubEngine> ise=se;
     switch(msg){
     case Lifetime::CONSTRUCTED:
-        subEngines.emplace(se->getName(), se);
+        subEngines.emplace(ise->getName(), ise);
         break;
     case Lifetime::DESTRUCTED:
-        subEngines.erase(se->getName());
+        subEngines.erase(ise->getName());
         break;
     default:
         assert(false);

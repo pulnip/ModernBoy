@@ -1,7 +1,7 @@
 #include <cassert>
 
 #include "SubEngine/InputSystem.hpp"
-#include "Actor/IActor.hpp"
+#include "Actor/Actor.hpp"
 #include "Component/InputComponent.hpp"
 
 void InputComponent::setKey(
@@ -11,7 +11,7 @@ void InputComponent::setKey(
 ) noexcept{
     assert(!inputSystem.expired());
     inputSystem.lock()->registerKey(
-        key, std::dynamic_pointer_cast<InputComponent>(shared_from_this())
+        key, std::static_pointer_cast<InputComponent>(shared_from_this())
     );
 
     ifPressed[key] = OnPressed;
@@ -20,7 +20,8 @@ void InputComponent::setKey(
 
 void InputComponent::injectDependency() noexcept{
     assert(!owner.expired());
-    auto query=owner.lock()->query(SubEngineName::InputSystem);
+    std::shared_ptr<IActor> actor=owner.lock();
+    auto query=actor->query(SubEngineName::InputSystem);
     
     assert(query.has_value());
     inputSystem=std::dynamic_pointer_cast<InputSystem>(query.value());
@@ -37,5 +38,3 @@ void InputComponent::onNotify(Key key) noexcept {
         it->second();
     }
 }
-
-

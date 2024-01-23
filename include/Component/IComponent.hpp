@@ -1,21 +1,26 @@
 #pragma once
 
-#include "Makable.hpp"
-#include "gefwd.hpp"
+enum class ComponentName{
+    Component,
+    AIComponent,
+    CollisionComponent,
+    DrawComponent,
+    InputComponent,
+    MoveComponent
+};
 
-class IComponent:
-    public Makable<IComponent, IActor>
-{
+class IComponent{
   public:
     virtual ~IComponent()=default;
+
+    const int& getUpdateOrder() const noexcept{ return updateOrder; }
 
   protected:
     IComponent() noexcept=default;
 
   public:
-    virtual ComponentName getName() const noexcept=0;
     virtual void update(const float& deltaTime) noexcept=0;
-    const int& getUpdateOrder() const noexcept{ return updateOrder; }
+    virtual ComponentName getName() const noexcept=0;
 
   protected:
     /* 컴포넌트의 업데이트 순서

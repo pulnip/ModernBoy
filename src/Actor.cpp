@@ -3,35 +3,7 @@
 #include "PubSubMessage.hpp"
 #include "SubEngine/ActorManager.hpp"
 #include "Actor/Actor.hpp"
-#include "Component/IComponent.hpp"
-
-Actor::~Actor(){
-    if(!owner.expired()){
-        notify(Lifetime::DESTRUCTED);
-    }
-}
-
-void Actor::postConstruct() noexcept{
-    subscribe(owner);
-    notify(Lifetime::CONSTRUCTED);
-    
-    injectDependency();
-}
-
-void Actor::onNotify(Lifetime msg, std::shared_ptr<IComponent> comp) noexcept {
-    switch(msg){
-    case Lifetime::CONSTRUCTED:
-        components.emplace(comp->getName(), comp);
-        orderedComponents.emplace(comp);
-        break;
-    case Lifetime::DESTRUCTED:
-        components.erase(comp->getName());
-        orderedComponents.erase(comp);
-        break;
-    default:
-        assert(false);
-    }
-}
+#include "Component/Component.hpp"
 
 void Actor::update(const float& deltaTime) noexcept {
     if (state!=State::EActive) return;
@@ -59,6 +31,25 @@ Actor::query(const SubEngineName name) noexcept{
     return manager->query(name);
 }
 
-bool Actor::UpdateOrder::operator()(const ptr& lhs, const ptr& rhs) const noexcept{
+void Actor::onNotify(Lifetime msg, std::shared_ptr<Component> comp) noexcept{
+    std::shared_ptr<IComponent> ic=comp;
+
+    switch(msg){
+    case Lifetime::CONSTRUCTED:
+        components.emplace(ic->getName(), ic);
+        orderedComponents.emplace(ic);
+        break;
+    case Lifetime::DESTRUCTED:
+        components.erase(ic->getName());
+        orderedComponents.erase(ic);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+bool Actor::UpdateOrder::operator()(
+    const ptr& lhs, const ptr& rhs
+) const noexcept{
     return lhs->getUpdateOrder() < rhs->getUpdateOrder();
 }

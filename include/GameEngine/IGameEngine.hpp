@@ -2,14 +2,9 @@
 
 #include <memory>
 
-#include "Makable.hpp"
-#include "Observer.hpp"
 #include "gefwd.hpp"
 
-class IGameEngine:
-    public Makable<IGameEngine>,
-    public Observer<Lifetime, ISubEngine>
-{
+class IGameEngine{
   public:
     virtual ~IGameEngine()=default;
 

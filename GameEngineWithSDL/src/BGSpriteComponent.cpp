@@ -1,4 +1,29 @@
+#include "Actor/Actor.hpp"
 #include "BGSpriteComponent.hpp"
+
+void BGSpriteComponent::setBGTextures(const std::vector<SDL_Texture *> &textures) noexcept {
+    int count = 0;
+    for (auto tex : textures) {
+        BGTextures.emplace_back(BGTexture{
+            tex, count * screenSize.x});
+        ++count;
+    }
+}
+
+void BGSpriteComponent::draw() noexcept {
+    for (auto &bg : BGTextures) {
+        SpriteForSDL sprite = {
+            SpinRect{
+                Rect{ // transform position: top-left to center
+                    Vector2{bg.offset_x, 0.0f} + screenSize / 2,
+                    screenSize
+                },
+                0.0
+            }, bg.texture};
+
+        Observable<SpriteForSDL>::notify(sprite);
+    }
+}
 
 void BGSpriteComponent::update(const float &deltaTime) noexcept {
     for (auto &bg : BGTextures) {
@@ -21,29 +46,5 @@ void BGSpriteComponent::update(const float &deltaTime) noexcept {
                 bg.offset_x -= BGTextures.size() * screenSize.x;
             }
         }
-    }
-}
-
-void BGSpriteComponent::draw() noexcept {
-    for (auto &bg : BGTextures) {
-        SpriteForSDL sprite = {
-            SpinRect{
-                Rect{ // transform position: top-left to center
-                    Vector2{bg.offset_x, 0.0f} + screenSize / 2,
-                    screenSize
-                },
-                0.0
-            }, bg.texture};
-
-        Observable<SpriteForSDL>::notify(sprite);
-    }
-}
-
-void BGSpriteComponent::setBGTextures(const std::vector<SDL_Texture *> &textures) noexcept {
-    int count = 0;
-    for (auto tex : textures) {
-        BGTextures.emplace_back(BGTexture{
-            tex, count * screenSize.x});
-        ++count;
     }
 }

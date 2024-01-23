@@ -2,9 +2,7 @@
 
 #include "Component.hpp"
 
-class DrawComponent: public Component,
-    public Observer<bool>
-{
+class DrawComponent: public Component{
   public:
     virtual ~DrawComponent()=default;
 
@@ -13,25 +11,26 @@ class DrawComponent: public Component,
   protected:
     DrawComponent() noexcept=default;
 
-    virtual void injectDependency() noexcept override;
 
   private:
-    virtual ComponentName getName() const noexcept override{
+    ComponentName getName() const noexcept override final{
         return ComponentName::DrawComponent;
     }
     int initUpdateOrder() const noexcept override final{ return 300; }
 
-    void onNotify(bool){ draw(); }
-
   public:
     // 실제 화면 상에 그리기 위해서, GraphicsEngine에 이미지 전달.
     virtual void draw()=0;
+
+  protected:
+    virtual void injectDependency() noexcept override final;
 
   private:
     // 애니메이션처럼 내부 상태가 변해야할 경우 사용.
     virtual void update(const float &deltaTime) noexcept override=0;
 
     virtual int initDrawOrder() const noexcept=0;
+    virtual void setAttribute() noexcept=0;
 
   protected:
     std::weak_ptr<MoveComponent> target;

@@ -3,6 +3,7 @@
 #include <SDL2/SDL_render.h>
 
 #include "Skin.hpp"
+#include "GameEngine/GameEngine.hpp"
 #include "GraphicsEngineWithSDL.hpp"
 
 GraphicsEngineWithSDL::~GraphicsEngineWithSDL() {
@@ -10,7 +11,28 @@ GraphicsEngineWithSDL::~GraphicsEngineWithSDL() {
     SDL_DestroyWindow(*window);
 }
 
-void GraphicsEngineWithSDL::injectDependency() noexcept {
+void GraphicsEngineWithSDL::onNotify(ColorRect r) noexcept {
+    // #error "Not linked"
+    SDL_Log("DRAW");
+    // transform position: center to top-left
+    r.rect.position = r.rect.position - r.rect.size / 2;
+
+    auto _rect = SDL_Rect{
+        static_cast<int>(r.rect.position.x),
+        static_cast<int>(r.rect.position.y),
+        static_cast<int>(r.rect.size.x),
+        static_cast<int>(r.rect.size.y),
+    };
+    
+    SDL_SetRenderDrawColor(*renderer,
+                           r.color.red,
+                           r.color.green,
+                           r.color.blue,
+                           r.color.alpha);
+    SDL_RenderFillRect(*renderer, &_rect);
+}
+
+void GraphicsEngineWithSDL::setAttribute() noexcept {
     window = std::make_shared<SDL_Window *>(SDL_CreateWindow(
         "GameEngine Programming in C++",
         100,
@@ -44,41 +66,6 @@ void GraphicsEngineWithSDL::injectDependency() noexcept {
     // );
 }
 
-void GraphicsEngineWithSDL::initBackground() noexcept {
-    // 후면 버퍼를 단색으로 클리어
-    SDL_SetRenderDrawColor(*renderer,
-                           0, 0, 255, // 파란 배경
-                           255);
-
-    SDL_RenderClear(*renderer);
-}
-
-void GraphicsEngineWithSDL::changeColorBuffer() noexcept {
-    // 전면 버퍼와 후면 버퍼 교환
-    SDL_RenderPresent(*renderer);
-}
-
-void GraphicsEngineWithSDL::onNotify(ColorRect r) noexcept {
-    // #error "Not linked"
-    SDL_Log("DRAW");
-    // transform position: center to top-left
-    r.rect.position = r.rect.position - r.rect.size / 2;
-
-    auto _rect = SDL_Rect{
-        static_cast<int>(r.rect.position.x),
-        static_cast<int>(r.rect.position.y),
-        static_cast<int>(r.rect.size.x),
-        static_cast<int>(r.rect.size.y),
-    };
-    
-    SDL_SetRenderDrawColor(*renderer,
-                           r.color.red,
-                           r.color.green,
-                           r.color.blue,
-                           r.color.alpha);
-    SDL_RenderFillRect(*renderer, &_rect);
-}
-
 void GraphicsEngineWithSDL::onNotify(SpriteForSDL sprite) noexcept{
     // transform position: center to top-left
     sprite.spinRect.rect.position =
@@ -103,3 +90,19 @@ void GraphicsEngineWithSDL::onNotify(SpriteForSDL sprite) noexcept{
                      nullptr,
                      SDL_FLIP_NONE);
 }
+
+void GraphicsEngineWithSDL::initBackground() noexcept {
+    // 후면 버퍼를 단색으로 클리어
+    SDL_SetRenderDrawColor(*renderer,
+                           0, 0, 255, // 파란 배경
+                           255);
+
+    SDL_RenderClear(*renderer);
+}
+
+void GraphicsEngineWithSDL::changeColorBuffer() noexcept {
+    // 전면 버퍼와 후면 버퍼 교환
+    SDL_RenderPresent(*renderer);
+}
+
+

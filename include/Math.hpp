@@ -3,32 +3,33 @@
 #include <cmath>
 
 namespace Math {
-using Real = double;
-using Int = int;
+    using Real = double;
+    using Int = int;
 
-constexpr Real epsilon = 0.0001;
-bool NearZero(const Real x) noexcept;
+    constexpr Real epsilon = 0.0001;
+    bool NearZero(const Real x) noexcept;
 
-using Degree = Real;
-using Radian = Real;
+    using Degree = Real;
+    using Radian = Real;
+
+    Degree toDegree(const Radian r) noexcept;
+    Radian toRadian(const Degree d) noexcept;
+
 #if __INTELLISENSE__
-constexpr Real PI = 3.14159265;
+    constexpr Real PI = 3.14159265;
 #else
-constexpr Real PI = std::asin(1) * 2;
+    constexpr Real PI = std::asin(1) * 2;
 #endif
 
-Degree toDegree(const Radian r) noexcept;
-Radian toRadian(const Degree d) noexcept;
+    template <typename T>
+    T reflect(const T target, const T base) noexcept {
+        return 2 * base - target;
+    }
 
-template <typename T>
-T reflect(const T target, const T base) noexcept {
-    return 2 * base - target;
-}
+    Int wrap(const Int x, const Int low, const Int high) noexcept;
+    Real wrap(const Real x, const Real low, const Real high) noexcept;
 
-Int wrap(const Int x, const Int low, const Int high) noexcept;
-Real wrap(const Real x, const Real low, const Real high) noexcept;
-
-Real random(const Real start, const Real end) noexcept;
+    Real random(const Real start, const Real end) noexcept;
 } // namespace Math
 
 struct Vector2 {

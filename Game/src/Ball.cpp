@@ -3,7 +3,6 @@
 
 #include "PubSubMessage.hpp"
 
-#include "Component/CollisionComponent.hpp"
 #include "Component/Component.hpp"
 #include "Component/MoveComponent.hpp"
 #include "SubEngine/ActorManager.hpp"

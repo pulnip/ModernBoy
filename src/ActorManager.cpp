@@ -1,21 +1,38 @@
 #include <algorithm>
 #include <cassert>
 
-#include "PubSubMessage.hpp"
-#include "GameEngine/IGameEngine.hpp"
+#include "GameEngine/GameEngine.hpp"
 #include "SubEngine/ActorManager.hpp"
 #include "Actor/Actor.hpp"
 
 std::optional<std::shared_ptr<ISubEngine>>
 ActorManager::query(const SubEngineName name) noexcept{
     assert(!owner.expired());
-    auto ge=owner.lock();
+    std::shared_ptr<IGameEngine> ge=owner.lock();
     auto result=ge->find(name);
 
     if(result == nullptr){
         return std::nullopt;
     }
     return result;
+}
+
+void ActorManager::appendActor(const std::shared_ptr<IActor> actor) noexcept {
+    if (isUpdatingActors) {
+        pendingActors.emplace_back(actor);
+    } else {
+        actors.emplace_back(actor);
+    }
+}
+
+void ActorManager::removeActor(const std::shared_ptr<IActor> actor) noexcept {
+    const auto it =
+        actors.erase(std::remove(actors.begin(), actors.end(), actor));
+
+    // actor not found in actors
+    if (it == actors.end()) {
+        pendingActors.erase(std::remove(actors.begin(), actors.end(), actor));
+    }
 }
 
 void ActorManager::update(const float& deltaTime) noexcept {
@@ -36,13 +53,13 @@ void ActorManager::update(const float& deltaTime) noexcept {
     actors.erase(
         std::remove_if(actors.begin(), actors.end(),
             [](const auto& actor) {
-                return actor->getState()==Actor::State::EDead;
+                return actor->getState()==IActor::State::EDead;
             }
         ), actors.end()
     );
 }
 
-void ActorManager::onNotify(MSG_t lifetime, spObservable actor) noexcept {
+void ActorManager::onNotify(Lifetime lifetime, std::shared_ptr<Actor> actor) noexcept{
     switch (lifetime) {
     case Lifetime::CONSTRUCTED:
         appendActor(actor);
@@ -52,23 +69,5 @@ void ActorManager::onNotify(MSG_t lifetime, spObservable actor) noexcept {
         break;
     default:
         assert(false);
-    }
-}
-
-void ActorManager::appendActor(const std::shared_ptr<IActor> actor) noexcept {
-    if (isUpdatingActors) {
-        pendingActors.emplace_back(actor);
-    } else {
-        actors.emplace_back(actor);
-    }
-}
-
-void ActorManager::removeActor(const std::shared_ptr<IActor> actor) noexcept {
-    const auto it =
-        actors.erase(std::remove(actors.begin(), actors.end(), actor));
-
-    // actor not found in actors
-    if (it == actors.end()) {
-        pendingActors.erase(std::remove(actors.begin(), actors.end(), actor));
     }
 }

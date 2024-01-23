@@ -1,7 +1,7 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
 
-#include "PubSubMessage.hpp"
+#include "GameEngine/GameEngine.hpp"
 #include "InputSystemWithSDL.hpp"
 
 void InputSystemWithSDL::update(const float &deltaTime) noexcept {
@@ -24,10 +24,6 @@ void InputSystemWithSDL::update(const float &deltaTime) noexcept {
             target.notify( {Key::Status::PRESSED, key} );
         }
     }
-}
-
-void InputSystemWithSDL::injectDependency() noexcept {
-    InputSystem::injectDependency();
 }
 
 uint8_t InputSystemWithSDL::escapeKeycode() const noexcept{

@@ -8,10 +8,11 @@
 #include "Component/MoveComponent.hpp"
 #include "AnimSpriteComponent.hpp"
 
-void Ship::updateActor(const float& deltaTime) noexcept {
+void Ship::updateActor(const float& deltaTime) noexcept{
+    IActor* self=this;
     static auto& mc_attr_v=std::static_pointer_cast<MoveComponent>(
-        find(ComponentName::MoveComponent)
-    )->attr.velocity;
+        self->find(ComponentName::MoveComponent)
+    )->attr().velocity;
 
     mc_attr_v={{0.0f, 0.0f}, 0.0f};
 }
@@ -19,26 +20,27 @@ void Ship::updateActor(const float& deltaTime) noexcept {
 void Ship::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    auto mc = IComponent::make<MoveComponent>(self);
+    auto mc = Component::make<MoveComponent>(self);
 
-    auto sc = IComponent::make<AnimSpriteComponent>(self);
-    auto ic = IComponent::make<InputComponent>(self);
+    auto sc = Component::make<AnimSpriteComponent>(self);
+    auto ic = Component::make<InputComponent>(self);
 
-    mc->attr.position.linear={500.0f, 500.0f};
+    mc->attr().position.linear={500.0f, 500.0f};
+    mc->attr().volume.base={64.0f, 29.0f};
 
-    ic->setKey(SDL_SCANCODE_Q, [&rv = mc->attr.velocity.rotation](){
+    ic->setKey(SDL_SCANCODE_Q, [&rv = mc->attr().velocity.rotation](){
         rv += -Math::PI;
     });
-    ic->setKey(SDL_SCANCODE_E, [&rv = mc->attr.velocity.rotation](){
+    ic->setKey(SDL_SCANCODE_E, [&rv = mc->attr().velocity.rotation](){
         rv += Math::PI;
     });
     ic->setKey(SDL_SCANCODE_D,
-        [&v = mc->attr.velocity.linear, &r = mc->attr.position.rotation](){
+        [&v = mc->attr().velocity.linear, &r = mc->attr().position.rotation](){
             v += Vector2::forward(r) * 300.0f;
         }
     );
     ic->setKey(SDL_SCANCODE_A,
-        [&v = mc->attr.velocity.linear, &r = mc->attr.position.rotation](){
+        [&v = mc->attr().velocity.linear, &r = mc->attr().position.rotation](){
             v += Vector2::forward(r) * -300.0f;
         }
     );

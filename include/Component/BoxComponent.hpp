@@ -1,33 +1,25 @@
 #pragma once
 
-#include "Math.hpp"
-#include "Skin.hpp"
+#include "Property.hpp"
 #include "DrawComponent.hpp"
 
 // Color Box 텍스처
-class BoxComponent: public DrawComponent,
-    public Observable<ColorRect>
+class BoxComponent final: public DrawComponent,
+    public UniqueObservable<ColorRect>
 {
   public:
     ~BoxComponent()=default;
+    BoxComponent() noexcept=default;
 
     void setTexture(const TrueColor &color) noexcept;
 
-  protected:
-    BoxComponent() noexcept=default;
-
-  public:
-    void draw() noexcept override final;
-
   private:
-    ComponentName getName() const noexcept override final{
-        return ComponentName::BoxComponent;
-    }
-    void injectDependency() noexcept override final;
     void update(const float& deltaTime) noexcept override final{}
+    void setAttribute() noexcept override final;
 
+    void draw() noexcept override final;
     int initDrawOrder() const noexcept override final{ return 200; }
 
   private:
-    TrueColor color;
+    Property<TrueColor> color;
 };

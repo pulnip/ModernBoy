@@ -10,16 +10,17 @@ class ResourceManager : public SubEngine {
     ResourceManager() noexcept=default;
 
   private:
-    void update(const float &deltaTime) noexcept override {}
+    void injectDependency() noexcept override final{ setAttribute(); }
+
+  private:
     SubEngineName getName() const noexcept override{
         return SubEngineName::ResourceManager;
     }
-
-  private:
-    virtual void injectDependency() noexcept override=0;
+    void update(const float &deltaTime) noexcept override {}
+    virtual void setAttribute() noexcept=0;
 };
 
-class NullResourceManager: public ResourceManager{
+class NullResourceManager final: public ResourceManager{
   private:
-    void injectDependency() noexcept override final{}
+    void setAttribute() noexcept override final{}
 };

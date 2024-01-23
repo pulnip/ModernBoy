@@ -27,7 +27,6 @@ add_executable(${PROJECT_NAME}
     src/Timer_default.cpp
     src/Actor.cpp
     src/Component.cpp
-    src/CollisionComponent.cpp
     src/DrawComponent.cpp
     src/BoxComponent.cpp
     src/MoveComponent.cpp

@@ -5,7 +5,6 @@
 #include "SubEngine.hpp"
 
 class GraphicsEngine: public SubEngine,
-    public Observable<bool>,
     public Observer<ColorRect>
 {
   private:
@@ -17,6 +16,8 @@ class GraphicsEngine: public SubEngine,
   public:
     virtual ~GraphicsEngine() = default;
 
+    void append(Drawable d) noexcept;
+
   protected:
     GraphicsEngine() noexcept=default;
 
@@ -25,10 +26,12 @@ class GraphicsEngine: public SubEngine,
         return SubEngineName::GraphicsEngine;
     }
     void update(const float &deltaTime) noexcept override final;
+    virtual void injectDependency() noexcept override final{ setAttribute(); }
 
   private:
-    virtual void injectDependency() noexcept override=0;
     virtual void onNotify(ColorRect rect) noexcept override=0;
+
+    virtual void setAttribute() noexcept=0;
     virtual void prepareRendering() noexcept=0;
     virtual void finalizeRendering() noexcept=0;
 
@@ -40,7 +43,7 @@ class GraphicsEngine: public SubEngine,
 class NullGraphicsEngine: public GraphicsEngine{
   private:
     void onNotify(ColorRect rect) noexcept override final;
-    void injectDependency() noexcept override final{}
+
     void prepareRendering() noexcept final{}
     void finalizeRendering() noexcept final{}
 };

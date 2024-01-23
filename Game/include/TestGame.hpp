@@ -3,6 +3,10 @@
 #include "GameEngineWithSDL.hpp"
 
 class TestGame: public GameEngineWithSDL{
+  public:
+    TestGame() noexcept=default;
+    ~TestGame()=default;
+
   private:
-    void injectDependency() noexcept override final;
+    void setAttribute() noexcept override final;
 };

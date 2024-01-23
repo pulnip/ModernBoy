@@ -5,17 +5,18 @@
 enum class GameStatus;
 
 class GameLogic;
-class CollisionComponent;
 class AnimSpriteComponent;
 class MoveComponent;
 
-class Ball : public Actor, public Observable<GameStatus> {
+class Ball final: public Actor,
+    public Observable<GameStatus>
+{
   public:
+    Ball() noexcept=default;
+    ~Ball()=default;
+
     void updateActor(const float &deltaTime) noexcept override;
     void allowCollision(const std::weak_ptr<Actor> opponent) noexcept;
-
-  protected:
-    Ball() noexcept=default;
 
   private:
     void injectDependency() noexcept override;
@@ -24,6 +25,5 @@ class Ball : public Actor, public Observable<GameStatus> {
     std::weak_ptr<GameLogic> gl;
 
     std::shared_ptr<AnimSpriteComponent> sc;
-    std::shared_ptr<CollisionComponent> cc;
     std::shared_ptr<MoveComponent> mc;
 };

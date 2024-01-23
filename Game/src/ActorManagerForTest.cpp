@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include "GameEngine/GameEngine.hpp"
 #include "ActorManagerForTest.hpp"
 #include "Paddle.hpp"
 #include "Wall.hpp"
@@ -13,21 +14,21 @@ enum class GameName{
 
 constexpr auto GAME_NAME=GameName::SPACE_SHIP;
 
-void ActorManagerForTest::injectDependency() noexcept{
+void ActorManagerForTest::setAttribute() noexcept{
     auto self=std::dynamic_pointer_cast<ActorManager>(shared_from_this());
     assert(self!=nullptr);
 
     if(GAME_NAME==GameName::PING_PONG){
-        IActor::make<Paddle>(self);
-        IActor::make<Ceil>(self);
-        IActor::make<Floor>(self);
-        IActor::make<RightWall>(self);
+        Actor::make<Paddle>(self);
+        Actor::make<Ceil>(self);
+        Actor::make<Floor>(self);
+        Actor::make<RightWall>(self);
     }
 
     if(GAME_NAME==GameName::SPACE_SHIP){
-        IActor::make<Ship>(self);
-        for(int i=0; i<1; ++i){
-            IActor::make<Asteroid>(self);
+        Actor::make<Ship>(self);
+        for(int i=0; i<20; ++i){
+            Actor::make<Asteroid>(self);
         }
     }
 }

@@ -2,14 +2,12 @@
 
 #include "Actor/Actor.hpp"
 
-class Asteroid : public Actor{
+class Asteroid final: public Actor{
   public:
-    ~Asteroid()=default;
-
-  protected:
     Asteroid() noexcept=default;
+    ~Asteroid()=default;
 
   private:
     void updateActor(const float&) noexcept override final{}
-    void injectDependency() noexcept override;
+    void injectDependency() noexcept override final;
 };

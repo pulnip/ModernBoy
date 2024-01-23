@@ -13,14 +13,13 @@ class SoundEngine: public SubEngine{
     SubEngineName getName() const noexcept override{
         return SubEngineName::SoundEngine;
     }
+    virtual void injectDependency() noexcept override{}
 
   private:
-    virtual void injectDependency() noexcept override=0;
     virtual void update(const float &deltaTime) noexcept override=0;
 };
 
 class NullSoundEngine: public SoundEngine{
   private:
     void update(const float &deltaTime) noexcept override final{}
-    void injectDependency() noexcept override final{}
 };

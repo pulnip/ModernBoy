@@ -7,9 +7,10 @@
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
-class Timer_default : public Timer {
+class Timer_default final: public Timer{
   public:
-    Timer_default() = default;
+    Timer_default()=default;
+    ~Timer_default()=default;
 
   private:
     void injectDependency() noexcept override final{}

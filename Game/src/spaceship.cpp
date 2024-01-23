@@ -1,7 +1,5 @@
-#include "spaceship.hpp"
 
-void spaceShip::injectDependency() noexcept {
-    GameEngineWithSDL::injectDependency();
+void injectDependency() noexcept {
 #ifdef MUSI
     auto ship = IActor::make<Ship>(self);
 

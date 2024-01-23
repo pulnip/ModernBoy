@@ -2,12 +2,13 @@
 
 #include "SubEngine/Timer.hpp"
 
-class TimerWithSDL : public Timer {
+class TimerWithSDL final: public Timer{
   private:
     using time_point = uint64_t;
 
   public:
     TimerWithSDL();
+    ~TimerWithSDL()=default;
 
   private:
     void injectDependency() noexcept override final{}

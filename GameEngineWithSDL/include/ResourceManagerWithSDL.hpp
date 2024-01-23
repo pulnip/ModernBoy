@@ -8,19 +8,17 @@
 
 #include "SubEngine/ResourceManager.hpp"
 
-class ResourceManagerWithSDL : public ResourceManager {
+class ResourceManagerWithSDL final: public ResourceManager {
     friend class Game;
 
   public:
+    ResourceManagerWithSDL() noexcept=default;
     ~ResourceManagerWithSDL();
 
     std::optional<SDL_Texture *> getTexture(const std::string &fileName) noexcept;
 
-  protected:
-    ResourceManagerWithSDL() noexcept=default;
-
   private:
-    void injectDependency() noexcept override;
+    void setAttribute() noexcept override final;
 
     // 이미지 로딩 과정 캡슐화
     SDL_Texture *loadTexture(const std::string &fileName) noexcept;

@@ -2,10 +2,9 @@
 #include "ActorManagerForTest.hpp"
 #include "SubEngine/GameLogic.hpp"
 
-void TestGame::injectDependency() noexcept{
-    GameEngineWithSDL::injectDependency();
+void TestGame::setAttribute() noexcept{
     auto self=weak_from_this();
 
-    ISubEngine::make<ActorManagerForTest>(self);
+    SubEngine::make<ActorManagerForTest>(self);
     // ISubEngine::make<NullGameLogic>(self);
 }

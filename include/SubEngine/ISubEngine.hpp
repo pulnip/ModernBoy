@@ -1,11 +1,17 @@
 #pragma once
 
-#include "Makable.hpp"
-#include "gefwd.hpp"
+enum class SubEngineName {
+    SubEngine,
+    ActorManager,
+    GameLogic,
+    GraphicsEngine,
+    InputSystem,
+    PhysicsSimulator,
+    ResourceManager,
+    SoundEngine
+};
 
-class ISubEngine:
-    public Makable<ISubEngine, IGameEngine>
-{
+class ISubEngine{
   public:
     virtual ~ISubEngine()=default;
 

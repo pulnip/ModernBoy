@@ -1,35 +1,26 @@
 #pragma once
 
-#include "Observable.hpp"
+#include "Ownership.hpp"
+#include "gefwd.hpp"
 #include "ISubEngine.hpp"
 
-enum class SubEngineName {
-    SubEngine,
-    ActorManager,
-    GameLogic,
-    GraphicsEngine,
-    InputSystem,
-    PhysicsSimulator,
-    ResourceManager,
-    SoundEngine
-};
-
 class SubEngine: public ISubEngine,
-    public Observable<Lifetime, ISubEngine>
+    public Owned<SubEngine, GameEngine>
 {
   public:
-    virtual ~SubEngine();
+    virtual ~SubEngine()=default;
 
   protected:
     SubEngine() noexcept=default;
 
   private:
-    void postConstruct() noexcept override final;
+    void setProperty() noexcept override final{ injectDependency(); }
 
   private:
-    virtual SubEngineName getName() const noexcept{
+    virtual SubEngineName getName() const noexcept override{
         return SubEngineName::SubEngine;
     }
-    virtual void injectDependency() noexcept=0;
     virtual void update(const float& deltaTime) noexcept override=0;
+
+    virtual void injectDependency() noexcept=0;
 };

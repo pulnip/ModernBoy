@@ -5,32 +5,33 @@
 
 template <typename MSG, typename type_hint = void>
 class Observable;
+template <typename MSG, typename type_hint = void>
+class UniqueObservable;
 
-template <typename MSG, typename Observable_t = void>
-class Observer {
-    friend class Observable<MSG, Observable_t>;
-
-  protected:
-    using MSG_t = MSG;
-    using spObservable = std::shared_ptr<Observable_t>;
-
+template <typename MSG, typename Publisher=void>
+class Observer{
+    friend class Observable<MSG, Publisher>;
+    friend class UniqueObservable<MSG, Publisher>;
   public:
-    virtual ~Observer() = default;
+    Observer() noexcept=default;
+    virtual ~Observer()=default;
 
   private:
-    virtual void onNotify(MSG_t msg, spObservable wo) = 0;
+    virtual void onNotify(
+        MSG msg,
+        std::shared_ptr<Publisher> wo
+    )=0;
 };
 
 template <typename MSG>
-class Observer<MSG, void> {
+class Observer<MSG, void>{
     friend class Observable<MSG, void>;
-
-  protected:
-    using MSG_t = MSG;
+    friend class UniqueObservable<MSG, void>;
 
   public:
-    virtual ~Observer() = default;
+    Observer() noexcept=default;
+    virtual ~Observer()=default;
 
   private:
-    virtual void onNotify(MSG_t msg) = 0;
+    virtual void onNotify(MSG msg)=0;
 };

@@ -3,7 +3,7 @@
 
 #include "ResourceManagerWithSDL.hpp"
 #include "GraphicsEngineWithSDL.hpp"
-#include "GameEngine/IGameEngine.hpp"
+#include "GameEngine/GameEngine.hpp"
 
 ResourceManagerWithSDL::~ResourceManagerWithSDL() {
     for (auto &[file, texture] : textures) {
@@ -30,10 +30,11 @@ ResourceManagerWithSDL::getTexture(const std::string &fileName) noexcept {
     return texture;
 }
 
-void ResourceManagerWithSDL::injectDependency() noexcept {
+void ResourceManagerWithSDL::setAttribute() noexcept {
     assert(!owner.expired());
+    std::shared_ptr<IGameEngine> ige=owner.lock();
     auto geSDL=std::dynamic_pointer_cast<GraphicsEngineWithSDL>(
-        owner.lock()->find(SubEngineName::GraphicsEngine)
+        ige->find(SubEngineName::GraphicsEngine)
     );
 
     assert(geSDL!=nullptr);

@@ -2,12 +2,10 @@
 
 #include "Actor/Actor.hpp"
 
-class Ship: public Actor{
+class Ship final: public Actor{
   public:
-    ~Ship()=default;
-
-  protected:
     Ship() noexcept=default;
+    ~Ship()=default;
 
   private:
     void updateActor(const float& deltaTime) noexcept override final;

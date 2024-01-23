@@ -3,6 +3,10 @@
 #include "SubEngine/ActorManager.hpp"
 
 class ActorManagerForTest: public ActorManager{
+public:
+    ActorManagerForTest() noexcept=default;
+    ~ActorManagerForTest()=default;
+
 private:
-    void injectDependency() noexcept override final;
+    void setAttribute() noexcept override final;
 };

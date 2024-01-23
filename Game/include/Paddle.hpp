@@ -2,14 +2,12 @@
 
 #include "Actor/Actor.hpp"
 
-class Paddle : public Actor,
+class Paddle final: public Actor,
     public Observable<GameStatus>
 {
   public:
-    ~Paddle()=default;
-
-  protected:
     Paddle() noexcept=default;
+    ~Paddle()=default;
 
   private:
     void updateActor(const float &deltaTime) noexcept override final;

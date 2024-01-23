@@ -4,8 +4,9 @@
 struct Vector2;
 
 // Defined in PubSubMessage.hpp 
-enum class Lifetime;
 enum class GameStatus;
+
+enum class Lifetime;
 
 // Defined in Skin.hpp
 struct TrueColor;

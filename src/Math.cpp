@@ -5,43 +5,43 @@
 #include "Math.hpp"
 
 // Math namespace
+namespace Math{
+    bool NearZero(double x) noexcept {
+        return std::abs(x) < epsilon;
+    }
 
-bool Math::NearZero(double x) noexcept {
-    return std::abs(x) < epsilon;
+    Real toDegree(Real radian) noexcept {
+        return 180.0 / PI * radian;
+    }
+    Real toRadian(Real degree) noexcept {
+        return PI / 180.0 * degree;
+    }
+
+    Int wrap(const Int x, const Int low, const Int high) noexcept {
+        assert(low <= high);
+
+        const auto r = (x - low) % (high - low);
+
+        return (r >= 0) ? (r + low) : (r + high);
+    }
+
+    Real wrap(const Real x, const Real low, const Real high) noexcept {
+        assert(low <= high);
+        const auto r = std::fmod(x - low, high - low);
+        return (r >= 0) ? (r + low) : (r + high);
+    }
+
+    Real random(const Real start, const Real end) noexcept {
+        // 난수 생성 엔진
+        static std::mt19937 gen(
+            // 시드값을 얻기 위해
+            (std::random_device())());
+        // [start, end) 균등 분포
+        std::uniform_real_distribution dis(start, end);
+
+        return dis(gen);
+    }
 }
-
-Math::Real Math::toDegree(Math::Real radian) noexcept {
-    return 180.0 / PI * radian;
-}
-Math::Real Math::toRadian(Math::Real degree) noexcept {
-    return PI / 180.0 * degree;
-}
-
-Math::Int Math::wrap(const Math::Int x, const Math::Int low, const Math::Int high) noexcept {
-    assert(low <= high);
-
-    const auto r = (x - low) % (high - low);
-
-    return (r >= 0) ? (r + low) : (r + high);
-}
-
-Math::Real Math::wrap(const Math::Real x, const Math::Real low, const Math::Real high) noexcept {
-    assert(low <= high);
-    const auto r = std::fmod(x - low, high - low);
-    return (r >= 0) ? (r + low) : (r + high);
-}
-
-Math::Real Math::random(const Math::Real start, const Math::Real end) noexcept {
-    // 난수 생성 엔진
-    static std::mt19937 gen(
-        // 시드값을 얻기 위해
-        (std::random_device())());
-    // [start, end) 균등 분포
-    std::uniform_real_distribution dis(start, end);
-
-    return dis(gen);
-}
-
 // Vector2 class
 
 Vector2 &Vector2::operator+=(const Vector2 &other) noexcept {

@@ -1,27 +1,25 @@
 #pragma once
 
 #include "Property.hpp"
-#include "Math.hpp"
-#include "Skin.hpp"
 #include "Component.hpp"
 
-class MoveComponent: public Component{
+struct Attribute_2D;
+
+class MoveComponent final: public Component{
     friend class Actor;
   public:
-    virtual ~MoveComponent()=default;
-
-  protected:
     MoveComponent() noexcept=default;
-
-    virtual void injectDependency() noexcept override;
+    ~MoveComponent()=default;
 
   private:
-    void update(const float &deltaTime) noexcept override final;
     ComponentName getName() const noexcept override final{
         return ComponentName::MoveComponent;
     }
+    void update(const float &deltaTime) noexcept override final;
+    void injectDependency() noexcept override final{}
+
     int initUpdateOrder() const noexcept override final{ return 201; }
 
   public:
-    Attribute_2D attr;
+    Property<Attribute_2D> attr;
 };

@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include "GameEngine/IGameEngine.hpp"
+#include "GameEngine/GameEngine.hpp"
 #include "SubEngine/GameLogic.hpp"
 #include "SubEngine/InputSystem.hpp"
 
@@ -17,12 +17,15 @@ void InputSystem::registerKey(
 
 void InputSystem::injectDependency() noexcept{
     assert(!owner.expired());
+    std::shared_ptr<IGameEngine> ige=owner.lock();
     auto gl=std::dynamic_pointer_cast<GameLogic>(
-        owner.lock()->find(SubEngineName::GameLogic)
+        ige->find(SubEngineName::GameLogic)
     );
 
     assert(gl!=nullptr);
     registerKey(escapeKeycode(), gl);
+
+    setAttribute();
 }
 
 #include <iostream>

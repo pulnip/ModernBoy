@@ -2,16 +2,14 @@
 
 #include "SubEngine/InputSystem.hpp"
 
-class InputSystemWithSDL : public InputSystem {
+class InputSystemWithSDL final: public InputSystem {
   public:
-    ~InputSystemWithSDL()=default;
-
-  protected:
     InputSystemWithSDL() noexcept=default;
+    ~InputSystemWithSDL()=default;
 
   private:
     void update(const float &deltaTime) noexcept override;
-    void injectDependency() noexcept override final;
+    void setAttribute() noexcept override final{}
 
     uint8_t escapeKeycode() const noexcept override final;
 };

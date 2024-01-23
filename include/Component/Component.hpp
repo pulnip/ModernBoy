@@ -1,56 +1,43 @@
 #pragma once
 
-#include "Observable.hpp"
+#include "Ownership.hpp"
+#include "gefwd.hpp"
 #include "IComponent.hpp"
 
-enum class ComponentName{
-    Component,
-    NullComponent,
-
-    CollisionComponent,
-
-    DrawComponent,
-    BoxComponent,
-    SpriteComponent,
-    AnimSpriteComponent,
-    BGSpriteComponent,
-
-    MoveComponent,
-
-    InputComponent,
-
-    AIComponent
-};
-
 class Component: public IComponent,
-    public Observable<Lifetime, IComponent>
+    public Owned<Component, Actor>
 {
   public:
-    virtual ~Component();
+    virtual ~Component()=default;
 
   protected:
     Component() noexcept=default;
 
-  private:
-    void postConstruct() noexcept override final;
+  protected:
+    virtual void setProperty() noexcept override final{
+        updateOrder=initUpdateOrder();
+        injectDependency();
+    }
 
   private:
+    virtual void update(const float& deltaTime) noexcept override=0;
+
+    virtual int initUpdateOrder() const noexcept=0;
     virtual ComponentName getName() const noexcept{
         return ComponentName::Component;
     }
     virtual void injectDependency() noexcept=0;
-    virtual void update(const float& deltaTime) noexcept override=0;
-
-    virtual int initUpdateOrder() const noexcept=0;
 };
 
-class NullComponent: public Component{
+class NullComponent final: public Component{
+  public:
+    NullComponent() noexcept=default;
+    ~NullComponent()=default;
+
   private:
-    void injectDependency() noexcept override final{}
-    ComponentName getName() const noexcept override final{
-        return ComponentName::NullComponent;
-    }
     void update(const float& deltaTime) noexcept override final{}
+
+    void injectDependency() noexcept override final{}
 
     int initUpdateOrder() const noexcept override final{
         return 0;

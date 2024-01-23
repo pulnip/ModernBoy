@@ -1,10 +1,9 @@
 #include <cassert>
 
-#include "Actor/IActor.hpp"
-#include "Component/CollisionComponent.hpp"
+#include "Actor/Actor.hpp"
 #include "Component/MoveComponent.hpp"
 
-void CollisionComponent::update(const float &deltaTime) noexcept {
+void update(const float &deltaTime) noexcept {
 #warning "move to physicsSimulator"
 /*
     assert(!owner.expired());

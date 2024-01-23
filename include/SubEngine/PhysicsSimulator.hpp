@@ -19,6 +19,7 @@ class PhysicsSimulator: public SubEngine,
 
   private:
     virtual void update(const float &deltaTime) noexcept override=0;
+
     virtual void onNotify(Attribute_2D attr) noexcept override=0;
 };
 
