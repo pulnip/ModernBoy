@@ -47,9 +47,9 @@ add_executable(${PROJECT_NAME}
     Game/src/Wall.cpp
     Game/src/Ship.cpp
     Game/src/Asteroid.cpp
+    Game/src/CelestialSky.cpp
 
     # Game/src/p1pingpong.cpp
-    # Game/src/spaceship.cpp
     # Game/src/Ball.cpp
 )
 

@@ -6,6 +6,7 @@
 #include "Wall.hpp"
 #include "Ship.hpp"
 #include "Asteroid.hpp"
+#include "CelestialSky.hpp"
 
 enum class GameName{
     PING_PONG,
@@ -30,5 +31,6 @@ void ActorManagerForTest::setAttribute() noexcept{
         for(int i=0; i<20; ++i){
             Actor::make<Asteroid>(self);
         }
+        Actor::make<CelestialSky>(self);
     }
 }

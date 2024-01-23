@@ -22,6 +22,6 @@ class GraphicsEngineWithSDL final: public GraphicsEngine,
 
   private:
     // SDL이 생성한 윈도우
-    std::shared_ptr<SDL_Window*> window;
-    std::shared_ptr<SDL_Renderer*> renderer;
+    std::shared_ptr<class SDL_Window*> window;
+    std::shared_ptr<class SDL_Renderer*> renderer;
 };

@@ -14,6 +14,7 @@ class IComponent{
     virtual ~IComponent()=default;
 
     const int& getUpdateOrder() const noexcept{ return updateOrder; }
+    void setUpdateOrder(const int uo) noexcept{ updateOrder=uo; }
 
   protected:
     IComponent() noexcept=default;

@@ -44,7 +44,7 @@ class Actor: public IActor,
         bool operator()(const ptr& lhs, const ptr& rhs) const noexcept;
     };
     // the component owned by actor
-    std::map<ComponentName, std::shared_ptr<IComponent>> components;
+    std::multimap<ComponentName, std::shared_ptr<IComponent>> components;
     std::multiset<std::shared_ptr<IComponent>, UpdateOrder> orderedComponents;
 };
 

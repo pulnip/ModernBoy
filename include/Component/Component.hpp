@@ -15,6 +15,7 @@ class Component: public IComponent,
 
   protected:
     virtual void setProperty() noexcept override final{
+        #warning "delete it"
         updateOrder=initUpdateOrder();
         injectDependency();
     }
