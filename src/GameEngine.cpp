@@ -24,15 +24,8 @@ void GameEngine::onNotify(Lifetime msg, std::shared_ptr<SubEngine> se) noexcept{
     }
 }
 
-void GameEngine::onNotify(GameStatus status) noexcept{
-    switch(status){
-    case GameStatus::FORCE_QUIT:
-        [[fallthrough]];
-    case GameStatus::GAME_OVER:
-        [[fallthrough]];
-    case GameStatus::UNEXPECTED:
-        isRunning=false;
-    }
+void GameEngine::handler() noexcept{
+    isRunning=false;
 }
 
 struct Essentials{

@@ -16,7 +16,9 @@ class Observable_impl{
         observers.emplace_back(std::move(o));
     }
     void unsubscribe(std::weak_ptr<Observer<MSG, type_hint>> o) noexcept{
-        observers.remove(std::move(o));
+        observers.remove_if([&o](const auto& p){
+            return !(p.owner_before(o) || o.owner_before(p));
+        });
     }
 
     void notify(MSG msg) noexcept{
@@ -90,11 +92,14 @@ class UniqueObservable_impl{
         observer=o;
     }
     void unsubscribe() noexcept{
-        observer=nullptr;
+        observer.reset();
     }
 
     void notify(MSG msg) noexcept{
-        if(observer.expired()) return;
+        if(observer.expired()){
+            observer.reset();
+            return;
+        }
 
         notify_aux(msg, observer);
     }
@@ -144,4 +149,66 @@ class UniqueObservable<MSG, void>: public UniqueObservable_impl<MSG, void>{
         assert(!target.expired());
         target.lock()->onNotify(msg);
     }
+};
+
+class Sender{
+  public:
+    Sender() noexcept=default;
+    virtual ~Sender()=default;
+
+    void subscribe(std::weak_ptr<Receiver> r) noexcept{
+        receivers.emplace_back(std::move(r));
+    }
+    void unsubscribe(std::weak_ptr<Receiver> r) noexcept{
+        receivers.remove_if([&r](const auto& p){
+            return !(p.owner_before(r) || r.owner_before(p));
+        });
+    }
+
+    void notify() noexcept{
+        remove_if_expired();
+
+        for (auto &wo: receivers) {
+            assert(!wo.expired());
+            wo.lock()->handler();
+        }
+    }
+
+  private:
+    void remove_if_expired() noexcept{
+        std::remove_if(
+            receivers.begin(), receivers.end(),
+            [](const auto &wp) {
+                return wp.expired();
+            }
+        );
+    }
+
+  private:
+    std::list<std::weak_ptr<Receiver>> receivers;
+};
+
+class UniqueSender{
+  public:
+    UniqueSender() noexcept=default;
+    virtual ~UniqueSender()=default;
+
+    void subscribe(std::weak_ptr<Receiver> r) noexcept{
+        receiver=std::move(r);
+    }
+    void unsubscribe() noexcept{
+        receiver.reset();
+    }
+
+    void notify() noexcept{
+        if(receiver.expired()){
+            receiver.reset();
+            return;
+        }
+
+        receiver.lock()->handler();
+    }
+
+  private:
+    std::weak_ptr<Receiver> receiver;
 };

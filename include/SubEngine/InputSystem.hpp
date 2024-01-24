@@ -14,7 +14,9 @@ struct Key {
     uint8_t key;
 };
 
-class InputSystem: public SubEngine{
+class InputSystem: public SubEngine,
+    public Observable<GameStatus>
+{
   public:
     virtual ~InputSystem()=default;
 

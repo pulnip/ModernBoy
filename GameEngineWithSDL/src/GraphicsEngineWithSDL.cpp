@@ -12,8 +12,6 @@ GraphicsEngineWithSDL::~GraphicsEngineWithSDL() {
 }
 
 void GraphicsEngineWithSDL::onNotify(ColorRect r) noexcept {
-    // #error "Not linked"
-    SDL_Log("DRAW");
     // transform position: center to top-left
     r.rect.position = r.rect.position - r.rect.size / 2;
 

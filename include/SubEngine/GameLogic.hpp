@@ -9,8 +9,8 @@ enum class GameStatus {
 };
 
 class GameLogic: public SubEngine,
-    public Observable<GameStatus>,
-    public Observer<Key>
+    public Observer<GameStatus>,
+    public UniqueSender
 {
   public:
     virtual ~GameLogic()=default;
@@ -24,7 +24,7 @@ class GameLogic: public SubEngine,
     }
     virtual void injectDependency() noexcept override final;
 
-    void onNotify(Key key) noexcept override final;
+    void onNotify(GameStatus status) noexcept override final;
 
   private:
     virtual void update(const float &deltaTime) noexcept override=0;

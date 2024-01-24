@@ -7,10 +7,14 @@
 #include "Makable.hpp"
 #include "IGameEngine.hpp"
 
+enum class EngineCommand{
+    QUIT
+};
+
 class GameEngine: public IGameEngine,
     public Makable<GameEngine>,
     public Owner<SubEngine>,
-    public Observer<GameStatus>
+    public Receiver
 {
   public:
     using SubEngineMap=std::map<SubEngineName, std::shared_ptr<ISubEngine>>;
@@ -28,7 +32,7 @@ class GameEngine: public IGameEngine,
 
     void postConstruct() noexcept override final{ injectDependency(); }
     void onNotify(Lifetime msg, std::shared_ptr<SubEngine> se) noexcept override final;
-    void onNotify(GameStatus status) noexcept override final;
+    void handler() noexcept override final;
 
   private:
     virtual void injectDependency() noexcept=0;

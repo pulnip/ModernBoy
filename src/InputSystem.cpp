@@ -23,7 +23,7 @@ void InputSystem::injectDependency() noexcept{
     );
 
     assert(gl!=nullptr);
-    registerKey(escapeKeycode(), gl);
+    Observable<GameStatus>::subscribe(gl);
 
     setAttribute();
 }

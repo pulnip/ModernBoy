@@ -60,7 +60,7 @@ struct Attribute_2D{
     Rect rect() const noexcept{ return{position.linear, volume.size()}; }
     SpinRect spinRect() const noexcept{ return{rect(), position.rotation}; }
 
-    void update(Math::Real& time){
+    void update(const Math::Real& time){
         position += velocity * time;
     }
 

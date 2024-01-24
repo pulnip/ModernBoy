@@ -49,15 +49,15 @@ void Ship::injectDependency() noexcept {
     auto query=owner.lock()->query(SubEngineName::ResourceManager);
 
     assert(query.has_value());
-    auto manager=std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());
+    auto rm=std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());
 
-    assert(manager!=nullptr);
+    assert(rm!=nullptr);
 
     std::vector<std::optional<SDL_Texture *>> opAnims={
-        manager->getTexture("Ship01.png"),
-        manager->getTexture("Ship02.png"),
-        manager->getTexture("Ship03.png"),
-        manager->getTexture("Ship04.png")
+        rm->getTexture("Ship01.png"),
+        rm->getTexture("Ship02.png"),
+        rm->getTexture("Ship03.png"),
+        rm->getTexture("Ship04.png")
     };
 
     std::vector<SDL_Texture *> anims;

@@ -12,9 +12,16 @@ void GameLogic::injectDependency() noexcept{
     );
 
     assert(ge!=nullptr);
-    Observable<GameStatus>::subscribe(ge);
+    UniqueSender::subscribe(ge);
 }
 
-void GameLogic::onNotify(Key key) noexcept{
-    this->Observable<GameStatus>::notify(GameStatus::FORCE_QUIT);
+void GameLogic::onNotify(GameStatus status) noexcept{
+    switch(status){
+    case GameStatus::FORCE_QUIT:
+        [[fallthrough]];
+    case GameStatus::GAME_OVER:
+        [[fallthrough]];
+    case GameStatus::UNEXPECTED:
+        UniqueSender::notify();
+    }
 }
