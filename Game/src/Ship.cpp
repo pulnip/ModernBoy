@@ -22,11 +22,10 @@ void Ship::injectDependency() noexcept {
 
     auto mc = Component::make<MoveComponent>(self);
 
-    auto sc = Component::make<AnimSpriteComponent>(self);
-    auto ic = Component::make<InputComponent>(self);
-
     mc->attr().position.linear={500.0f, 500.0f};
     mc->attr().volume.base={64.0f, 29.0f};
+
+    auto ic = Component::make<InputComponent>(self);
 
     ic->setKey(SDL_SCANCODE_Q, [&rv = mc->attr().velocity.rotation](){
         rv += -Math::PI;
@@ -53,19 +52,14 @@ void Ship::injectDependency() noexcept {
 
     assert(rm!=nullptr);
 
-    std::vector<std::optional<SDL_Texture *>> opAnims={
-        rm->getTexture("Ship01.png"),
-        rm->getTexture("Ship02.png"),
-        rm->getTexture("Ship03.png"),
-        rm->getTexture("Ship04.png")
-    };
+    auto img1=rm->getTexture("Ship01.png");
+    auto img2=rm->getTexture("Ship02.png");
+    auto img3=rm->getTexture("Ship03.png");
+    auto img4=rm->getTexture("Ship04.png");
 
-    std::vector<SDL_Texture *> anims;
-    for (auto &o : opAnims) {
-        if (o.has_value()) {
-            anims.emplace_back(o.value());
-        }
-    }
+    auto asc = Component::make<AnimSpriteComponent>(self);
 
-    sc->setAnimTextures(anims);
+    asc->setAnimTextures(std::vector<SDL_Texture*>{
+        img1.value(), img2.value(), img3.value(), img4.value()
+    });
 }

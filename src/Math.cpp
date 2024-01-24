@@ -82,6 +82,9 @@ Vector2 operator*(Math::Real scalar, const Vector2 &v) noexcept {
 Vector2 operator*(const Vector2 &v, Math::Real scalar) noexcept {
     return scalar * v;
 }
+Math::Real operator*(const Vector2& lhs, const Vector2& rhs) noexcept{
+    return lhs.x*rhs.x + lhs.y*rhs.y;
+}
 Vector2 operator/(const Vector2 &v, Math::Real scalar) noexcept {
     assert(!Math::NearZero(scalar) && "Near Zero!");
     return (1.0 / scalar) * v;

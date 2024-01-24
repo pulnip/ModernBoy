@@ -17,7 +17,7 @@ class Observable_impl{
     }
     void unsubscribe(std::weak_ptr<Observer<MSG, type_hint>> o) noexcept{
         observers.remove_if([&o](const auto& p){
-            return !(p.owner_before(o) || o.owner_before(p));
+            return not (p.owner_before(o) || o.owner_before(p));
         });
     }
 
@@ -161,7 +161,7 @@ class Sender{
     }
     void unsubscribe(std::weak_ptr<Receiver> r) noexcept{
         receivers.remove_if([&r](const auto& p){
-            return !(p.owner_before(r) || r.owner_before(p));
+            return not (p.owner_before(r) || r.owner_before(p));
         });
     }
 

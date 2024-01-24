@@ -5,7 +5,7 @@
 
 void update(const float &deltaTime) noexcept {
 #warning "move to physicsSimulator"
-/*
+
     assert(!owner.expired());
     const auto mc = owner.lock();
 
@@ -15,7 +15,7 @@ void update(const float &deltaTime) noexcept {
 
         // 위치의 차이
         const auto pos_diff = _opponent->getPosition() - mc->getPosition();
-        const auto pos_diff_abs = Vector2::abs(_opponent->getPosition() - mc->getPosition());
+        const auto pos_diff_abs = Vector2::abs(pos_diff);
         // 충돌 판정 박스
         const auto col_box = (mc->getSize() + _opponent->getSize()) / 2;
 
@@ -61,5 +61,5 @@ void update(const float &deltaTime) noexcept {
             }
         }
     }
-*/
+
 }

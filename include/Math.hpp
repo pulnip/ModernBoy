@@ -47,9 +47,11 @@ struct Vector2 {
     static Math::Radian rotation(const Vector2 &v) noexcept;
 };
 
-Vector2 operator+(const Vector2 &lhs, const Vector2 &rhs) noexcept;
-Vector2 operator-(const Vector2 &lhs, const Vector2 &rhs) noexcept;
-Vector2 operator*(const Math::Real scalar, const Vector2 &v) noexcept;
-Vector2 operator*(const Vector2 &v, const Math::Real scalar) noexcept;
-Vector2 operator/(const Vector2 &v, const Math::Real scalar) noexcept;
-bool operator<=(const Vector2 &lhs, const Vector2 &rhs) noexcept;
+Vector2 operator+(const Vector2& lhs, const Vector2& rhs) noexcept;
+Vector2 operator-(const Vector2& lhs, const Vector2& rhs) noexcept;
+Vector2 operator*(const Math::Real scalar, const Vector2& v) noexcept;
+Vector2 operator*(const Vector2& v, const Math::Real scalar) noexcept;
+// dot product
+Math::Real operator*(const Vector2& lhs, const Vector2 &rhs) noexcept;
+Vector2 operator/(const Vector2& v, const Math::Real scalar) noexcept;
+bool operator<=(const Vector2& lhs, const Vector2& rhs) noexcept;

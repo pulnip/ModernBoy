@@ -5,6 +5,7 @@
 #include "SubEngine/ActorManager.hpp"
 #include "SubEngine/GameLogic.hpp"
 #include "SubEngine/GraphicsEngine.hpp"
+#include "SubEngine/PhysicsSimulator.hpp"
 #include "ResourceManagerWithSDL.hpp"
 #include "Ball.hpp"
 #include "Component/MoveComponent.hpp"
@@ -39,9 +40,9 @@ void Ball::injectDependency() noexcept {
 
         auto img1=rm->getTexture("pigeon_1.png");
         assert(img1.has_value());
-        auto img2=rm->getTexture("pigeon_1.png");
+        auto img2=rm->getTexture("pigeon_2.png");
         assert(img1.has_value());
-        auto img3=rm->getTexture("pigeon_1.png");
+        auto img3=rm->getTexture("pigeon_3.png");
         assert(img1.has_value());
 
         auto asc = Component::make<AnimSpriteComponent>(self);
@@ -55,8 +56,15 @@ void Ball::injectDependency() noexcept {
         auto query=owner.lock()->query(SubEngineName::GameLogic);
 
         assert(query.has_value());
-        auto gl=static_pointer_cast<GameLogic>(query.value());
+        auto gl=std::static_pointer_cast<GameLogic>(query.value());
 
         UniqueObservable<GameStatus>::subscribe(gl);
+    }
+
+    {
+        auto query=owner.lock()->query(SubEngineName::PhysicsSimulator);
+
+        // assert(query.has_value());
+        // auto ps=std::static_pointer_cast<PhysicsSimulator>(query.value());
     }
 }
