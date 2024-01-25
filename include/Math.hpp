@@ -1,11 +1,13 @@
 #pragma once
 
 #include <cmath>
+#include <limits>
 
 namespace Math {
     using Real = double;
     using Int = int;
 
+    constexpr Real infinity = std::numeric_limits<double>::infinity();
     constexpr Real epsilon = 0.0001;
     bool NearZero(const Real x) noexcept;
 
@@ -37,6 +39,7 @@ struct Vector2 {
 
   public:
     Vector2 &operator+=(const Vector2 &other) noexcept;
+    Vector2 &operator-=(const Vector2 &other) noexcept;
 
     static Vector2 abs(const Vector2 &v) noexcept;
     static Math::Real size(const Vector2 &v) noexcept;

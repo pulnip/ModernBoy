@@ -44,9 +44,14 @@ namespace Math{
 }
 // Vector2 class
 
-Vector2 &Vector2::operator+=(const Vector2 &other) noexcept {
+Vector2& Vector2::operator+=(const Vector2 &other) noexcept {
     x += other.x;
     y += other.y;
+    return *this;
+}
+Vector2& Vector2::operator-=(const Vector2 &other) noexcept {
+    x -= other.x;
+    y -= other.y;
     return *this;
 }
 

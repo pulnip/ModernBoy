@@ -9,5 +9,8 @@ void MoveComponent::update(const float &deltaTime) noexcept {
     const auto _owner = owner.lock();
 
     Math::Real dt=deltaTime;
+
+    // TODO
+    // move to physics Simulator
     attr().update(dt);
 }

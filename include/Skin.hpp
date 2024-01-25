@@ -47,6 +47,11 @@ struct Attribute_2D{
             rotation+=other.rotation;
             return *this;
         }
+        Position& operator-=(const Position& other) noexcept{
+            linear-=other.linear;
+            rotation-=other.rotation;
+            return *this;
+        }
     } position;
     // unit per second
     struct Velocity{
@@ -62,6 +67,9 @@ struct Attribute_2D{
 
     void update(const Math::Real& time){
         position += velocity * time;
+    }
+    void undo_update(const Math::Real& time){
+        position -= velocity * time;
     }
 
     void set(const Rect& rect){

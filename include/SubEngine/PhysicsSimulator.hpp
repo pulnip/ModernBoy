@@ -25,9 +25,26 @@ class PhysicsSimulator: public SubEngine,
         Vector2 position, velocity, size;
         
     };
-    bool AABB(const AABB_model& lhs, const AABB_model& rhs) noexcept;
+    // first value: check collision (in dt)
+    // second value: valid if collide
+    // - first value: estimated collision time(seconds)
+    // - second value: true if x-axis collision
+    std::pair<bool, std::pair<float, bool>> AABB(
+        const AABB_model& center, const AABB_model& opponent,
+        const float& deltaTime
+    ) noexcept;
+    // first value: estimated collision time(seconds)
+    // second value: true if x-axis collision
+    std::pair<Math::Real, bool> whenCollide(
+        const AABB_model& lhs, const AABB_model& rhs
+    ) noexcept;
     bool isGetCloser(
         const AABB_model& center, const AABB_model& target
+    ) noexcept;
+    void redoWithCollisionAndFlipRelativeVelocity(
+        const float& totalTime, const float& collideTime,
+        Attribute_2D& attr, const Vector2& opponent,
+        bool flipX
     ) noexcept;
 
   private:
