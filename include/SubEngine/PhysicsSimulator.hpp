@@ -1,29 +1,31 @@
 #pragma once
 
+#include <utility>
 #include <map>
+#include <vector>
 
+#include "Math.hpp"
 #include "SubEngine.hpp"
 
-class PhysicsSimulator: public SubEngine,
+class PhysicsSimulator final: public SubEngine,
     public Observer<Attribute_2D>
 {
   private:
     using wpm=std::weak_ptr<MoveComponent>;
 
   public:
+    PhysicsSimulator() noexcept=default;
     virtual ~PhysicsSimulator()=default;
 
     void setCollision(
         std::weak_ptr<IActor> who, std::weak_ptr<IActor> to
     ) noexcept;
+    void appendMovable(wpm movable) noexcept;
 
   protected:
-    PhysicsSimulator() noexcept=default;
-
     struct AABB_model{
         AABB_model(const wpm& mc) noexcept;
         Vector2 position, velocity, size;
-        
     };
     // first value: check collision (in dt)
     // second value: valid if collide
@@ -48,29 +50,16 @@ class PhysicsSimulator: public SubEngine,
     ) noexcept;
 
   private:
-    void injectDependency() noexcept override final{}
-    SubEngineName getName() const noexcept override{
+    SubEngineName getName() const noexcept override final{
         return SubEngineName::PhysicsSimulator;
     }
 
   private:
+    virtual void injectDependency() noexcept override{}
     virtual void update(const float &deltaTime) noexcept override;
-
-    virtual void onNotify(Attribute_2D attr) noexcept override=0;
+    virtual void onNotify(Attribute_2D attr) noexcept override;
 
   private:
+    std::vector<wpm> movables;
     std::map<wpm, std::list<wpm>, std::owner_less<wpm>> collisionMap;
-};
-
-class NullPhysicsSimulator final: public PhysicsSimulator{
-  private:
-    void update(const float &deltaTime) noexcept override final{}
-    void onNotify(Attribute_2D attr) noexcept override final{}
-};
-
-// for Leges motus Newtoni
-class PhysicsSimulator_default final: public PhysicsSimulator{
-  private:
-    void update(const float &deltaTime) noexcept override final;
-    void onNotify(Attribute_2D attr) noexcept override final;
 };

@@ -34,6 +34,7 @@ struct Essentials{
     SE gameLogic;
     SE graphicsEngine;
     SE inputSystem;
+    SE physicsSimulator;
     SE resourceManager;
     int set(const GameEngine::SubEngineMap& map) noexcept;
 };
@@ -59,6 +60,10 @@ int Essentials::set(const GameEngine::SubEngineMap& map) noexcept{
             inputSystem=se;
             countEssentials+=1;
             break;
+        case SubEngineName::PhysicsSimulator:
+            physicsSimulator=se;
+            countEssentials+=1;
+            break;
         case SubEngineName::ResourceManager:
             resourceManager=se;
             countEssentials+=1;
@@ -71,7 +76,7 @@ int Essentials::set(const GameEngine::SubEngineMap& map) noexcept{
 
 void GameEngine::run() noexcept {
     Essentials e;
-    bool completeness=e.set(subEngines)==5;
+    bool completeness=e.set(subEngines)==6;
     assert(completeness);
     isRunning = completeness;
 
@@ -89,6 +94,8 @@ void GameEngine::run() noexcept {
 
         // update game
         e.gameLogic->update(deltaTime);
+        
+        e.physicsSimulator->update(deltaTime);
         // update actor
         e.actorManager->update(deltaTime);
 

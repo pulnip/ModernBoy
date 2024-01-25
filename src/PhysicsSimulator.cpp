@@ -36,6 +36,10 @@ void PhysicsSimulator::setCollision(
     }
 }
 
+void PhysicsSimulator::appendMovable(wpm movable) noexcept{
+    movables.emplace_back(movable);
+}
+
 PhysicsSimulator::AABB_model::AABB_model(const wpm& mc) noexcept{
     assert(!mc.expired());
     auto _attr=mc.lock()->attr();
@@ -148,8 +152,13 @@ void PhysicsSimulator::update(const float& deltaTime) noexcept{
     // TODO
     // remove if expired
 
-    // update move component here
+    // update move component
+    for(auto& movable: movables){
+        assert(!movable.expired());
+        movable.lock()->attr().update(deltaTime);
+    }
 
+    // check collision
     for(auto& [wpCenter, list]: collisionMap){
         const AABB_model center=wpCenter;
         for(auto& wpOpponent: list){
@@ -158,6 +167,7 @@ void PhysicsSimulator::update(const float& deltaTime) noexcept{
             // collision check by AABB
             auto [collide, pair]=AABB(center, opponent, deltaTime);
             if(collide){
+                #error "fix this"
                 auto [ect, x]=pair;
                 auto& c_attr=wpCenter.lock()->attr();
 
@@ -171,12 +181,4 @@ void PhysicsSimulator::update(const float& deltaTime) noexcept{
     }
 }
 
-void PhysicsSimulator_default::update(const float &deltaTime) noexcept {
-#warning "Not defined"
-}
-
-void PhysicsSimulator_default::onNotify(Attribute_2D attr) noexcept {
-#warning "Not defined"
-}
-
-
+void PhysicsSimulator::onNotify(Attribute_2D attr) noexcept{}

@@ -15,8 +15,8 @@ class MoveComponent final: public Component{
     ComponentName getName() const noexcept override final{
         return ComponentName::MoveComponent;
     }
-    void update(const float &deltaTime) noexcept override final;
-    void injectDependency() noexcept override final{}
+    void update(const float &deltaTime) noexcept override final{}
+    void injectDependency() noexcept override final;
 
     int initUpdateOrder() const noexcept override final{ return 201; }
 

@@ -1,16 +1,20 @@
 #include <cassert>
 
 #include "Skin.hpp"
+#include "SubEngine/PhysicsSimulator.hpp"
 #include "Actor/Actor.hpp"
 #include "Component/MoveComponent.hpp"
 
-void MoveComponent::update(const float &deltaTime) noexcept {
-    assert(!owner.expired() && "owner: expired");
-    const auto _owner = owner.lock();
+void MoveComponent::injectDependency() noexcept{
+    assert(!owner.expired());
+    std::shared_ptr<IActor> actor=owner.lock();
 
-    Math::Real dt=deltaTime;
+    auto query=actor->query(SubEngineName::PhysicsSimulator);
 
-    // TODO
-    // move to physics Simulator
-    attr().update(dt);
+    assert(query.has_value());
+    auto ps=std::static_pointer_cast<PhysicsSimulator>(query.value());
+
+    ps->appendMovable(
+        std::static_pointer_cast<MoveComponent>(shared_from_this())
+    );
 }

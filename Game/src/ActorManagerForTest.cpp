@@ -2,6 +2,7 @@
 
 #include "GameEngine/GameEngine.hpp"
 #include "ActorManagerForTest.hpp"
+#include "SubEngine/PhysicsSimulator.hpp"
 
 #define PING_PONG
 
@@ -21,12 +22,26 @@ void ActorManagerForTest::setAttribute() noexcept{
     auto self=std::dynamic_pointer_cast<ActorManager>(shared_from_this());
     assert(self!=nullptr);
 
+    auto q=query(SubEngineName::PhysicsSimulator);
+
+    assert(q.has_value());
+    auto ps=std::static_pointer_cast<PhysicsSimulator>(q.value());
+
 #ifdef PING_PONG
-    Actor::make<Paddle>(self);
-    Actor::make<Ceil>(self);
-    Actor::make<Floor>(self);
-    Actor::make<RightWall>(self);
-    Actor::make<Ball>(self);
+    auto paddle=Actor::make<Paddle>(self);
+    auto ceil=Actor::make<Ceil>(self);
+    auto floor=Actor::make<Floor>(self);
+    auto rwall=Actor::make<RightWall>(self);
+    auto ball=Actor::make<Ball>(self);
+
+    ps->setCollision(ball, paddle);
+    ps->setCollision(ball, ceil);
+    ps->setCollision(ball, floor);
+    ps->setCollision(ball, rwall);
+
+    ps->setCollision(paddle, ceil);
+    ps->setCollision(paddle, floor);
+
 #endif
 
 #ifdef SPACE_SHIP
