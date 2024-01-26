@@ -16,7 +16,7 @@ void Ball::updateActor(const float &deltaTime) noexcept{
         static_cast<IActor*>(this)->find(ComponentName::MoveComponent)
     )->attr();
 
-    if(target.position.linear.x < target.volume.size().x){
+    if(target.position.linear.x < -target.volume.size().x){
         UniqueObservable<GameStatus>::notify(GameStatus::GAME_OVER);
     }
 }

@@ -60,6 +60,9 @@ class PhysicsSimulator final: public SubEngine,
     virtual void onNotify(Attribute_2D attr) noexcept override;
 
   private:
-    std::vector<wpm> movables;
-    std::map<wpm, std::list<wpm>, std::owner_less<wpm>> collisionMap;
+    std::map<
+        wpm, // movable
+        std::list<wpm>, // collide opponent
+        std::owner_less<wpm>
+    > collisionMap;
 };
