@@ -4,6 +4,8 @@
 #include "Actor/IActor.hpp"
 #include "Component/MoveComponent.hpp"
 
+#include <SDL2/SDL_log.h>
+
 template<typename T>
 bool is_same(std::weak_ptr<T> lhs, std::weak_ptr<T> rhs){
     return (not lhs.owner_before(rhs)) && (not rhs.owner_before(lhs));
@@ -81,9 +83,9 @@ std::pair<Math::Real, bool> PhysicsSimulator::whenCollide(
     // 여기서부터, pos == abs(pos)
     // => pos.x > 0 && pos.y > 0 에 대해서만 생각하면 됨.
 
-    // v가 0에 가까우면, 충돌하지 않음.(=충돌 시점이 무한대)
     auto xtime = Math::infinity;
-    if(not Math::NearZero(relativeVelocity.x)){
+    // 속도가 충분히 작거나, 양의 방향이면 충돌이 일어나지 않음.(=충돌 시점이 무한대)
+    if(not Math::NearZero(relativeVelocity.x) and relativeVelocity.x < 0){
         // x축 기준으로, opponent가 center에 만나는 시간.
         xtime = (checkBox.x - relativePosition.x) / relativeVelocity.x;
         
@@ -92,15 +94,13 @@ std::pair<Math::Real, bool> PhysicsSimulator::whenCollide(
     }
 
     auto ytime = Math::infinity;
-    if(not Math::NearZero(relativeVelocity.y)){
-        // y축 기준으로, opponent가 center에 만나는 시간.
-        ytime=(checkBox.y-relativePosition.y) / relativeVelocity.y;
+    if(not Math::NearZero(relativeVelocity.y) and relativeVelocity.y < 0 ){
+        ytime=(checkBox.y - relativePosition.y) / relativeVelocity.y;
 
-        // time < 0은 이미 만났다는 뜻이므로,
         ytime = std::max(0.0, ytime);
     }
 
-    // x와 y중 충돌시점이 더 가까운 걸 기준으로 판단.
+    // x, y 둘 중 하나라도 먼저 접하는 시점.
     return{std::min(xtime, ytime), (xtime < ytime)};
 }
 
@@ -122,8 +122,8 @@ void PhysicsSimulator::redoWithCollisionAndFlipRelativeVelocity(
     Attribute_2D& attr, const Vector2& opponent,
     bool flipX
 ) noexcept{
-    // undo
-    attr.undo_update(totalTime);
+    // // undo
+    // attr.undo_update(totalTime);
 
     // redo until collide
     attr.update(collideTime);
@@ -167,7 +167,6 @@ void PhysicsSimulator::update(const float& deltaTime) noexcept{
             // collision check by AABB
             auto [collide, pair]=AABB(center, opponent, deltaTime);
             if(collide){
-                #error "fix this"
                 auto [ect, x]=pair;
                 auto& c_attr=wpCenter.lock()->attr();
 
