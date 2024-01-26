@@ -49,7 +49,8 @@ PhysicsSimulator::AABB_model::AABB_model(const wpm& mc) noexcept{
     size=_attr.volume.size();
 }
 
-std::pair<bool, std::pair<float, bool>> PhysicsSimulator::AABB(
+std::pair<bool, std::pair<float, PhysicsSimulator::CollisionHint>>
+PhysicsSimulator::AABB(
     const AABB_model& colliding, const AABB_model& collided,
     const float& deltaTime
 ) noexcept{
@@ -58,7 +59,8 @@ std::pair<bool, std::pair<float, bool>> PhysicsSimulator::AABB(
     return{(std::abs(ctime) <= deltaTime), {ctime, aboutX}};
 }
 
-std::pair<Math::Real, bool> PhysicsSimulator::whenCollide(
+std::pair<Math::Real, PhysicsSimulator::CollisionHint>
+PhysicsSimulator::whenCollide(
     const AABB_model& colliding, const AABB_model& collided
 ) noexcept{
     // center에 대한 opponent의 상대 위치
@@ -145,7 +147,6 @@ std::pair<Math::Real, bool> PhysicsSimulator::whenCollide(
     }
     assert(ytime_min <= ytime_max);
 
-
     // xtime_min < t < xtime_max와
     // ytime_min < t < ytime_max가
     // 겹치는 구간 ctime_min < t ctime_max를 찾음.
@@ -155,8 +156,7 @@ std::pair<Math::Real, bool> PhysicsSimulator::whenCollide(
     // 겹치는 곳이 없다면,
     if(ctime_min > ctime_max){
         // 충돌 불가.
-        // pair.second는 의미 없음.
-        return {Math::infinity, false};
+        return {Math::infinity, {false, false}};
     }
     // 겹친다면, 충돌 '가능'
     // 더 가까운 충돌 가능 시간을 반환.
@@ -164,19 +164,22 @@ std::pair<Math::Real, bool> PhysicsSimulator::whenCollide(
     // 0 < ctime_min < ctime_max 이면,
     else if(0 < ctime_min){
         // ctime_min이 충돌 시간.
-        // pair.second는 이 값이 x에 대해서 추론된 것인지 확인.
-        return {ctime_min, ctime_min==xtime_min};
+        return {
+            ctime_min, {
+                ctime_min == xtime_min, // 이 값이 x에 대해서 추론.
+                ctime_min == ytime_min
+            }
+        };
     }
     // ctime_min < ctime_max < 0 이면,
     else if(ctime_max < 0){
         // 이하 동문.
-        return {ctime_max, ctime_max==xtime_max};
+        return {ctime_max, {ctime_max==xtime_max, ctime_max==ytime_max}};
     }
     // ctime_min < 0 < ctime_max 이면,
     else{
         // 지금이 충돌 가능 시간
-        // pair.second는 큰 의미 없음.
-        return {0, true};
+        return {0.0, {true, true}};
     }
 }
 
@@ -196,7 +199,7 @@ bool PhysicsSimulator::isGetCloser(
 void PhysicsSimulator::redoWithCollisionAndFlipRelativeVelocity(
     const float& totalTime, const float& collideTime,
     Attribute_2D& target, const Vector2& opponent,
-    bool flipX
+    const CollisionHint& hint
 ) noexcept{
     // undo
     target.undo_update(totalTime);
@@ -206,13 +209,15 @@ void PhysicsSimulator::redoWithCollisionAndFlipRelativeVelocity(
 
     // flip velocity
     auto& v=target.velocity.linear;
-    if(flipX){
+    if(hint.first){
 #ifdef TOTALLY_INELASTIC_COLLISION
         v.x = opponent.x;
 #else
         v.x = Math::reflect(v.x, opponent.x);
 #endif
-    } else{
+    }
+
+    if(hint.second){
 #ifdef TOTALLY_INELASTIC_COLLISION
         v.y = opponent.y
 #else
@@ -238,17 +243,17 @@ void PhysicsSimulator::update(const float& deltaTime) noexcept{
             const AABB_model opponent=wpOpponent;
 
             // collision check by AABB
-            auto [collide, pair]=AABB(target, opponent, deltaTime);
+            auto [collide, timeWithHint]=AABB(target, opponent, deltaTime);
 
             if(collide){
                 isCollided=true;
 
-                auto [ect, x]=pair;
+                auto [estimatedCollisionTime, hint]=timeWithHint;
                 auto& c_attr=wpTarget.lock()->attr();
                 redoWithCollisionAndFlipRelativeVelocity(
-                    deltaTime, ect,
+                    deltaTime, estimatedCollisionTime,
                     c_attr, opponent.velocity,
-                    x
+                    hint
                 );
             }
         }
