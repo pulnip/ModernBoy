@@ -18,6 +18,7 @@ class LevelLoader{
   private:
     MainEngine& mainEngine;
 
+    // parse json file to rapidjson::Document
     std::optional<rapidjson::Document> loadJson(
         const std::string& fileName
     ) noexcept;

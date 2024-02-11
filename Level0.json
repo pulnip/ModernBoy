@@ -1,3 +1,116 @@
 {
-    "version": "0.0.1"
+    "version": "0.0.1",
+    "windows": {
+        "title": "Game Programming in C++",
+        "size": {
+            "width": 1024,
+            "height": 768
+        }
+    },
+    "Actors": [
+        {
+            "name": "Paddle",
+            "type": "Player",
+            "position": {
+                "x": 15.0,
+                "y": 384.0
+            },
+            "size": {
+                "width": 15.0,
+                "height": 120.0
+            },
+            "color": {
+                "red": 0, "green": 0, "blue": 255,
+                "alpha": 255
+            },
+            "controls": {
+                "w": {
+                    "type": "move",
+                    "detail": "upward",
+                    "speed": 300.0
+                },
+                "s": {
+                    "type": "move",
+                    "detail": "downward",
+                    "speed": 300.0
+                }
+            }
+        },
+        {
+            "name": "Ball",
+            "type": "Enemy",
+            "position": {
+                "x": 512.0,
+                "y": 384.0
+            },
+            "size": {
+                "width": 45.0,
+                "height": 40.0
+            },
+            "velocity": {
+                "x": -200.0,
+                "y": 235.0
+            },
+            "animation": [
+                "pigeon_1.png",
+                "pigeon_2.png",
+                "pigeon_3.png",
+                "pigeon_2.png" 
+            ],
+            "behaviour": [
+                {
+                    "condition": "offscreen",
+                    "what to do": "game-over"
+                }   
+            ]
+        },
+        {
+            "name": "Ceil",
+            "type": "Object",
+            "position": {
+                "x": 512.0,
+                "y": 760.5
+            },
+            "size": {
+                "width": 1024.0,
+                "height": 15.0
+            },
+            "color": {
+                "red": 0, "green": 0, "blue": 0,
+                "alpha": 255
+            }
+        },
+        {
+            "name": "Wall",
+            "type": "Object",
+            "position": {
+                "x": 1016.5,
+                "y": 384.0
+            },
+            "size": {
+                "width": 15.0,
+                "height": 768.0
+            },
+            "color": {
+                "red": 0, "green": 0, "blue": 0,
+                "alpha": 255
+            }
+        },
+        {
+            "name": "Floor",
+            "type": "Object",
+            "position": {
+                "x": 512.0,
+                "y": 7.5
+            },
+            "size": {
+                "width": 1024.0,
+                "height": 15.0
+            },
+            "color": {
+                "red": 0, "green": 0, "blue": 0,
+                "alpha": 255
+            }
+        }
+    ]
 }

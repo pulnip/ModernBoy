@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <optional>
 #include <string>
 
@@ -12,5 +13,13 @@ class JsonHelper{
     // - second: valid if type correct
     std::pair<bool, std::optional<int>> getInt(
         const rapidjson::Value& object, const std::string& property
+    ) noexcept;
+};
+
+class ActorHelper: public JsonHelper{
+
+  public:
+    std::optional<class ActorBlueprint> get(
+        const rapidjson::Value& object
     ) noexcept;
 };
