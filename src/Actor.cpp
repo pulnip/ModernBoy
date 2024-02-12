@@ -3,7 +3,7 @@
 #include "PubSubMessage.hpp"
 #include "SubEngine/ActorManager.hpp"
 #include "Actor/Actor.hpp"
-#include "Component/Component.hpp"
+#include "Component/MoveComponent.hpp"
 
 void Actor::update(const float& deltaTime) noexcept {
     if (state!=State::EActive) return;

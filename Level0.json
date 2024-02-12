@@ -59,7 +59,7 @@
             ],
             "behaviour": [
                 {
-                    "condition": "offscreen",
+                    "when": "offscreen",
                     "what to do": "game-over"
                 }   
             ]

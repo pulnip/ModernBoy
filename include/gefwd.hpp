@@ -53,3 +53,7 @@ class DrawComponent;
 class BoxComponent;
 class InputComponent;
 class MoveComponent;
+
+namespace Blueprint{
+    struct Actor;
+}

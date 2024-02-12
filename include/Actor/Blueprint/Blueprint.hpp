@@ -1,6 +1,13 @@
 #pragma once
 
+#include <functional>
+#include <map>
+#include <vector>
+
 #include "Skin.hpp"
+
+using Predicate=std::function<bool(void)>;
+using Work=std::function<void(void)>;
 
 namespace Blueprint{
     struct Actor{
@@ -16,10 +23,17 @@ namespace Blueprint{
             // dependent to rotation
             FORWARD, BACKWARD,
             JUMP
-        } moveType;
+        };
+        std::map<uint8_t, MoveType> keyMap;
     };
 
     struct Enemy: public Actor{
-
+        enum class When{
+            OFFSCREEN
+        };
+        enum class WhatToDo{
+            GAME_OVER
+        };
+        std::map<When, WhatToDo> behaviourMap;
     };
 }
