@@ -23,7 +23,8 @@ class GameEngine: public IGameEngine,
     virtual ~GameEngine() = default;
 
   protected:
-    GameEngine() = default;
+    GameEngine(std::shared_ptr<Game::Plugin::Logger>& logger) noexcept:
+    logger(logger){}
 
   private:
     void run() noexcept override final;
@@ -38,6 +39,7 @@ class GameEngine: public IGameEngine,
     virtual void injectDependency() noexcept=0;
 
   protected:
+    std::shared_ptr<Game::Plugin::Logger> logger;
     SubEngineMap subEngines;
     std::shared_ptr<Timer> timer;
 

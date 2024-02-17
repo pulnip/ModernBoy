@@ -8,12 +8,16 @@
 template <class Base, class Owner = void>
 class Makable{
   public:
-    template <class Derived>
+    template <class Derived, typename... T>
         requires std::derived_from<Derived, Base>
-    static auto make(const std::weak_ptr<Owner> owner) noexcept{
+    static auto make(
+        const std::weak_ptr<Owner> owner, T... args
+    ) noexcept{
         static_assert(std::derived_from<Base, Makable<Base, Owner>>);
 
-        std::shared_ptr<Makable> derived = std::make_shared<Derived>();
+        std::shared_ptr<Makable> derived = std::make_shared<Derived>(
+            args...
+        );
 
         derived->owner=owner;
         derived->postConstruct();
@@ -34,12 +38,12 @@ class Makable{
 template <class Base>
 class Makable<Base, void>{
   public:
-    template <class Derived>
+    template <class Derived, typename... T>
         requires std::derived_from<Derived, Base>
-    static auto make() noexcept{
+    static auto make(T... args) noexcept{
         static_assert(std::derived_from<Base, Makable<Base>>);
 
-        std::shared_ptr<Makable> derived = std::make_shared<Derived>();
+        std::shared_ptr<Makable> derived = std::make_shared<Derived>(args...);
 
         derived->postConstruct();
         

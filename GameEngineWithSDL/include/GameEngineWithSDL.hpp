@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+
+#include "gefwd.hpp"
 #include "GameEngine/GameEngine.hpp"
 
 class GameEngineWithSDL: public GameEngine,
@@ -9,7 +12,7 @@ class GameEngineWithSDL: public GameEngine,
     virtual ~GameEngineWithSDL();
 
   protected:
-    GameEngineWithSDL() noexcept;
+    GameEngineWithSDL(std::shared_ptr<Game::Plugin::Logger>& logger) noexcept;
 
   private:
     void injectDependency() noexcept override final;

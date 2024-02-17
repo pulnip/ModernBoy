@@ -25,6 +25,7 @@ add_executable(${PROJECT_NAME}
     src/InputSystem.cpp
     src/PhysicsSimulator.cpp
     src/Timer_default.cpp
+    src/Logger.cpp
     src/Actor.cpp
     src/Component.cpp
     src/DrawComponent.cpp

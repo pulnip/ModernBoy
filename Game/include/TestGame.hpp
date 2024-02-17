@@ -1,11 +1,14 @@
 #pragma once
 
+#include <memory>
+
+#include "gefwd.hpp"
 #include "GameEngineWithSDL.hpp"
 
-class TestGame: public GameEngineWithSDL{
+class TestGame final: public GameEngineWithSDL{
   public:
-    TestGame() noexcept=default;
-    ~TestGame()=default;
+    TestGame(std::shared_ptr<Game::Plugin::Logger>& logger) noexcept;
+    ~TestGame();
 
   private:
     void setAttribute() noexcept override final;

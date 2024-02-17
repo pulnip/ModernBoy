@@ -57,3 +57,16 @@ class MoveComponent;
 namespace Blueprint{
     struct Actor;
 }
+
+namespace Game{
+    class Engine;
+    namespace Plugin{
+        class Logger;
+    }
+}
+
+namespace WithSTD{
+    namespace Plugin{
+        class Logger_default;
+    }
+}

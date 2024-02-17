@@ -13,7 +13,9 @@ GameEngineWithSDL::~GameEngineWithSDL() {
     SDL_Quit();
 }
 
-GameEngineWithSDL::GameEngineWithSDL() noexcept {
+GameEngineWithSDL::GameEngineWithSDL(
+    std::shared_ptr<Game::Plugin::Logger>& logger
+) noexcept: GameEngine(logger){
     int sdlResult = SDL_Init(SDL_INIT_VIDEO);
     if (sdlResult != 0) {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());

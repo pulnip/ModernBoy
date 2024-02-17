@@ -9,8 +9,6 @@
 #include "SubEngine/ResourceManager.hpp"
 
 class ResourceManagerWithSDL final: public ResourceManager {
-    friend class Game;
-
   public:
     ResourceManagerWithSDL() noexcept=default;
     ~ResourceManagerWithSDL();
