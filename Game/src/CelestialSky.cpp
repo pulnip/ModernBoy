@@ -5,7 +5,7 @@
 #include "ResourceManagerWithSDL.hpp"
 #include "CelestialSky.hpp"
 #include "Component/Movable.hpp"
-#include "BGSpriteComponent.hpp"
+#include "BGSprite.hpp"
 
 void CelestialSky::injectDependency() noexcept{
     auto self=weak_from_this();
@@ -18,7 +18,7 @@ void CelestialSky::injectDependency() noexcept{
     auto rm=std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());
 
     // Far-Back background
-    auto fbg=Component::make<BGSpriteComponent>(self);
+    auto fbg=Component::make<BGSprite>(self);
 
     fbg->setScreenSize(Vector2{1024.0f, 768.0f});
     fbg->setScrollSpeed(-100.0f);
@@ -31,7 +31,7 @@ void CelestialSky::injectDependency() noexcept{
     fbg->setBGTextures(std::vector<SDL_Texture*>{img1.value(), img2.value()});
 
     // Closer background
-    auto cbg=Component::make<BGSpriteComponent>(self);
+    auto cbg=Component::make<BGSprite>(self);
 
     cbg->setScreenSize(Vector2{1024.0f, 768.0f});
     cbg->setScrollSpeed(-200.0f);

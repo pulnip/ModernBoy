@@ -1,27 +1,41 @@
 #pragma once
 
+#include "gefwd.hpp"
 #include "SubEngine/GraphicsEngine.hpp"
 
-class GraphicsEngineWithSDL final: public GraphicsEngine,
-    public Observer<SpriteForSDL>
-{
-    friend class ResourceManagerWithSDL;
-  public:
-    GraphicsEngineWithSDL() noexcept=default;
-    ~GraphicsEngineWithSDL();
+using namespace Skin::Flyweight;
+using namespace WithSDL::Skin::Flyweight;
 
-  private:
-    void onNotify(ColorRect rect) noexcept override final;
-    void setAttribute() noexcept override final;
-    void prepareRendering() noexcept override final{ initBackground(); }
-    void finalizeRendering() noexcept override final{ changeColorBuffer(); }
+namespace WithSDL{
+    namespace SubEngine{
+        class GraphicsEngine final: public Game::SubEngine::GraphicsEngine{
+        public:
+            GraphicsEngine() noexcept=default;
+            ~GraphicsEngine();
 
-    void onNotify(SpriteForSDL sprite) noexcept;
-    void initBackground() noexcept;
-    void changeColorBuffer() noexcept;
+            void draw(const ColorRect& rect) noexcept override final;
+            void draw(const SpriteForSDL& sprite) noexcept;
 
-  private:
-    // SDL이 생성한 윈도우
-    std::shared_ptr<class SDL_Window*> window;
-    std::shared_ptr<class SDL_Renderer*> renderer;
-};
+            class SDL_Renderer* getContext() noexcept{
+                return renderer;
+            }
+
+        private:
+            void postConstruct() noexcept override final;
+            void prepareRendering() noexcept override final{
+                initBackground();
+            }
+            void finalizeRendering() noexcept override final{   
+                changeColorBuffer();
+            }
+
+            void initBackground() noexcept;
+            void changeColorBuffer() noexcept;
+
+        private:
+            // SDL이 생성한 윈도우
+            class SDL_Window* window;
+            class SDL_Renderer* renderer;
+        };
+    }
+}

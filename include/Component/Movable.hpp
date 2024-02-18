@@ -10,6 +10,7 @@ namespace Game{
             ~Movable()=default;
 
         private:
+            void postConstruct() noexcept override final;
             void update(const Time& deltaTime) noexcept override final{}
 
             Type getType() const noexcept override final{

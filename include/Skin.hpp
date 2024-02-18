@@ -23,13 +23,13 @@ namespace Skin{
         };
 
         struct ColorRect{
-            Rect rect;
+            const Rect rect;
             const TrueColor& color;
         };
 
         struct SpinRect{
-            Rect rect;
-            Radian rotation=0.0;
+            const Rect rect;
+            const Radian& rotation;
         };
     }
     struct Attribute_2D{

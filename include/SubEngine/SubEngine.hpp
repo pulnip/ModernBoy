@@ -15,8 +15,7 @@ namespace Game{
             Logger,
             PhysicsSimulator,
             ResourceManager,
-            SoundEngine,
-            Timer
+            SoundEngine
         };
 
         class Interface: public Makable<Interface, Core::Engine>{
@@ -24,11 +23,11 @@ namespace Game{
             Interface() noexcept=default;
             virtual ~Interface()=default;
 
-        private:
+            virtual void update(const Time& deltaTime) noexcept=0;
+
             virtual Type getType() const noexcept{
                 return Type::Interface;
             }
-            virtual void update(const Time& deltaTime) noexcept=0;
         };
     }
 }

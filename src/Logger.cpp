@@ -1,9 +1,9 @@
 #include <iostream>
 #include <map>
 
-#include "Logger.hpp"
+#include "SubEngine/Logger.hpp"
 
-using namespace Game::Plugin;
+using namespace Game::SubEngine;
 
 void Logger::setLevel(const LogLevel& level) noexcept{
     std::map<LogLevel, const std::string> levelMap={
@@ -17,7 +17,7 @@ void Logger::setLevel(const LogLevel& level) noexcept{
     this->level=levelMap[level];
 }
 
-using namespace WithSTD::Plugin;
+using namespace WithSTD::SubEngine;
 
 void Logger_default::log(const std::string& msg) noexcept{
     std::cout<<level<<": "<<msg<<'\n';

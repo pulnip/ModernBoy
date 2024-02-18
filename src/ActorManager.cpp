@@ -5,11 +5,13 @@
 #include "SubEngine/ActorManager.hpp"
 #include "Actor/Actor.hpp"
 
-std::optional<std::shared_ptr<ISubEngine>>
-ActorManager::query(const SubEngine::Type name) noexcept{
-    assert(!owner.expired());
-    std::shared_ptr<IGameEngine> ge=owner.lock();
-    auto result=ge->find(name);
+using namespace Game;
+using namespace Game::SubEngine;
+
+std::optional<Plugin> ActorManager::query(
+    const SubEngine::Type name
+) noexcept{
+    auto result=owner.lock()->find(name);
 
     if(result == nullptr){
         return std::nullopt;
@@ -17,7 +19,7 @@ ActorManager::query(const SubEngine::Type name) noexcept{
     return result;
 }
 
-void ActorManager::appendActor(const std::shared_ptr<Actor::Interface> actor) noexcept {
+void ActorManager::appendActor(const Object actor) noexcept {
     if (isUpdatingActors) {
         pendingActors.emplace_back(actor);
     } else {
@@ -25,17 +27,20 @@ void ActorManager::appendActor(const std::shared_ptr<Actor::Interface> actor) no
     }
 }
 
-void ActorManager::removeActor(const std::shared_ptr<Actor::Interface> actor) noexcept {
-    const auto it =
-        actors.erase(std::remove(actors.begin(), actors.end(), actor));
+void ActorManager::removeActor(const Object actor) noexcept {
+    const auto it=actors.erase(
+        std::remove(actors.begin(), actors.end(), actor)
+    );
 
     // actor not found in actors
     if (it == actors.end()) {
-        pendingActors.erase(std::remove(actors.begin(), actors.end(), actor));
+        pendingActors.erase(
+            std::remove(actors.begin(), actors.end(), actor)
+        );
     }
 }
 
-void ActorManager::update(const float& deltaTime) noexcept {
+void ActorManager::update(const Time& deltaTime) noexcept {
     isUpdatingActors = true;
     // 모든 액터를 갱신
     for (auto& actor : actors) {
@@ -53,21 +58,8 @@ void ActorManager::update(const float& deltaTime) noexcept {
     actors.erase(
         std::remove_if(actors.begin(), actors.end(),
             [](const auto& actor) {
-                return actor->getState()==Actor::Interface::State::EDead;
+                return actor->getState()==Actor::State::EDead;
             }
         ), actors.end()
     );
-}
-
-void ActorManager::onNotify(Lifetime lifetime, std::shared_ptr<Actor> actor) noexcept{
-    switch (lifetime) {
-    case Lifetime::CONSTRUCTED:
-        appendActor(actor);
-        break;
-    case Lifetime::DESTRUCTED:
-        removeActor(actor);
-        break;
-    default:
-        assert(false);
-    }
 }

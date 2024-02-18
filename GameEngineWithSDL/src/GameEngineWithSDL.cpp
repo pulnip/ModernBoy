@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 
+#include "MainEngine.hpp"
 #include "GameEngineWithSDL.hpp"
-
 #include "SubEngine/ActorManager.hpp"
 #include "SubEngine/GameLogic.hpp"
 #include "GraphicsEngineWithSDL.hpp"
@@ -9,31 +9,41 @@
 #include "ResourceManagerWithSDL.hpp"
 #include "TimerWithSDL.hpp"
 
-GameEngineWithSDL::~GameEngineWithSDL() {
-    SDL_Quit();
-}
+using namespace Game;
+using namespace WithSDL::Core;
 
-GameEngineWithSDL::GameEngineWithSDL(
-    std::shared_ptr<Game::Plugin::Logger>& logger
-) noexcept: GameEngine(logger){
+Engine::Engine(std::shared_ptr<Game::SubEngine::Logger>& logger) noexcept:
+    Game::Core::Engine(logger)
+{
     int sdlResult = SDL_Init(SDL_INIT_VIDEO);
     if (sdlResult != 0) {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
     }
 }
 
-void GameEngineWithSDL::injectDependency() noexcept {
-    auto self = weak_from_this();
+Engine::~Engine(){ SDL_Quit(); }
 
-    SubEngine::make<GraphicsEngineWithSDL>(self);
+void Engine::postConstruct() noexcept {
+    assert(not owner.expired());
+    auto self = owner.lock()->getEngine();
+
+    Game::SubEngine::Interface::make<
+        WithSDL::SubEngine::GraphicsEngine
+    >(self);
     // must call after graphicsEngine
-    SubEngine::make<ResourceManagerWithSDL>(self);
+    Game::SubEngine::Interface::make<
+        WithSDL::SubEngine::ResourceManager
+    >(self);
 
-    SubEngine::make<NullGameLogic>(self);
+    Game::SubEngine::Interface::make<
+        Null::SubEngine::GameLogic
+    >(self);
     // must call after GameLogic
-    SubEngine::make<InputSystemWithSDL>(self);
+    Game::SubEngine::Interface::make<
+        WithSDL::SubEngine::InputSystem
+    >(self);
 
-    timer = Timer::make<TimerWithSDL>();
-
-    setAttribute();
+    timer = Game::SubEngine::Timer::make<
+        WithSDL::SubEngine::Timer
+    >();
 }

@@ -8,50 +8,62 @@
 
 #include "gefwd.hpp"
 
-// 액터의 상태를 추적하는 데 사용
-enum class State{
-    EActive,
-    EPaused,
-    EDead
-};
-
 namespace Game{
     namespace Actor{
-        class Actor: public Makable<Actor, SubEngine::ActorManager>{
+        enum class Type{
+            Interface,
+            Player,
+            Enemy
+        };
+        // 액터의 상태를 추적하는 데 사용
+        enum class State{
+            EActive,
+            EPaused,
+            EDead
+        };
+        class Interface:
+            public Makable<Interface, SubEngine::ActorManager>
+        {
         public:
-            Actor() noexcept=default;
-            virtual ~Actor()=default;
+            Interface() noexcept=default;
+            virtual ~Interface()=default;
 
             void update(const Time& deltaTime) noexcept;
+            Part find(const Component::Type name) noexcept;
+            std::optional<Plugin> query(
+                const SubEngine::Type name
+            ) noexcept;
+            
             const State& getState() const noexcept{ return state; }
 
-            std::shared_ptr<Component::Interface>
-                find(const Type name) noexcept;
-            std::optional<std::shared_ptr<SubEngine::Interface>>
-                query(const SubEngine::Type name) noexcept;
+            void add(Part comp) noexcept;
+            void remove(Part comp) noexcept;
 
         private:
             // actor-specific function
-            virtual void updateActor(const float& deltaTime) noexcept=0;
+            virtual void updateActor(const Time& deltaTime) noexcept=0;
 
         protected:
             State state;
 
             struct UpdateOrder {
-                using ptr=std::shared_ptr<Component::Interface>;
-                bool operator()(const ptr& lhs, const ptr& rhs) const noexcept;
+                bool operator()(
+                    const Part& lhs, const Part& rhs
+                ) const noexcept;
             };
             // the component owned by actor
-            std::multimap<Type,
-                std::shared_ptr<Component::Interface>
-            > components;
-            std::multiset<std::shared_ptr<Component::Interface>, UpdateOrder
-            > orderedComponents;
+            std::multimap<Component::Type, Part> components;
+            std::multiset<Part, UpdateOrder> orderedComponents;
         };
+    }
+}
 
-        class NullActor final: public Actor{
+namespace Null{
+    namespace Actor{
+        class Dummy final: public Game::Actor::Interface{
         private:
-            void updateActor(const float& deltaTime) noexcept override final{}
+            void updateActor(const Game::Time& deltaTime
+            ) noexcept override final{}
         };
     }
 }

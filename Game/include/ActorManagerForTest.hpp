@@ -2,11 +2,11 @@
 
 #include "SubEngine/ActorManager.hpp"
 
-class ActorManagerForTest: public ActorManager{
+class ActorManagerForTest: public Game::SubEngine::ActorManager{
 public:
     ActorManagerForTest() noexcept=default;
     ~ActorManagerForTest()=default;
 
 private:
-    void setAttribute() noexcept override final;
+    void postConstruct() noexcept override final;
 };

@@ -5,18 +5,17 @@
 #include "gefwd.hpp"
 #include "GameEngine/GameEngine.hpp"
 
-class GameEngineWithSDL: public GameEngine,
-    public std::enable_shared_from_this<GameEngineWithSDL>
-{
-  public:
-    virtual ~GameEngineWithSDL();
+using namespace Game;
 
-  protected:
-    GameEngineWithSDL(std::shared_ptr<Game::Plugin::Logger>& logger) noexcept;
+namespace WithSDL{
+    namespace Core{
+        class Engine: public Game::Core::Engine{
+        public:
+            Engine(std::shared_ptr<Game::SubEngine::Logger>& logger) noexcept;
+            virtual ~Engine();
 
-  private:
-    void injectDependency() noexcept override final;
-
-  private:
-    virtual void setAttribute() noexcept=0;
-};
+        protected:
+            void postConstruct() noexcept override;
+        };
+    }
+}

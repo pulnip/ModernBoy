@@ -1,13 +1,15 @@
-#include "Actor/Blueprint/Blueprint.hpp"
+#include "Blueprint/Blueprint.hpp"
+
+using namespace Game;
+using namespace Game::Blueprint;
 
 int main(void){
     Blueprint::Enemy e;
 
-    Vector2 window_screen;
+    Vector2D window_screen;
 
     // in actor...
     std::vector<std::pair<Predicate, Work>> behaviour;
-
 
     // make actor from blueprint
     for(auto& [when, what]: e.behaviourMap){

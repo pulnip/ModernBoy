@@ -26,7 +26,6 @@ add_executable(${PROJECT_NAME}
     src/Timer.cpp
     src/Logger.cpp
     src/Actor.cpp
-    src/Component.cpp
     src/Drawable.cpp
     src/ColoredBody.cpp
     src/Movable.cpp
@@ -36,9 +35,9 @@ add_executable(${PROJECT_NAME}
     GameEngineWithSDL/src/GraphicsEngineWithSDL.cpp
     GameEngineWithSDL/src/InputSystemWithSDL.cpp
     GameEngineWithSDL/src/ResourceManagerWithSDL.cpp
-    GameEngineWithSDL/src/SpriteComponent.cpp
-    GameEngineWithSDL/src/AnimSpriteComponent.cpp
-    GameEngineWithSDL/src/BGSpriteComponent.cpp
+    GameEngineWithSDL/src/Sprite.cpp
+    GameEngineWithSDL/src/AnimSprite.cpp
+    GameEngineWithSDL/src/BGSprite.cpp
     GameEngineWithSDL/src/TimerWithSDL.cpp
 
     Game/src/TestGame.cpp

@@ -6,11 +6,13 @@
 
 namespace My{
     namespace Math{
-        auto Angle::Degree::toRadian() noexcept{
-            return Radian{(Number::PI/180.0) * angle};
-        }
-        auto Angle::Radian::toDegree() noexcept{
-            return Degree{(180.0/Number::PI) * angle};
+        namespace Angle{
+            Radian Degree::toRadian() const noexcept{
+                return Radian{(Number::PI/180.0) * angle};
+            }
+            Degree Radian::toDegree() const noexcept{
+                return Degree{(180.0/Number::PI) * angle};
+            }
         }
 
 

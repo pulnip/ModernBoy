@@ -2,12 +2,12 @@
 
 #include "Actor/Actor.hpp"
 
-class Asteroid final: public Actor{
+class Asteroid final: public Game::Actor::Interface{
   public:
     Asteroid() noexcept=default;
     ~Asteroid()=default;
 
   private:
-    void updateActor(const float&) noexcept override final{}
-    void injectDependency() noexcept override final;
+    void updateActor(const Game::Time&) noexcept override final{}
+    void postConstruct() noexcept override final;
 };

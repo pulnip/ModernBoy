@@ -5,11 +5,11 @@
 #include "gefwd.hpp"
 #include "GameEngineWithSDL.hpp"
 
-class TestGame final: public GameEngineWithSDL{
+class TestGame final: public WithSDL::Core::Engine{
   public:
-    TestGame(std::shared_ptr<Game::Plugin::Logger>& logger) noexcept;
+    TestGame(std::shared_ptr<Game::SubEngine::Logger>& logger) noexcept;
     ~TestGame();
 
   private:
-    void setAttribute() noexcept override final;
+    void postConstruct() noexcept override final;
 };

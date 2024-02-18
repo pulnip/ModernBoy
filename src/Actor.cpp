@@ -4,7 +4,10 @@
 #include "Actor/Actor.hpp"
 #include "Component/Movable.hpp"
 
-void Actor::update(const float& deltaTime) noexcept {
+using namespace Game;
+using namespace Game::Actor;
+
+void Interface::update(const Time& deltaTime) noexcept{
     if (state!=State::EActive) return;
 
     for (auto& comp: orderedComponents) {
@@ -13,8 +16,7 @@ void Actor::update(const float& deltaTime) noexcept {
     updateActor(deltaTime);
 }
 
-std::shared_ptr<Component>
-Actor::find(const Type name) noexcept {
+Part Interface::find(const Component::Type name) noexcept {
     auto result=components.find(name);
     if(result==components.end()){
         return nullptr;
@@ -22,33 +24,27 @@ Actor::find(const Type name) noexcept {
     return result->second;
 }
 
-std::optional<std::shared_ptr<ISubEngine>>
-Actor::query(const SubEngine::Type name) noexcept{
+std::optional<Plugin> Interface::query(
+    const SubEngine::Type name
+) noexcept{
     assert(!owner.expired());
     auto manager=owner.lock();
 
     return manager->query(name);
 }
 
-void Actor::onNotify(Lifetime msg, std::shared_ptr<Component> comp) noexcept{
-    std::shared_ptr<Component> ic=comp;
-
-    switch(msg){
-    case Lifetime::CONSTRUCTED:
-        components.emplace(ic->getType(), ic);
-        orderedComponents.emplace(ic);
-        break;
-    case Lifetime::DESTRUCTED:
-        components.erase(ic->getType());
-        orderedComponents.erase(ic);
-        break;
-    default:
-        assert(false);
-    }
+void Interface::add(Part comp) noexcept{
+    components.emplace(comp->getType(), comp);
+    orderedComponents.emplace(comp);
 }
 
-bool Actor::UpdateOrder::operator()(
-    const ptr& lhs, const ptr& rhs
+void Interface::remove(Part comp) noexcept{
+    components.erase(comp->getType());
+    orderedComponents.erase(comp);
+}
+
+bool Interface::UpdateOrder::operator()(
+    const Part& lhs, const Part& rhs
 ) const noexcept{
     return lhs->getUpdateOrder() < rhs->getUpdateOrder();
 }

@@ -2,14 +2,19 @@
 
 #include "SubEngine/InputSystem.hpp"
 
-class InputSystemWithSDL final: public InputSystem {
-  public:
-    InputSystemWithSDL() noexcept=default;
-    ~InputSystemWithSDL()=default;
+namespace WithSDL{
+    namespace SubEngine{
+        class InputSystem final: public Game::SubEngine::InputSystem{
+        public:
+            InputSystem() noexcept=default;
+            ~InputSystem()=default;
 
-  private:
-    void update(const float &deltaTime) noexcept override;
-    void setAttribute() noexcept override final{}
+        private:
+            void update(const Game::Time& deltaTime) noexcept override;
 
-    uint8_t escapeKeycode() const noexcept override final;
-};
+            uint8_t escapeKeycode() const noexcept override final;
+        };
+
+    }
+}
+

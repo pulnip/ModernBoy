@@ -4,13 +4,16 @@
 #include "Actor/Actor.hpp"
 #include "Component/Controllable.hpp"
 
+using namespace Game;
+using namespace Game::Component;
+
 void Controllable::setKey(
     const uint8_t key,
     std::function<void(void)> OnPressed,
     std::function<void(void)> OnReleased
 ) noexcept{
-    assert(!inputSystem.expired());
-    inputSystem.lock()->registerKey(
+    assert(!controller.expired());
+    controller.lock()->registerKey(
         key, std::static_pointer_cast<Controllable>(shared_from_this())
     );
 
@@ -18,17 +21,8 @@ void Controllable::setKey(
     ifReleased[key] = OnReleased;
 }
 
-void Controllable::injectDependency() noexcept{
-    assert(!owner.expired());
-    std::shared_ptr<Actor::Interface> actor=owner.lock();
-    auto query=actor->query(SubEngine::Type::InputSystem);
-    
-    assert(query.has_value());
-    inputSystem=std::dynamic_pointer_cast<InputSystem>(query.value());
-}
-
-void Controllable::onNotify(Key key) noexcept {
-    if(key.status==Key::Status::PRESSED){
+void Controllable::onNotify(const Skin::Key& key) noexcept {
+    if(key.status==Skin::Key::Status::PRESSED){
         auto it=ifPressed.find(key.key);
         assert(it != ifPressed.end());
         it->second();
@@ -36,5 +30,20 @@ void Controllable::onNotify(Key key) noexcept {
         auto it=ifReleased.find(key.key);
         assert(it != ifReleased.end());
         it->second();
+    }
+}
+
+void Controllable::postConstruct() noexcept{
+    setController();
+}
+
+void Controllable::setController() noexcept{
+    assert(!owner.expired());
+    auto query=owner.lock()->query(SubEngine::Type::InputSystem);
+    
+    if(query.has_value()){
+        controller=std::dynamic_pointer_cast<
+            SubEngine::InputSystem
+        >(query.value());        
     }
 }

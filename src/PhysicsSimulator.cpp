@@ -4,21 +4,65 @@
 #include "Actor/Actor.hpp"
 #include "Component/Movable.hpp"
 
+using namespace Game;
+using namespace Game::SubEngine;
+
 template<typename T>
 bool is_same(std::weak_ptr<T> lhs, std::weak_ptr<T> rhs){
     return (not lhs.owner_before(rhs)) && (not rhs.owner_before(lhs));
 }
 
+void PhysicsSimulator::update(const Time& deltaTime) noexcept{
+    // TODO
+    // remove if expired
+
+    // check collision
+    for(auto& [wpTarget, list]: collisionMap){
+        const AABB_model target=wpTarget;
+
+        bool isCollided=false;
+
+        for(auto& wpOpponent: list){
+            const AABB_model opponent=wpOpponent;
+
+            // collision check by AABB
+            auto [collide, timeWithHint]=AABB(target, opponent, deltaTime);
+
+            if(collide){
+                isCollided=true;
+
+                auto [estimatedCollisionTime, hint]=timeWithHint;
+                auto& c_attr=*wpTarget.lock()->attr;
+                redoWithCollisionAndFlipRelativeVelocity(
+                    deltaTime, estimatedCollisionTime,
+                    c_attr, opponent.velocity,
+                    hint
+                );
+            }
+        }
+
+        // update move component
+        if(not isCollided){
+            wpTarget.lock()->attr->update(deltaTime);
+        }
+    }
+}
+
+void PhysicsSimulator::appendMovable(ptr movable) noexcept{
+    collisionMap.try_emplace(movable, std::list<ptr>());
+}
+
+
 void PhysicsSimulator::setCollision(
     std::weak_ptr<Actor::Interface> who, std::weak_ptr<Actor::Interface> to
 ) noexcept{
     assert(!who.expired());
-    wpm who_mc=std::static_pointer_cast<Movable>(
-        who.lock()->find(Type::Movable)
+    ptr who_mc=std::static_pointer_cast<Component::Movable>(
+        who.lock()->find(Component::Type::Movable)
     );
     assert(!to.expired());
-    wpm to_mc=std::static_pointer_cast<Movable>(
-        to.lock()->find(Type::Movable)
+    ptr to_mc=std::static_pointer_cast<Component::Movable>(
+        to.lock()->find(Component::Type::Movable)
     );
 
     auto it=collisionMap.lower_bound(who_mc);
@@ -28,7 +72,7 @@ void PhysicsSimulator::setCollision(
     ){
         // key not exist
         collisionMap.emplace_hint(it,
-            who_mc, std::list<wpm>{to_mc}
+            who_mc, std::list<ptr>{to_mc}
         );
     } else{
         // key already exists
@@ -36,13 +80,10 @@ void PhysicsSimulator::setCollision(
     }
 }
 
-void PhysicsSimulator::appendMovable(wpm movable) noexcept{
-    collisionMap.try_emplace(movable, std::list<wpm>());
-}
 
-PhysicsSimulator::AABB_model::AABB_model(const wpm& mc) noexcept{
+PhysicsSimulator::AABB_model::AABB_model(const ptr& mc) noexcept{
     assert(!mc.expired());
-    auto _attr=mc.lock()->attr();
+    auto& _attr=*mc.lock()->attr;
 
     position=_attr.position.linear;
     velocity=_attr.velocity.linear;
@@ -59,7 +100,9 @@ PhysicsSimulator::AABB(
     return{(std::abs(ctime) <= deltaTime), {ctime, aboutX}};
 }
 
-std::pair<Math::Real, PhysicsSimulator::CollisionHint>
+using namespace My::Math;
+
+std::pair<Number::Real, PhysicsSimulator::CollisionHint>
 PhysicsSimulator::whenCollide(
     const AABB_model& colliding, const AABB_model& collided
 ) noexcept{
@@ -68,7 +111,7 @@ PhysicsSimulator::whenCollide(
     // center에 대한 opponent의 상대 속도
     auto relativeVelocity = colliding.velocity - collided.velocity;
     // 충돌 판정 박스
-    const auto checkBox = (collided.size + colliding.size) / 2;
+    const auto checkBox = (collided.size + colliding.size) / 2.0;
     assert(checkBox.x >= 0);
     assert(checkBox.y >= 0);
 
@@ -87,16 +130,16 @@ PhysicsSimulator::whenCollide(
     assert(relativePosition.y >= 0);
 
     // 진행방향에 대해, 처음으로 경계를 만나는 시간
-    auto xtime_min=Math::infinity;
+    auto xtime_min=Number::infinity;
     // xtime 외에 다른 해
-    auto xtime_max=Math::infinity;
+    auto xtime_max=Number::infinity;
 
     // 속도가 충분히 작다면
-    if(Math::NearZero(relativeVelocity.x)){
+    if(Number::NearZero(relativeVelocity.x)){
         // 충돌범위 안에 점이 있을 때
         if(relativePosition.x < checkBox.x){
             // 무한히 시간을 뒤로 돌려야 진행 반대방향에 있는 경계를 만남.
-            xtime_min = -Math::infinity;
+            xtime_min = -Number::infinity;;
         }
         // 충돌 범위 밖에 점이 있을 때
         // 무한히 시간을 진행해도 어느 경계도 만나지 않음.
@@ -130,12 +173,12 @@ PhysicsSimulator::whenCollide(
     assert(xtime_min <= xtime_max);
 
     // y값에 대해서도 동일.
-    auto ytime_min=Math::infinity;
-    auto ytime_max=Math::infinity;
+    auto ytime_min=Number::infinity;;
+    auto ytime_max=Number::infinity;;
 
-    if(Math::NearZero(relativeVelocity.y)){
+    if(Number::NearZero(relativeVelocity.y)){
         if(relativePosition.y < checkBox.y){
-            ytime_min = -Math::infinity;
+            ytime_min = -Number::infinity;;
         }
     } else{
         ytime_min = (checkBox.y - relativePosition.y) /  relativeVelocity.y;
@@ -156,7 +199,7 @@ PhysicsSimulator::whenCollide(
     // 겹치는 곳이 없다면,
     if(ctime_min > ctime_max){
         // 충돌 불가.
-        return {Math::infinity, {false, false}};
+        return {Number::infinity, {false, false}};
     }
     // 겹친다면, 충돌 '가능'
     // 더 가까운 충돌 가능 시간을 반환.
@@ -193,12 +236,12 @@ bool PhysicsSimulator::isGetCloser(
 
     // opponent가 center에 가까워지는 중.
     // = opponent의 속도가, 두 점 사이의 거리를 좁히는 쪽의 방향임.
-    return relativePosition*relativeVelocity < 0;
+    return dot(relativePosition, relativeVelocity) < 0;
 }
 
 void PhysicsSimulator::redoWithCollisionAndFlipRelativeVelocity(
-    const float& totalTime, const float& collideTime,
-    Attribute_2D& target, const Vector2& opponent,
+    const Time& totalTime, const Time& collideTime,
+    Skin::Attribute_2D& target, const Vector2D& opponent,
     const CollisionHint& hint
 ) noexcept{
     // undo
@@ -213,7 +256,7 @@ void PhysicsSimulator::redoWithCollisionAndFlipRelativeVelocity(
 #ifdef TOTALLY_INELASTIC_COLLISION
         v.x = opponent.x;
 #else
-        v.x = Math::reflect(v.x, opponent.x);
+        v.x = reflect(v.x, opponent.x);
 #endif
     }
 
@@ -221,48 +264,10 @@ void PhysicsSimulator::redoWithCollisionAndFlipRelativeVelocity(
 #ifdef TOTALLY_INELASTIC_COLLISION
         v.y = opponent.y
 #else
-        v.y = Math::reflect(v.y, opponent.y);
+        v.y = reflect(v.y, opponent.y);
 #endif
     }
 
     // redo after collide
     target.update(totalTime - collideTime);
 }
-
-void PhysicsSimulator::update(const float& deltaTime) noexcept{
-    // TODO
-    // remove if expired
-
-    // check collision
-    for(auto& [wpTarget, list]: collisionMap){
-        const AABB_model target=wpTarget;
-
-        bool isCollided=false;
-
-        for(auto& wpOpponent: list){
-            const AABB_model opponent=wpOpponent;
-
-            // collision check by AABB
-            auto [collide, timeWithHint]=AABB(target, opponent, deltaTime);
-
-            if(collide){
-                isCollided=true;
-
-                auto [estimatedCollisionTime, hint]=timeWithHint;
-                auto& c_attr=wpTarget.lock()->attr();
-                redoWithCollisionAndFlipRelativeVelocity(
-                    deltaTime, estimatedCollisionTime,
-                    c_attr, opponent.velocity,
-                    hint
-                );
-            }
-        }
-
-        // update move component
-        if(not isCollided){
-            wpTarget.lock()->attr().update(deltaTime);
-        }
-    }
-}
-
-void PhysicsSimulator::onNotify(Attribute_2D attr) noexcept{}

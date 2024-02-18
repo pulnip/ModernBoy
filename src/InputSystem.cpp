@@ -4,35 +4,34 @@
 #include "SubEngine/GameLogic.hpp"
 #include "SubEngine/InputSystem.hpp"
 
+using namespace Game;
+using namespace Game::SubEngine;
+
 void InputSystem::registerKey(
     const uint8_t key,
-    const std::weak_ptr<Observer<Key>> subscriber
+    const std::weak_ptr<Observer<Skin::Key>> subscriber
 ) noexcept{
-    static const auto dummy=Observable<Key>();
+    static const auto dummy=Observable<Skin::Key>();
     
     auto [it, loaded]=keyMap.try_emplace(key, dummy);
 
     it->second.subscribe(subscriber);
 }
 
-void InputSystem::injectDependency() noexcept{
+void InputSystem::postConstruct() noexcept{
     assert(!owner.expired());
-    std::shared_ptr<IGameEngine> ige=owner.lock();
-    auto gl=std::dynamic_pointer_cast<GameLogic>(
-        ige->find(SubEngine::Type::GameLogic)
-    );
-
-    assert(gl!=nullptr);
-    Observable<GameStatus>::subscribe(gl);
-
-    setAttribute();
+    subscribe(std::dynamic_pointer_cast<GameLogic>(
+        owner.lock()->find(Type::GameLogic)
+    ));
 }
 
 #include <iostream>
 #include <set>
 #include <string>
 
-void InputSystem_default::update(const float& deltaTime) noexcept{
+using namespace WithSTD::SubEngine;
+
+void InputSystem_default::update(const Game::Time& deltaTime) noexcept{
     std::set<char> log;
     std::string str;
 
@@ -46,6 +45,6 @@ void InputSystem_default::update(const float& deltaTime) noexcept{
         while(*it < key) ++it;
         if(it == log.end()) break;
 
-        if(*it == key) publisher.notify({Key::Status::PRESSED, key});
+        if(*it == key) publisher.notify({Skin::Key::Status::PRESSED, key});
     }
 }

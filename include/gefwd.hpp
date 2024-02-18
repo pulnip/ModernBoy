@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "Concept.hpp"
 
 namespace My{
@@ -26,6 +27,8 @@ namespace Game{
     namespace Core{
         class Engine;
     }
+    using Heart=std::shared_ptr<Core::Engine>;
+
     namespace SubEngine{
         class Interface;
         enum class Type;
@@ -39,12 +42,16 @@ namespace Game{
         class SoundEngine;
         class Timer;
     }
+    using Plugin=std::shared_ptr<SubEngine::Interface>;
+
     namespace Actor{
         class Interface;
         enum class Type;
         class Player;
         class Enemy;
     }
+    using Object=std::shared_ptr<Actor::Interface>;
+
     namespace Component{
         class Interface;
         enum class Type;
@@ -55,6 +62,8 @@ namespace Game{
         class Movable;
         class Rigidbody;
     }
+    using Part=std::shared_ptr<Component::Interface>;
+
     namespace Blueprint{
         struct Actor;
         struct Player;
@@ -112,5 +121,17 @@ namespace WithSDL{
         namespace Flyweight{
             struct SpriteForSDL;
         }
+    }
+    namespace Core{
+        class Engine;
+    }
+    namespace SubEngine{
+        class GraphicsEngine;
+        class InputSystem;
+    }
+    namespace Component{
+        class Sprite;
+        class AnimSprite;
+        class BGSprite;
     }
 }

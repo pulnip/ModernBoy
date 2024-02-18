@@ -18,7 +18,7 @@
 #include "Ship.hpp"
 #endif
 
-void ActorManagerForTest::setAttribute() noexcept{
+void ActorManagerForTest::postConstruct() noexcept{
     auto self=std::dynamic_pointer_cast<ActorManager>(shared_from_this());
     assert(self!=nullptr);
 

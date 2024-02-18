@@ -1,15 +1,16 @@
 #pragma once
 
+#include "Observable.hpp"
 #include "Actor/Actor.hpp"
 
-class Paddle final: public Actor,
-    public Observable<GameStatus>
+class Paddle final: public Game::Actor::Interface,
+    public Observable<Game::Status>
 {
   public:
     Paddle() noexcept=default;
     ~Paddle()=default;
 
   private:
-    void updateActor(const float &deltaTime) noexcept override final;
-    void injectDependency() noexcept override final;
+    void updateActor(const Game::Time& deltaTime) noexcept override final;
+    void postConstruct() noexcept override final;
 };

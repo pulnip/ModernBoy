@@ -65,10 +65,6 @@ namespace Game{
             ) noexcept;
 
         private:
-            virtual void onNotify(const Skin::Attribute_2D& attr
-            ) noexcept override;
-
-        private:
             std::map<
                 ptr, // movable
                 std::list<ptr>, // collide opponent

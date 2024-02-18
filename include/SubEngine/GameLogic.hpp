@@ -21,6 +21,7 @@ namespace Game{
             virtual ~GameLogic()=default;
 
         private:
+            void postConstruct() noexcept override final;
             void onNotify(const Status& status) noexcept override final;
 
             Type getType() const noexcept override final{

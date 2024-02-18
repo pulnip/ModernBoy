@@ -2,20 +2,23 @@
 
 #include "TimerWithSDL.hpp"
 
-TimerWithSDL::TimerWithSDL() : lastTimePoint(SDL_GetTicks64()) {}
+using namespace Game;
+using namespace WithSDL::SubEngine;
 
-void TimerWithSDL::reset() noexcept {
+Timer::Timer(): lastTimePoint(SDL_GetTicks64()){}
+
+void Timer::reset() noexcept {
     lastTimePoint = SDL_GetTicks64();
 }
 
-void TimerWithSDL::wait(const millisecond timeout) noexcept {
+void Timer::wait(const millisecond timeout) noexcept {
     const auto timeoutTimePoint = lastTimePoint + timeout;
     // equivalent to using SDL_TICKS_PASSED ( <- 32bits ver.)
     while (SDL_GetTicks64() <= timeoutTimePoint)
         ;
 }
 
-Timer::millisecond TimerWithSDL::getDeltaTime() noexcept {
+Timer::millisecond Timer::getDeltaTime() noexcept {
     const auto timeEntered = SDL_GetTicks64();
     const auto delta = timeEntered - lastTimePoint;
 

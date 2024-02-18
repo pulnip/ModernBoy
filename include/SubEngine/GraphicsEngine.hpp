@@ -8,8 +8,7 @@
 
 namespace Game{
     namespace SubEngine{
-        class GraphicsEngine: public Interface,
-            public Observer<Skin::Flyweight::ColorRect>
+        class GraphicsEngine: public Interface
         {
         private:
             using ptr=std::weak_ptr<Component::Drawable>;
@@ -22,7 +21,10 @@ namespace Game{
             virtual ~GraphicsEngine() = default;
 
             void update(const Time& deltaTime) noexcept override final;
-        
+            virtual void draw(
+                const Skin::Flyweight::ColorRect& cr
+            ) noexcept=0;
+
             Type getType() const noexcept override final{
                 return Type::GraphicsEngine;
             }
@@ -43,8 +45,8 @@ namespace Null{
     namespace SubEngine{
         class GraphicsEngine: public Game::SubEngine::GraphicsEngine{
         private:
-            void onNotify(const Skin::Flyweight::ColorRect& rect
-            ) noexcept override final;
+            void draw(const Skin::Flyweight::ColorRect& cr
+            ) noexcept override final{}
 
             void prepareRendering() noexcept final{}
             void finalizeRendering() noexcept final{}

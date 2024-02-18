@@ -1,14 +1,19 @@
+#include <memory>
+
 #include <SDL2/SDL_main.h>
 
+#include "MainEngine.hpp"
 #include "TestGame.hpp"
-#include "Logger.hpp"
+#include "SubEngine/Logger.hpp"
 
-int main(int argc, char *argv[]) {
-    std::shared_ptr<Game::Plugin::Logger> logger=
-        std::make_shared<WithSTD::Plugin::Logger_default>();
-    std::shared_ptr<IGameEngine> game = GameEngine::make<TestGame>(
-        logger
-    );
+int main(int argc, char *argv[]){
+    auto m=std::make_shared<MainEngine>();
+    const std::weak_ptr<MainEngine> wp=m;
+
+    std::shared_ptr<Game::SubEngine::Logger> logger=
+        std::make_shared<WithSTD::SubEngine::Logger_default>();
+
+    auto game = Game::Core::Engine::make<TestGame>(wp, logger);
 
     game->run();
 

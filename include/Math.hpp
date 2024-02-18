@@ -31,14 +31,14 @@ namespace My{
             struct Degree{
                 Number::Real angle;
                 Degree(Number::Real angle) noexcept:angle(angle){}
-                auto toRadian() noexcept;
+                Radian toRadian() const noexcept;
                 constexpr auto& get() noexcept{ return angle; }
                 constexpr const auto& get() const noexcept{ return angle; }
             };
             struct Radian{
                 Number::Real angle;
                 Radian(Number::Real angle) noexcept:angle(angle){}
-                auto toDegree() noexcept;
+                Degree toDegree() const noexcept;
                 constexpr auto& get() noexcept{ return angle; }
                 constexpr const auto& get() const noexcept{ return angle; }
             };
@@ -111,16 +111,16 @@ namespace My{
             return scalar*v;
         }
         // dot product
-        template<Numeric Number> Number::Real operator*(
+        template<Numeric Number> Number dot(
             const Vector2<Number>& lhs, const Vector2<Number> &rhs
         ) noexcept{
             return lhs.x*rhs.x + lhs.y*rhs.y;
         }
-        template<Numeric Number> Vector2<Number> operator/(
-            const Vector2<Number>& v, const Number scalar
+        template<Numeric N> Vector2<N> operator/(
+            const Vector2<N>& v, const N scalar
         ) noexcept{
             assert(not Number::NearZero(scalar));
-            return Vector2<Number>{v.x/scalar, v.y/scalar};
+            return Vector2<N>{v.x/scalar, v.y/scalar};
         }
         template<Numeric Number> bool operator<=(
             const Vector2<Number>& lhs, const Vector2<Number>& rhs

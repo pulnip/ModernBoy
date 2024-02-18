@@ -7,31 +7,34 @@
 #include "Component/Drawable.hpp"
 #include "Component/Movable.hpp"
 
-void Drawable::injectDependency() noexcept{
-    drawOrder=initDrawOrder();
+using namespace Game;
+using namespace Game::Component;
 
+void Drawable::postConstruct() noexcept{
     assert(!owner.expired());
-    std::shared_ptr<Actor::Interface> actor=owner.lock();
-
-    {
-        auto mc=actor->find(Type::Movable);
-
-        assert(mc!=nullptr);
-        target=std::dynamic_pointer_cast<Movable>(mc);
+    auto query=owner.lock()->find(Type::Movable);
+    if(query != nullptr){
+        target=std::dynamic_pointer_cast<Movable>(query);
     }
 
-    {
-        auto query=actor->query(SubEngine::Type::GraphicsEngine);
+    setCanvas();
 
-        assert(query.has_value());
-        graphicsEngine=std::dynamic_pointer_cast<GraphicsEngine>(
-            query.value()
+    if(not canvas.expired()){
+        canvas.lock()->append(
+            std::dynamic_pointer_cast<Drawable>(
+                owner.lock()->find(Type::Drawable)
+            )
         );
-
-        assert(!graphicsEngine.expired());
-        auto self=std::static_pointer_cast<Drawable>(shared_from_this());
-        graphicsEngine.lock()->append(self);
     }
+}
 
-    setAttribute();
+void Drawable::setCanvas() noexcept{
+    assert(!owner.expired());
+    auto query=owner.lock()->query(SubEngine::Type::GraphicsEngine);
+
+    if(query.has_value()){
+        canvas=std::dynamic_pointer_cast<
+            SubEngine::GraphicsEngine
+        >(query.value());
+    }
 }

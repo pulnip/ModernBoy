@@ -13,24 +13,18 @@ namespace Game{
             ActorManager() noexcept=default;
             virtual ~ActorManager()=default;
 
+            void update(const Time& deltaTime) noexcept override final;
             Type getType() const noexcept override final{
                 return Type::ActorManager;
             }
-            std::optional<std::shared_ptr<Interface>> query(
-            Type type) noexcept;
-
-        private:
-            void update(const Time& deltaTime) noexcept override final;
-
-            void appendActor(
-            std::shared_ptr<Actor::Interface> actor) noexcept;
-            void removeActor(
-            std::shared_ptr<Actor::Interface> actor) noexcept;
+            std::optional<Plugin> query(Type type) noexcept;
+            void appendActor(Object actor) noexcept;
+            void removeActor(Object actor) noexcept;
 
         private:
             bool isUpdatingActors = false;
-            std::vector<std::shared_ptr<Actor::Interface>> actors;
-            std::vector<std::shared_ptr<Actor::Interface>> pendingActors;
+            std::vector<Object> actors;
+            std::vector<Object> pendingActors;
         };
     }
 }

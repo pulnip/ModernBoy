@@ -8,6 +8,8 @@
 
 namespace Game{
     namespace Blueprint{
+        using namespace Skin;
+        
         struct Actor{
             Attribute_2D physicsAttribute;
             TrueColor color;

@@ -1,27 +1,40 @@
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_video.h>
+#include <algorithm>
+#include <cassert>
 
 #include "Skin.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "Component/Drawable.hpp"
 #include "SubEngine/GraphicsEngine.hpp"
 
-bool GraphicsEngine::DrawOrder::operator()(const Drawable &lhs, const Drawable &rhs) const {
-    return lhs->getDrawOrder() < rhs->getDrawOrder();
+using namespace Game;
+using namespace Game::SubEngine;
+
+bool GraphicsEngine::DrawOrder::operator()(
+    const ptr &lhs, const ptr &rhs
+) const{
+    assert(not lhs.expired() and not rhs.expired());
+    return lhs.lock()->getDrawOrder() < rhs.lock()->getDrawOrder();
 }
 
-void GraphicsEngine::append(GraphicsEngine::Drawable d) noexcept{
-    drawables.emplace(d);
-}
-
-void GraphicsEngine::update(const float &deltaTime) noexcept{
+void GraphicsEngine::update(const Time& deltaTime) noexcept{
     prepareRendering();
 
+    std::remove_if(
+        drawables.begin(), drawables.end(),
+        [](const auto& d){
+            return d.expired();
+        }
+    );
+
     for(auto& d: drawables){
-        d->draw();
+        if(not d.expired()){
+            d.lock()->tryDraw();
+        }
     }
 
     finalizeRendering();
 }
 
-void NullGraphicsEngine::onNotify(ColorRect rect) noexcept{}
+void GraphicsEngine::append(ptr d) noexcept{
+    drawables.emplace(d);
+}

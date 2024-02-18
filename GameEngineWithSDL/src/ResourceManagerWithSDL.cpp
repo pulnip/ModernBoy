@@ -5,18 +5,21 @@
 #include "GraphicsEngineWithSDL.hpp"
 #include "GameEngine/GameEngine.hpp"
 
-ResourceManagerWithSDL::~ResourceManagerWithSDL() {
-    for (auto &[file, texture] : textures) {
+using namespace Game;
+using namespace WithSDL::SubEngine;
+
+ResourceManager::~ResourceManager() {
+    for (auto& [file, texture]: textures){
         SDL_DestroyTexture(texture);
     }
 }
 
-std::optional<SDL_Texture *>
-ResourceManagerWithSDL::getTexture(const std::string &fileName) noexcept {
+std::optional<SDL_Texture*>
+ResourceManager::getTexture(const std::string& fileName) noexcept{
     auto [it, skinNotLoaded]=textures.try_emplace(
         fileName, nullptr
     );
-    auto &texture = it->second;
+    auto& texture = it->second;
     static const std::string path="C:/Users/choiw/Documents/GameEngineDevelopment/resource/";
 
     if(skinNotLoaded){
@@ -24,37 +27,35 @@ ResourceManagerWithSDL::getTexture(const std::string &fileName) noexcept {
     }
 
     // skin file itself not exist.
-    if (texture == nullptr) {
+    if(texture == nullptr){
         return std::nullopt;
     }
     return texture;
 }
 
-void ResourceManagerWithSDL::setAttribute() noexcept {
+void ResourceManager::postConstruct() noexcept {
     assert(!owner.expired());
-    std::shared_ptr<IGameEngine> ige=owner.lock();
-    auto geSDL=std::dynamic_pointer_cast<GraphicsEngineWithSDL>(
-        ige->find(SubEngine::Type::GraphicsEngine)
+    auto geSDL=std::dynamic_pointer_cast<GraphicsEngine>(
+        owner.lock()->find(Game::SubEngine::Type::GraphicsEngine)
     );
 
     assert(geSDL!=nullptr);
-    context=geSDL->renderer;
+    context=geSDL->getContext();
 }
 
 constexpr bool HW_RENDERING = false;
 
-SDL_Texture*
-ResourceManagerWithSDL::loadTexture(const std::string &fileName) noexcept {
-    SDL_Texture *texture;
-
-    if (context.expired()) {
+SDL_Texture* ResourceManager::loadTexture(
+    const std::string& fileName
+) noexcept{
+    if(context==nullptr){
         return nullptr;
     }
-    auto renderer = context.lock();
 
+    SDL_Texture* texture=nullptr;
     // 파일로부터 로딩
     if (HW_RENDERING) {
-        texture = IMG_LoadTexture(*renderer, fileName.c_str());
+        texture = IMG_LoadTexture(context, fileName.c_str());
         if (texture == nullptr) {
             SDL_Log("Failed to Load Texture from File: %s", fileName.c_str());
         }
@@ -65,7 +66,7 @@ ResourceManagerWithSDL::loadTexture(const std::string &fileName) noexcept {
             return nullptr;
         }
 
-        texture = SDL_CreateTextureFromSurface(*renderer, surface);
+        texture = SDL_CreateTextureFromSurface(context, surface);
         if (!texture) {
             SDL_Log("Failed to Create Texture from Surface: %s", SDL_GetError());
         }

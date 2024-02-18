@@ -6,7 +6,7 @@
 #include "Ship.hpp"
 #include "Component/Controllable.hpp"
 #include "Component/Movable.hpp"
-#include "AnimSpriteComponent.hpp"
+#include "AnimSprite.hpp"
 
 void Ship::updateActor(const float& deltaTime) noexcept{
     Actor::Interface* self=this;
@@ -57,7 +57,7 @@ void Ship::injectDependency() noexcept {
     auto img3=rm->getTexture("Ship03.png");
     auto img4=rm->getTexture("Ship04.png");
 
-    auto asc = Component::make<AnimSpriteComponent>(self);
+    auto asc = Component::make<AnimSprite>(self);
 
     asc->setAnimTextures(std::vector<SDL_Texture*>{
         img1.value(), img2.value(), img3.value(), img4.value()

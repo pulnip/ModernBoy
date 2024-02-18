@@ -5,16 +5,19 @@
 #include "Actor/Actor.hpp"
 #include "Component/Movable.hpp"
 
-void Movable::injectDependency() noexcept{
+using namespace Game::Component;
+
+void Movable::postConstruct() noexcept{
     assert(!owner.expired());
-    std::shared_ptr<Actor::Interface> actor=owner.lock();
+    auto query=owner.lock()->query(SubEngine::Type::PhysicsSimulator);
 
-    auto query=actor->query(SubEngine::Type::PhysicsSimulator);
+    if(query.has_value()){
+        auto ps=std::static_pointer_cast<
+            SubEngine::PhysicsSimulator
+        >(query.value());
 
-    assert(query.has_value());
-    auto ps=std::static_pointer_cast<PhysicsSimulator>(query.value());
-
-    ps->appendMovable(
-        std::static_pointer_cast<Movable>(shared_from_this())
-    );
+        ps->appendMovable(std::static_pointer_cast<Movable>(
+            owner.lock()->find(Type::Movable)
+        ));
+    }
 }

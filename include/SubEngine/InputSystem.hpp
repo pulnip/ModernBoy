@@ -37,6 +37,7 @@ namespace Game{
             ) noexcept;
 
         private:
+            void postConstruct() noexcept override final;
             virtual uint8_t escapeKeycode() const noexcept{ return 0x1b; }
 
         protected:

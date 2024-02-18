@@ -6,22 +6,24 @@
 #include "Actor/Actor.hpp"
 #include "SubEngine/GraphicsEngine.hpp"
 
-void ColoredBody::setTexture(const TrueColor &c) noexcept {
+using namespace Game;
+using namespace Game::Component;
+
+void ColoredBody::setTexture(pColor c) noexcept {
     color=c;
 }
 
-void ColoredBody::draw() noexcept {
+void ColoredBody::tryDraw() noexcept {
     assert(!target.expired());
     const auto mc=target.lock();
 
-    ColorRect rect = {
-        mc->attr().rect(),
-        color
+    Skin::Flyweight::ColorRect rect = {
+        mc->attr->rect(),
+        *color
     };
 
-    UniqueObservable<ColorRect>::notify(rect);
-}
-
-void ColoredBody::setAttribute() noexcept{
-    UniqueObservable<ColorRect>::subscribe(graphicsEngine);
+    if(not canvas.expired()){
+        auto cv=canvas.lock();
+        cv->draw(rect);
+    }
 }

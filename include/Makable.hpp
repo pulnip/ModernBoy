@@ -4,7 +4,6 @@
 #include <memory>
 
 // Makable for Owned Object
-
 template <class Base, class Owner = void>
 class Makable{
   public:

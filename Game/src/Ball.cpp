@@ -9,7 +9,7 @@
 #include "ResourceManagerWithSDL.hpp"
 #include "Ball.hpp"
 #include "Component/Movable.hpp"
-#include "AnimSpriteComponent.hpp"
+#include "AnimSprite.hpp"
 
 void Ball::updateActor(const float &deltaTime) noexcept{
     static auto& target=std::static_pointer_cast<Movable>(
@@ -45,7 +45,7 @@ void Ball::injectDependency() noexcept {
         auto img3=rm->getTexture("pigeon_3.png");
         assert(img1.has_value());
 
-        auto asc = Component::make<AnimSpriteComponent>(self);
+        auto asc = Component::make<AnimSprite>(self);
 
         asc->setAnimTextures(std::vector<SDL_Texture*>{
             img1.value(), img2.value(), img3.value(), img2.value()

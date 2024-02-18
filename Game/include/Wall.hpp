@@ -2,16 +2,16 @@
 
 #include "Actor/Actor.hpp"
 
-class Wall: public Actor{
+class Wall: public Game::Actor::Interface{
   public:
     Wall() noexcept=default;
     virtual ~Wall()=default;
 
   protected:
-    virtual void injectDependency() noexcept override;
+    virtual void postConstruct() noexcept override;
 
   private:
-    void updateActor(const float&) noexcept override final{}
+    void updateActor(const Game::Time&) noexcept override final{}
 };
 
 class Ceil final: public Wall{
@@ -20,7 +20,7 @@ class Ceil final: public Wall{
     ~Ceil()=default;
 
   private:
-    void injectDependency() noexcept override final;
+    void postConstruct() noexcept override final;
 };
 
 class Floor final: public Wall{
@@ -29,7 +29,7 @@ class Floor final: public Wall{
     ~Floor()=default;
 
   private:
-    void injectDependency() noexcept override final;
+    void postConstruct() noexcept override final;
 };
 
 class RightWall final: public Wall{
@@ -38,5 +38,5 @@ class RightWall final: public Wall{
     ~RightWall()=default;
 
   private:
-    void injectDependency() noexcept override final;
+    void postConstruct() noexcept override final;
 };

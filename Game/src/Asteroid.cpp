@@ -1,7 +1,7 @@
 #include <cassert>
 
 #include "Component/Movable.hpp"
-#include "AnimSpriteComponent.hpp"
+#include "AnimSprite.hpp"
 #include "Asteroid.hpp"
 #include "SubEngine/ActorManager.hpp"
 #include "ResourceManagerWithSDL.hpp"
@@ -11,7 +11,7 @@ void Asteroid::injectDependency() noexcept {
     auto self = weak_from_this();
 
     auto mc = Component::make<Movable>(self);
-    auto sc = Component::make<AnimSpriteComponent>(self);
+    auto sc = Component::make<AnimSprite>(self);
 
     mc->attr().position.linear={
         static_cast<float>(Math::random(0, 1024)),
