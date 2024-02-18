@@ -4,16 +4,16 @@
 #include "GraphicsEngineWithSDL.hpp"
 #include "ResourceManagerWithSDL.hpp"
 #include "CelestialSky.hpp"
-#include "Component/MoveComponent.hpp"
+#include "Component/Movable.hpp"
 #include "BGSpriteComponent.hpp"
 
 void CelestialSky::injectDependency() noexcept{
     auto self=weak_from_this();
 
-    Component::make<MoveComponent>(self);
+    Component::make<Movable>(self);
 
     assert(!owner.expired());
-    auto query=owner.lock()->query(SubEngineName::ResourceManager);
+    auto query=owner.lock()->query(SubEngine::Type::ResourceManager);
     assert(query.has_value());
     auto rm=std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());
 
@@ -35,7 +35,7 @@ void CelestialSky::injectDependency() noexcept{
 
     cbg->setScreenSize(Vector2{1024.0f, 768.0f});
     cbg->setScrollSpeed(-200.0f);
-    std::static_pointer_cast<IComponent>(cbg)->setUpdateOrder(101);
+    std::static_pointer_cast<Component>(cbg)->setUpdateOrder(101);
 
     auto img3=rm->getTexture("Stars.png");
     assert(img3.has_value());

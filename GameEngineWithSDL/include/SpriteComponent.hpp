@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Component/DrawComponent.hpp"
+#include "Component/Drawable.hpp"
 #include "Skin.hpp"
 
 // 단일 스프라이트 텍스처
-class SpriteComponent: public DrawComponent,
+class SpriteComponent: public Drawable,
     public Observable<SpriteForSDL>
 {
   public:

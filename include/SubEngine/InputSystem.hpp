@@ -3,58 +3,69 @@
 #include <cstdint>
 #include <map>
 
+#include "Observer.hpp"
 #include "Observable.hpp"
 #include "SubEngine.hpp"
 
-struct Key {
-    enum class Status {
-        PRESSED,
-        RELEASED
-    } status;
-    uint8_t key;
-};
+namespace Skin{
+    struct Key {
+        enum class Status {
+            PRESSED,
+            RELEASED
+        } status;
+        uint8_t key;
+    };
+}
 
-class InputSystem: public SubEngine,
-    public Observable<GameStatus>
-{
-  public:
-    virtual ~InputSystem()=default;
+namespace Game{
+    namespace SubEngine{
+        class InputSystem: public Interface,
+            public Observable<Game::Status>
+        {
+        public:
+            InputSystem() noexcept=default;
+            virtual ~InputSystem()=default;
 
-    void registerKey(
-        const uint8_t key,
-        const std::weak_ptr<Observer<Key>> subscriber
-    ) noexcept;
+            virtual void update(const Time& deltaTime
+            ) noexcept override=0;
+            SubEngine::Type getType() const noexcept override final{
+                return SubEngine::Type::InputSystem;
+            }
+            void registerKey(
+                const uint8_t key,
+                const std::weak_ptr<Observer<Skin::Key>> subscriber
+            ) noexcept;
 
-  protected:
-    InputSystem() noexcept=default;
+        private:
+            virtual uint8_t escapeKeycode() const noexcept{ return 0x1b; }
 
-  private:
-    SubEngineName getName() const noexcept override final{
-        return SubEngineName::InputSystem;
+        protected:
+            std::map<uint8_t, Observable<Skin::Key>> keyMap;
+        };
     }
-    virtual void injectDependency() noexcept override final;
+}
 
-  private:
-    virtual void update(const float& deltaTime) noexcept override=0;
-    virtual void setAttribute() noexcept=0;
+namespace Null{
+    namespace SubEngine{
+        class NullInputSystem final: public Game::SubEngine::InputSystem{
+        private:
+            void update(const Game::Time&) noexcept override final{}
+        };
+    }
+}
 
-    virtual uint8_t escapeKeycode() const noexcept{ return 0x1b; }
+namespace WithSTD{
+    namespace SubEngine{
+        class InputSystem_default final:
+            public Game::SubEngine::InputSystem
+        {
+        private:
+            void update(const Game::Time& deltaTime
+            ) noexcept override final;
 
-  protected:
-    std::map<uint8_t, Observable<Key>> keyMap;
-};
-
-class NullInputSystem final: public InputSystem{
-  private:
-    void update(const float&) noexcept override final{}
-    void setAttribute() noexcept final{}
-};
-
-// for std input
-class InputSystem_default final: public InputSystem{
-  private:
-    void update(const float& deltaTime) noexcept override final;
-    void setAttribute() noexcept final{}
-
-    uint8_t escapeKeycode() const noexcept override final{ return 'q'; }
-};
+            uint8_t escapeKeycode() const noexcept override final{
+                return 'q';
+            }
+        };
+    }
+}

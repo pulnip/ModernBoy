@@ -18,20 +18,19 @@ add_executable(${PROJECT_NAME}
 
     src/Math.cpp
     src/GameEngine.cpp
-    src/SubEngine.cpp
     src/ActorManager.cpp
     src/GraphicsEngine.cpp
     src/GameLogic.cpp
     src/InputSystem.cpp
     src/PhysicsSimulator.cpp
-    src/Timer_default.cpp
+    src/Timer.cpp
     src/Logger.cpp
     src/Actor.cpp
     src/Component.cpp
-    src/DrawComponent.cpp
-    src/BoxComponent.cpp
-    src/MoveComponent.cpp
-    src/InputComponent.cpp
+    src/Drawable.cpp
+    src/ColoredBody.cpp
+    src/Movable.cpp
+    src/Controllable.cpp
 
     GameEngineWithSDL/src/GameEngineWithSDL.cpp
     GameEngineWithSDL/src/GraphicsEngineWithSDL.cpp

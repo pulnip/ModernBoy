@@ -1,9 +1,8 @@
 #include <cassert>
 
-#include "PubSubMessage.hpp"
 #include "SubEngine/ActorManager.hpp"
 #include "Actor/Actor.hpp"
-#include "Component/MoveComponent.hpp"
+#include "Component/Movable.hpp"
 
 void Actor::update(const float& deltaTime) noexcept {
     if (state!=State::EActive) return;
@@ -14,8 +13,8 @@ void Actor::update(const float& deltaTime) noexcept {
     updateActor(deltaTime);
 }
 
-std::shared_ptr<IComponent>
-Actor::find(const ComponentName name) noexcept {
+std::shared_ptr<Component>
+Actor::find(const Type name) noexcept {
     auto result=components.find(name);
     if(result==components.end()){
         return nullptr;
@@ -24,7 +23,7 @@ Actor::find(const ComponentName name) noexcept {
 }
 
 std::optional<std::shared_ptr<ISubEngine>>
-Actor::query(const SubEngineName name) noexcept{
+Actor::query(const SubEngine::Type name) noexcept{
     assert(!owner.expired());
     auto manager=owner.lock();
 
@@ -32,15 +31,15 @@ Actor::query(const SubEngineName name) noexcept{
 }
 
 void Actor::onNotify(Lifetime msg, std::shared_ptr<Component> comp) noexcept{
-    std::shared_ptr<IComponent> ic=comp;
+    std::shared_ptr<Component> ic=comp;
 
     switch(msg){
     case Lifetime::CONSTRUCTED:
-        components.emplace(ic->getName(), ic);
+        components.emplace(ic->getType(), ic);
         orderedComponents.emplace(ic);
         break;
     case Lifetime::DESTRUCTED:
-        components.erase(ic->getName());
+        components.erase(ic->getType());
         orderedComponents.erase(ic);
         break;
     default:

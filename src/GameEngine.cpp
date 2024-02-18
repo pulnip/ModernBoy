@@ -14,10 +14,10 @@ void GameEngine::onNotify(Lifetime msg, std::shared_ptr<SubEngine> se) noexcept{
     std::shared_ptr<ISubEngine> ise=se;
     switch(msg){
     case Lifetime::CONSTRUCTED:
-        subEngines.emplace(ise->getName(), ise);
+        subEngines.emplace(ise->getType(), ise);
         break;
     case Lifetime::DESTRUCTED:
-        subEngines.erase(ise->getName());
+        subEngines.erase(ise->getType());
         break;
     default:
         assert(false);
@@ -44,27 +44,27 @@ int Essentials::set(const GameEngine::SubEngineMap& map) noexcept{
 
     for(auto &[key, se]: map){
         switch(key){
-        case SubEngineName::ActorManager:
+        case SubEngine::Type::ActorManager:
             actorManager=se;
             countEssentials+=1;
             break;
-        case SubEngineName::GameLogic:
+        case SubEngine::Type::GameLogic:
             gameLogic=se;
             countEssentials+=1;
             break;
-        case SubEngineName::GraphicsEngine:
+        case SubEngine::Type::GraphicsEngine:
             graphicsEngine=se;
             countEssentials+=1;
             break;
-        case SubEngineName::InputSystem:
+        case SubEngine::Type::InputSystem:
             inputSystem=se;
             countEssentials+=1;
             break;
-        case SubEngineName::PhysicsSimulator:
+        case SubEngine::Type::PhysicsSimulator:
             physicsSimulator=se;
             countEssentials+=1;
             break;
-        case SubEngineName::ResourceManager:
+        case SubEngine::Type::ResourceManager:
             resourceManager=se;
             countEssentials+=1;
             break;
@@ -105,7 +105,7 @@ void GameEngine::run() noexcept {
 }
 
 std::shared_ptr<ISubEngine>
-GameEngine::find(const SubEngineName name) noexcept{
+GameEngine::find(const SubEngine::Type name) noexcept{
     auto result=subEngines.find(name);
     if(result==subEngines.end()){
         return nullptr;

@@ -22,7 +22,7 @@ void ActorManagerForTest::setAttribute() noexcept{
     auto self=std::dynamic_pointer_cast<ActorManager>(shared_from_this());
     assert(self!=nullptr);
 
-    auto q=query(SubEngineName::PhysicsSimulator);
+    auto q=query(SubEngine::Type::PhysicsSimulator);
 
     assert(q.has_value());
     auto ps=std::static_pointer_cast<PhysicsSimulator>(q.value());

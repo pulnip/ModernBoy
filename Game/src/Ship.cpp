@@ -4,14 +4,14 @@
 #include "SubEngine/ActorManager.hpp"
 #include "ResourceManagerWithSDL.hpp"
 #include "Ship.hpp"
-#include "Component/InputComponent.hpp"
-#include "Component/MoveComponent.hpp"
+#include "Component/Controllable.hpp"
+#include "Component/Movable.hpp"
 #include "AnimSpriteComponent.hpp"
 
 void Ship::updateActor(const float& deltaTime) noexcept{
-    IActor* self=this;
-    static auto& mc_attr_v=std::static_pointer_cast<MoveComponent>(
-        self->find(ComponentName::MoveComponent)
+    Actor::Interface* self=this;
+    static auto& mc_attr_v=std::static_pointer_cast<Movable>(
+        self->find(Type::Movable)
     )->attr().velocity;
 
     mc_attr_v={{0.0f, 0.0f}, 0.0f};
@@ -20,12 +20,12 @@ void Ship::updateActor(const float& deltaTime) noexcept{
 void Ship::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    auto mc = Component::make<MoveComponent>(self);
+    auto mc = Component::make<Movable>(self);
 
     mc->attr().position.linear={500.0f, 500.0f};
     mc->attr().volume.base={64.0f, 29.0f};
 
-    auto ic = Component::make<InputComponent>(self);
+    auto ic = Component::make<Controllable>(self);
 
     ic->setKey(SDL_SCANCODE_Q, [&rv = mc->attr().velocity.rotation](){
         rv += -Math::PI;
@@ -45,7 +45,7 @@ void Ship::injectDependency() noexcept {
     );
 
     assert(!owner.expired());
-    auto query=owner.lock()->query(SubEngineName::ResourceManager);
+    auto query=owner.lock()->query(SubEngine::Type::ResourceManager);
 
     assert(query.has_value());
     auto rm=std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());

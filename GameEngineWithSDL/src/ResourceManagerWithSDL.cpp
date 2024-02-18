@@ -34,7 +34,7 @@ void ResourceManagerWithSDL::setAttribute() noexcept {
     assert(!owner.expired());
     std::shared_ptr<IGameEngine> ige=owner.lock();
     auto geSDL=std::dynamic_pointer_cast<GraphicsEngineWithSDL>(
-        ige->find(SubEngineName::GraphicsEngine)
+        ige->find(SubEngine::Type::GraphicsEngine)
     );
 
     assert(geSDL!=nullptr);

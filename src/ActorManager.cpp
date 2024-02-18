@@ -6,7 +6,7 @@
 #include "Actor/Actor.hpp"
 
 std::optional<std::shared_ptr<ISubEngine>>
-ActorManager::query(const SubEngineName name) noexcept{
+ActorManager::query(const SubEngine::Type name) noexcept{
     assert(!owner.expired());
     std::shared_ptr<IGameEngine> ge=owner.lock();
     auto result=ge->find(name);
@@ -17,7 +17,7 @@ ActorManager::query(const SubEngineName name) noexcept{
     return result;
 }
 
-void ActorManager::appendActor(const std::shared_ptr<IActor> actor) noexcept {
+void ActorManager::appendActor(const std::shared_ptr<Actor::Interface> actor) noexcept {
     if (isUpdatingActors) {
         pendingActors.emplace_back(actor);
     } else {
@@ -25,7 +25,7 @@ void ActorManager::appendActor(const std::shared_ptr<IActor> actor) noexcept {
     }
 }
 
-void ActorManager::removeActor(const std::shared_ptr<IActor> actor) noexcept {
+void ActorManager::removeActor(const std::shared_ptr<Actor::Interface> actor) noexcept {
     const auto it =
         actors.erase(std::remove(actors.begin(), actors.end(), actor));
 
@@ -53,7 +53,7 @@ void ActorManager::update(const float& deltaTime) noexcept {
     actors.erase(
         std::remove_if(actors.begin(), actors.end(),
             [](const auto& actor) {
-                return actor->getState()==IActor::State::EDead;
+                return actor->getState()==Actor::Interface::State::EDead;
             }
         ), actors.end()
     );

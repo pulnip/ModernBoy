@@ -21,7 +21,7 @@ class Observer{
 
   private:
     virtual void onNotify(
-        MSG msg,
+        const MSG& msg,
         std::shared_ptr<Publisher> wo
     ) noexcept=0;
 };
@@ -36,7 +36,7 @@ class Observer<MSG, void>{
     virtual ~Observer()=default;
 
   private:
-    virtual void onNotify(MSG msg) noexcept=0;
+    virtual void onNotify(const MSG& msg) noexcept=0;
 };
 
 class Receiver{

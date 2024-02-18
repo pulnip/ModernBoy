@@ -2,18 +2,18 @@
 #include "SubEngine/ActorManager.hpp"
 #include "SubEngine/GraphicsEngine.hpp"
 #include "Wall.hpp"
-#include "Component/BoxComponent.hpp"
-#include "Component/MoveComponent.hpp"
+#include "Component/ColoredBody.hpp"
+#include "Component/Movable.hpp"
 
 void Wall::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    Component::make<MoveComponent>(self);
-    auto bc = Component::make<BoxComponent>(self);
+    Component::make<Movable>(self);
+    auto bc = Component::make<ColoredBody>(self);
 
     bc->UniqueObservable<ColorRect>::subscribe(
         std::dynamic_pointer_cast<GraphicsEngine>(
-            owner.lock()->query(SubEngineName::GraphicsEngine).value()
+            owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
         )
     );
 }
@@ -22,12 +22,12 @@ void Ceil::injectDependency() noexcept {
     // duplicated
     auto self = weak_from_this();
 
-    auto mc=Component::make<MoveComponent>(self);
-    auto bc = Component::make<BoxComponent>(self);
+    auto mc=Component::make<Movable>(self);
+    auto bc = Component::make<ColoredBody>(self);
 
     bc->UniqueObservable<ColorRect>::subscribe(
         std::dynamic_pointer_cast<GraphicsEngine>(
-            owner.lock()->query(SubEngineName::GraphicsEngine).value()
+            owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
         )
     );
     // end
@@ -43,12 +43,12 @@ void Floor::injectDependency() noexcept {
     // duplicated
     auto self = weak_from_this();
 
-    auto mc=Component::make<MoveComponent>(self);
-    auto bc = Component::make<BoxComponent>(self);
+    auto mc=Component::make<Movable>(self);
+    auto bc = Component::make<ColoredBody>(self);
 
     bc->UniqueObservable<ColorRect>::subscribe(
         std::dynamic_pointer_cast<GraphicsEngine>(
-            owner.lock()->query(SubEngineName::GraphicsEngine).value()
+            owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
         )
     );
     // end
@@ -64,12 +64,12 @@ void RightWall::injectDependency() noexcept {
     // duplicated
     auto self = weak_from_this();
 
-    auto mc=Component::make<MoveComponent>(self);
-    auto bc = Component::make<BoxComponent>(self);
+    auto mc=Component::make<Movable>(self);
+    auto bc = Component::make<ColoredBody>(self);
 
     bc->UniqueObservable<ColorRect>::subscribe(
         std::dynamic_pointer_cast<GraphicsEngine>(
-            owner.lock()->query(SubEngineName::GraphicsEngine).value()
+            owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
         )
     );
     // end

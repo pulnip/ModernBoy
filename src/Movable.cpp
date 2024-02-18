@@ -3,18 +3,18 @@
 #include "Skin.hpp"
 #include "SubEngine/PhysicsSimulator.hpp"
 #include "Actor/Actor.hpp"
-#include "Component/MoveComponent.hpp"
+#include "Component/Movable.hpp"
 
-void MoveComponent::injectDependency() noexcept{
+void Movable::injectDependency() noexcept{
     assert(!owner.expired());
-    std::shared_ptr<IActor> actor=owner.lock();
+    std::shared_ptr<Actor::Interface> actor=owner.lock();
 
-    auto query=actor->query(SubEngineName::PhysicsSimulator);
+    auto query=actor->query(SubEngine::Type::PhysicsSimulator);
 
     assert(query.has_value());
     auto ps=std::static_pointer_cast<PhysicsSimulator>(query.value());
 
     ps->appendMovable(
-        std::static_pointer_cast<MoveComponent>(shared_from_this())
+        std::static_pointer_cast<Movable>(shared_from_this())
     );
 }

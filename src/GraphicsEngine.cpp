@@ -3,7 +3,7 @@
 
 #include "Skin.hpp"
 #include "GameEngine/GameEngine.hpp"
-#include "Component/DrawComponent.hpp"
+#include "Component/Drawable.hpp"
 #include "SubEngine/GraphicsEngine.hpp"
 
 bool GraphicsEngine::DrawOrder::operator()(const Drawable &lhs, const Drawable &rhs) const {

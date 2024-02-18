@@ -2,25 +2,25 @@
 
 #include "SubEngine.hpp"
 
-class ResourceManager : public SubEngine {
-  public:
-    virtual ~ResourceManager()=default;
+namespace Game{
+    namespace SubEngine{
+        class ResourceManager: public Interface{
+        public:
+            ResourceManager() noexcept=default;
+            virtual ~ResourceManager()=default;
 
-  protected:
-    ResourceManager() noexcept=default;
+            void update(const Time& deltaTime) noexcept override final{}
 
-  private:
-    void injectDependency() noexcept override final{ setAttribute(); }
-
-  private:
-    SubEngineName getName() const noexcept override{
-        return SubEngineName::ResourceManager;
+            Type getType() const noexcept override{
+                return Type::ResourceManager;
+            }
+        };
     }
-    void update(const float &deltaTime) noexcept override {}
-    virtual void setAttribute() noexcept=0;
-};
+}
 
-class NullResourceManager final: public ResourceManager{
-  private:
-    void setAttribute() noexcept override final{}
-};
+namespace Null{
+    namespace SubEngine{
+        class NullResourceManager final:
+            public Game::SubEngine::ResourceManager{};
+    }
+}

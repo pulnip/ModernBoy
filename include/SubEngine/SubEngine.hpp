@@ -1,26 +1,34 @@
 #pragma once
 
-#include "Ownership.hpp"
+#include "Makable.hpp"
+
 #include "gefwd.hpp"
-#include "ISubEngine.hpp"
 
-class SubEngine: public ISubEngine,
-    public Owned<SubEngine, GameEngine>
-{
-  public:
-    virtual ~SubEngine()=default;
+namespace Game{
+    namespace SubEngine{
+        enum class Type{
+            Interface,
+            ActorManager,
+            GameLogic,
+            GraphicsEngine,
+            InputSystem,
+            Logger,
+            PhysicsSimulator,
+            ResourceManager,
+            SoundEngine,
+            Timer
+        };
 
-  protected:
-    SubEngine() noexcept=default;
+        class Interface: public Makable<Interface, Core::Engine>{
+        public:
+            Interface() noexcept=default;
+            virtual ~Interface()=default;
 
-  private:
-    void setProperty() noexcept override final{ injectDependency(); }
-
-  private:
-    virtual SubEngineName getName() const noexcept override{
-        return SubEngineName::SubEngine;
+        private:
+            virtual Type getType() const noexcept{
+                return Type::Interface;
+            }
+            virtual void update(const Time& deltaTime) noexcept=0;
+        };
     }
-    virtual void update(const float& deltaTime) noexcept override=0;
-
-    virtual void injectDependency() noexcept=0;
-};
+}

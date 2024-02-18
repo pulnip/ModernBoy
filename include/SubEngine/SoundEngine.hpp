@@ -2,24 +2,28 @@
 
 #include "SubEngine.hpp"
 
-class SoundEngine: public SubEngine{
-  public:
-    virtual ~SoundEngine()=default;
+namespace Game{
+    namespace SubEngine{
+        class SoundEngine: public Interface{
+        public:
+            SoundEngine() noexcept=default;
+            virtual ~SoundEngine()=default;
 
-  protected:
-    SoundEngine() noexcept=default;
-
-  private:
-    SubEngineName getName() const noexcept override{
-        return SubEngineName::SoundEngine;
+            SubEngine::Type getType() const noexcept override{
+                return SubEngine::Type::SoundEngine;
+            }
+        };
     }
-    virtual void injectDependency() noexcept override{}
+}
 
-  private:
-    virtual void update(const float &deltaTime) noexcept override=0;
-};
-
-class NullSoundEngine: public SoundEngine{
-  private:
-    void update(const float &deltaTime) noexcept override final{}
-};
+namespace Null{
+    namespace SubEngine{
+        class NullSoundEngine:
+            public Game::SubEngine::SoundEngine
+        {
+        private:
+            void update(const Game::Time& deltaTime
+            ) noexcept override final{}
+        };
+    }
+}

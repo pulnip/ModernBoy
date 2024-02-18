@@ -21,7 +21,7 @@ class Observable_impl{
         });
     }
 
-    void notify(MSG msg) noexcept{
+    void notify(const MSG& msg) noexcept{
         remove_if_expired();
 
         for (auto &wo : observers) {
@@ -40,7 +40,7 @@ class Observable_impl{
     }
 
   private:
-    virtual void notify_aux(MSG msg, std::weak_ptr<Observer<MSG, type_hint>> target) noexcept=0;
+    virtual void notify_aux(const MSG& msg, std::weak_ptr<Observer<MSG, type_hint>> target) noexcept=0;
 
   private:
     std::list<std::weak_ptr<Observer<MSG, type_hint>>> observers;
@@ -56,7 +56,7 @@ class Observable: public Observable_impl<MSG, type_hint>,
 
   private:
     void notify_aux(
-        MSG msg,
+        const MSG& msg,
         std::weak_ptr<Observer<MSG, type_hint>> target
     ) noexcept override final{
         static_assert(std::derived_from<
@@ -74,7 +74,7 @@ class Observable<MSG, void>: public Observable_impl<MSG, void>{
     virtual ~Observable()=default;
 
   private:
-    void notify_aux(MSG msg, std::weak_ptr<Observer<MSG>> target) noexcept override final{
+    void notify_aux(const MSG& msg, std::weak_ptr<Observer<MSG>> target) noexcept override final{
         assert(!target.expired());
         target.lock()->onNotify(msg);
     }
@@ -95,7 +95,7 @@ class UniqueObservable_impl{
         observer.reset();
     }
 
-    void notify(MSG msg) noexcept{
+    void notify(const MSG& msg) noexcept{
         if(observer.expired()){
             observer.reset();
             return;
@@ -106,7 +106,7 @@ class UniqueObservable_impl{
 
   private:
     virtual void notify_aux(
-        MSG msg,
+        const MSG& msg,
         std::weak_ptr<Observer<MSG, type_hint>> target
     ) noexcept=0;
 
@@ -124,7 +124,7 @@ class UniqueObservable: public UniqueObservable_impl<MSG, type_hint>,
 
   private:
     void notify_aux(
-        MSG msg,
+        const MSG& msg,
         std::weak_ptr<Observer<MSG, type_hint>> target
     ) noexcept override final{
         static_assert(std::derived_from<
@@ -143,7 +143,7 @@ class UniqueObservable<MSG, void>: public UniqueObservable_impl<MSG, void>{
 
   private:
     void notify_aux(
-        MSG msg,
+        const MSG& msg,
         std::weak_ptr<Observer<MSG>> target
     ) noexcept override final{
         assert(!target.expired());

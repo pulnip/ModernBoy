@@ -19,7 +19,7 @@ void InputSystem::injectDependency() noexcept{
     assert(!owner.expired());
     std::shared_ptr<IGameEngine> ige=owner.lock();
     auto gl=std::dynamic_pointer_cast<GameLogic>(
-        ige->find(SubEngineName::GameLogic)
+        ige->find(SubEngine::Type::GameLogic)
     );
 
     assert(gl!=nullptr);

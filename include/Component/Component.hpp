@@ -1,46 +1,52 @@
 #pragma once
 
-#include "Ownership.hpp"
+#include "Makable.hpp"
+
 #include "gefwd.hpp"
-#include "IComponent.hpp"
 
-class Component: public IComponent,
-    public Owned<Component, Actor>
-{
-  public:
-    virtual ~Component()=default;
+namespace Game{
+    namespace Component{
+        enum class Type{
+            Interface,
+            AI,
+            Rigidbody,
+            Drawable,
+            Controllable,
+            Movable
+        };
 
-  protected:
-    Component() noexcept=default;
+        class Interface: public Makable<Interface, Actor::Interface>{
+        public:
+            Interface(int updateOrder=0
+            ) noexcept: updateOrder(updateOrder){}
+            virtual ~Interface()=default;
 
-  protected:
-    virtual void setProperty() noexcept override final{
-        #warning "delete it"
-        updateOrder=initUpdateOrder();
-        injectDependency();
+            virtual void update(const Time& deltaTime) noexcept=0;
+
+            virtual Type getType() const noexcept{
+                return Type::Interface;
+            }
+            const int& getUpdateOrder() const noexcept{
+                return updateOrder;
+            }
+
+        protected:
+            /* 컴포넌트의 업데이트 순서
+            - updateOrder이 작을수록 더 빨리 갱신
+            - input 계열: 100 to 199
+            - 연산 계열: 200 to 299
+            - output계열: 300 to 399
+            */
+            int updateOrder=0;
+        };
     }
-
-  private:
-    virtual void update(const float& deltaTime) noexcept override=0;
-
-    virtual int initUpdateOrder() const noexcept=0;
-    virtual ComponentName getName() const noexcept{
-        return ComponentName::Component;
+}
+namespace Null{
+    namespace Component{
+        class Component final: public Game::Component::Interface{
+        private:
+            void update(const Game::Time& deltaTime
+            ) noexcept override final{}
+        };
     }
-    virtual void injectDependency() noexcept=0;
-};
-
-class NullComponent final: public Component{
-  public:
-    NullComponent() noexcept=default;
-    ~NullComponent()=default;
-
-  private:
-    void update(const float& deltaTime) noexcept override final{}
-
-    void injectDependency() noexcept override final{}
-
-    int initUpdateOrder() const noexcept override final{
-        return 0;
-    }
-};
+}

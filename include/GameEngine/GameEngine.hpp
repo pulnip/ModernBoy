@@ -1,48 +1,48 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <functional>
 
-#include "Ownership.hpp"
 #include "Makable.hpp"
-#include "IGameEngine.hpp"
+#include "Observer.hpp"
+
+#include "gefwd.hpp"
 
 enum class EngineCommand{
     QUIT
 };
 
-class GameEngine: public IGameEngine,
-    public Makable<GameEngine>,
-    public Owner<SubEngine>,
-    public Receiver
-{
-  public:
-    using SubEngineMap=std::map<SubEngineName, std::shared_ptr<ISubEngine>>;
+namespace Game{
+    namespace Core{
+        class Engine: public Makable<Engine, MainEngine>,
+            public Receiver
+        {
+        public:
+            Engine(std::shared_ptr<Game::SubEngine::Logger>& logger
+            ) noexcept: logger(logger){}
+            virtual ~Engine() = default;
 
-  public:
-    virtual ~GameEngine() = default;
+            void run() noexcept;
+            std::shared_ptr<SubEngine::Interface> find(
+            const SubEngine::Type name) noexcept;
 
-  protected:
-    GameEngine(std::shared_ptr<Game::Plugin::Logger>& logger) noexcept:
-    logger(logger){}
+        private:
+            void handler() noexcept override final;
 
-  private:
-    void run() noexcept override final;
-    std::shared_ptr<ISubEngine>
-    find(const SubEngineName name) noexcept override final;
+        private:
+            bool isRunning=false;
 
-    void postConstruct() noexcept override final{ injectDependency(); }
-    void onNotify(Lifetime msg, std::shared_ptr<SubEngine> se) noexcept override final;
-    void handler() noexcept override final;
+            std::shared_ptr<SubEngine::Logger> logger;
+            std::shared_ptr<SubEngine::Timer> timer;
+            std::shared_ptr<SubEngine::ResourceManager> resourceManager;
 
-  private:
-    virtual void injectDependency() noexcept=0;
-
-  protected:
-    std::shared_ptr<Game::Plugin::Logger> logger;
-    SubEngineMap subEngines;
-    std::shared_ptr<Timer> timer;
-
-  private:
-    bool isRunning=false;
-};
+            std::shared_ptr<SubEngine::InputSystem> inputSystem;
+            std::shared_ptr<SubEngine::GameLogic> gameLogic;
+            std::shared_ptr<SubEngine::PhysicsSimulator> physicsSimulator;
+            std::shared_ptr<SubEngine::ActorManager> actorManager;
+            std::shared_ptr<SubEngine::GraphicsEngine> graphicsEngine;
+            std::shared_ptr<SubEngine::SoundEngine> soundEngine;
+        };
+    }
+}

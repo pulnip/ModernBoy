@@ -1,8 +1,8 @@
 #include "Skin.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "SubEngine/PhysicsSimulator.hpp"
-#include "Actor/IActor.hpp"
-#include "Component/MoveComponent.hpp"
+#include "Actor/Actor.hpp"
+#include "Component/Movable.hpp"
 
 template<typename T>
 bool is_same(std::weak_ptr<T> lhs, std::weak_ptr<T> rhs){
@@ -10,15 +10,15 @@ bool is_same(std::weak_ptr<T> lhs, std::weak_ptr<T> rhs){
 }
 
 void PhysicsSimulator::setCollision(
-    std::weak_ptr<IActor> who, std::weak_ptr<IActor> to
+    std::weak_ptr<Actor::Interface> who, std::weak_ptr<Actor::Interface> to
 ) noexcept{
     assert(!who.expired());
-    wpm who_mc=std::static_pointer_cast<MoveComponent>(
-        who.lock()->find(ComponentName::MoveComponent)
+    wpm who_mc=std::static_pointer_cast<Movable>(
+        who.lock()->find(Type::Movable)
     );
     assert(!to.expired());
-    wpm to_mc=std::static_pointer_cast<MoveComponent>(
-        to.lock()->find(ComponentName::MoveComponent)
+    wpm to_mc=std::static_pointer_cast<Movable>(
+        to.lock()->find(Type::Movable)
     );
 
     auto it=collisionMap.lower_bound(who_mc);

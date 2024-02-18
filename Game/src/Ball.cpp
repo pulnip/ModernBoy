@@ -8,12 +8,12 @@
 #include "SubEngine/PhysicsSimulator.hpp"
 #include "ResourceManagerWithSDL.hpp"
 #include "Ball.hpp"
-#include "Component/MoveComponent.hpp"
+#include "Component/Movable.hpp"
 #include "AnimSpriteComponent.hpp"
 
 void Ball::updateActor(const float &deltaTime) noexcept{
-    static auto& target=std::static_pointer_cast<MoveComponent>(
-        static_cast<IActor*>(this)->find(ComponentName::MoveComponent)
+    static auto& target=std::static_pointer_cast<Movable>(
+        static_cast<Actor::Interface*>(this)->find(Type::Movable)
     )->attr();
 
     if(target.position.linear.x < -target.volume.size().x){
@@ -24,7 +24,7 @@ void Ball::updateActor(const float &deltaTime) noexcept{
 void Ball::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    auto mc = Component::make<MoveComponent>(self);
+    auto mc = Component::make<Movable>(self);
 
     mc->attr().set({
         {1024.0f/2, 768.0f/2}, {45.0f, 40.0f}
@@ -33,7 +33,7 @@ void Ball::injectDependency() noexcept {
 
     assert(!owner.expired());
     {
-        auto query=owner.lock()->query(SubEngineName::ResourceManager);
+        auto query=owner.lock()->query(SubEngine::Type::ResourceManager);
 
         assert(query.has_value());
         auto rm=std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());
@@ -53,7 +53,7 @@ void Ball::injectDependency() noexcept {
     }
 
     {
-        auto query=owner.lock()->query(SubEngineName::GameLogic);
+        auto query=owner.lock()->query(SubEngine::Type::GameLogic);
 
         assert(query.has_value());
         auto gl=std::static_pointer_cast<GameLogic>(query.value());
@@ -62,7 +62,7 @@ void Ball::injectDependency() noexcept {
     }
 
     {
-        auto query=owner.lock()->query(SubEngineName::PhysicsSimulator);
+        auto query=owner.lock()->query(SubEngine::Type::PhysicsSimulator);
 
         // assert(query.has_value());
         // auto ps=std::static_pointer_cast<PhysicsSimulator>(query.value());

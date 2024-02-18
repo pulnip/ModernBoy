@@ -1,16 +1,16 @@
 #include <cassert>
 
 #include "Skin.hpp"
-#include "Component/BoxComponent.hpp"
-#include "Component/MoveComponent.hpp"
+#include "Component/ColoredBody.hpp"
+#include "Component/Movable.hpp"
 #include "Actor/Actor.hpp"
 #include "SubEngine/GraphicsEngine.hpp"
 
-void BoxComponent::setTexture(const TrueColor &c) noexcept {
+void ColoredBody::setTexture(const TrueColor &c) noexcept {
     color=c;
 }
 
-void BoxComponent::draw() noexcept {
+void ColoredBody::draw() noexcept {
     assert(!target.expired());
     const auto mc=target.lock();
 
@@ -22,6 +22,6 @@ void BoxComponent::draw() noexcept {
     UniqueObservable<ColorRect>::notify(rect);
 }
 
-void BoxComponent::setAttribute() noexcept{
+void ColoredBody::setAttribute() noexcept{
     UniqueObservable<ColorRect>::subscribe(graphicsEngine);
 }

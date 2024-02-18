@@ -1,60 +1,131 @@
 #pragma once
 
+#include <cassert>
 #include <cmath>
 #include <limits>
 
-namespace Math {
-    using Real = double;
-    using Int = int;
+#include "Concept.hpp"
 
-    constexpr Real infinity = std::numeric_limits<double>::infinity();
-    constexpr Real epsilon = 0.0001;
-    bool NearZero(const Real x) noexcept;
-
-    using Degree = Real;
-    using Radian = Real;
-
-    Degree toDegree(const Radian r) noexcept;
-    Radian toRadian(const Degree d) noexcept;
+namespace My{
+    namespace Math{
+        namespace Number{
+            using Int = int;
+            using Real = double;
 
 #if __INTELLISENSE__
-    constexpr Real PI = 3.14159265;
+            constexpr Real PI = 3.14159265;
 #else
-    constexpr Real PI = std::asin(1) * 2;
+            constexpr Real PI = std::asin(1) * 2;
 #endif
+            constexpr Real infinity=std::numeric_limits<double>::infinity();
+            constexpr Real epsilon=0.0001;
+            
+            bool NearZero(Numeric auto number) noexcept{
+                return std::abs(number) < epsilon;
+            }
+        }
 
-    template <typename T>
-    T reflect(const T target, const T base) noexcept {
-        return 2 * base - target;
-    }
+        namespace Angle{
+            struct Radian;
 
-    Int wrap(const Int x, const Int low, const Int high) noexcept;
-    Real wrap(const Real x, const Real low, const Real high) noexcept;
+            struct Degree{
+                Number::Real angle;
+                Degree(Number::Real angle) noexcept:angle(angle){}
+                auto toRadian() noexcept;
+                constexpr auto& get() noexcept{ return angle; }
+                constexpr const auto& get() const noexcept{ return angle; }
+            };
+            struct Radian{
+                Number::Real angle;
+                Radian(Number::Real angle) noexcept:angle(angle){}
+                auto toDegree() noexcept;
+                constexpr auto& get() noexcept{ return angle; }
+                constexpr const auto& get() const noexcept{ return angle; }
+            };
+        }
 
-    Real random(const Real start, const Real end) noexcept;
-} // namespace Math
+        template <Numeric Number>
+        Number reflect(const Number target, const Number base) noexcept{
+            return 2 * base - target;
+        }
 
-struct Vector2 {
-    float x = 0, y = 0;
+        Number::Int wrap(const Number::Int target,
+            const Number::Int floor, const Number::Int ceil
+        ) noexcept;
+        Number::Real wrap(const Number::Real target,
+            const Number::Real floor, const Number::Real ceil
+        ) noexcept;
 
-  public:
-    Vector2 &operator+=(const Vector2 &other) noexcept;
-    Vector2 &operator-=(const Vector2 &other) noexcept;
+        Number::Real random(const Number::Real start, const Number::Real end) noexcept;
 
-    static Vector2 abs(const Vector2 &v) noexcept;
-    static Math::Real size(const Vector2 &v) noexcept;
-    static Vector2 normalize(const Vector2 &v) noexcept;
-    // radian -> forward vector
-    static Vector2 forward(Math::Radian radian) noexcept;
-    // forward vector -> radian
-    static Math::Radian rotation(const Vector2 &v) noexcept;
-};
+        template<Numeric Number> struct Vector2{
+            Number x=0, y=0;
+    
+          public:
+            Vector2 &operator+=(const Vector2 &other) noexcept{
+                x += other.x; y += other.y;
+                return *this;
+            }
+            Vector2 &operator-=(const Vector2 &other) noexcept{
+                x -= other.x; y -= other.y;
+                return *this;
+            }
+        };
 
-Vector2 operator+(const Vector2& lhs, const Vector2& rhs) noexcept;
-Vector2 operator-(const Vector2& lhs, const Vector2& rhs) noexcept;
-Vector2 operator*(const Math::Real scalar, const Vector2& v) noexcept;
-Vector2 operator*(const Vector2& v, const Math::Real scalar) noexcept;
-// dot product
-Math::Real operator*(const Vector2& lhs, const Vector2 &rhs) noexcept;
-Vector2 operator/(const Vector2& v, const Math::Real scalar) noexcept;
-bool operator<=(const Vector2& lhs, const Vector2& rhs) noexcept;
+        template<Numeric Number>
+        Vector2<Number> abs(const Vector2<Number>& v) noexcept{
+            return Vector2<Number>{std::abs(v.x), std::abs(v.y)};
+        }
+
+        template<Numeric Number>
+        Number::Real size(const Vector2<Number>& v) noexcept{
+            return std::sqrt(v.x*v.x + v.y*v.y);
+        }
+
+        template<Numeric N>
+        Vector2<Number::Real> normalize(const Vector2<N>& v) noexcept{
+            return v / size(v);
+        }
+
+        Vector2<Number::Real> forward(Angle::Radian radian) noexcept;
+        Angle::Radian rotation(const Vector2<Number::Real>& v) noexcept;
+
+        template<Numeric Number> Vector2<Number> operator+(
+            const Vector2<Number>& lhs, const Vector2<Number>& rhs
+        ) noexcept{
+            return Vector2<Number>{lhs.x+rhs.x, lhs.y+rhs.y};
+        }
+        template<Numeric Number> Vector2<Number> operator-(
+            const Vector2<Number>& lhs, const Vector2<Number>& rhs
+        ) noexcept{
+            return Vector2<Number>{lhs.x-rhs.x, lhs.y-rhs.y};
+        }
+        template<Numeric Number> Vector2<Number> operator*(
+            const Number scalar, const Vector2<Number>& v
+        ) noexcept{
+            return Vector2<Number>{scalar*v.x, scalar*v.y};
+        }
+        template<Numeric Number> Vector2<Number> operator*(
+            const Vector2<Number>& v, const Number scalar
+        ) noexcept{
+            return scalar*v;
+        }
+        // dot product
+        template<Numeric Number> Number::Real operator*(
+            const Vector2<Number>& lhs, const Vector2<Number> &rhs
+        ) noexcept{
+            return lhs.x*rhs.x + lhs.y*rhs.y;
+        }
+        template<Numeric Number> Vector2<Number> operator/(
+            const Vector2<Number>& v, const Number scalar
+        ) noexcept{
+            assert(not Number::NearZero(scalar));
+            return Vector2<Number>{v.x/scalar, v.y/scalar};
+        }
+        template<Numeric Number> bool operator<=(
+            const Vector2<Number>& lhs, const Vector2<Number>& rhs
+        ) noexcept{
+            return lhs.x<=rhs.x and lhs.y<=rhs.y;
+        }
+    } // namespace Math
+}

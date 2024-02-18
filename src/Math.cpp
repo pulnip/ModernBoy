@@ -4,96 +4,67 @@
 
 #include "Math.hpp"
 
-// Math namespace
-namespace Math{
-    bool NearZero(double x) noexcept {
-        return std::abs(x) < epsilon;
+namespace My{
+    namespace Math{
+        auto Angle::Degree::toRadian() noexcept{
+            return Radian{(Number::PI/180.0) * angle};
+        }
+        auto Angle::Radian::toDegree() noexcept{
+            return Degree{(180.0/Number::PI) * angle};
+        }
+
+
+        Number::Int wrap(const Number::Int target,
+            const Number::Int floor, const Number::Int ceil
+        ) noexcept{
+            assert(floor < ceil);
+            const auto height=ceil-floor;
+            const auto distance=target-floor;
+            const auto remain=distance%height;
+            return remain>=0 ? floor+remain : ceil+remain;
+        }
+        Number::Real wrap(const Number::Real target,
+            const Number::Real floor, const Number::Real ceil
+        ) noexcept{
+            assert(floor < ceil);
+            const auto height=ceil-floor;
+            const auto distance=target-floor;
+            const auto remain=std::fmod(distance, height);
+            return remain>=0 ? floor+remain : ceil+remain;
+        }
+
+        Number::Int random(
+            const Number::Int start, const Number::Int end) noexcept
+        {
+            // 난수 생성 엔진
+            static std::mt19937 gen(
+                // 시드값을 얻기 위해
+                (std::random_device())());
+            // [start, end) 균등 분포
+            std::uniform_int_distribution dis(start, end);
+
+            return dis(gen);
+        }
+        Number::Real random(
+            const Number::Real start, const Number::Real end) noexcept
+        {
+            // 난수 생성 엔진
+            static std::mt19937 gen(
+                // 시드값을 얻기 위해
+                (std::random_device())());
+            // [start, end) 균등 분포
+            std::uniform_real_distribution dis(start, end);
+
+            return dis(gen);
+        }
+
+        Vector2<Number::Real> forward(Angle::Radian radian) noexcept{
+            return Vector2<Number::Real>{
+                static_cast<float>(std::cos(radian.get())),
+                static_cast<float>(std::sin(radian.get()))};
+        }
+        Angle::Radian rotation(const Vector2<Number::Real>& v) noexcept{
+            return Angle::Radian{std::atan2(v.y, v.x)};
+        }
     }
-
-    Real toDegree(Real radian) noexcept {
-        return 180.0 / PI * radian;
-    }
-    Real toRadian(Real degree) noexcept {
-        return PI / 180.0 * degree;
-    }
-
-    Int wrap(const Int x, const Int low, const Int high) noexcept {
-        assert(low <= high);
-
-        const auto r = (x - low) % (high - low);
-
-        return (r >= 0) ? (r + low) : (r + high);
-    }
-
-    Real wrap(const Real x, const Real low, const Real high) noexcept {
-        assert(low <= high);
-        const auto r = std::fmod(x - low, high - low);
-        return (r >= 0) ? (r + low) : (r + high);
-    }
-
-    Real random(const Real start, const Real end) noexcept {
-        // 난수 생성 엔진
-        static std::mt19937 gen(
-            // 시드값을 얻기 위해
-            (std::random_device())());
-        // [start, end) 균등 분포
-        std::uniform_real_distribution dis(start, end);
-
-        return dis(gen);
-    }
-}
-// Vector2 class
-
-Vector2& Vector2::operator+=(const Vector2 &other) noexcept {
-    x += other.x;
-    y += other.y;
-    return *this;
-}
-Vector2& Vector2::operator-=(const Vector2 &other) noexcept {
-    x -= other.x;
-    y -= other.y;
-    return *this;
-}
-
-Vector2 Vector2::abs(const Vector2 &v) noexcept {
-    return Vector2{std::abs(v.x), std::abs(v.y)};
-}
-Math::Real Vector2::size(const Vector2 &v) noexcept {
-    return std::sqrt(v.x * v.x + v.y * v.y);
-}
-Vector2 Vector2::normalize(const Vector2 &v) noexcept {
-    return v / size(v);
-}
-Vector2 Vector2::forward(Math::Real radian) noexcept {
-    return Vector2{
-        static_cast<float>(std::cos(radian)),
-        static_cast<float>(std::sin(radian))};
-}
-Math::Real Vector2::rotation(const Vector2 &v) noexcept {
-    return std::atan2(v.y, v.x);
-}
-
-Vector2 operator+(const Vector2 &lhs, const Vector2 &rhs) noexcept {
-    return Vector2{lhs.x + rhs.x, lhs.y + rhs.y};
-}
-Vector2 operator-(const Vector2 &lhs, const Vector2 &rhs) noexcept {
-    return Vector2{lhs.x - rhs.x, lhs.y - rhs.y};
-}
-Vector2 operator*(Math::Real scalar, const Vector2 &v) noexcept {
-    return Vector2{
-        static_cast<float>(scalar * v.x),
-        static_cast<float>(scalar * v.y)};
-}
-Vector2 operator*(const Vector2 &v, Math::Real scalar) noexcept {
-    return scalar * v;
-}
-Math::Real operator*(const Vector2& lhs, const Vector2& rhs) noexcept{
-    return lhs.x*rhs.x + lhs.y*rhs.y;
-}
-Vector2 operator/(const Vector2 &v, Math::Real scalar) noexcept {
-    assert(!Math::NearZero(scalar) && "Near Zero!");
-    return (1.0 / scalar) * v;
-}
-bool operator<=(const Vector2 &lhs, const Vector2 &rhs) noexcept {
-    return lhs.x <= rhs.x && lhs.y <= rhs.y;
 }

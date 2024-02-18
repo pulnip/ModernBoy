@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include "Component/MoveComponent.hpp"
+#include "Component/Movable.hpp"
 #include "AnimSpriteComponent.hpp"
 #include "Asteroid.hpp"
 #include "SubEngine/ActorManager.hpp"
@@ -10,7 +10,7 @@
 void Asteroid::injectDependency() noexcept {
     auto self = weak_from_this();
 
-    auto mc = Component::make<MoveComponent>(self);
+    auto mc = Component::make<Movable>(self);
     auto sc = Component::make<AnimSpriteComponent>(self);
 
     mc->attr().position.linear={
@@ -23,7 +23,7 @@ void Asteroid::injectDependency() noexcept {
     mc->attr().volume.base={64.0f, 64.0f};
 
     assert(!owner.expired());
-    auto query=owner.lock()->query(SubEngineName::ResourceManager);
+    auto query=owner.lock()->query(SubEngine::Type::ResourceManager);
 
     assert(query.has_value());
     auto manager=std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());

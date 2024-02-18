@@ -3,7 +3,7 @@
 
 #include "GraphicsEngineWithSDL.hpp"
 #include "Actor/Actor.hpp"
-#include "Component/MoveComponent.hpp"
+#include "Component/Movable.hpp"
 #include "SpriteComponent.hpp"
 
 void SpriteComponent::draw() noexcept {
