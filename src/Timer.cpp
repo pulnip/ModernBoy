@@ -5,7 +5,7 @@
 using namespace Game::SubEngine;
 using namespace WithSTD::SubEngine;
 
-void Timer_default::reset() noexcept {
+void Timer_default::reset() noexcept{
     lastTimePoint = clock.now();
 }
 

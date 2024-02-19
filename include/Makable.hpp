@@ -27,7 +27,7 @@ class Makable{
     const std::weak_ptr<Owner>& getOwner() const noexcept{ return owner; }
 
   private:
-    virtual void postConstruct() noexcept=0;
+    virtual void postConstruct() noexcept{}
 
   protected:
     std::weak_ptr<Owner> owner;
@@ -38,7 +38,8 @@ template <class Base>
 class Makable<Base, void>{
   public:
     template <class Derived, typename... T>
-        requires std::derived_from<Derived, Base>
+        // requires std::derived_from<Derived, Base> ||
+        //     std::same_as<Derived, Base>
     static auto make(T... args) noexcept{
         static_assert(std::derived_from<Base, Makable<Base>>);
 
@@ -50,5 +51,5 @@ class Makable<Base, void>{
     }
 
   private:
-    virtual void postConstruct() noexcept = 0;
+    virtual void postConstruct() noexcept{}
 };

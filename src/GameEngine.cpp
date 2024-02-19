@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include "MainEngine.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "SubEngine/ActorManager.hpp"
 #include "SubEngine/GameLogic.hpp"
@@ -14,6 +15,11 @@
 
 using namespace Game;
 using namespace Game::Core;
+
+void Engine::postConstruct() noexcept{
+    assert(not owner.expired());
+    owner.lock()->setEngine(shared_from_this());
+}
 
 void Engine::run() noexcept {
     isRunning = true;

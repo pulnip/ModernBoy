@@ -4,8 +4,10 @@
 
 namespace Game{
     namespace SubEngine{
-        class ResourceManager: public Interface{
-        public:
+        class ResourceManager: public Interface,
+            public std::enable_shared_from_this<ResourceManager>
+        {
+          public:
             ResourceManager() noexcept=default;
             virtual ~ResourceManager()=default;
 
@@ -14,6 +16,8 @@ namespace Game{
             Type getType() const noexcept override{
                 return Type::ResourceManager;
             }
+          protected:
+            void postConstruct() noexcept override;
         };
     }
 }

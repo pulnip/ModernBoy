@@ -16,13 +16,15 @@ enum class EngineCommand{
 namespace Game{
     namespace Core{
         class Engine: public Makable<Engine, MainEngine>,
-            public Receiver
+            public Receiver,
+            public std::enable_shared_from_this<Engine>
         {
         public:
             Engine(std::shared_ptr<Game::SubEngine::Logger>& logger
             ) noexcept: logger(logger){}
             virtual ~Engine() = default;
 
+            void postConstruct() noexcept override;
             void run() noexcept;
             void setLogger(std::shared_ptr<SubEngine::Logger> logger
             ) noexcept{ this->logger=logger; }
@@ -35,7 +37,7 @@ namespace Game{
                 std::shared_ptr<SubEngine::InputSystem> is
             ) noexcept{ inputSystem=is; }
             void setGameLogic(
-                std::shared_ptr<SubEngine::GameLogic> gl
+                std::shared_ptr<SubEngine::GameLogic>& gl
             ) noexcept{ gameLogic=gl; }
             void setPhysicsSimulator(
                 std::shared_ptr<SubEngine::PhysicsSimulator> ps

@@ -6,9 +6,15 @@
 #include "gefwd.hpp"
 
 class MainEngine: public Makable<MainEngine>{
-public:
-    Game::Heart getEngine() noexcept{ return gameEngine; }
+  public:
+    MainEngine() noexcept;
 
-private:
+    void setEngine(Game::Heart engine) noexcept{ gameEngine=engine; }
+    Game::Heart getEngine() noexcept{ return gameEngine; }
+    std::shared_ptr<Game::SubEngine::Logger>
+    getLogger() noexcept{ return logger; }
+
+  private:
     Game::Heart gameEngine;
+    std::shared_ptr<Game::SubEngine::Logger> logger;
 };

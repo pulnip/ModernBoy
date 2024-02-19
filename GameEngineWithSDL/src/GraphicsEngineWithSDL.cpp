@@ -60,7 +60,8 @@ void GraphicsEngine::draw(const SpriteForSDL& sprite) noexcept{
                      SDL_FLIP_NONE);
 }
 
-void GraphicsEngine::postConstruct() noexcept {
+void GraphicsEngine::postConstruct() noexcept{
+    Game::SubEngine::GraphicsEngine::postConstruct();
     window = SDL_CreateWindow(
         "GameEngine Programming in C++",
         100, 100,

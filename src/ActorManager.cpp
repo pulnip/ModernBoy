@@ -8,6 +8,11 @@
 using namespace Game;
 using namespace Game::SubEngine;
 
+void ActorManager::postConstruct() noexcept{
+    assert(not owner.expired());
+    owner.lock()->setActorManager(shared_from_this());
+}
+
 std::optional<Plugin> ActorManager::query(
     const SubEngine::Type name
 ) noexcept{

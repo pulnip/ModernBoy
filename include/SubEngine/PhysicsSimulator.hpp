@@ -14,7 +14,7 @@
 namespace Game{
     namespace SubEngine{
         class PhysicsSimulator final: public Interface,
-            public Observer<Skin::Attribute_2D>
+            public std::enable_shared_from_this<PhysicsSimulator>
         {
         private:
             using ptr=std::weak_ptr<Component::Movable>;
@@ -63,6 +63,9 @@ namespace Game{
                 Skin::Attribute_2D& attr, const Vector2D& opponent,
                 const CollisionHint& hint
             ) noexcept;
+
+        private:
+            void postConstruct() noexcept override;
 
         private:
             std::map<

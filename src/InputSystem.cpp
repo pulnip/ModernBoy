@@ -19,7 +19,9 @@ void InputSystem::registerKey(
 }
 
 void InputSystem::postConstruct() noexcept{
-    assert(!owner.expired());
+    assert(not owner.expired());
+    owner.lock()->setInputSystem(shared_from_this());
+
     subscribe(std::dynamic_pointer_cast<GameLogic>(
         owner.lock()->find(Type::GameLogic)
     ));

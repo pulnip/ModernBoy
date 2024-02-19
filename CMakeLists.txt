@@ -17,15 +17,18 @@ add_executable(${PROJECT_NAME}
     main.cpp
 
     src/Math.cpp
+    src/MainEngine.cpp
     src/GameEngine.cpp
     src/ActorManager.cpp
     src/GraphicsEngine.cpp
     src/GameLogic.cpp
     src/InputSystem.cpp
     src/PhysicsSimulator.cpp
+    src/ResourceManager.cpp
     src/Timer.cpp
     src/Logger.cpp
     src/Actor.cpp
+    src/Component.cpp
     src/Drawable.cpp
     src/ColoredBody.cpp
     src/Movable.cpp

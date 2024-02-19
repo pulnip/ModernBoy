@@ -43,6 +43,12 @@ void Interface::remove(Part comp) noexcept{
     orderedComponents.erase(comp);
 }
 
+void Interface::postConstruct() noexcept{
+    assert(not owner.expired());
+    owner.lock()->appendActor(shared_from_this());
+
+}
+
 bool Interface::UpdateOrder::operator()(
     const Part& lhs, const Part& rhs
 ) const noexcept{

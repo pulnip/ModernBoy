@@ -34,6 +34,8 @@ void Controllable::onNotify(const Skin::Key& key) noexcept {
 }
 
 void Controllable::postConstruct() noexcept{
+    Interface::postConstruct();
+
     setController();
 }
 

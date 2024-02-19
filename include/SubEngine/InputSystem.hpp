@@ -20,7 +20,8 @@ namespace Skin{
 namespace Game{
     namespace SubEngine{
         class InputSystem: public Interface,
-            public Observable<Game::Status>
+            public Observable<Game::Status>,
+            public std::enable_shared_from_this<InputSystem>
         {
         public:
             InputSystem() noexcept=default;

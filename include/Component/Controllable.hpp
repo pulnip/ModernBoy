@@ -4,13 +4,13 @@
 #include <functional>
 #include <map>
 
+#include "Observer.hpp"
 #include "Component.hpp"
 
 namespace Game{
     namespace Component{
         class Controllable final: public Interface,
-            public Observer<Skin::Key>,
-            public std::enable_shared_from_this<Controllable>
+            public Observer<Skin::Key>
         {
         public:
             Controllable() noexcept: Interface(100){}

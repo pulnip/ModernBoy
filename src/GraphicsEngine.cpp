@@ -10,7 +10,7 @@ using namespace Game;
 using namespace Game::SubEngine;
 
 bool GraphicsEngine::DrawOrder::operator()(
-    const ptr &lhs, const ptr &rhs
+    const ptr& lhs, const ptr& rhs
 ) const{
     assert(not lhs.expired() and not rhs.expired());
     return lhs.lock()->getDrawOrder() < rhs.lock()->getDrawOrder();
@@ -19,12 +19,9 @@ bool GraphicsEngine::DrawOrder::operator()(
 void GraphicsEngine::update(const Time& deltaTime) noexcept{
     prepareRendering();
 
-    std::remove_if(
-        drawables.begin(), drawables.end(),
-        [](const auto& d){
-            return d.expired();
-        }
-    );
+    std::erase_if(drawables, [](const auto& d){
+        return d.expired();
+    });
 
     for(auto& d: drawables){
         if(not d.expired()){
@@ -37,4 +34,10 @@ void GraphicsEngine::update(const Time& deltaTime) noexcept{
 
 void GraphicsEngine::append(ptr d) noexcept{
     drawables.emplace(d);
+}
+
+void GraphicsEngine::postConstruct() noexcept{
+    assert(not owner.expired());
+    owner.lock()->setGraphicsEngine(shared_from_this());
+
 }

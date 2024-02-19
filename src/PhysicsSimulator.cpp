@@ -80,7 +80,6 @@ void PhysicsSimulator::setCollision(
     }
 }
 
-
 PhysicsSimulator::AABB_model::AABB_model(const ptr& mc) noexcept{
     assert(!mc.expired());
     auto& _attr=*mc.lock()->attr;
@@ -270,4 +269,9 @@ void PhysicsSimulator::redoWithCollisionAndFlipRelativeVelocity(
 
     // redo after collide
     target.update(totalTime - collideTime);
+}
+
+void PhysicsSimulator::postConstruct() noexcept{
+    assert(not owner.expired());
+    owner.lock()->setPhysicsSimulator(shared_from_this());
 }

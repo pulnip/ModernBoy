@@ -15,7 +15,9 @@ namespace Game{
             Movable
         };
 
-        class Interface: public Makable<Interface, Actor::Interface>{
+        class Interface: public Makable<Interface, Actor::Interface>,
+            public std::enable_shared_from_this<Interface>
+        {
         public:
             Interface(int updateOrder=0
             ) noexcept: updateOrder(updateOrder){}
@@ -29,6 +31,12 @@ namespace Game{
             const int& getUpdateOrder() const noexcept{
                 return updateOrder;
             }
+            void setUpdateOrder(const int uo) noexcept{
+                updateOrder=uo;
+            }
+
+        protected:
+            void postConstruct() noexcept override;
 
         protected:
             /* 컴포넌트의 업데이트 순서

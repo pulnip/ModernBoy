@@ -7,7 +7,7 @@
 #include "SubEngine/Logger.hpp"
 
 int main(int argc, char *argv[]){
-    auto m=std::make_shared<MainEngine>();
+    auto m=MainEngine::make<MainEngine>();
     const std::weak_ptr<MainEngine> wp=m;
 
     std::shared_ptr<Game::SubEngine::Logger> logger=

@@ -8,6 +8,10 @@ using namespace Game;
 using namespace Game::SubEngine;
 
 void GameLogic::postConstruct() noexcept{
+    assert(not owner.expired());
+    auto self=shared_from_this();
+    owner.lock()->setGameLogic(self);
+
     UniqueSender::subscribe(owner);
 }
 

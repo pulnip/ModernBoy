@@ -8,11 +8,14 @@
 
 namespace Game{
     namespace SubEngine{
-        class ActorManager: public Interface{
+        class ActorManager: public Interface,
+            public std::enable_shared_from_this<ActorManager>
+        {
         public:
             ActorManager() noexcept=default;
             virtual ~ActorManager()=default;
 
+            void postConstruct() noexcept override;
             void update(const Time& deltaTime) noexcept override final;
             Type getType() const noexcept override final{
                 return Type::ActorManager;

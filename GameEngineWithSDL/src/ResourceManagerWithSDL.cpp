@@ -34,6 +34,8 @@ ResourceManager::getTexture(const std::string& fileName) noexcept{
 }
 
 void ResourceManager::postConstruct() noexcept {
+    Game::SubEngine::ResourceManager::postConstruct();
+
     assert(!owner.expired());
     auto geSDL=std::dynamic_pointer_cast<GraphicsEngine>(
         owner.lock()->find(Game::SubEngine::Type::GraphicsEngine)

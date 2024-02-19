@@ -8,7 +8,8 @@
 
 namespace Game{
     namespace SubEngine{
-        class GraphicsEngine: public Interface
+        class GraphicsEngine: public Interface,
+            public std::enable_shared_from_this<GraphicsEngine>
         {
         private:
             using ptr=std::weak_ptr<Component::Drawable>;
@@ -30,7 +31,9 @@ namespace Game{
             }
             void append(ptr object) noexcept;
 
-        private:
+        protected:
+            void postConstruct() noexcept override;
+
             virtual void prepareRendering() noexcept=0;
             virtual void finalizeRendering() noexcept=0;
 

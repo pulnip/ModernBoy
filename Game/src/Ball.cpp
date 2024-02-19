@@ -11,32 +11,38 @@
 #include "Component/Movable.hpp"
 #include "AnimSprite.hpp"
 
-void Ball::updateActor(const float &deltaTime) noexcept{
-    static auto& target=std::static_pointer_cast<Movable>(
-        static_cast<Actor::Interface*>(this)->find(Type::Movable)
-    )->attr();
+using namespace Game;
+
+void Ball::updateActor(const Time& deltaTime) noexcept{
+    static auto& target=*std::static_pointer_cast<Component::Movable>(
+        static_cast<Actor::Interface*>(this)->find(Component::Type::Movable)
+    )->attr;
 
     if(target.position.linear.x < -target.volume.size().x){
-        UniqueObservable<GameStatus>::notify(GameStatus::GAME_OVER);
+        UniqueObservable<Status>::notify(Status::GAME_OVER);
     }
 }
 
-void Ball::injectDependency() noexcept {
+void Ball::postConstruct() noexcept {
+    Interface::postConstruct();
+
     auto self = weak_from_this();
 
-    auto mc = Component::make<Movable>(self);
+    auto mc = Component::Interface::make<Component::Movable>(self);
 
-    mc->attr().set({
+    mc->attr->set({
         {1024.0f/2, 768.0f/2}, {45.0f, 40.0f}
     });
-    mc->attr().velocity.linear={-200.0f, 235.0f};
+    mc->attr->velocity.linear={-200.0f, 235.0f};
 
     assert(!owner.expired());
     {
         auto query=owner.lock()->query(SubEngine::Type::ResourceManager);
 
         assert(query.has_value());
-        auto rm=std::dynamic_pointer_cast<ResourceManagerWithSDL>(query.value());
+        auto rm=std::dynamic_pointer_cast<
+            WithSDL::SubEngine::ResourceManager
+        >(query.value());
 
         auto img1=rm->getTexture("pigeon_1.png");
         assert(img1.has_value());
@@ -45,7 +51,9 @@ void Ball::injectDependency() noexcept {
         auto img3=rm->getTexture("pigeon_3.png");
         assert(img1.has_value());
 
-        auto asc = Component::make<AnimSprite>(self);
+        auto asc = Component::Interface::make<
+            WithSDL::Component::AnimSprite
+        >(self);
 
         asc->setAnimTextures(std::vector<SDL_Texture*>{
             img1.value(), img2.value(), img3.value(), img2.value()
@@ -56,9 +64,11 @@ void Ball::injectDependency() noexcept {
         auto query=owner.lock()->query(SubEngine::Type::GameLogic);
 
         assert(query.has_value());
-        auto gl=std::static_pointer_cast<GameLogic>(query.value());
+        auto gl=std::static_pointer_cast<
+            Game::SubEngine::GameLogic
+        >(query.value());
 
-        UniqueObservable<GameStatus>::subscribe(gl);
+        UniqueObservable<Status>::subscribe(gl);
     }
 
     {

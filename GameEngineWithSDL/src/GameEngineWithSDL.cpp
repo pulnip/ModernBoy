@@ -24,22 +24,23 @@ Engine::Engine(std::shared_ptr<Game::SubEngine::Logger>& logger) noexcept:
 Engine::~Engine(){ SDL_Quit(); }
 
 void Engine::postConstruct() noexcept {
-    assert(not owner.expired());
-    auto self = owner.lock()->getEngine();
+    Game::Core::Engine::postConstruct();
 
-    Game::SubEngine::Interface::make<
+    auto self = shared_from_this();
+
+    auto ge=Game::SubEngine::Interface::make<
         WithSDL::SubEngine::GraphicsEngine
     >(self);
     // must call after graphicsEngine
-    Game::SubEngine::Interface::make<
+    auto rm=Game::SubEngine::Interface::make<
         WithSDL::SubEngine::ResourceManager
     >(self);
 
-    Game::SubEngine::Interface::make<
+    auto gl=Game::SubEngine::Interface::make<
         Null::SubEngine::GameLogic
     >(self);
     // must call after GameLogic
-    Game::SubEngine::Interface::make<
+    auto is=Game::SubEngine::Interface::make<
         WithSDL::SubEngine::InputSystem
     >(self);
 

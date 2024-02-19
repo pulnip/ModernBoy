@@ -18,21 +18,24 @@
 #include "Ship.hpp"
 #endif
 
+using namespace Game;
+
 void ActorManagerForTest::postConstruct() noexcept{
-    auto self=std::dynamic_pointer_cast<ActorManager>(shared_from_this());
-    assert(self!=nullptr);
+    ActorManager::postConstruct();
+
+    auto self=shared_from_this();
 
     auto q=query(SubEngine::Type::PhysicsSimulator);
 
     assert(q.has_value());
-    auto ps=std::static_pointer_cast<PhysicsSimulator>(q.value());
+    auto ps=std::static_pointer_cast<SubEngine::PhysicsSimulator>(q.value());
 
 #ifdef PING_PONG
-    auto paddle=Actor::make<Paddle>(self);
-    auto ceil=Actor::make<Ceil>(self);
-    auto floor=Actor::make<Floor>(self);
-    auto rwall=Actor::make<RightWall>(self);
-    auto ball=Actor::make<Ball>(self);
+    auto paddle=Actor::Interface::make<Paddle>(self);
+    auto ceil=Actor::Interface::make<Ceil>(self);
+    auto floor=Actor::Interface::make<Floor>(self);
+    auto rwall=Actor::Interface::make<RightWall>(self);
+    auto ball=Actor::Interface::make<Ball>(self);
 
     ps->setCollision(ball, paddle);
     ps->setCollision(ball, ceil);
@@ -45,10 +48,10 @@ void ActorManagerForTest::postConstruct() noexcept{
 #endif
 
 #ifdef SPACE_SHIP
-    Actor::make<Ship>(self);
+    Actor::Interface::make<Ship>(self);
     for(int i=0; i<20; ++i){
-        Actor::make<Asteroid>(self);
+        Actor::Interface::make<Asteroid>(self);
     }
-    Actor::make<CelestialSky>(self);
+    Actor::Interface::make<CelestialSky>(self);
 #endif
 }

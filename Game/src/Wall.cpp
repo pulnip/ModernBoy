@@ -5,76 +5,78 @@
 #include "Component/ColoredBody.hpp"
 #include "Component/Movable.hpp"
 
-void Wall::injectDependency() noexcept {
+using namespace Game;
+
+void Wall::postConstruct() noexcept{
+    Interface::postConstruct();
+
     auto self = weak_from_this();
 
-    Component::make<Movable>(self);
-    auto bc = Component::make<ColoredBody>(self);
+    auto mc = Component::Interface::make<Component::Movable>(self);
+    auto bc = Component::Interface::make<Component::ColoredBody>(self);
 
-    bc->UniqueObservable<ColorRect>::subscribe(
-        std::dynamic_pointer_cast<GraphicsEngine>(
-            owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
-        )
-    );
+    std::dynamic_pointer_cast<SubEngine::GraphicsEngine>(
+        owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
+    )->append(bc);
 }
 
-void Ceil::injectDependency() noexcept {
+void Ceil::postConstruct() noexcept {
     // duplicated
+    Interface::postConstruct();
+
     auto self = weak_from_this();
 
-    auto mc=Component::make<Movable>(self);
-    auto bc = Component::make<ColoredBody>(self);
+    auto mc = Component::Interface::make<Component::Movable>(self);
+    auto bc = Component::Interface::make<Component::ColoredBody>(self);
 
-    bc->UniqueObservable<ColorRect>::subscribe(
-        std::dynamic_pointer_cast<GraphicsEngine>(
-            owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
-        )
-    );
+    std::dynamic_pointer_cast<SubEngine::GraphicsEngine>(
+        owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
+    )->append(bc);
     // end
 
-    mc->attr().set({
+    mc->attr->set({
         {1024.0f/2, 15.0f/2},
         {1024.0f, 15.0f}
     });
     bc->setTexture({});
 }
 
-void Floor::injectDependency() noexcept {
+void Floor::postConstruct() noexcept {
     // duplicated
+    Interface::postConstruct();
+
     auto self = weak_from_this();
 
-    auto mc=Component::make<Movable>(self);
-    auto bc = Component::make<ColoredBody>(self);
+    auto mc = Component::Interface::make<Component::Movable>(self);
+    auto bc = Component::Interface::make<Component::ColoredBody>(self);
 
-    bc->UniqueObservable<ColorRect>::subscribe(
-        std::dynamic_pointer_cast<GraphicsEngine>(
-            owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
-        )
-    );
+    std::dynamic_pointer_cast<SubEngine::GraphicsEngine>(
+        owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
+    )->append(bc);
     // end
 
-    mc->attr().set({
+    mc->attr->set({
         {1024.0f/2, 768.0f - 15.0f/2},
         {1024.0f, 15.0f}
     });
     bc->setTexture({});
 }
 
-void RightWall::injectDependency() noexcept {
+void RightWall::postConstruct() noexcept {
     // duplicated
+    Interface::postConstruct();
+
     auto self = weak_from_this();
 
-    auto mc=Component::make<Movable>(self);
-    auto bc = Component::make<ColoredBody>(self);
+    auto mc = Component::Interface::make<Component::Movable>(self);
+    auto bc = Component::Interface::make<Component::ColoredBody>(self);
 
-    bc->UniqueObservable<ColorRect>::subscribe(
-        std::dynamic_pointer_cast<GraphicsEngine>(
-            owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
-        )
-    );
+    std::dynamic_pointer_cast<SubEngine::GraphicsEngine>(
+        owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
+    )->append(bc);
     // end
 
-    mc->attr().set({
+    mc->attr->set({
         {1024.0f - 15.0f/2, 768.0f/2},
         {15.0f, 768.0f}
     });

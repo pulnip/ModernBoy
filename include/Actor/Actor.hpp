@@ -22,7 +22,8 @@ namespace Game{
             EDead
         };
         class Interface:
-            public Makable<Interface, SubEngine::ActorManager>
+            public Makable<Interface, SubEngine::ActorManager>,
+            public std::enable_shared_from_this<Interface>
         {
         public:
             Interface() noexcept=default;
@@ -38,6 +39,9 @@ namespace Game{
 
             void add(Part comp) noexcept;
             void remove(Part comp) noexcept;
+
+        protected:
+            void postConstruct() noexcept override;
 
         private:
             // actor-specific function

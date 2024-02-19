@@ -8,39 +8,40 @@
 #include "Component/Controllable.hpp"
 #include "Component/Movable.hpp"
 
-void Paddle::updateActor(const float &deltaTime) noexcept{
-    Actor::Interface* self=this;
-    static auto& mc_attr_v_y=std::static_pointer_cast<Movable>(
-        self->find(Type::Movable)
-    )->attr().velocity.linear.y;
+using namespace Game;
+
+void Paddle::updateActor(const Time& deltaTime) noexcept{
+    static auto& mc_attr_v_y=std::static_pointer_cast<Component::Movable>(
+        find(Component::Type::Movable)
+    )->attr->velocity.linear.y;
     
     mc_attr_v_y=0.0f;
 }
 
-void Paddle::injectDependency() noexcept {
+void Paddle::postConstruct() noexcept {
+    Interface::postConstruct();
+
     auto self = weak_from_this();
 
-    // cc = Component::make<Rigidbody>(self);
-    auto mc = Component::make<Movable>(self);
+    // cc = Component::Interface::make<Rigidbody>(self);
+    auto mc = Component::Interface::make<Component::Movable>(self);
 
-    auto bc = Component::make<ColoredBody>(self);
-    auto ic = Component::make<Controllable>(self);
+    auto bc = Component::Interface::make<Component::ColoredBody>(self);
+    auto ic = Component::Interface::make<Component::Controllable>(self);
 
-    mc->attr().set({
+    mc->attr->set({
         {15.0f, 384.0f}, {15.0f, 120.0f}
     });
 
-    bc->setTexture({255, 255, 255, 100});
-    bc->UniqueObservable<ColorRect>::subscribe(
-        std::dynamic_pointer_cast<GraphicsEngine>(
-            owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
-        )
-    );
+    bc->setTexture(std::make_shared<Skin::TrueColor>(255, 255, 255, 100));
+    std::dynamic_pointer_cast<SubEngine::GraphicsEngine>(
+        owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
+    )->append(bc);
 
-    ic->setKey(SDL_SCANCODE_S, [&v_y = mc->attr().velocity.linear.y]() {
+    ic->setKey(SDL_SCANCODE_S, [&v_y = mc->attr->velocity.linear.y]() {
         v_y += 300.0f;
     });
-    ic->setKey(SDL_SCANCODE_W, [&v_y = mc->attr().velocity.linear.y]() {
+    ic->setKey(SDL_SCANCODE_W, [&v_y = mc->attr->velocity.linear.y]() {
         v_y += -300.0f;
     });
 }
