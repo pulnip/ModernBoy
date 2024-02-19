@@ -36,16 +36,28 @@ void Engine::run() noexcept {
         );
 
         // process input
-        inputSystem->update(deltaTime);
+        if(inputSystem!=nullptr){
+            inputSystem->update(deltaTime);
+        }
 
         // update game
-        gameLogic->update(deltaTime);
-        physicsSimulator->update(deltaTime);
-        actorManager->update(deltaTime);
+        if(gameLogic!=nullptr){
+            gameLogic->update(deltaTime);
+        }
+        if(physicsSimulator!=nullptr){
+            physicsSimulator->update(deltaTime);
+        }
+        if(actorManager!=nullptr){
+            actorManager->update(deltaTime);
+        }
 
         // generate output
-        graphicsEngine->update(deltaTime);
-        soundEngine->update(deltaTime);
+        if(graphicsEngine!=nullptr){
+            graphicsEngine->update(deltaTime);
+        }
+        if(soundEngine!=nullptr){
+            soundEngine->update(deltaTime);
+        }
     }
 }
 

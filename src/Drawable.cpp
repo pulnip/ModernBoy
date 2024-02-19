@@ -11,6 +11,8 @@ using namespace Game;
 using namespace Game::Component;
 
 void Drawable::postConstruct() noexcept{
+    Interface::postConstruct();
+
     assert(!owner.expired());
     auto query=owner.lock()->find(Type::Movable);
     if(query != nullptr){
@@ -18,14 +20,6 @@ void Drawable::postConstruct() noexcept{
     }
 
     setCanvas();
-
-    if(not canvas.expired()){
-        canvas.lock()->append(
-            std::dynamic_pointer_cast<Drawable>(
-                owner.lock()->find(Type::Drawable)
-            )
-        );
-    }
 }
 
 void Drawable::setCanvas() noexcept{

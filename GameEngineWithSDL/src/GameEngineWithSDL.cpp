@@ -4,6 +4,7 @@
 #include "GameEngineWithSDL.hpp"
 #include "SubEngine/ActorManager.hpp"
 #include "SubEngine/GameLogic.hpp"
+#include "SubEngine/SoundEngine.hpp"
 #include "GraphicsEngineWithSDL.hpp"
 #include "InputSystemWithSDL.hpp"
 #include "ResourceManagerWithSDL.hpp"
@@ -42,6 +43,10 @@ void Engine::postConstruct() noexcept {
     // must call after GameLogic
     auto is=Game::SubEngine::Interface::make<
         WithSDL::SubEngine::InputSystem
+    >(self);
+
+    auto se=Game::SubEngine::Interface::make<
+        Null::SubEngine::SoundEngine
     >(self);
 
     timer = Game::SubEngine::Timer::make<

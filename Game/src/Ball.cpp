@@ -55,6 +55,10 @@ void Ball::postConstruct() noexcept {
             WithSDL::Component::AnimSprite
         >(self);
 
+        std::dynamic_pointer_cast<SubEngine::GraphicsEngine>(
+            owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
+        )->append(asc);
+
         asc->setAnimTextures(std::vector<SDL_Texture*>{
             img1.value(), img2.value(), img3.value(), img2.value()
         });

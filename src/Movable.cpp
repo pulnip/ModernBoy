@@ -8,6 +8,10 @@
 using namespace Game::Component;
 
 void Movable::postConstruct() noexcept{
+    Interface::postConstruct();
+
+    attr=std::make_shared<Skin::Attribute_2D>();
+
     assert(!owner.expired());
     auto query=owner.lock()->query(SubEngine::Type::PhysicsSimulator);
 

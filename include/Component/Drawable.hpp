@@ -19,7 +19,7 @@ namespace Game{
             Type getType() const noexcept override final{
                 return Type::Drawable;
             }
-            void postConstruct() noexcept override final;
+            void postConstruct() noexcept override;
             virtual void setCanvas() noexcept;
             int getDrawOrder() const noexcept{ return drawOrder; }
 

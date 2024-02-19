@@ -1,10 +1,11 @@
 #include <cassert>
 
+#include "SubEngine/ActorManager.hpp"
+#include "SubEngine/GraphicsEngine.hpp"
+#include "ResourceManagerWithSDL.hpp"
+#include "Asteroid.hpp"
 #include "Component/Movable.hpp"
 #include "AnimSprite.hpp"
-#include "Asteroid.hpp"
-#include "SubEngine/ActorManager.hpp"
-#include "ResourceManagerWithSDL.hpp"
 
 using namespace Game;
 using namespace My::Math;
@@ -18,6 +19,11 @@ void Asteroid::postConstruct() noexcept {
     auto sc = Component::Interface::make<
         WithSDL::Component::AnimSprite
     >(self);
+
+    std::dynamic_pointer_cast<SubEngine::GraphicsEngine>(
+        owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
+    )->append(sc);
+
 
     mc->attr->position.linear={
         static_cast<float>(random(0, 1024)),

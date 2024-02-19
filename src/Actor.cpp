@@ -46,7 +46,6 @@ void Interface::remove(Part comp) noexcept{
 void Interface::postConstruct() noexcept{
     assert(not owner.expired());
     owner.lock()->appendActor(shared_from_this());
-
 }
 
 bool Interface::UpdateOrder::operator()(

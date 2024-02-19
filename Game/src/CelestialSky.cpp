@@ -26,6 +26,10 @@ void CelestialSky::postConstruct() noexcept{
         WithSDL::Component::BGSprite
     >(self);
 
+    std::dynamic_pointer_cast<SubEngine::GraphicsEngine>(
+        owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
+    )->append(fbg);
+
     fbg->setScreenSize(Vector2D{1024.0f, 768.0f});
     fbg->setScrollSpeed(-100.0f);
 
@@ -40,6 +44,10 @@ void CelestialSky::postConstruct() noexcept{
     auto cbg=Component::Interface::make<
         WithSDL::Component::BGSprite
     >(self);
+
+    std::dynamic_pointer_cast<SubEngine::GraphicsEngine>(
+        owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
+    )->append(cbg);
 
     cbg->setScreenSize(Vector2D{1024.0f, 768.0f});
     cbg->setScrollSpeed(-200.0f);

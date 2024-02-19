@@ -13,6 +13,12 @@ void ColoredBody::setTexture(pColor c) noexcept {
     color=c;
 }
 
+void ColoredBody::postConstruct() noexcept{
+    Drawable::postConstruct();
+
+    color=std::make_shared<Skin::TrueColor>();
+}
+
 void ColoredBody::tryDraw() noexcept {
     assert(!target.expired());
     const auto mc=target.lock();

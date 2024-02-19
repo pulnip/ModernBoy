@@ -15,7 +15,7 @@ namespace Game{
         class GameLogic: public Interface,
             public Observer<Status>,
             public UniqueSender,
-            std::enable_shared_from_this<GameLogic>
+            public std::enable_shared_from_this<GameLogic>
         {
         public:
             GameLogic() noexcept=default;

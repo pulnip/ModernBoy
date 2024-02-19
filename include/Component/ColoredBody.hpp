@@ -15,6 +15,7 @@ namespace Game{
             void setTexture(pColor color) noexcept;
 
         private:
+            void postConstruct() noexcept override final;
             void tryDraw() noexcept override final;
 
         private:

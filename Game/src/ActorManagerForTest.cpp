@@ -4,7 +4,7 @@
 #include "ActorManagerForTest.hpp"
 #include "SubEngine/PhysicsSimulator.hpp"
 
-#define PING_PONG
+#define SPACE_SHIP
 
 #ifdef PING_PONG
 #include "Ball.hpp"

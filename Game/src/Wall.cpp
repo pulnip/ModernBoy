@@ -38,7 +38,7 @@ void Ceil::postConstruct() noexcept {
         {1024.0f/2, 15.0f/2},
         {1024.0f, 15.0f}
     });
-    bc->setTexture({});
+    // bc->setTexture({});
 }
 
 void Floor::postConstruct() noexcept {
@@ -59,7 +59,7 @@ void Floor::postConstruct() noexcept {
         {1024.0f/2, 768.0f - 15.0f/2},
         {1024.0f, 15.0f}
     });
-    bc->setTexture({});
+    // bc->setTexture({});
 }
 
 void RightWall::postConstruct() noexcept {
@@ -80,5 +80,5 @@ void RightWall::postConstruct() noexcept {
         {1024.0f - 15.0f/2, 768.0f/2},
         {15.0f, 768.0f}
     });
-    bc->setTexture({});
+    // bc->setTexture({});
 }

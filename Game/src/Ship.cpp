@@ -2,6 +2,7 @@
 #include <SDL2/SDL_keyboard.h>
 
 #include "SubEngine/ActorManager.hpp"
+#include "SubEngine/GraphicsEngine.hpp"
 #include "ResourceManagerWithSDL.hpp"
 #include "Ship.hpp"
 #include "Component/Controllable.hpp"
@@ -66,6 +67,10 @@ void Ship::postConstruct() noexcept {
     auto asc = Component::Interface::make<
         WithSDL::Component::AnimSprite
     >(self);
+
+    std::dynamic_pointer_cast<SubEngine::GraphicsEngine>(
+        owner.lock()->query(SubEngine::Type::GraphicsEngine).value()
+    )->append(asc);
 
     asc->setAnimTextures(std::vector<SDL_Texture*>{
         img1.value(), img2.value(), img3.value(), img4.value()
