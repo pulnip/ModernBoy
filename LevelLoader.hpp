@@ -5,21 +5,26 @@
 #include <string>
 
 #include <rapidjson/document.h>
+#include "myfwd.hpp"
+#include "TinyTraits.hpp"
 
-class LevelLoader{
-  public:
-    LevelLoader(class MainEngine& me): mainEngine(me){}
+namespace Engine{
+    class LevelLoader: public Singleton<LevelLoader>{
+      public:
+        LevelLoader() noexcept;
+        virtual ~LevelLoader();
 
-    bool loadLevel(
-        class GameEngine* gameEngine,
-        const std::string& fileName
-    ) noexcept;
+        bool loadLevel(
+            const std::string& fileName
+        ) noexcept;
 
-  private:
-    MainEngine& mainEngine;
+      private:
+        // parse json file to rapidjson::Document
+        std::optional<rapidjson::Document> loadJson(
+            const std::string& fileName
+        ) noexcept;
 
-    // parse json file to rapidjson::Document
-    std::optional<rapidjson::Document> loadJson(
-        const std::string& fileName
-    ) noexcept;
-};
+      private:
+        std::unique_ptr<BindedLogger> logger;
+    };
+}

@@ -4,9 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "C:/msys64/mingw64/include",
-                "${workspaceFolder}/include/**",
-                "${workspaceFolder}/GameEngineWithSDL/include/**",
-                "${workspaceFolder}/Game/include/**"
+                "${workspaceFolder}/include/**"
             ],
             "defines": [
                 "_DEBUG",

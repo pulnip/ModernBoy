@@ -18,40 +18,20 @@ add_executable(${PROJECT_NAME}
 
     src/Math.cpp
     src/MainEngine.cpp
-    src/GameEngine.cpp
-    src/ActorManager.cpp
-    src/GraphicsEngine.cpp
-    src/GameLogic.cpp
-    src/InputSystem.cpp
-    src/PhysicsSimulator.cpp
-    src/ResourceManager.cpp
-    src/SoundEngine.cpp
-    src/Timer.cpp
-    src/Logger.cpp
-    src/Actor.cpp
-    src/Component.cpp
-    src/Drawable.cpp
-    src/ColoredBody.cpp
-    src/Movable.cpp
-    src/Controllable.cpp
+    src/Engine/ActorManager.cpp
+    src/Engine/Core.cpp
+    src/Engine/GameLogic.cpp 
+    src/Engine/Graphics.cpp
+    src/Engine/InputSystem.cpp
+    src/Engine/Logger.cpp
+    src/Engine/Timer.cpp
+    src/Actor/Vanilla.cpp
 
-    GameEngineWithSDL/src/GameEngineWithSDL.cpp
-    GameEngineWithSDL/src/GraphicsEngineWithSDL.cpp
-    GameEngineWithSDL/src/InputSystemWithSDL.cpp
-    GameEngineWithSDL/src/ResourceManagerWithSDL.cpp
-    GameEngineWithSDL/src/Sprite.cpp
-    GameEngineWithSDL/src/AnimSprite.cpp
-    GameEngineWithSDL/src/BGSprite.cpp
-    GameEngineWithSDL/src/TimerWithSDL.cpp
-
-    Game/src/TestGame.cpp
-    Game/src/ActorManagerForTest.cpp
-    Game/src/Ball.cpp
-    Game/src/Paddle.cpp
-    Game/src/Wall.cpp
-    Game/src/Asteroid.cpp
-    Game/src/CelestialSky.cpp
-    Game/src/Ship.cpp
+    src/WithSDL/Core.cpp
+    src/WithSDL/Graphics.cpp
+    src/WithSDL/InputSystem.cpp
+    src/WithSDL/Logger.cpp
+    src/WithSDL/Timer.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

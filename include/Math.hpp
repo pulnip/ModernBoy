@@ -70,6 +70,12 @@ namespace My{
                 x -= other.x; y -= other.y;
                 return *this;
             }
+            template<Numeric NewType> operator Vector2<NewType>() const noexcept{
+                return Vector2<NewType>{
+                    static_cast<NewType>(x),
+                    static_cast<NewType>(y)
+                };
+            }
         };
 
         template<Numeric Number>

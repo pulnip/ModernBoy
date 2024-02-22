@@ -1,37 +1,50 @@
 #pragma once
 
-#include "Component.hpp"
+#include <memory>
 
-namespace Game{
-    namespace Component{
-        class Drawable: public Interface{
-        public:
-            Drawable(int drawOrder=0) noexcept:
-            Interface(300), drawOrder(drawOrder){}
-            virtual ~Drawable()=default;
+#include "Skin.hpp"
+#include "Component/Ability.hpp"
 
-            // 애니메이션처럼 내부 상태가 변해야할 경우 사용.
-            virtual void update(const Time& deltaTime
-            ) noexcept override{}
-            // 실제 화면 상에 그리기 위해서, GraphicsEngine에 이미지 전달.
-            virtual void tryDraw()=0;
+namespace Component{
+    class Drawable: public Ability{
+      public:
+        Drawable(
+            std::weak_ptr<Actor::Vanilla> actor, int updateOrder,
+            int drawOrder
+        ) noexcept;
+        virtual ~Drawable();
 
-            Type getType() const noexcept override final{
-                return Type::Drawable;
-            }
-            void postConstruct() noexcept override;
-            virtual void setCanvas() noexcept;
-            int getDrawOrder() const noexcept{ return drawOrder; }
+        virtual void update(const Game::Time&) noexcept override=0;
+        virtual void draw() noexcept=0;
 
-        protected:
-            std::weak_ptr<Movable> target;
-            std::weak_ptr<SubEngine::GraphicsEngine> canvas;
-            /* 그리기 순서(화가 알고리즘 *drawOrder이 작을수록 더 뒤에 위치)
-            - 배경 계열: 100 to 199
-            - 일반 오브젝트 계열: 200 to 299
-            - player계열: 300 to 399
-            */
-            int drawOrder = 0;
-        };
-    }
+        int getDrawOrder() const noexcept{ return drawOrder; }
+
+      protected:
+        std::weak_ptr<Movable> target;
+        /* 그리기 순서(화가 알고리즘 *drawOrder이 작을수록 더 뒤에 위치)
+        - 배경 계열: 100 to 199
+        - 일반 오브젝트 계열: 200 to 299
+        - player계열: 300 to 399
+        */
+        int drawOrder=0;
+      private:
+        std::unique_ptr<Engine::BindedLogger> logger;
+    };
+
+    class Colored final: public Drawable{
+      public:
+        Colored(
+            std::weak_ptr<Actor::Vanilla>, int updateOrder,
+            int drawOrder,
+            Skin::TrueColor
+        ) noexcept;
+        ~Colored();
+
+        void update(const Game::Time&) noexcept override final{}
+        void draw() noexcept override final;
+    
+      private:
+        std::unique_ptr<Engine::BindedLogger> logger;
+        Skin::TrueColor color;
+    };
 }

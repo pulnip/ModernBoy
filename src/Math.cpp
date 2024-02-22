@@ -62,8 +62,8 @@ namespace My{
 
         Vector2<Number::Real> forward(Angle::Radian radian) noexcept{
             return Vector2<Number::Real>{
-                static_cast<float>(std::cos(radian.get())),
-                static_cast<float>(std::sin(radian.get()))};
+                std::cos(radian.get()), std::sin(radian.get())
+            };
         }
         Angle::Radian rotation(const Vector2<Number::Real>& v) noexcept{
             return Angle::Radian{std::atan2(v.y, v.x)};

@@ -1,25 +1,26 @@
 #pragma once
 
-#include "Component.hpp"
+#include <memory>
 
-namespace Game{
-    namespace Component{
-        class Movable final: public Interface{
-        public:
-            Movable() noexcept: Interface(201){}
-            ~Movable()=default;
+#include "Skin.hpp"
+#include "Component/Ability.hpp"
 
-        private:
-            void postConstruct() noexcept override final;
-            void update(const Time& deltaTime) noexcept override final{}
+namespace Component{
+    class Movable final: public Ability{
+      public:
+        Movable(
+            std::weak_ptr<Actor::Vanilla> actor, int updateOrder=200
+        ) noexcept;
+        ~Movable();
 
-            Type getType() const noexcept override final{
-                return Type::Movable;
-            }
-            std::weak_ptr<Skin::Attribute_2D> get(){ return attr; }
+        void update(const Game::Time&) noexcept override final;
+        Type getType() noexcept{
+            return Type::Movable;
+        }
+        const auto& get() const{ return attr; }
 
-        public:
-            std::shared_ptr<Skin::Attribute_2D> attr;
-        };
-    }
+      private:
+        std::unique_ptr<Engine::BindedLogger> logger;
+        Skin::Attribute_2D attr;
+    };
 }

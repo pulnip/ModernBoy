@@ -2,19 +2,12 @@
 
 #include <memory>
 
-#include "Makable.hpp"
-#include "gefwd.hpp"
+#include "myfwd.hpp"
 
-class MainEngine: public Makable<MainEngine>{
+class MainEngine{
   public:
     MainEngine() noexcept;
+    ~MainEngine();
 
-    void setEngine(Game::Heart engine) noexcept{ gameEngine=engine; }
-    Game::Heart getEngine() noexcept{ return gameEngine; }
-    std::shared_ptr<Game::SubEngine::Logger>
-    getLogger() noexcept{ return logger; }
-
-  private:
-    Game::Heart gameEngine;
-    std::shared_ptr<Game::SubEngine::Logger> logger;
+    void start() noexcept;
 };

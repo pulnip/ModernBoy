@@ -4,40 +4,37 @@
 #include <functional>
 #include <map>
 
+#include "myfwd.hpp"
 #include "Observer.hpp"
-#include "Component.hpp"
+#include "Component/Ability.hpp"
 
-namespace Game{
-    namespace Component{
-        class Controllable final: public Interface,
-            public Observer<Skin::Key>
-        {
-        public:
-            Controllable() noexcept: Interface(100){}
-            ~Controllable()=default;
+namespace Component{
+    class Controllable final: public Ability,
+        public Observer<Skin::Key>,
+        public std::enable_shared_from_this<Controllable>
+    {
+      public:
+        Controllable(std::weak_ptr<Actor::Vanilla> actor) noexcept;
+        ~Controllable();
 
-            void setKey(
-                const uint8_t key,
-                std::function<void(void)> OnPressed,
-                std::function<void(void)> OnReleased=[](){}
-            ) noexcept;
+        void setKey(
+            const uint8_t key,
+            std::function<void(void)> OnPressed,
+            std::function<void(void)> OnReleased=[](){}
+        ) noexcept;
 
-        private:
-            void update(const Time& deltaTime) noexcept override final{}
-            void onNotify(const Skin::Key& key) noexcept override final;
+      private:
+        void onNotify(const Skin::Key& key) noexcept override final;
 
-            Type getType() const noexcept override final{
-                return Type::Controllable;
-            }
-            void postConstruct() noexcept override final;
-            void setController() noexcept;
+        Type getType() noexcept override final{
+            return Type::Controllable;
+        }
 
-        protected:
-            std::map<uint8_t, std::function<void(void)>> ifPressed;
-            std::map<uint8_t, std::function<void(void)>> ifReleased;
-
-        private:
-            std::weak_ptr<SubEngine::InputSystem> controller;
-        };
-    }
+      protected:
+        std::map<uint8_t, std::function<void(void)>> ifPressed;
+        std::map<uint8_t, std::function<void(void)>> ifReleased;
+    
+      private:
+        std::unique_ptr<Engine::BindedLogger> logger;
+    };
 }

@@ -5,7 +5,7 @@
 #include <SDL2/SDL_render.h>
 
 #include "Math.hpp"
-#include "gefwd.hpp"
+#include "myfwd.hpp"
 
 namespace Skin{
     using namespace Game;
@@ -82,13 +82,29 @@ namespace Skin{
             volume.base=rect.size;
         }
     };
+
+    struct Key{
+        enum class Status{
+            PRESSED,
+            RELEASED
+        } status;
+        uint8_t key;
+    };
+}
+
+namespace Game{
+    enum class Status{
+        FORCE_QUIT,
+        GAME_OVER,
+        UNEXPECTED
+    };
 }
 
 namespace WithSDL{
     namespace Skin{
         namespace Flyweight{
             using namespace ::Skin::Flyweight;
-            struct SpriteForSDL{
+            struct Sprite{
                 SpinRect spinRect;
                 SDL_Texture* texture=nullptr;
             };

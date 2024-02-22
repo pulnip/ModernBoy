@@ -1,19 +1,27 @@
 #include <fstream>
 #include <vector>
-
-#include "JsonHelper.hpp"
-#include "Logger.hpp"
-#include "MainEngine.hpp"
-
+#include "Engine/Logger.hpp"
 #include "LevelLoader.hpp"
+#include "JsonHelper.hpp"
+
+using namespace Engine;
+
+LevelLoader::LevelLoader() noexcept:
+    logger(std::make_unique<BindedLogger>("LevelLoader", "Base"))
+{
+    logger->debug("constructed");
+}
+
+LevelLoader::~LevelLoader(){
+    logger->debug("destructed");
+}
 
 bool LevelLoader::loadLevel(
-    GameEngine* gameEngine,
     const std::string& fileName
 ) noexcept{
     auto doc=loadJson(fileName);
     if(not doc.has_value()){
-        mainEngine.getLogger()->log("level", fileName, "load failed");
+        logger->info("load failed");
         return false;
     }
 
@@ -21,15 +29,15 @@ bool LevelLoader::loadLevel(
     JsonHelper jsonHelper;
     auto [exist, opt]=jsonHelper.getInt(doc.value(), "version");
     if(not exist){
-        mainEngine.getLogger()->log("attribute", "version", "not exist");
+        logger->info("attribute version not exist");
         return false;
     }
     if(not opt.has_value()){
-        mainEngine.getLogger()->log("attribute", "version", "type incorrect");
+        logger->info("attribute version type incorrect");
         return false;
     }
 
-    mainEngine.getLogger()->log("attribute", opt.value(), "found");
+    logger->debug(("attribute"+ std::to_string(opt.value()) +"found").c_str());
     return true;
 }
 
@@ -40,7 +48,7 @@ std::optional<rapidjson::Document> LevelLoader::loadJson(
         std::ios::in | std::ios::binary | std::ios::ate
     );
     if(not file.is_open()){
-        mainEngine.getLogger()->log("file", fileName, "Not Found");
+        logger->info(("file"+fileName+"Not Found").c_str());
         return std::nullopt;
     }
 
@@ -55,7 +63,7 @@ std::optional<rapidjson::Document> LevelLoader::loadJson(
     rapidjson::Document doc;
     doc.Parse(bytes.data());
     if(not doc.IsObject()){
-        mainEngine.getLogger()->log("file", fileName, "not valid json");
+        logger->info(("file"+fileName+"not valid json").c_str());
         return std::nullopt;
     }
 
