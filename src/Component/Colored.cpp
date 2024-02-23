@@ -9,11 +9,10 @@
 using namespace Component;
 
 Colored::Colored(
-    std::weak_ptr<Actor::Vanilla> actor, int updateOrder,
-    int drawOrder,
+    std::weak_ptr<Actor::Vanilla> actor,
     Skin::TrueColor color
 ) noexcept:
-    Drawable(actor, updateOrder, drawOrder), color(color),
+    Drawable(actor), color(color),
     logger(std::make_unique<Engine::BindedLogger>("Colored", id))
 {
     logger->debug("constructed");

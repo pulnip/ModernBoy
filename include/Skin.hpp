@@ -103,9 +103,8 @@ namespace Game{
 namespace WithSDL{
     namespace Skin{
         namespace Flyweight{
-            using namespace ::Skin::Flyweight;
             struct Sprite{
-                SpinRect spinRect;
+                ::Skin::Flyweight::SpinRect spinRect;
                 SDL_Texture* texture=nullptr;
             };
         }

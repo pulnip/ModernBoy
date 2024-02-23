@@ -5,8 +5,6 @@
 #include <SDL2/SDL_render.h>
 #include "WithSDL/Skin.hpp"
 
-using namespace WithSDL::Skin::Flyweight;
-
 namespace WithSDL{
     class Graphics final: public Engine::Graphics{
         friend class Core;
@@ -14,12 +12,12 @@ namespace WithSDL{
         Graphics() noexcept;
         ~Graphics();
 
-        void draw(Sprite) noexcept;
+        void draw(WithSDL::Skin::Flyweight::Sprite) noexcept;
+        void* context() noexcept override final;
 
       private:
         void initialize() noexcept override final;
         void destroyAll() noexcept override final;
-        void* context() noexcept override final;
 
         void draw(ColorRect) noexcept override final;
 

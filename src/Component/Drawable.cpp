@@ -1,15 +1,15 @@
+#include "Skin.hpp"
 #include "Component/Drawable.hpp"
-
 #include "Engine/Logger.hpp"
 #include "Actor/Vanilla.hpp"
 
 using namespace Component;
 
 Drawable::Drawable(
-    std::weak_ptr<Actor::Vanilla> actor, int updateOrder,
+    std::weak_ptr<Actor::Vanilla> actor,
     int drawOrder
 ) noexcept:
-    Ability(actor, updateOrder),
+    Ability(actor, 300),
     drawOrder(drawOrder),
     logger(std::make_unique<Engine::BindedLogger>("Drawable", id))
 {

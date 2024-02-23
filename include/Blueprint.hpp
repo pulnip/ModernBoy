@@ -16,11 +16,9 @@ namespace Blueprint{
         std::string type, name;
     };
 
-    using namespace Skin;
-
     struct Actor{
-        Attribute_2D physicsAttribute;
-        TrueColor color;
+        Skin::Attribute_2D physicsAttribute;
+        Skin::TrueColor color;
     };
 
     struct Player: public Actor{

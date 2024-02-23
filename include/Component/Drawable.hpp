@@ -1,16 +1,15 @@
 #pragma once
 
 #include <memory>
-
-#include "Skin.hpp"
+#include "myfwd.hpp"
 #include "Component/Ability.hpp"
 
 namespace Component{
     class Drawable: public Ability{
       public:
         Drawable(
-            std::weak_ptr<Actor::Vanilla> actor, int updateOrder,
-            int drawOrder
+            std::weak_ptr<Actor::Vanilla> actor,
+            int drawOrder=100
         ) noexcept;
         virtual ~Drawable();
 
@@ -34,9 +33,8 @@ namespace Component{
     class Colored final: public Drawable{
       public:
         Colored(
-            std::weak_ptr<Actor::Vanilla>, int updateOrder,
-            int drawOrder,
-            Skin::TrueColor
+            std::weak_ptr<Actor::Vanilla>,
+            ::Skin::TrueColor
         ) noexcept;
         ~Colored();
 
@@ -45,6 +43,6 @@ namespace Component{
     
       private:
         std::unique_ptr<Engine::BindedLogger> logger;
-        Skin::TrueColor color;
+        ::Skin::TrueColor color;
     };
 }

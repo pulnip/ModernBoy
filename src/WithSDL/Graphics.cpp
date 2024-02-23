@@ -102,7 +102,7 @@ void Graphics::draw(ColorRect object) noexcept{
     SDL_RenderFillRect(renderer, &rect);
 }
 
-void Graphics::draw(Sprite object) noexcept{
+void Graphics::draw(WithSDL::Skin::Flyweight::Sprite object) noexcept{
     logger->debug("draw sprite");
     Vector2<int> pos=object.spinRect.rect.position; 
     Vector2<int> size=object.spinRect.rect.size;

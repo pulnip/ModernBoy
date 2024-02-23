@@ -17,10 +17,10 @@ namespace Component{
         Type getType() noexcept{
             return Type::Movable;
         }
-        const auto& get() const{ return attr; }
+        auto& get(){ return attr; }
 
       private:
         std::unique_ptr<Engine::BindedLogger> logger;
-        Skin::Attribute_2D attr;
+        ::Skin::Attribute_2D attr;
     };
 }

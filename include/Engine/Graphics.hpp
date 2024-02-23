@@ -7,8 +7,6 @@
 #include "Skin.hpp"
 #include "myfwd.hpp"
 
-using namespace ::Skin::Flyweight;
-
 namespace Engine{
     class Graphics: public Singleton<Graphics>{
         friend class Core;
@@ -28,7 +26,7 @@ namespace Engine{
         virtual void destroyAll() noexcept=0;
         virtual void* context() noexcept=0;
 
-        virtual void draw(ColorRect) noexcept=0;
+        virtual void draw(::Skin::Flyweight::ColorRect) noexcept=0;
 
         virtual void clearScreen() noexcept=0;
         virtual void swapBuffer() noexcept=0;

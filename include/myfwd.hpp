@@ -22,8 +22,8 @@ namespace Engine{
     class Logger;
     struct BindedLogger;
     class PhysicsSimulator;
-    namespace ResourceManager{}
-    namespace SoundEngine{}
+    class ResourceManager;
+    class SoundEngine;
     class Timer;
 }
 
