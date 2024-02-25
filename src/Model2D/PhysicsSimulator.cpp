@@ -215,5 +215,4 @@ void PhysicsSimulator::applyCollisionResult(
 
     // redo after collide
     target.update(totalTime - result.first);
-
 }

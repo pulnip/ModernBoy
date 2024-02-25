@@ -2,6 +2,7 @@
 #include "Component/Drawable.hpp"
 #include "Engine/Logger.hpp"
 #include "Actor/Vanilla.hpp"
+#include "Component/Movable.hpp"
 
 using namespace Component;
 

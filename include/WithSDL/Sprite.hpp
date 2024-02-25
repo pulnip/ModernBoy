@@ -10,13 +10,14 @@ namespace WithSDL{
     public:
         Sprite(
             std::weak_ptr<Actor::Vanilla> actor,
-            int drawOrder=200
+            int drawOrder
         ) noexcept;
         virtual ~Sprite();
 
         void setTexture(SDL_Texture* t) noexcept{ texture=t; }
 
     private:
+        virtual void update(const Game::Time&) noexcept override{}
         virtual void draw() noexcept override;
 
     private:

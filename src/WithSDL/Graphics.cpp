@@ -79,7 +79,7 @@ void* Graphics::context() noexcept{
     return renderer;
 }
 
-void Graphics::draw(ColorRect object) noexcept{
+void Graphics::draw(::Skin::Flyweight::ColorRect object) noexcept{
     logger->debug("draw ColorRect");
     Vector2<int> pos=object.rect.position; 
     Vector2<int> size=object.rect.size;

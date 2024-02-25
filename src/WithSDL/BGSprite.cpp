@@ -19,10 +19,11 @@ BGSprite::~BGSprite(){
 }
 
 void BGSprite::setBGTextures(const std::vector<SDL_Texture*> &textures) noexcept {
-    int count = 0;
+    unsigned int count = 0;
     for (auto tex: textures) {
         BGTextures.emplace_back(BGTexture{
-            tex, count * screenSize.x});
+            tex, static_cast<double>(count * screenSize.x)
+        });
         ++count;
     }
 }
@@ -47,7 +48,7 @@ void BGSprite::draw() noexcept{
     }
 }
 
-void BGSprite::update(const Time& deltaTime) noexcept {
+void BGSprite::update(const Time& deltaTime) noexcept{
     for (auto &bg : BGTextures) {
         // 텍스처 위치(offset)를 스크롤 스피드만큼 왼쪽으로 이동.
         bg.offset_x += scrollSpeed * deltaTime;

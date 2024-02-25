@@ -3,12 +3,13 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <vector>
 #include <SDL2/SDL_render.h>
 #include "myfwd.hpp"
 #include "Engine/ResourceManager.hpp"
 
 namespace WithSDL{
-    class ResourceManager final: Engine::ResourceManager{
+    class ResourceManager final: public Engine::ResourceManager{
         friend class Core;
     public:
         ResourceManager() noexcept;
@@ -17,10 +18,15 @@ namespace WithSDL{
         std::optional<SDL_Texture*> getTexture(
             const std::string &fileName
         ) noexcept;
+        std::optional<std::vector<SDL_Texture*>> getTexture(
+            const std::vector<std::string>& fileNames
+        ) noexcept;
 
     private:
         // 이미지 로딩 과정 캡슐화
-        SDL_Texture* loadTexture(const std::string &fileName) noexcept;
+        SDL_Texture* loadTexture(const std::string& fileName) noexcept;
+        SDL_Texture* sw_render(const std::string& fileName) noexcept;
+        SDL_Texture* hw_render(const std::string& fileName) noexcept;
 
     private:
         std::unique_ptr<Engine::BindedLogger> logger;

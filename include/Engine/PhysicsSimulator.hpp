@@ -4,12 +4,13 @@
 #include <map>
 #include <memory>
 #include <utility>
+#include "Math.hpp"
 #include "TinyTraits.hpp"
 #include "myfwd.hpp"
 
 namespace Engine{
     class PhysicsSimulator: public Singleton<PhysicsSimulator>{
-        friend class MainEngine;
+        friend class ::MainEngine;
       protected:
         using sp=std::shared_ptr<Component::Movable>;
         using wp=std::weak_ptr<Component::Movable>;
@@ -20,7 +21,7 @@ namespace Engine{
 
         void update(const Game::Time& deltaTime) noexcept;
 
-        void append(pActor);
+        void append(pActor) noexcept;
         void setCollision(pActor who, pActor to) noexcept;
 
       private:
@@ -63,7 +64,7 @@ namespace WithModel2D{
         using Result=std::pair<Game::Time, Collision2D>;
         Result collide(const Model&, const Model&) noexcept;
         void applyCollisionResult(
-            Skin::Attribute_2D& target,
+            ::Skin::Attribute_2D& target,
             const Result&, const Game::Time& totalTime,
             const Game::Vector2D& opponentVelocity
         ) noexcept;

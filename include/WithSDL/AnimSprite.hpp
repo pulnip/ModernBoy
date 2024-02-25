@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-
+#include <SDL2/SDL_render.h>
 #include "WithSDL/Sprite.hpp"
 
 namespace WithSDL{
@@ -14,7 +14,7 @@ namespace WithSDL{
         void setAnimFPS(const float fps) noexcept{ animFPS = fps; }
         // 애니메이션에 사용되는 텍스처 설정
         void setAnimTextures(
-            const std::vector<class SDL_Texture *> &textures
+            const std::vector<SDL_Texture *> &textures
         ) noexcept{
             animTextures = textures;
         }
@@ -26,7 +26,7 @@ namespace WithSDL{
 
     private:
         std::unique_ptr<Engine::BindedLogger> logger;
-        std::vector<class SDL_Texture *> animTextures;
+        std::vector<SDL_Texture*> animTextures;
         // 현재 프레임
         float currFrame = 0.0f;
         int animFPS = 8;

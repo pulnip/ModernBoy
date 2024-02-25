@@ -89,6 +89,6 @@ void PhysicsSimulator::setCollision(pActor who, pActor to) noexcept{
         );
     } else{
         // key already exists
-        it->second.emplace_back(to);
+        it->second.emplace_back(mcTo);
     }
 }

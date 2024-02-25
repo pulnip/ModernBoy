@@ -8,7 +8,7 @@ using namespace My::Math;
 AnimSprite::AnimSprite(
     std::weak_ptr<Actor::Vanilla> actor
 ) noexcept:
-    Sprite(actor, 300),
+    Sprite(actor, 301),
     logger(std::make_unique<Engine::BindedLogger>("Sprite", "Anim"))
 {
     logger->debug("constructed");

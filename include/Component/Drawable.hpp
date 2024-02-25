@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "myfwd.hpp"
+#include "Skin.hpp"
 #include "Component/Ability.hpp"
 
 namespace Component{
@@ -9,7 +10,7 @@ namespace Component{
       public:
         Drawable(
             std::weak_ptr<Actor::Vanilla> actor,
-            int drawOrder=100
+            int drawOrder
         ) noexcept;
         virtual ~Drawable();
 
@@ -34,12 +35,15 @@ namespace Component{
       public:
         Colored(
             std::weak_ptr<Actor::Vanilla>,
-            ::Skin::TrueColor
+            ::Skin::TrueColor={}
         ) noexcept;
         ~Colored();
 
         void update(const Game::Time&) noexcept override final{}
         void draw() noexcept override final;
+        void setColor(const ::Skin::TrueColor& color) noexcept{
+            this->color=color;
+        }
     
       private:
         std::unique_ptr<Engine::BindedLogger> logger;

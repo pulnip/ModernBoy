@@ -17,21 +17,48 @@ add_executable(${PROJECT_NAME}
     main.cpp
 
     src/Math.cpp
+
     src/MainEngine.cpp
+
     src/Engine/ActorManager.cpp
     src/Engine/Core.cpp
     src/Engine/GameLogic.cpp 
     src/Engine/Graphics.cpp
     src/Engine/InputSystem.cpp
     src/Engine/Logger.cpp
+    src/Engine/PhysicsSimulator.cpp
+    src/Engine/ResourceManager.cpp
     src/Engine/Timer.cpp
     src/Actor/Vanilla.cpp
+    src/Component/Ability.cpp
+    src/Component/AI.cpp
+    src/Component/Colored.cpp
+    src/Component/Controllable.cpp
+    src/Component/Drawable.cpp
+    src/Component/Movable.cpp
 
+    src/WithSTD/InputSystem.cpp
+    src/WithSTD/Timer.cpp
+
+    src/WithSDL/AnimSprite.cpp
+    src/WithSDL/BGSprite.cpp
     src/WithSDL/Core.cpp
     src/WithSDL/Graphics.cpp
     src/WithSDL/InputSystem.cpp
     src/WithSDL/Logger.cpp
+    src/WithSDL/ResourceManager.cpp
+    src/WithSDL/Sprite.cpp
     src/WithSDL/Timer.cpp
+
+    src/Model2D/PhysicsSimulator.cpp
+
+    src/Test/ActorManager.cpp
+    src/Test/Asteroid.cpp
+    src/Test/Ball.cpp
+    src/Test/CelestialSky.cpp
+    src/Test/Paddle.cpp
+    src/Test/Ship.cpp
+    src/Test/Wall.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

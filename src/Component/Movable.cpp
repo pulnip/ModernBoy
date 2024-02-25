@@ -5,9 +5,9 @@
 using namespace Component;
 
 Movable::Movable(
-    std::weak_ptr<Actor::Vanilla> actor, int  updateOrder
+    std::weak_ptr<Actor::Vanilla> actor
 ) noexcept:
-    Ability(actor, updateOrder),
+    Ability(actor, 200),
     logger(std::make_unique<Engine::BindedLogger>("Movable", id))
 {
     logger->debug("constructed");
@@ -18,5 +18,5 @@ Movable::~Movable(){
 }
 
 void Movable::update(const Game::Time& deltaTime) noexcept{
-    attr.update(deltaTime);
+    // attr.update(deltaTime);
 }

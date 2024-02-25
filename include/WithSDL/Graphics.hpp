@@ -19,7 +19,7 @@ namespace WithSDL{
         void initialize() noexcept override final;
         void destroyAll() noexcept override final;
 
-        void draw(ColorRect) noexcept override final;
+        void draw(::Skin::Flyweight::ColorRect) noexcept override final;
 
         void clearScreen() noexcept override final;
         void swapBuffer() noexcept override final;

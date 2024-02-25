@@ -9,7 +9,7 @@ namespace Component{
     class Movable final: public Ability{
       public:
         Movable(
-            std::weak_ptr<Actor::Vanilla> actor, int updateOrder=200
+            std::weak_ptr<Actor::Vanilla> actor
         ) noexcept;
         ~Movable();
 

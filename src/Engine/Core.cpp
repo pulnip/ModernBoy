@@ -38,7 +38,6 @@ void Core::run() noexcept{
     timer->reset();
     GameLogic::get()->connect();
     InputSystem::get()->connect();
-    Graphics::get()->initialize();
 
     while (isRunning){
         // 마지막 프레임 이후로 최소한 16ms가 경과할 때까지 대기
@@ -60,6 +59,11 @@ void Core::run() noexcept{
             GameLogic::get()->update(deltaTime);
         } else{
             logger->info("GameLogic not valid");
+        }
+        if(PhysicsSimulator::get()!=nullptr){
+            logger->debug("update PhysicsSimulator");
+            PhysicsSimulator::get()->update(deltaTime);
+            
         }
         if(ActorManager::get()!=nullptr){
             logger->debug("update ActorManager");

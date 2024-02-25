@@ -15,11 +15,12 @@ namespace Actor{
         Active, Paused, Dead
     };
 
-    class Vanilla{
+    class Vanilla: public std::enable_shared_from_this<Vanilla>{
       public:
         Vanilla() noexcept;
         virtual ~Vanilla();
 
+        virtual void initAbility() noexcept=0;
         void update(const Game::Time&) noexcept;
 
         void add(pComponent) noexcept;

@@ -18,6 +18,10 @@ namespace Engine{
 
         void connect() noexcept override final;
         void update(const Game::Time& deltaTime) noexcept;
+        
+        void set(const Game::Status& st) noexcept{
+            onNotify(st);
+        }
 
       private:
         void onNotify(const Game::Status&) noexcept override final;
