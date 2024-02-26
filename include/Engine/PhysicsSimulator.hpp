@@ -45,6 +45,11 @@ namespace WithModel2D{
             Model(const sp&) noexcept;
             Game::Vector2D position, velocity, size;
         };
+        struct AxisModel{
+            enum class Axis{x, y};
+            AxisModel(const Model&, Axis) noexcept;
+            double position, velocity, size;
+        };
       public:
         PhysicsSimulator() noexcept;
         ~PhysicsSimulator();
@@ -54,8 +59,16 @@ namespace WithModel2D{
             sp who, sp to, const Game::Time& dt
         ) noexcept override final;
 
-        // check only velocity
-        bool isGetCloser(const Model&, const Model&) noexcept;
+        // first: collision start time
+        // second: collision end time
+        using CollisionTime=std::pair<Game::Time, Game::Time>;
+        CollisionTime axisCollisionTime(
+            AxisModel, AxisModel
+        ) noexcept;
+        CollisionTime commonCollisionTime(
+            const CollisionTime&, const CollisionTime&
+        ) noexcept;
+        bool isCollidable(const CollisionTime&) noexcept;
         // first value: x-axis collision
         // second value: y-axis collision        
         using Collision2D=std::pair<bool, bool>;

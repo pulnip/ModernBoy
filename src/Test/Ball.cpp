@@ -54,7 +54,7 @@ void Ball::initAbility() noexcept {
     movable->get().set({
         {1024.0f/2, 768.0f/2}, {45.0f, 40.0f}
     });
-    movable->get().velocity.linear={-200.0, /*235.0*/0.0};
+    movable->get().velocity.linear={-200.0, 235.0};
 
     auto textures=std::dynamic_pointer_cast<ResourceManager>(
         ResourceManager::get()

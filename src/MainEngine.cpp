@@ -28,6 +28,7 @@ MainEngine::MainEngine() noexcept{
 
 MainEngine::~MainEngine(){
     ActorManager::base=nullptr;
+    PhysicsSimulator::base=nullptr;
     GameLogic::base=nullptr;
     Core::base=nullptr;
     Logger::base=nullptr;
