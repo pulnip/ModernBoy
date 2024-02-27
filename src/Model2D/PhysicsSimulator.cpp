@@ -14,16 +14,6 @@ PhysicsSimulator::Model::Model(const sp& movable) noexcept{
     this->size=movable->get().volume.size();
 }
 
-PhysicsSimulator::PhysicsSimulator() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>("PhysicsSimulator", "Model2D"))
-{
-    logger->debug("constructed");
-}
-
-PhysicsSimulator::~PhysicsSimulator(){
-    logger->debug("destructed");
-}
-
 PhysicsSimulator::AxisModel::AxisModel(const Model& m, Axis axis) noexcept{
     switch(axis){
     case Axis::x:

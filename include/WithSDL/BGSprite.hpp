@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-
 #include "Math.hpp"
+#include "Engine/Logger.hpp"
 #include "WithSDL/Sprite.hpp"
 
 using namespace Game;
@@ -15,7 +15,6 @@ namespace WithSDL{
         BGSprite(
             std::weak_ptr<Actor::Vanilla> actor
         ) noexcept;
-        ~BGSprite();
 
         // 배경용 텍스처 설정
         void setBGTextures(
@@ -36,7 +35,7 @@ namespace WithSDL{
         void update(const Time& deltaTime) noexcept override final;
 
     private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"BGSprite", id};
         struct BGTexture {
             class SDL_Texture* texture;
             // 화면이 시작하는 위치

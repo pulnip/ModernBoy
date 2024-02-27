@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component/Ability.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Component{
     class AI: public Ability{
@@ -13,9 +14,9 @@ namespace Component{
 
       public:
         AI(std::weak_ptr<Actor::Vanilla> actor) noexcept;
-        virtual ~AI();
+        virtual ~AI()=default;
     
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"AI", id};
     };
 }

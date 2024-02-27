@@ -15,8 +15,8 @@ MainEngine::MainEngine() noexcept{
     Engine::screen={100, 100, 1024, 768};
 
     SDL_Init(SDL_INIT_EVERYTHING);
-    Logger::base=std::make_shared<WithSDL::Logger>();
-    Logger::get()->currlevel=Logger::Level::INFO;
+    Logger::Impl::base=std::make_shared<WithSTD::Logger>();
+    Logger::Impl::get()->currlevel=Logger::Level::DEBUG;
 
     Core::base=std::make_shared<WithSDL::Core>();
 
@@ -31,7 +31,7 @@ MainEngine::~MainEngine(){
     PhysicsSimulator::base=nullptr;
     GameLogic::base=nullptr;
     Core::base=nullptr;
-    Logger::base=nullptr;
+    Logger::Impl::base=nullptr;
     SDL_Quit();
 }
 

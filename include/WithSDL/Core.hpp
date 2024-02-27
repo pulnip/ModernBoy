@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core.hpp"
+#include "Engine/Logger.hpp"
 
 namespace WithSDL{
     class Core final: public Engine::Core{
@@ -9,6 +10,6 @@ namespace WithSDL{
         ~Core();
     
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        Logger::Binded logger={"Core", "SDL"};
     };
 }

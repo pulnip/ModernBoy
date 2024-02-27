@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "myfwd.hpp"
 
 template<typename Base>
 class Singleton{
@@ -8,11 +9,12 @@ class Singleton{
     static auto get() noexcept{ return base; }
 
   protected:
+public:
     static std::shared_ptr<Base> base;
 };
 
 template<typename T>
-std::shared_ptr<T> Singleton<T>::base;
+extern std::shared_ptr<T> Singleton<T>::base;
 
 class Connectable{
   public:

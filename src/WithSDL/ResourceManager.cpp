@@ -8,15 +8,7 @@
 using namespace WithSDL;
 
 ResourceManager::ResourceManager() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>("ResourceManager", "SDL")),
-    context(static_cast<SDL_Renderer*>(Graphics::get()->context()))
-{
-    logger->debug("constructed");
-}
-
-ResourceManager::~ResourceManager(){
-    logger->debug("destructed");
-}
+context(static_cast<SDL_Renderer*>(Graphics::get()->context())){}
 
 std::optional<SDL_Texture*>
 ResourceManager::getTexture(const std::string& fileName) noexcept{
@@ -65,7 +57,7 @@ SDL_Texture* ResourceManager::loadTexture(
     if(context==nullptr){
         context=static_cast<SDL_Renderer*>(Graphics::get()->context());
         if(context==nullptr){
-            logger->info("context not valid");
+            logger.info("context not valid");
             return nullptr;
         }
     }
@@ -83,15 +75,15 @@ SDL_Texture* ResourceManager::sw_render(
 ) noexcept{
     auto surface = IMG_Load(fileNameWithPath.c_str());
     if(surface == nullptr){
-        logger->info("Failed to Load Surface from File");
-        logger->info(fileNameWithPath.c_str());
+        logger.info("Failed to Load Surface from File");
+        logger.info(fileNameWithPath.c_str());
         return nullptr;
     }
 
     auto texture=SDL_CreateTextureFromSurface(context, surface);
     if(texture==nullptr){
-        logger->info("Failed to Create Texture from Surface");
-        logger->info(SDL_GetError());
+        logger.info("Failed to Create Texture from Surface");
+        logger.info(SDL_GetError());
     }
     SDL_FreeSurface(surface);
     return texture;
@@ -102,8 +94,8 @@ SDL_Texture* ResourceManager::hw_render(
 ) noexcept{
     auto texture=IMG_LoadTexture(context, fileNameWithPath.c_str());
     if(texture==nullptr){
-        logger->info("Failed to Load Texture from File");
-        logger->info(SDL_GetError());
+        logger.info("Failed to Load Texture from File");
+        logger.info(SDL_GetError());
     }
     return texture;
 }

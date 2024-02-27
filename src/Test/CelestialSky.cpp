@@ -10,18 +10,6 @@
 using namespace WithSDL;
 using namespace Test;
 
-CelestialSky::CelestialSky() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>(
-        "Actor", "CelestialSky")
-    )
-{
-    logger->debug("constructed");
-}
-
-CelestialSky::~CelestialSky(){
-    logger->debug("destructed");
-}
-
 void CelestialSky::initAbility() noexcept{
     using namespace Component;
     auto self=weak_from_this();

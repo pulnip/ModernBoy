@@ -19,5 +19,6 @@ Core::Core() noexcept:
 Core::~Core(){
     InputSystem::base=nullptr;
     ResourceManager::base=nullptr;
+    Graphics::get()->destroyAll();
     Graphics::base=nullptr;
 }

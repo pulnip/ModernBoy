@@ -19,12 +19,15 @@ namespace Engine{
     class GameLogic;
     class Graphics;
     class InputSystem;
-    class Logger;
-    struct BindedLogger;
     class PhysicsSimulator;
     class ResourceManager;
     class SoundEngine;
     class Timer;
+}
+
+namespace Logger{
+    class Impl;
+    class Binded;
 }
 
 namespace Actor{

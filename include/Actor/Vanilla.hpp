@@ -3,7 +3,7 @@
 #include <map>
 #include <optional>
 #include <set>
-
+#include "Engine/Logger.hpp"
 #include "myfwd.hpp"
 
 namespace Actor{
@@ -17,8 +17,7 @@ namespace Actor{
 
     class Vanilla: public std::enable_shared_from_this<Vanilla>{
       public:
-        Vanilla() noexcept;
-        virtual ~Vanilla();
+        virtual ~Vanilla()=default;
 
         virtual void initAbility() noexcept=0;
         void update(const Game::Time&) noexcept;
@@ -32,13 +31,12 @@ namespace Actor{
         virtual void updateActor(const Game::Time&) noexcept=0;
 
       protected:
-        const int id;
+        const int id=++seed;
         State state=State::Active;
         std::multimap<Component::Type, pComponent> components;
 
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
-
+        ::Logger::Binded logger={"Actor", id};
         static int seed;
         struct UpdateOrder{
             bool operator()(

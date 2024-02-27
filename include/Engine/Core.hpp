@@ -5,6 +5,7 @@
 #include "TinyTraits.hpp"
 #include "myfwd.hpp"
 #include "Blueprint.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Engine{
     extern std::string title;
@@ -16,7 +17,7 @@ namespace Engine{
         friend class ::MainEngine;
       public:
         Core(std::unique_ptr<Timer>) noexcept;
-        virtual ~Core();
+        virtual ~Core()=default;
 
         void run() noexcept;
 
@@ -29,8 +30,7 @@ namespace Engine{
         bool isRunning=false;
 
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
-
+        ::Logger::Binded logger={"Core", "base"};
         std::unique_ptr<Timer> timer;
     };
 }

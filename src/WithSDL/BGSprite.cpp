@@ -7,16 +7,7 @@ using namespace WithSDL;
 
 BGSprite::BGSprite(
     std::weak_ptr<Actor::Vanilla> actor
-) noexcept:
-    Sprite(actor, 50),
-    logger(std::make_unique<Engine::BindedLogger>("Sprite", "BG"))
-{
-    logger->debug("constructed");
-}
-
-BGSprite::~BGSprite(){
-    logger->debug("destructed");
-}
+) noexcept: Sprite(actor, 50){}
 
 void BGSprite::setBGTextures(const std::vector<SDL_Texture*> &textures) noexcept {
     unsigned int count = 0;

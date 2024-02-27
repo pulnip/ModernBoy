@@ -8,16 +8,6 @@ using namespace My::Math;
 using namespace WithSDL;
 using namespace Test;
 
-Wall::Wall() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>("Actor", "Wall"))
-{
-    logger->debug("constructed");
-}
-
-Wall::~Wall(){
-    logger->debug("destructed");
-}
-
 void Ceil::initAbility() noexcept {
     // duplicated
     using namespace Component;

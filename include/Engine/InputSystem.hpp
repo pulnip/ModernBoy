@@ -5,6 +5,7 @@
 #include "TinyTraits.hpp"
 #include "Observable.hpp"
 #include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Engine{
     class InputSystem: public Singleton<InputSystem>,
@@ -12,8 +13,7 @@ namespace Engine{
     {
         friend class Core;
       public:
-        InputSystem() noexcept;
-        virtual ~InputSystem();
+        virtual ~InputSystem()=default;
 
         void connect() noexcept override final;
         virtual void update(const Game::Time& deltaTime) noexcept=0;
@@ -27,7 +27,7 @@ namespace Engine{
         std::map<uint8_t, Observable<Skin::Key>> keyMap;
 
       private:
-        std::unique_ptr<BindedLogger> logger;
+        ::Logger::Binded logger={"Input", "base"};
     };
 }
 
@@ -43,6 +43,6 @@ namespace WithSTD{
         }
 
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"Input", "STD"};
     };
 }

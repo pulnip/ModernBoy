@@ -5,19 +5,7 @@
 
 using namespace Engine;
 
-ActorManager::ActorManager() noexcept:
-    logger(std::make_unique<BindedLogger>("ActorManager", "Base"))
-{
-    logger->debug("constructed");
-}
-
-ActorManager::~ActorManager(){
-    logger->debug("destructed");
-}
-
 void ActorManager::appendActor(pActor actor) noexcept{
-    logger->debug("append actor");
-
     if (isUpdatingActors) {
         pendingActors.emplace_back(actor);
     } else {
@@ -26,7 +14,7 @@ void ActorManager::appendActor(pActor actor) noexcept{
 }
 
 void ActorManager::removeActor(pActor actor) noexcept {
-    logger->debug("remove actor");
+    logger.debug("remove actor");
 
     const auto it=actors.erase(
         std::remove(actors.begin(), actors.end(), actor)
@@ -41,8 +29,6 @@ void ActorManager::removeActor(pActor actor) noexcept {
 }
 
 void ActorManager::update(const Game::Time& deltaTime) noexcept{
-    logger->debug("update");
-
     isUpdatingActors = true;
     // 모든 액터를 갱신
     for (auto& actor: actors) {

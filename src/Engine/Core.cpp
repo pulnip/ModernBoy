@@ -16,20 +16,11 @@ std::string Engine::title;
 Blueprint::Screen Engine::screen;
 
 Core::Core(std::unique_ptr<Timer> timer) noexcept:
-    logger(std::make_unique<BindedLogger>("Core", "Base")),
     timer(std::move(timer))
 {
     if(this->timer==nullptr){
-        logger->error("timer not valid");
-    } else{
-        logger->debug("valid timer");
+        logger.error("timer not valid");
     }
-
-    logger->debug("constructed");
-}
-
-Core::~Core(){
-    logger->debug("destructed");
 }
 
 void Core::run() noexcept{
@@ -55,30 +46,24 @@ void Core::run() noexcept{
 
         // update game
         if(GameLogic::get()!=nullptr){
-            logger->debug("update GameLogic");
             GameLogic::get()->update(deltaTime);
         } else{
-            logger->info("GameLogic not valid");
+            logger.info("GameLogic not valid");
         }
         if(PhysicsSimulator::get()!=nullptr){
-            logger->debug("update PhysicsSimulator");
-            PhysicsSimulator::get()->update(deltaTime);
-            
+            PhysicsSimulator::get()->update(deltaTime);            
         }
         if(ActorManager::get()!=nullptr){
-            logger->debug("update ActorManager");
             ActorManager::get()->update(deltaTime);
         } else{
-            logger->info("ActorManager not valid");
+            logger.info("ActorManager not valid");
         }
 
         // generate output
         if(Graphics::get()!=nullptr){
-            logger->debug("update GraphicsEngine");
             Graphics::get()->update(deltaTime);
         } else{
-            logger->info("GraphicsEngine not valid");
+            logger.info("GraphicsEngine not valid");
         }
     }
-    logger->debug("game update ended");
 }

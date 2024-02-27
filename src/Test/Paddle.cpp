@@ -11,18 +11,6 @@ using namespace My::Math;
 using namespace WithSDL;
 using namespace Test;
 
-Paddle::Paddle() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>(
-        "Actor", "Paddle")
-    )
-{
-    logger->debug("constructed");
-}
-
-Paddle::~Paddle(){
-    logger->debug("destructed");
-}
-
 void Paddle::updateActor(const Game::Time& deltaTime) noexcept{
     using namespace Component;
     auto movable=get(Type::Movable).transform([](auto ability){

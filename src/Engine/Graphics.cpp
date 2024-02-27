@@ -4,25 +4,13 @@
 
 using namespace Engine;
 
-Graphics::Graphics() noexcept:
-    logger(std::make_unique<BindedLogger>("Graphics", "Base"))
-{
-    logger->debug("constructed");
-}
-
-Graphics::~Graphics(){
-    logger->debug("destructed");
-}
-
 void Graphics::update(const Game::Time& deltaTime) noexcept{
     clearScreen();
 
-    logger->debug("remove expired drawable");
     std::erase_if(drawables, [](const auto& d){
         return d.expired();
     });
 
-    logger->debug("update drawable");
     for(auto& d: drawables){
         if(not d.expired()){
             d.lock()->draw();

@@ -6,6 +6,7 @@
 #include "TinyTraits.hpp"
 #include "Skin.hpp"
 #include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Engine{
     class Graphics: public Singleton<Graphics>{
@@ -14,8 +15,7 @@ namespace Engine{
         using wp=std::weak_ptr<Component::Drawable>;
 
       public:
-        Graphics() noexcept;
-        virtual ~Graphics();
+        virtual ~Graphics()=default;
 
         void update(const Game::Time&) noexcept;
 
@@ -32,7 +32,7 @@ namespace Engine{
         virtual void swapBuffer() noexcept=0;
 
       private:
-        std::unique_ptr<BindedLogger> logger;
+        ::Logger::Binded logger={"Graphics", "base"};
 
         struct DrawOrder{
             bool operator()(const wp& lhs, const wp& rhs) const;

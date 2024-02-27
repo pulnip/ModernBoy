@@ -1,21 +1,10 @@
 #include <algorithm>
 #include "Engine/Core.hpp"
 #include "Engine/PhysicsSimulator.hpp"
-#include "Engine/Logger.hpp"
 #include "Actor/Vanilla.hpp"
 #include "Component/Movable.hpp"
 
 using namespace Engine;
-
-PhysicsSimulator::PhysicsSimulator() noexcept:
-    logger(std::make_unique<BindedLogger>("PhysicsSimulator", "Base"))
-{
-    logger->debug("constructed");
-}
-
-PhysicsSimulator::~PhysicsSimulator(){
-    logger->debug("destructed");
-}
 
 void PhysicsSimulator::update(const Game::Time& deltaTime) noexcept{
     // remove if expired
@@ -51,7 +40,7 @@ void PhysicsSimulator::append(pActor actor) noexcept{
         auto movable=std::static_pointer_cast<Component::Movable>(opt.value());
         collisionMap.try_emplace(movable, std::list<wp>());
     } else{
-        logger->info("Movable not found");
+        logger.info("Movable not found");
     }
 }
 
@@ -67,11 +56,11 @@ void PhysicsSimulator::setCollision(pActor who, pActor to) noexcept{
     auto optTo=to->get(Type::Movable);
 
     if(not optWho.has_value()){
-        logger->info("who not movable");
+        logger.info("who not movable");
         return;
     }
     if(not optTo.has_value()){
-        logger->info("to not movable");
+        logger.info("to not movable");
         return;
     }
 

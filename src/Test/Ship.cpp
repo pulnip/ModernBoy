@@ -11,16 +11,6 @@ using namespace My::Math;
 using namespace WithSDL;
 using namespace Test;
 
-Ship::Ship() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>("Actor", "Ship"))
-{
-    logger->debug("constructed");
-}
-
-Ship::~Ship(){
-    logger->debug("destructed");
-}
-
 void Ship::updateActor(const Game::Time& deltaTime) noexcept{
     using namespace Component;
     auto movable=get(Type::Movable).transform([](auto ability){

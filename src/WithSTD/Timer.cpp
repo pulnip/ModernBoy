@@ -4,16 +4,6 @@
 
 using namespace WithSTD;
 
-Timer::Timer() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>("Timer", "STD"))
-{
-    logger->debug("constructed");
-}
-
-Timer::~Timer(){
-    logger->debug("destructed");
-}
-
 void Timer::reset() noexcept{
     lastTimePoint = clock.now();
 }

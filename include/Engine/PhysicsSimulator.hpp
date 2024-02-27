@@ -7,17 +7,19 @@
 #include "Math.hpp"
 #include "TinyTraits.hpp"
 #include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Engine{
-    class PhysicsSimulator: public Singleton<PhysicsSimulator>{
+    class PhysicsSimulator:
+        public Singleton<PhysicsSimulator>
+    {
         friend class ::MainEngine;
       protected:
         using sp=std::shared_ptr<Component::Movable>;
         using wp=std::weak_ptr<Component::Movable>;
 
       public:
-        PhysicsSimulator() noexcept;
-        virtual ~PhysicsSimulator();
+        virtual ~PhysicsSimulator()=default;
 
         void update(const Game::Time& deltaTime) noexcept;
 
@@ -30,7 +32,7 @@ namespace Engine{
         ) noexcept=0;
 
       private:
-        std::unique_ptr<BindedLogger> logger;
+        Logger::Binded logger={"Physics", "base"};
         std::map<wp, std::list<wp>,
             std::owner_less<wp>
         > collisionMap;
@@ -51,8 +53,7 @@ namespace WithModel2D{
             double position, velocity, size;
         };
       public:
-        PhysicsSimulator() noexcept;
-        ~PhysicsSimulator();
+        ~PhysicsSimulator()=default;
 
       private:
         void redoUpdateIfCollide(
@@ -83,6 +84,6 @@ namespace WithModel2D{
         ) noexcept;
 
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"Physics", "Model2D"};
     };
 }

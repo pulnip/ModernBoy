@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Component{
     enum class Type{
@@ -18,7 +19,7 @@ namespace Component{
         Ability(
             std::weak_ptr<Actor::Vanilla> actor, int updateOrder
         ) noexcept;
-        virtual ~Ability();
+        virtual ~Ability()=default;
 
         virtual void update(const Game::Time&) noexcept=0;
 
@@ -34,11 +35,14 @@ namespace Component{
         std::weak_ptr<Actor::Vanilla> actor;
         int updateOrder;
       private:
+        ::Logger::Binded logger={"Component", "base"};
         static int seed;
-        std::unique_ptr<Engine::BindedLogger> logger;
     };
 
     class Null final: public Ability{
         void update(const Game::Time&) noexcept override final{}
+      private:
+        ::Logger::Binded logger={"Component", "Null"};
+
     };
 }

@@ -6,16 +6,6 @@
 
 using namespace WithSTD;
 
-InputSystem::InputSystem() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>("InputSystem", "STD"))
-{
-    logger->debug("constructed");
-}
-
-InputSystem::~InputSystem(){
-    logger->debug("destructed");
-}
-
 void InputSystem::update(const Game::Time& deltaTime) noexcept{
     std::set<char> log;
     std::string str;

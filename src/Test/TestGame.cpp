@@ -1,9 +1,9 @@
 #include "MainEngine.hpp"
 #include "TestGame.hpp"
-#include "ActorManagerForTest.hpp"
-#include "SubEngine/GameLogic.hpp"
-#include "SubEngine/PhysicsSimulator.hpp"
-#include "SubEngine/Logger.hpp"
+#include "Engine/GameLogic.hpp"
+#include "Engine/PhysicsSimulator.hpp"
+#include "Engine/Logger.hpp"
+#include "Test/ActorManager.hpp"
 
 TestGame::TestGame(
     std::shared_ptr<Game::SubEngine::Logger>& logger

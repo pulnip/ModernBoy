@@ -1,11 +1,10 @@
 #pragma once
 
 #include <memory>
+#include "myfwd.hpp"
+#include "WithSDL/Core.hpp"
 
-#include "gefwd.hpp"
-#include "GameEngineWithSDL.hpp"
-
-class TestGame final: public WithSDL::Core::Engine{
+class TestGame final: public ::Engine::Core{
   public:
     TestGame(std::shared_ptr<Game::SubEngine::Logger>& logger) noexcept;
     ~TestGame();

@@ -6,6 +6,7 @@
 #include <vector>
 #include <SDL2/SDL_render.h>
 #include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 #include "Engine/ResourceManager.hpp"
 
 namespace WithSDL{
@@ -13,7 +14,6 @@ namespace WithSDL{
         friend class Core;
     public:
         ResourceManager() noexcept;
-        ~ResourceManager();
 
         std::optional<SDL_Texture*> getTexture(
             const std::string &fileName
@@ -29,7 +29,7 @@ namespace WithSDL{
         SDL_Texture* hw_render(const std::string& fileName) noexcept;
 
     private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"Resource", "SDL"};
         SDL_Renderer* context=nullptr;
         std::map<std::string, SDL_Texture*> textures;
     };

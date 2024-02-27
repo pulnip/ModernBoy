@@ -4,17 +4,7 @@
 
 using namespace WithSDL;
 
-Timer::Timer() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>("Timer", "SDL")),
-    lastTimePoint(SDL_GetTicks64())
-{
-    logger->debug("constructed");
-}
-
-Timer::~Timer(){
-    logger->debug("destructed");
-}
-
+Timer::Timer() noexcept: lastTimePoint(SDL_GetTicks64()){}
 
 void Timer::reset() noexcept {
     lastTimePoint = SDL_GetTicks64();

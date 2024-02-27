@@ -16,16 +16,6 @@ using namespace WithSDL;
 using namespace Test;
 using namespace My::Math;
 
-Ball::Ball() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>("Actor", "Ball"))
-{
-    logger->debug("constructed");
-}
-
-Ball::~Ball(){
-    logger->debug("destructed");
-}
-
 void Ball::updateActor(const Game::Time& deltaTime) noexcept{
     using namespace Component;
 

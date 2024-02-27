@@ -7,37 +7,28 @@
 using namespace Engine;
 
 LevelLoader::LevelLoader() noexcept:
-    logger(std::make_unique<BindedLogger>("LevelLoader", "Base"))
-{
-    logger->debug("constructed");
-}
+    Binded("LevelLoader", "Base"){}
 
-LevelLoader::~LevelLoader(){
-    logger->debug("destructed");
-}
+LevelLoader::~LevelLoader(){}
 
 bool LevelLoader::loadLevel(
     const std::string& fileName
 ) noexcept{
     auto doc=loadJson(fileName);
     if(not doc.has_value()){
-        logger->info("load failed");
+        info("load failed");
         return false;
     }
 
     // test code
-    JsonHelper jsonHelper;
-    auto [exist, opt]=jsonHelper.getInt(doc.value(), "version");
-    if(not exist){
-        logger->info("attribute version not exist");
-        return false;
-    }
-    if(not opt.has_value()){
-        logger->info("attribute version type incorrect");
+    auto version=JsonHelper::getInt(doc.value(), "version");
+    if(not version.has_value()){
+        info("attribute version not exist or type incorrect");
         return false;
     }
 
-    logger->debug(("attribute"+ std::to_string(opt.value()) +"found").c_str());
+    debug(
+        ("attribute"+std::to_string(version.value())+"found").c_str());
     return true;
 }
 
@@ -48,7 +39,7 @@ std::optional<rapidjson::Document> LevelLoader::loadJson(
         std::ios::in | std::ios::binary | std::ios::ate
     );
     if(not file.is_open()){
-        logger->info(("file"+fileName+"Not Found").c_str());
+        info(("file"+fileName+"Not Found").c_str());
         return std::nullopt;
     }
 
@@ -63,7 +54,7 @@ std::optional<rapidjson::Document> LevelLoader::loadJson(
     rapidjson::Document doc;
     doc.Parse(bytes.data());
     if(not doc.IsObject()){
-        logger->info(("file"+fileName+"not valid json").c_str());
+        info(("file"+fileName+"not valid json").c_str());
         return std::nullopt;
     }
 

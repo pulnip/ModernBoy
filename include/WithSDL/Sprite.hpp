@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL_render.h>
 #include "Skin.hpp"
+#include "Engine/Logger.hpp"
 #include "Component/Drawable.hpp"
 
 namespace WithSDL{
@@ -12,7 +13,7 @@ namespace WithSDL{
             std::weak_ptr<Actor::Vanilla> actor,
             int drawOrder
         ) noexcept;
-        virtual ~Sprite();
+        virtual ~Sprite()=default;
 
         void setTexture(SDL_Texture* t) noexcept{ texture=t; }
 
@@ -21,7 +22,7 @@ namespace WithSDL{
         virtual void draw() noexcept override;
 
     private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"Sprite", id};
         SDL_Texture* texture;
     };
 }

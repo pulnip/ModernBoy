@@ -1,7 +1,6 @@
 #include "Component/Drawable.hpp"
 
 #include "Skin.hpp"
-#include "Engine/Logger.hpp"
 #include "Engine/Graphics.hpp"
 #include "Actor/Vanilla.hpp"
 #include "Component/Movable.hpp"
@@ -11,19 +10,9 @@ using namespace Component;
 Colored::Colored(
     std::weak_ptr<Actor::Vanilla> actor,
     Skin::TrueColor color
-) noexcept:
-    Drawable(actor, 100), color(color),
-    logger(std::make_unique<Engine::BindedLogger>("Colored", id))
-{
-    logger->debug("constructed");
-}
-
-Colored::~Colored(){
-    logger->debug("destructed");
-}
+) noexcept: Drawable(actor, 100), color(color){}
 
 void Colored::draw() noexcept{
-    logger->debug("try drawing...");
     assert(!target.expired());
     const auto mc=target.lock();
 

@@ -10,16 +10,6 @@ using namespace WithSDL;
 using namespace Test;
 using namespace My::Math;
 
-Asteroid::Asteroid() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>("Actor", "Asteroid"))
-{
-    logger->debug("constructed");
-}
-
-Asteroid::~Asteroid(){
-    logger->debug("destructed");
-}
-
 void Asteroid::initAbility() noexcept {
     using namespace Component;
     auto self = weak_from_this();

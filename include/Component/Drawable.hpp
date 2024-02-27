@@ -3,6 +3,7 @@
 #include <memory>
 #include "myfwd.hpp"
 #include "Skin.hpp"
+#include "Engine/Logger.hpp"
 #include "Component/Ability.hpp"
 
 namespace Component{
@@ -12,7 +13,6 @@ namespace Component{
             std::weak_ptr<Actor::Vanilla> actor,
             int drawOrder
         ) noexcept;
-        virtual ~Drawable();
 
         virtual void update(const Game::Time&) noexcept override=0;
         virtual void draw() noexcept=0;
@@ -28,7 +28,7 @@ namespace Component{
         */
         int drawOrder=0;
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"Drawable", "base"};
     };
 
     class Colored final: public Drawable{
@@ -37,7 +37,6 @@ namespace Component{
             std::weak_ptr<Actor::Vanilla>,
             ::Skin::TrueColor={}
         ) noexcept;
-        ~Colored();
 
         void update(const Game::Time&) noexcept override final{}
         void draw() noexcept override final;
@@ -46,7 +45,7 @@ namespace Component{
         }
     
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"Colored", id};
         ::Skin::TrueColor color;
     };
 }

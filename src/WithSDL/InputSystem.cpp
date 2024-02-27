@@ -8,18 +8,6 @@
 using namespace Game;
 using namespace WithSDL;
 
-InputSystem::InputSystem() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>(
-        "InputSystem", "WithSDL"
-    ))
-{
-    logger->debug("constructed");
-}
-
-InputSystem::~InputSystem(){
-    logger->debug("destructed");
-}
-
 void InputSystem::update(const Time& deltaTime) noexcept {
     SDL_Event event;
     // 큐에 여전히 이벤트가 남아있는 동안

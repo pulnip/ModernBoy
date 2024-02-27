@@ -10,15 +10,7 @@ using namespace WithSDL;
 Sprite::Sprite(
     std::weak_ptr<Actor::Vanilla> actor,
     int drawOrder
-) noexcept: Drawable(actor, drawOrder),
-    logger(std::make_unique<Engine::BindedLogger>("Sprite", "Base"))
-{
-    logger->debug("constructed");
-}
-
-Sprite::~Sprite(){
-    logger->debug("destructed");
-}
+) noexcept: Drawable(actor, drawOrder){}
 
 void Sprite::draw() noexcept {
     assert(!target.expired());

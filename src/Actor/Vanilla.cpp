@@ -7,16 +7,6 @@ using namespace Actor;
 
 int Vanilla::seed=0;
 
-Vanilla::Vanilla() noexcept: id(++seed),
-    logger(std::make_unique<Engine::BindedLogger>("Actor", id))
-{
-    logger->debug("constructed");
-}
-
-Vanilla::~Vanilla(){
-    logger->debug("destructed");
-}
-
 void Vanilla::update(const Game::Time& deltaTime) noexcept{
     if(state != State::Active) return;
 

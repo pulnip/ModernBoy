@@ -2,23 +2,13 @@
 
 #include "Skin.hpp"
 #include "Engine/InputSystem.hpp"
-#include "Engine/Logger.hpp"
 #include "Actor/Vanilla.hpp"
 #include "Component/Controllable.hpp"
 
 using namespace Component;
 
-Controllable::Controllable(
-    std::weak_ptr<Actor::Vanilla> actor
-) noexcept:
-    Ability(actor, 100),
-    logger(std::make_unique<Engine::BindedLogger>("Controllable", id))
-{
-    logger->debug("constructed");
-}
-Controllable::~Controllable(){
-    logger->debug("destructed");
-}
+Controllable::Controllable(std::weak_ptr<Actor::Vanilla> actor
+) noexcept: Ability(actor, 100){}
 
 void Controllable::setKey(
     const uint8_t key,

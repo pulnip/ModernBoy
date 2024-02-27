@@ -7,16 +7,7 @@ using namespace My::Math;
 
 AnimSprite::AnimSprite(
     std::weak_ptr<Actor::Vanilla> actor
-) noexcept:
-    Sprite(actor, 301),
-    logger(std::make_unique<Engine::BindedLogger>("Sprite", "Anim"))
-{
-    logger->debug("constructed");
-}
-
-AnimSprite::~AnimSprite(){
-    logger->debug("destructed");
-}
+) noexcept: Sprite(actor, 301){}
 
 void AnimSprite::update(const Game::Time& deltaTime) noexcept {
     // 애니메이션에 사용된 텍스처 개수

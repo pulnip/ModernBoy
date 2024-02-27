@@ -20,16 +20,6 @@
 
 using namespace Test;
 
-ActorManager::ActorManager() noexcept:
-    logger(std::make_unique<Engine::BindedLogger>("ActorManager", "Test"))
-{
-    logger->debug("constructed");
-}
-
-ActorManager::~ActorManager(){
-    logger->debug("destructed");
-}
-
 void ActorManager::test() noexcept{
 #ifdef PING_PONG
     auto paddle=std::make_shared<Test::Paddle>();

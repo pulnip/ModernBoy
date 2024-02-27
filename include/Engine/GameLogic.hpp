@@ -4,6 +4,7 @@
 #include "TinyTraits.hpp"
 #include "Observable.hpp"
 #include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Engine{
     class GameLogic: public Singleton<GameLogic>,
@@ -13,8 +14,7 @@ namespace Engine{
         friend class ::MainEngine;
 
       public:
-        GameLogic() noexcept;
-        virtual ~GameLogic();
+        virtual ~GameLogic()=default;
 
         void connect() noexcept override final;
         void update(const Game::Time& deltaTime) noexcept;
@@ -27,6 +27,6 @@ namespace Engine{
         void onNotify(const Game::Status&) noexcept override final;
 
       private:
-        std::unique_ptr<BindedLogger> logger;
+        ::Logger::Binded logger={"GameLogic", "base"};
     };
 }

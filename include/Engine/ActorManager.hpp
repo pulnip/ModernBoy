@@ -4,14 +4,16 @@
 
 #include "TinyTraits.hpp"
 #include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Engine{
-    class ActorManager: public Singleton<ActorManager>{
+    class ActorManager:
+        public Singleton<ActorManager>
+    {
         friend class ::MainEngine;
 
       public:
-        ActorManager() noexcept;
-        virtual ~ActorManager();
+        virtual ~ActorManager()=default;
 
         void update(const Game::Time& deltaTime) noexcept;
 
@@ -19,8 +21,7 @@ namespace Engine{
         void removeActor(pActor actor) noexcept;
 
       private:
-        std::unique_ptr<BindedLogger> logger;
-
+        ::Logger::Binded logger={"ActorManager", "base"};
         bool isUpdatingActors = false;
         std::vector<pActor> actors;
         std::vector<pActor> pendingActors;

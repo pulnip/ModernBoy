@@ -1,17 +1,14 @@
 #pragma once
 
-#include "Engine/Graphics.hpp"
-
 #include <SDL2/SDL_render.h>
+#include "Engine/Graphics.hpp"
+#include "Engine/Logger.hpp"
 #include "WithSDL/Skin.hpp"
 
 namespace WithSDL{
     class Graphics final: public Engine::Graphics{
         friend class Core;
       public:
-        Graphics() noexcept;
-        ~Graphics();
-
         void draw(WithSDL::Skin::Flyweight::Sprite) noexcept;
         void* context() noexcept override final;
 
@@ -25,7 +22,7 @@ namespace WithSDL{
         void swapBuffer() noexcept override final;
     
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"Graphics", "SDL"};
         SDL_Window* window=nullptr;
         SDL_Renderer* renderer=nullptr;
     };

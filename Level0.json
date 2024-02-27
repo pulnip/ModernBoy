@@ -3,8 +3,8 @@
     "windows": {
         "title": "Game Programming in C++",
         "size": {
-            "width": 1024,
-            "height": 768
+            "x": 1024,
+            "y": 768
         }
     },
     "Actors": [
@@ -16,8 +16,8 @@
                 "y": 384.0
             },
             "size": {
-                "width": 15.0,
-                "height": 120.0
+                "x": 15.0,
+                "y": 120.0
             },
             "color": {
                 "red": 0, "green": 0, "blue": 255,
@@ -44,12 +44,16 @@
                 "y": 384.0
             },
             "size": {
-                "width": 45.0,
-                "height": 40.0
+                "x": 45.0,
+                "y": 40.0
             },
             "velocity": {
                 "x": -200.0,
                 "y": 235.0
+            },
+            "color": {
+                "red": 0, "green": 0, "blue": 255,
+                "alpha": 255
             },
             "animation": [
                 "pigeon_1.png",
@@ -72,8 +76,8 @@
                 "y": 760.5
             },
             "size": {
-                "width": 1024.0,
-                "height": 15.0
+                "x": 1024.0,
+                "y": 15.0
             },
             "color": {
                 "red": 0, "green": 0, "blue": 0,
@@ -88,8 +92,8 @@
                 "y": 384.0
             },
             "size": {
-                "width": 15.0,
-                "height": 768.0
+                "x": 15.0,
+                "y": 768.0
             },
             "color": {
                 "red": 0, "green": 0, "blue": 0,
@@ -104,8 +108,8 @@
                 "y": 7.5
             },
             "size": {
-                "width": 1024.0,
-                "height": 15.0
+                "x": 1024.0,
+                "y": 15.0
             },
             "color": {
                 "red": 0, "green": 0, "blue": 0,

@@ -3,16 +3,16 @@
 #include <memory>
 #include "TinyTraits.hpp"
 #include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Engine{
     class ResourceManager: public Singleton<ResourceManager>{
         friend class ::MainEngine;
 
       public:
-        ResourceManager() noexcept;
-        virtual ~ResourceManager();
+        virtual ~ResourceManager()=default;
 
       private:
-        std::unique_ptr<BindedLogger> logger;
+        ::Logger::Binded logger={"ResourceManager", "base"};
     };
 }

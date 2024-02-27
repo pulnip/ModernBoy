@@ -3,9 +3,9 @@
 #include <cstdint>
 #include <functional>
 #include <map>
-
-#include "myfwd.hpp"
 #include "Observer.hpp"
+#include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 #include "Component/Ability.hpp"
 
 namespace Component{
@@ -15,7 +15,6 @@ namespace Component{
     {
       public:
         Controllable(std::weak_ptr<Actor::Vanilla> actor) noexcept;
-        ~Controllable();
 
         void update(const Game::Time&) noexcept override final{}
 
@@ -37,6 +36,6 @@ namespace Component{
         std::map<uint8_t, std::function<void(void)>> ifReleased;
     
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"Controllable", id};
     };
 }

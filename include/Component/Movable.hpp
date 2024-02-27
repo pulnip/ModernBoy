@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Skin.hpp"
+#include "Engine/Logger.hpp"
 #include "Component/Ability.hpp"
 
 namespace Component{
@@ -11,7 +12,6 @@ namespace Component{
         Movable(
             std::weak_ptr<Actor::Vanilla> actor
         ) noexcept;
-        ~Movable();
 
         void update(const Game::Time&) noexcept override final;
         Type getType() noexcept{
@@ -20,7 +20,7 @@ namespace Component{
         auto& get(){ return attr; }
 
       private:
-        std::unique_ptr<Engine::BindedLogger> logger;
+        ::Logger::Binded logger={"Movable", id};
         ::Skin::Attribute_2D attr;
     };
 }

@@ -4,16 +4,6 @@
 
 using namespace Engine;
 
-InputSystem::InputSystem() noexcept:
-    logger(std::make_unique<BindedLogger>("InputSystem", "Base"))
-{
-    logger->debug("constructed");
-}
-
-InputSystem::~InputSystem(){
-    logger->debug("destructed");
-}
-
 void InputSystem::connect() noexcept{
     subscribe(GameLogic::get());
 }

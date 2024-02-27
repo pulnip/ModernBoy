@@ -3,16 +3,16 @@
 #include <memory>
 #include "TinyTraits.hpp"
 #include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Engine{
     class SoundEngine: public Singleton<SoundEngine>{
         friend class ::MainEngine;
 
       public:
-        SoundEngine() noexcept;
-        virtual ~SoundEngine();
+        virtual ~SoundEngine()=default;
 
       private:
-        std::unique_ptr<BindedLogger> logger;
+        ::Logger::Binded logger={"SoundEngine", "base"};
     };
 }

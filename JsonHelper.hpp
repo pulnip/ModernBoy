@@ -3,23 +3,34 @@
 #include <memory>
 #include <optional>
 #include <string>
-
 #include <rapidjson/document.h>
+#include "Blueprint.hpp"
+#include "Skin.hpp"
 
-class JsonHelper{
-  public:
-    // return value
-    // - first: true if property exist.
-    // - second: valid if type correct
-    std::pair<bool, std::optional<int>> getInt(
+namespace JsonHelper{
+    std::optional<int> getInt(
         const rapidjson::Value& object, const std::string& property
     ) noexcept;
-};
+    std::optional<double> getDouble(
+        const rapidjson::Value& object, const std::string& property
+    ) noexcept;
+    using Array=rapidjson::GenericArray<true, rapidjson::Value>;
+    std::optional<Array> getArray(
+        const rapidjson::Value& object, const std::string& property
+    ) noexcept;
+}
 
-class ActorHelper: public JsonHelper{
+namespace CustomHelper{
+    std::optional<Game::Vector2D> getVector2D(
+        const rapidjson::Value& object, const std::string& property
+    ) noexcept;
+    std::optional<Skin::TrueColor> getColor(
+        const rapidjson::Value& object, const std::string& property
+    ) noexcept;
+}
 
-  public:
-    std::optional<class ActorBlueprint> get(
+namespace ActorHelper{
+    std::optional<Blueprint::Actor> getActor(
         const rapidjson::Value& object
     ) noexcept;
-};
+}

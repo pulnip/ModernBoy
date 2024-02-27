@@ -27,8 +27,6 @@ add_executable(${PROJECT_NAME}
     src/Engine/InputSystem.cpp
     src/Engine/Logger.cpp
     src/Engine/PhysicsSimulator.cpp
-    src/Engine/ResourceManager.cpp
-    src/Engine/Timer.cpp
     src/Actor/Vanilla.cpp
     src/Component/Ability.cpp
     src/Component/AI.cpp
@@ -38,6 +36,7 @@ add_executable(${PROJECT_NAME}
     src/Component/Movable.cpp
 
     src/WithSTD/InputSystem.cpp
+    src/WithSTD/Logger.cpp
     src/WithSTD/Timer.cpp
 
     src/WithSDL/AnimSprite.cpp

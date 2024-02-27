@@ -5,22 +5,35 @@
 #include "Blueprint.hpp"
 #include "myfwd.hpp"
 
-namespace Engine{
-    class Logger: public Singleton<Logger>{
+namespace Logger{
+    enum class Level{
+        DEBUG=0,
+        INFO=1,
+        WARNING=2,
+        ERROR=3,
+        CRITICAL=4
+    };
+
+    void log(Level, const char msg[]) noexcept;
+    void log(Level, const int& msg) noexcept;
+    void log(Level, const double& msg) noexcept;
+
+    void log(Level,
+        const std::string& type, const std::string& data,
+        const char msg[]
+    ) noexcept;
+    void log(Level,
+        const std::string& type, const int& data,
+        const char msg[]
+    ) noexcept;
+    void log(Level,
+        const std::string& type, const double& data,
+        const char msg[]
+    ) noexcept;
+
+    class Impl: public Singleton<Impl>{
         friend class ::MainEngine;
       public:
-        enum class Level{
-            DEBUG=0,
-            INFO=1,
-            WARNING=2,
-            ERROR=3,
-            CRITICAL=4
-        };
-
-      public:
-        Logger() noexcept;
-        virtual ~Logger();
-
         virtual void log(Level, const char msg[]) noexcept=0;
         virtual void log(Level, const int& msg) noexcept=0;
         virtual void log(Level, const double& msg) noexcept=0;
@@ -37,21 +50,22 @@ namespace Engine{
             const std::string& type, const double& data,
             const char msg[]
         ) noexcept=0;
-
       protected:
         bool isShown(Level) noexcept;
 
       protected:
-        Level currlevel;
+        Level currlevel=Level::DEBUG;
     };
 
-    struct BindedLogger{
-        BindedLogger(
+    class Binded{
+      public:
+        Binded(
             const std::string& type, const std::string& name
         ) noexcept;
-        BindedLogger(
+        Binded(
             const std::string& type, int id
         ) noexcept;
+        virtual ~Binded();
 
         void debug(const char msg[]) noexcept;
         void info(const char msg[]) noexcept;
@@ -59,6 +73,35 @@ namespace Engine{
         void error(const char msg[]) noexcept;
         void critical(const char msg[]) noexcept;
 
+      private:
         Blueprint::LoggerInfo target;
+    };
+}
+
+namespace WithSTD{
+    class Logger: public ::Logger::Impl{
+      private:
+        void log(::Logger::Level,
+            const char msg[]
+        ) noexcept override final;
+        void log(::Logger::Level,
+            const int& msg
+        ) noexcept override final;
+        void log(::Logger::Level,
+            const double& msg
+        ) noexcept override final;
+
+        void log(::Logger::Level,
+            const std::string& type, const std::string& data,
+            const char msg[]
+        ) noexcept override final;
+        void log(::Logger::Level,
+            const std::string& type, const int& data,
+            const char msg[]
+        ) noexcept override final;
+        void log(::Logger::Level,
+            const std::string& type, const double& data,
+            const char msg[]
+        ) noexcept override final;
     };
 }
