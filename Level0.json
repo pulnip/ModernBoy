@@ -1,6 +1,6 @@
 {
     "version": "0.0.1",
-    "windows": {
+    "window": {
         "title": "Game Programming in C++",
         "size": {
             "x": 1024,

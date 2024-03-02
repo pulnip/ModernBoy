@@ -25,6 +25,8 @@ add_executable(${PROJECT_NAME}
     src/Engine/GameLogic.cpp 
     src/Engine/Graphics.cpp
     src/Engine/InputSystem.cpp
+    src/Engine/JsonHelper.cpp
+    src/Engine/LevelLoader.cpp
     src/Engine/Logger.cpp
     src/Engine/PhysicsSimulator.cpp
     src/Actor/Vanilla.cpp
