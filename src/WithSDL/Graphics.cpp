@@ -14,11 +14,11 @@ using namespace My::Math;
 static auto& title=Engine::title;
 static auto& screen=Engine::screen;
 
-void Graphics::initialize() noexcept{
+void Graphics::initialize(const Blueprint::Window& w) noexcept{
     window=SDL_CreateWindow(
-        title.c_str(),
-        screen.x, screen.y,
-        screen.width, screen.height,
+        w.title.c_str(),
+        w.screen.x, w.screen.y,
+        w.screen.width, w.screen.height,
         0
     );
     if(window==nullptr){

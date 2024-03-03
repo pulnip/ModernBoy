@@ -3,6 +3,7 @@
 #include <memory>
 #include <set>
 
+#include "Blueprint.hpp"
 #include "TinyTraits.hpp"
 #include "Skin.hpp"
 #include "myfwd.hpp"
@@ -22,7 +23,7 @@ namespace Engine{
         void append(wp) noexcept;
         // void remove(std::weak_ptr<Component::Drawable>) noexcept;
 
-        virtual void initialize() noexcept=0;
+        virtual void initialize(const ::Blueprint::Window&) noexcept=0;
         virtual void destroyAll() noexcept=0;
         virtual void* context() noexcept=0;
 

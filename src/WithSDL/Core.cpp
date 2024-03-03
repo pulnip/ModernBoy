@@ -7,11 +7,11 @@
 
 using namespace WithSDL;
 
-Core::Core() noexcept:
+Core::Core(const Blueprint::Window& window) noexcept:
     Engine::Core(std::make_unique<Timer>())
 {
     Graphics::base=std::make_shared<Graphics>();
-    Graphics::get()->initialize();
+    Graphics::get()->initialize(window);
     ResourceManager::base=std::make_shared<ResourceManager>();
     InputSystem::base=std::make_shared<InputSystem>();
 }

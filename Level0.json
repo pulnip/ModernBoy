@@ -2,9 +2,13 @@
     "version": "0.0.1",
     "window": {
         "title": "Game Programming in C++",
+        "position": {
+            "x": 100.0,
+            "y": 100.0
+        },
         "size": {
-            "x": 1024,
-            "y": 768
+            "x": 1024.0,
+            "y": 768.0
         }
     },
     "Actors": [

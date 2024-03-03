@@ -16,7 +16,7 @@ namespace Engine{
       public:
         virtual ~LevelLoader()=default;
 
-        virtual Blueprint::Setting loadLevel(
+        virtual std::optional<Blueprint::Setting> loadLevel(
             const std::string& fileName
         ) noexcept=0;
 
@@ -28,7 +28,7 @@ namespace Engine{
 namespace WithRapidjson{
     class LevelLoader: public ::Engine::LevelLoader{
       public:
-        Blueprint::Setting loadLevel(
+        std::optional<Blueprint::Setting> loadLevel(
             const std::string& fileName
         ) noexcept override final;
 
@@ -37,6 +37,9 @@ namespace WithRapidjson{
         // parse json file to rapidjson::Document
         std::optional<rapidjson::Document> loadJson(
             const std::string& fileName
+        ) noexcept;
+        std::optional<Blueprint::Window> loadWindow(
+            const rapidjson::Value& doc
         ) noexcept;
 
       private:

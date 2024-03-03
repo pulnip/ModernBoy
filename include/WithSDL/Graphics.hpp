@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL_render.h>
+#include "Blueprint.hpp"
 #include "Engine/Graphics.hpp"
 #include "Engine/Logger.hpp"
 #include "WithSDL/Skin.hpp"
@@ -13,7 +14,7 @@ namespace WithSDL{
         void* context() noexcept override final;
 
       private:
-        void initialize() noexcept override final;
+        void initialize(const ::Blueprint::Window&) noexcept override final;
         void destroyAll() noexcept override final;
 
         void draw(::Skin::Flyweight::ColorRect) noexcept override final;

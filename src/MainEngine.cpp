@@ -13,13 +13,15 @@ using namespace Engine;
 MainEngine::MainEngine() noexcept{
     SDL_Init(SDL_INIT_EVERYTHING);
     Logger::Impl::base=std::make_shared<WithSTD::Logger>();
-    LevelLoader::base=std::make_shared<WithRapidjson::LevelLoader>();
-
-    Engine::title="GameProgramming in C++";
-    Engine::screen={100, 100, 1024, 768};
     Logger::Impl::get()->currlevel=Logger::Level::DEBUG;
 
-    Core::base=std::make_shared<WithSDL::Core>();
+    LevelLoader::base=std::make_shared<WithRapidjson::LevelLoader>();
+
+    auto setting=LevelLoader::get()->loadLevel(
+        "Level0.json").value_or(Blueprint::Setting{}
+    );
+
+    Core::base=std::make_shared<WithSDL::Core>(setting.window);
 
     GameLogic::base=std::make_shared<GameLogic>();
     PhysicsSimulator::base=std::make_shared<WithModel2D::PhysicsSimulator>();

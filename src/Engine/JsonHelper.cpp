@@ -31,6 +31,18 @@ std::optional<double> JsonHelper::getDouble(
     return it->value.GetDouble();
 }
 
+std::optional<std::string> JsonHelper::getString(
+    const rapidjson::Value& object, const std::string& property
+) noexcept{
+    auto it=object.FindMember(property.c_str());
+
+    if(it==object.MemberEnd() or not it->value.IsString()){
+        return std::nullopt;
+    }
+
+    return it->value.GetString();
+}
+
 std::optional<JsonHelper::Array> JsonHelper::getArray(
     const rapidjson::Value& object, const std::string& property
 ) noexcept{
