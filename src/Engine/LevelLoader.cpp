@@ -66,33 +66,17 @@ std::optional<Blueprint::Window> LevelLoader::loadWindow(
     auto window=it->value.GetObject();
     Blueprint::Window result={};
 
-    // load title
-    auto title=JsonHelper::getString(window, "title");
-    if(title.has_value()){
-        result.title=title.value();
-    } else{
-        logger.info("title not exist or type incorrect");
-    }
+    result.title=JsonHelper::getString(
+        window, "title").value_or("No Title"
+    );
 
-    // load window position
-    auto position=CustomHelper::getVector2D(window, "position");
-    if(position.has_value()){
-        auto _position=position.value();
-        result.screen.x=_position.x;
-        result.screen.y=_position.y;
-    } else{
-        logger.info("position not exist or type incorrect");
-    }
+    result.screen.position=CustomHelper::getVector2D(
+        window, "position").value_or(Game::Vector2D{0.0, 0.0}
+    );
 
-    // load window size
-    auto size=CustomHelper::getVector2D(window, "size");
-    if(size.has_value()){
-        auto _size=size.value();
-        result.screen.width=_size.x;
-        result.screen.height=_size.y;
-    } else{
-        logger.info("size not exist or type incorrect");
-    }
+    result.screen.size=CustomHelper::getVector2D(
+        window, "size").value_or(Game::Vector2D{200.0, 200.0}
+    );
 
     return result;
 }

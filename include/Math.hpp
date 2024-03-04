@@ -62,19 +62,26 @@ namespace My{
             Number x=0, y=0;
     
           public:
-            Vector2 &operator+=(const Vector2 &other) noexcept{
+            Vector2() noexcept=default;
+            Vector2(Number x, Number y):x(x), y(y){}
+            template<Numeric Other>
+                requires (not std::same_as<Number, Other>)
+            Vector2(const Vector2<Other>& other)
+            :x(static_cast<Number>(other.x))
+            ,y(static_cast<Number>(other.y)){}
+            template<Numeric Other>
+                requires (not std::same_as<Number, Other>)
+            Vector2(Other x, Other y)
+            :x(static_cast<Number>(x))
+            ,y(static_cast<Number>(y)){}
+
+            Vector2& operator+=(const Vector2 &other) noexcept{
                 x += other.x; y += other.y;
                 return *this;
             }
-            Vector2 &operator-=(const Vector2 &other) noexcept{
+            Vector2& operator-=(const Vector2 &other) noexcept{
                 x -= other.x; y -= other.y;
                 return *this;
-            }
-            template<Numeric NewType> operator Vector2<NewType>() const noexcept{
-                return Vector2<NewType>{
-                    static_cast<NewType>(x),
-                    static_cast<NewType>(y)
-                };
             }
         };
 

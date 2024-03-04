@@ -10,7 +10,6 @@ class Singleton{
     static auto get() noexcept{ return base; }
 
   protected:
-public:
     static std::shared_ptr<Base> base;
 };
 

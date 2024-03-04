@@ -6,11 +6,11 @@
 #include <vector>
 
 #include "Skin.hpp"
+#include "Math.hpp"
 
 namespace Blueprint{
     struct Screen{
-        unsigned int x=0, y=0;
-        unsigned int width=0, height=0;
+        My::Math::Vector2<unsigned int> position={}, size={};
     };
 
     struct Window{

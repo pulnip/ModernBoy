@@ -17,8 +17,8 @@ static auto& screen=Engine::screen;
 void Graphics::initialize(const Blueprint::Window& w) noexcept{
     window=SDL_CreateWindow(
         w.title.c_str(),
-        w.screen.x, w.screen.y,
-        w.screen.width, w.screen.height,
+        w.screen.position.x, w.screen.position.y,
+        w.screen.size.x, w.screen.size.y,
         0
     );
     if(window==nullptr){
