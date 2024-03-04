@@ -15,8 +15,11 @@ using namespace Engine;
 std::string Engine::title;
 Blueprint::Screen Engine::screen;
 
-Core::Core(std::unique_ptr<Timer> timer) noexcept:
-    timer(std::move(timer))
+Core::Core(
+    std::unique_ptr<Timer> timer,
+    const ::Blueprint::Window& window
+) noexcept:
+    timer(std::move(timer)), window(window)
 {
     if(this->timer==nullptr){
         logger.error("timer not valid");

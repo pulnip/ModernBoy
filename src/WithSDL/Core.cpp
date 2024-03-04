@@ -1,3 +1,4 @@
+#include <SDL2/SDL.h>
 #include "WithSDL/Core.hpp"
 #include "WithSDL/Timer.hpp"
 #include "WithSDL/Logger.hpp"
@@ -8,17 +9,28 @@
 using namespace WithSDL;
 
 Core::Core(const Blueprint::Window& window) noexcept:
-    Engine::Core(std::make_unique<Timer>())
+    Engine::Core(std::make_unique<Timer>(), window)
 {
-    Graphics::base=std::make_shared<Graphics>();
+    Graphics::make();
+    ResourceManager::make();
+    InputSystem::make();
+}
+
+void Core::preConstruct() noexcept{
+    SDL_Init(SDL_INIT_EVERYTHING);
+    Logger::make();
+}
+
+void Core::postConstruct() noexcept{
     Graphics::get()->initialize(window);
-    ResourceManager::base=std::make_shared<ResourceManager>();
-    InputSystem::base=std::make_shared<InputSystem>();
 }
 
 Core::~Core(){
-    InputSystem::base=nullptr;
-    ResourceManager::base=nullptr;
+    WithSTD::Logger::make();
     Graphics::get()->destroyAll();
-    Graphics::base=nullptr;
+    SDL_Quit();
+
+    // InputSystem::base=nullptr;
+    // ResourceManager::base=nullptr;
+    // Graphics::base=nullptr;
 }

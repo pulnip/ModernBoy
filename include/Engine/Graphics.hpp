@@ -10,12 +10,14 @@
 #include "Engine/Logger.hpp"
 
 namespace Engine{
-    class Graphics: public Singleton<Graphics>{
+    class Graphics: public MakableSingleton<Graphics>{
         friend class Core;
 
         using wp=std::weak_ptr<Component::Drawable>;
 
       public:
+        static void preConstruct() noexcept{}
+        void postConstruct() noexcept override final{}
         virtual ~Graphics()=default;
 
         void update(const Game::Time&) noexcept;

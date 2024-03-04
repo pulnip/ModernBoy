@@ -80,6 +80,13 @@ namespace Logger{
 
 namespace WithSTD{
     class Logger: public ::Logger::Impl{
+      public:
+        static void preConstruct() noexcept{}
+        void postConstruct() noexcept override final{}
+        static void make() noexcept{
+            ::Logger::Impl::make<Logger>();
+        }
+
       private:
         void log(::Logger::Level,
             const char msg[]
@@ -103,7 +110,5 @@ namespace WithSTD{
             const std::string& type, const double& data,
             const char msg[]
         ) noexcept override final;
-
-        void postConstruct() noexcept override final{}
     };
 }

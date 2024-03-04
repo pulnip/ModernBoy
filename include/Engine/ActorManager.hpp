@@ -8,11 +8,13 @@
 
 namespace Engine{
     class ActorManager:
-        public Singleton<ActorManager>
+        public MakableSingleton<ActorManager>
     {
         friend class ::MainEngine;
 
       public:
+        static void preConstruct() noexcept{}
+        virtual void postConstruct() noexcept override final{}
         virtual ~ActorManager()=default;
 
         void update(const Game::Time& deltaTime) noexcept;

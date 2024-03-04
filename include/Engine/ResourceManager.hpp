@@ -6,10 +6,12 @@
 #include "Engine/Logger.hpp"
 
 namespace Engine{
-    class ResourceManager: public Singleton<ResourceManager>{
+    class ResourceManager: public MakableSingleton<ResourceManager>{
         friend class ::MainEngine;
 
       public:
+        static void preConstruct() noexcept{}
+        void postConstruct() noexcept override final{}
         virtual ~ResourceManager()=default;
 
       private:

@@ -11,7 +11,7 @@
 #include "Engine/Logger.hpp"
 
 namespace Engine{
-    class LevelLoader: public Singleton<LevelLoader>{
+    class LevelLoader: public MakableSingleton<LevelLoader>{
         friend class ::MainEngine;
       public:
         virtual ~LevelLoader()=default;
@@ -32,8 +32,14 @@ namespace WithRapidjson{
             const std::string& fileName
         ) noexcept override final;
 
+        static void preConstruct() noexcept{}
+        void postConstruct() noexcept override final{}
+        static void make() noexcept{
+            ::Engine::LevelLoader::make<LevelLoader>();
+        }
+
+
       private:
-        public:
         // parse json file to rapidjson::Document
         std::optional<rapidjson::Document> loadJson(
             const std::string& fileName

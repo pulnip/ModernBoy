@@ -29,8 +29,9 @@ class Makable{
         requires std::derived_from<Derived, Base>
     static std::shared_ptr<Derived> make(T... args) noexcept{
         static_assert(std::derived_from<Base, Makable>);
+        Derived::preConstruct();
         auto derived=std::make_shared<Derived>(args...);
-        std::static_pointer_cast<Makable>(derived)->postConstruct();
+        derived->postConstruct();
 
         return derived;
     }

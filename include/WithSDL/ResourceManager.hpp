@@ -14,6 +14,10 @@ namespace WithSDL{
         friend class Core;
     public:
         ResourceManager() noexcept;
+        static void make() noexcept{
+            ::Engine::ResourceManager::make<ResourceManager>();
+        }
+
 
         std::optional<SDL_Texture*> getTexture(
             const std::string &fileName

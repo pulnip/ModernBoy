@@ -11,7 +11,7 @@
 
 namespace Engine{
     class PhysicsSimulator:
-        public Singleton<PhysicsSimulator>
+        public MakableSingleton<PhysicsSimulator>
     {
         friend class ::MainEngine;
       protected:
@@ -19,6 +19,8 @@ namespace Engine{
         using wp=std::weak_ptr<Component::Movable>;
 
       public:
+        static void preConstruct() noexcept{}
+        virtual void postConstruct() noexcept override final{}
         virtual ~PhysicsSimulator()=default;
 
         void update(const Game::Time& deltaTime) noexcept;
@@ -53,6 +55,9 @@ namespace WithModel2D{
             double position, velocity, size;
         };
       public:
+        static void make() noexcept{
+            ::Engine::PhysicsSimulator::make<PhysicsSimulator>();
+        }
         ~PhysicsSimulator()=default;
 
       private:

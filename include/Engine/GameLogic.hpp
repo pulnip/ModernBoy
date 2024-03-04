@@ -7,13 +7,18 @@
 #include "Engine/Logger.hpp"
 
 namespace Engine{
-    class GameLogic: public Singleton<GameLogic>,
+    class GameLogic: public MakableSingleton<GameLogic>,
         public Observer<Game::Status>,
         public UniqueSender, public Connectable
     {
         friend class ::MainEngine;
 
       public:
+        static void preConstruct() noexcept{}
+        virtual void postConstruct() noexcept override final{}
+        static void make() noexcept{
+            MakableSingleton<GameLogic>::make<GameLogic>();
+        }
         virtual ~GameLogic()=default;
 
         void connect() noexcept override final;

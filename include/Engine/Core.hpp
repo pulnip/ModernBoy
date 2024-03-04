@@ -11,12 +11,12 @@ namespace Engine{
     extern std::string title;
     extern Blueprint::Screen screen;
 
-    class Core: public Singleton<Core>,
+    class Core: public MakableSingleton<Core>,
         public Receiver
     {
         friend class ::MainEngine;
       public:
-        Core(std::unique_ptr<Timer>) noexcept;
+        Core(std::unique_ptr<Timer>, const ::Blueprint::Window&) noexcept;
         virtual ~Core()=default;
 
         void run() noexcept;
@@ -28,6 +28,7 @@ namespace Engine{
 
       protected:
         bool isRunning=false;
+        ::Blueprint::Window window={};
 
       private:
         ::Logger::Binded logger={"Core", "base"};

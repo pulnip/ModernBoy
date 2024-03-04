@@ -6,6 +6,11 @@
 namespace WithSDL{
     class InputSystem final: public Engine::InputSystem{
         friend class Core;
+      public:
+        static void make() noexcept{
+            ::Engine::InputSystem::make<InputSystem>();
+        }
+
       private:
         void update(const Game::Time& deltaTime) noexcept override;
 
