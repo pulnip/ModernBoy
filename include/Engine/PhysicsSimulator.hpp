@@ -76,6 +76,9 @@ namespace WithModel2D{
         // first value: estimated collision time(seconds)
         // second value: valid if collide
         using Result=std::pair<Game::Time, Collision2D>;
+        bool isCloseEnough(
+            const Model&, const Model&, const Game::Time&
+        ) noexcept;
         Result collide(const Model&, const Model&) noexcept;
         void applyCollisionResult(
             ::Skin::Attribute_2D& target,

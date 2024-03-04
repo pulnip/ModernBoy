@@ -12,7 +12,7 @@ using namespace Engine;
 
 MainEngine::MainEngine() noexcept{
     SDL_Init(SDL_INIT_EVERYTHING);
-    Logger::Impl::base=std::make_shared<WithSTD::Logger>();
+    Logger::Impl::make<WithSTD::Logger>();
     Logger::Impl::get()->currlevel=Logger::Level::DEBUG;
 
     LevelLoader::base=std::make_shared<WithRapidjson::LevelLoader>();

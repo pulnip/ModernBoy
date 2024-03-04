@@ -28,13 +28,35 @@ PhysicsSimulator::AxisModel::AxisModel(const Model& m, Axis axis) noexcept{
     }
 }
 
+bool PhysicsSimulator::isCloseEnough(
+    const Model& target, const Model& opponent, const Game::Time& dt
+) noexcept{
+    const auto px_diff = target.position.x - opponent.position.x;
+    const auto py_diff = target.position.y - opponent.position.y;
+    const auto vx_diff = target.velocity.x - opponent.velocity.x;
+    const auto vy_diff = target.velocity.y - opponent.velocity.y;
+
+    const auto future_dx = px_diff - vx_diff*dt;
+    const auto future_dy = py_diff - vy_diff*dt;
+
+    const auto future_diff_p2 = future_dx*future_dx + future_dy*future_dy;
+
+    const auto x_size = (target.size.x + opponent.size.x)/2;
+    const auto y_size = (target.size.y + opponent.size.y)/2;
+
+    const auto size_p2 = x_size*x_size + y_size*y_size;
+
+    return future_diff_p2 <= size_p2;
+}
+
 void PhysicsSimulator::redoUpdateIfCollide(
     sp who, sp to, const Game::Time& dt
 ) noexcept{
     Model target=who;
     Model opponent=to;
 
-    // if(isGetCloser(target, opponent)){
+    if(not isCloseEnough(target, opponent, dt)) return;
+
     auto result=collide(target, opponent);
     auto& [c_time, c2d]=result;
 
@@ -84,8 +106,8 @@ PhysicsSimulator::commonCollisionTime(
     const CollisionTime y0 = {ymin, (y.first+y.second)-ymin};
 
     // x0과 y0의 공통 구간 (min, max)를 찾음.
-    const auto min=std::max(x0.first, y0.first);
-    const auto max=std::min(x0.second, y0.second);
+    const auto min = std::max(x0.first, y0.first);
+    const auto max = std::min(x0.second, y0.second);
 
     return {min, max};
 }
