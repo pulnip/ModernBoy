@@ -61,6 +61,18 @@ std::optional<JsonHelper::Array> JsonHelper::getArray(
     return it->value.GetArray();
 }
 
+std::optional<rapidjson::GenericObject<true, rapidjson::Value>> JsonHelper::getObject(
+    const rapidjson::Value& object, const std::string& property
+) noexcept{
+    auto it=object.FindMember(property.c_str());
+
+    if(it==object.MemberEnd() or not it->value.IsObject()){
+        return std::nullopt;
+    }
+
+    return it->value.GetObject();
+}
+
 std::optional<Game::Vector2D> CustomHelper::getVector2D(
     const rapidjson::Value& object, const std::string& property
 ) noexcept{
@@ -110,8 +122,12 @@ std::optional<Skin::TrueColor> CustomHelper::getColor(
     };
 }
 
-enum class controlType{
+enum class Control{
     MOVE
+};
+
+enum class Direction{
+    UPWARD, DOWNWARD, LEFTWARD, RIGHTWARD
 };
 
 std::optional<std::shared_ptr<Actor::Vanilla>> ActorHelper::getActor(
@@ -158,20 +174,27 @@ std::optional<std::shared_ptr<Actor::Vanilla>> ActorHelper::getActor(
             
             if(not type || not key) break;
 
-            auto detail=it->GetObject();
+            auto detail=getObject(*it, "detail");
 
-            static std::map<std::string, controlType> typeMap={
-                {"move", controlType::MOVE}
+            static std::map<std::string, Control> typeMap={
+                {"move", Control::MOVE}
             };
 
             switch(typeMap[type.value()]){
-            case controlType::MOVE:
-                auto direction=getString(detail, "direction");
-                auto speed=getDouble(detail, "speed");
+            case Control::MOVE:
+                auto direction=getString(*detail, "direction");
+                auto speed=getDouble(*detail, "speed");
 
                 if(direction && speed){
-                    
+                    static std::map<std::string, Direction> dtypeMap={
+                        {"upward", Direction::UPWARD},
+                        {"downward", Direction::DOWNWARD},
+                        {"leftward", Direction::LEFTWARD},
+                        {"rightward", Direction::RIGHTWARD}
+                    };
                 }
+
+                #warning "ing..."
             }
         }
     }

@@ -21,6 +21,9 @@ namespace JsonHelper{
     std::optional<Array> getArray(
         const rapidjson::Value& object, const std::string& property
     ) noexcept;
+    std::optional<rapidjson::GenericObject<true, rapidjson::Value>> getObject(
+        const rapidjson::Value& object, const std::string& property
+    ) noexcept;
 }
 
 namespace CustomHelper{
