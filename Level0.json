@@ -24,21 +24,27 @@
                 "y": 120.0
             },
             "color": {
-                "red": 0, "green": 0, "blue": 255,
+                "red": 0, "green": 255, "blue": 0,
                 "alpha": 255
             },
-            "controls": {
-                "w": {
+            "controls": [
+                {
                     "type": "move",
-                    "detail": "upward",
-                    "speed": 300.0
+                    "key": "w",
+                    "detail":{
+                        "direction": "upward",
+                        "speed": 300.0
+                    }
                 },
-                "s": {
+                {
                     "type": "move",
-                    "detail": "downward",
-                    "speed": 300.0
+                    "key": "s",
+                    "detail": {
+                        "direction": "downward",
+                        "speed": 300.0
+                    }
                 }
-            }
+            ]
         },
         {
             "name": "Ball",
@@ -56,7 +62,7 @@
                 "y": 235.0
             },
             "color": {
-                "red": 0, "green": 0, "blue": 255,
+                "red": 0, "green": 255, "blue": 255,
                 "alpha": 255
             },
             "animation": [

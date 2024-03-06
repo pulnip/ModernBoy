@@ -3,8 +3,9 @@
 #include <map>
 #include <optional>
 #include <set>
-#include "Engine/Logger.hpp"
+#include "Blueprint.hpp"
 #include "myfwd.hpp"
+#include "Engine/Logger.hpp"
 
 namespace Actor{
     enum class Role{
@@ -15,11 +16,15 @@ namespace Actor{
         Active, Paused, Dead
     };
 
-    class Vanilla: public std::enable_shared_from_this<Vanilla>{
+    class Vanilla: public Makable<Vanilla>,
+        public std::enable_shared_from_this<Vanilla>
+    {
       public:
+        static void preConstruct() noexcept{}
+        virtual void postConstruct() noexcept override{}
         virtual ~Vanilla()=default;
 
-        virtual void initAbility() noexcept=0;
+        virtual void initAbility() noexcept{};
         void update(const Game::Time&) noexcept;
 
         void add(pComponent) noexcept;
@@ -28,7 +33,7 @@ namespace Actor{
 
         State getState() noexcept{ return state; }
 
-        virtual void updateActor(const Game::Time&) noexcept=0;
+        virtual void updateActor(const Game::Time&) noexcept{};
 
       protected:
         const int id=++seed;

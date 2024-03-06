@@ -30,3 +30,7 @@ bool Graphics::DrawOrder::operator()(
     assert(not lhs.expired() and not rhs.expired());
     return lhs.lock()->getDrawOrder() < rhs.lock()->getDrawOrder();
 }
+
+void Graphics::initialize(const Blueprint::Window& window) noexcept{
+    windowSetting=window;
+}

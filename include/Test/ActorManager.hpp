@@ -6,8 +6,9 @@
 namespace Test{
     class ActorManager: public Engine::ActorManager{
       public:
-        static void make() noexcept{
-            ::Engine::ActorManager::make<ActorManager>();
+        template<typename... T>
+        static void make(T... args) noexcept{
+            ::Engine::ActorManager::make<ActorManager>(args...);
         }
         void test() noexcept;
       private:

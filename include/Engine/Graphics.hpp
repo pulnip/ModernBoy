@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <set>
-
+#include <string_view>
 #include "Blueprint.hpp"
 #include "TinyTraits.hpp"
 #include "Skin.hpp"
@@ -25,7 +25,7 @@ namespace Engine{
         void append(wp) noexcept;
         // void remove(std::weak_ptr<Component::Drawable>) noexcept;
 
-        virtual void initialize(const ::Blueprint::Window&) noexcept=0;
+        virtual void initialize(const ::Blueprint::Window&) noexcept;
         virtual void destroyAll() noexcept=0;
         virtual void* context() noexcept=0;
 
@@ -34,8 +34,13 @@ namespace Engine{
         virtual void clearScreen() noexcept=0;
         virtual void swapBuffer() noexcept=0;
 
+        std::string_view getTitle() noexcept{ return windowSetting.title; }
+        auto getWindowPosition() noexcept{ return windowSetting.screen.position; }
+        auto getWindowSize() noexcept{ return windowSetting.screen.size; }
+
       private:
         ::Logger::Binded logger={"Graphics", "base"};
+        ::Blueprint::Window windowSetting={};
 
         struct DrawOrder{
             bool operator()(const wp& lhs, const wp& rhs) const;

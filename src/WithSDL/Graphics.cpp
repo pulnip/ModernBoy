@@ -11,24 +11,23 @@
 using namespace WithSDL;
 using namespace My::Math;
 
-static auto& title=Engine::title;
-static auto& screen=Engine::screen;
-
 void Graphics::initialize(const Blueprint::Window& w) noexcept{
-    window=SDL_CreateWindow(
+    ::Engine::Graphics::initialize(w);
+
+    windowHandle=SDL_CreateWindow(
         w.title.c_str(),
         w.screen.position.x, w.screen.position.y,
         w.screen.size.x, w.screen.size.y,
         0
     );
-    if(window==nullptr){
+    if(windowHandle==nullptr){
         logger.info("failed to create window");
         logger.info(SDL_GetError());
         return;
     }
 
     renderer=SDL_CreateRenderer(
-        window, -1,
+        windowHandle, -1,
         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
     );
     if(renderer==nullptr){
@@ -52,7 +51,7 @@ void Graphics::initialize(const Blueprint::Window& w) noexcept{
 void Graphics::destroyAll() noexcept{
     SDL_DestroyRenderer(renderer);
     logger.debug("renderer destructed");
-    SDL_DestroyWindow(window);
+    SDL_DestroyWindow(windowHandle);
     logger.debug("window destructed");
 }
 

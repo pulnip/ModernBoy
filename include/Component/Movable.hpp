@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-
 #include "Skin.hpp"
 #include "Engine/Logger.hpp"
 #include "Component/Ability.hpp"
@@ -11,6 +10,9 @@ namespace Component{
       public:
         Movable(
             std::weak_ptr<Actor::Vanilla> actor
+        ) noexcept;
+        Movable(
+            std::weak_ptr<Actor::Vanilla> actor, const Skin::Attribute_2D&
         ) noexcept;
 
         void update(const Game::Time&) noexcept override final;

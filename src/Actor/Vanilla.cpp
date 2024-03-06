@@ -1,7 +1,10 @@
 #include <algorithm>
+#include "Engine/Graphics.hpp"
+#include "Engine/PhysicsSimulator.hpp"
 #include "Engine/Logger.hpp"
 #include "Actor/Vanilla.hpp"
-#include "Component/Ability.hpp"
+#include "Component/Drawable.hpp"
+#include "Component/Movable.hpp"
 
 using namespace Actor;
 

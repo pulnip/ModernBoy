@@ -1,6 +1,12 @@
+#include "Engine/PhysicsSimulator.hpp"
+#include "Engine/Graphics.hpp"
+
+#include <map>
 #include "Engine/JsonHelper.hpp"
 #include "Math.hpp"
-#include <iostream>
+#include "Component/Controllable.hpp"
+#include "Component/Drawable.hpp"
+#include "Component/Movable.hpp"
 
 using namespace My::Math;
 using namespace JsonHelper;
@@ -104,35 +110,71 @@ std::optional<Skin::TrueColor> CustomHelper::getColor(
     };
 }
 
-std::optional<Blueprint::Actor> ActorHelper::getActor(
+enum class controlType{
+    MOVE
+};
+
+std::optional<std::shared_ptr<Actor::Vanilla>> ActorHelper::getActor(
     const rapidjson::Value& object
 ) noexcept{
+    auto actor=Actor::Vanilla::make<Actor::Vanilla>();
+    
     auto position=getVector2D(object, "position");
     auto size=getVector2D(object, "size");
+    auto velocity=getVector2D(object, "velocity");
+
+    if(position && size){
+        auto movable=std::make_shared<Component::Movable>(
+            actor, Skin::Attribute_2D(position.value(), size.value())
+        );
+
+        if(velocity){
+            movable->get().velocity.linear=velocity.value();
+        }
+
+        actor->add(movable);
+#warning "move to movable postconstruct"
+        Engine::PhysicsSimulator::get()->append(actor);
+    }
+
     auto color=getColor(object, "color");
 
-    if(not position.has_value()){
-        std::cout<<"not pos\n";
-    }
-    if(not size.has_value()){
-        std::cout<<"not size\n";
-    }
-    if(not color.has_value()){
-        std::cout<<"not color\n";
+    if(color){
+        auto colored=std::make_shared<Component::Colored>(
+            actor, color.value()
+        );
+        actor->add(colored);
+        Engine::Graphics::get()->append(colored);
     }
 
-    if( not position.has_value() or
-        not size.has_value() or
-        not color.has_value()
-    ){
-        return std::nullopt;
+    auto qControls=getArray(object, "controls");
+    if(qControls){
+        auto controllable=std::make_shared<Component::Controllable>(actor);
+
+        auto controls=qControls.value();
+        for(auto it=controls.Begin(); it!=controls.End(); ++it){
+            auto type=getString(*it, "type");
+            auto key=getString(*it, "key");
+            
+            if(not type || not key) break;
+
+            auto detail=it->GetObject();
+
+            static std::map<std::string, controlType> typeMap={
+                {"move", controlType::MOVE}
+            };
+
+            switch(typeMap[type.value()]){
+            case controlType::MOVE:
+                auto direction=getString(detail, "direction");
+                auto speed=getDouble(detail, "speed");
+
+                if(direction && speed){
+                    
+                }
+            }
+        }
     }
 
-    Blueprint::Actor blueprint;
-
-    blueprint.physicsAttribute.position.linear = position.value();
-    blueprint.physicsAttribute.volume.base = size.value();
-    blueprint.color = color.value();
-
-    return blueprint;
+    return actor;
 }

@@ -28,7 +28,7 @@ namespace WithSDL{
     
       private:
         ::Logger::Binded logger={"Graphics", "SDL"};
-        SDL_Window* window=nullptr;
+        SDL_Window* windowHandle=nullptr;
         SDL_Renderer* renderer=nullptr;
     };
 }

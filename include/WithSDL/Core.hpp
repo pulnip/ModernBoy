@@ -7,13 +7,13 @@
 namespace WithSDL{
     class Core final: public Engine::Core{
       public:
-        Core(const ::Blueprint::Window&) noexcept;
+        static void preConstruct() noexcept;
+        Core() noexcept;
+        void postConstruct() noexcept override final{}
         ~Core();
 
-        static void preConstruct() noexcept;
-        void postConstruct() noexcept override final;
-        static void make(const ::Blueprint::Window& window) noexcept{
-            ::Engine::Core::make<Core>(window);
+        static void make() noexcept{
+            ::Engine::Core::make<Core>();
         }
 
       private:

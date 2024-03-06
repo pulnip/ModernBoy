@@ -31,7 +31,6 @@ void Ball::updateActor(const Game::Time& deltaTime) noexcept{
         if(position.x < -size.x){
             Engine::GameLogic::get()->set(Game::Status::GAME_OVER);
         }
-
     }
 }
 
@@ -53,7 +52,7 @@ void Ball::initAbility() noexcept {
             "pigeon_1.png",
             "pigeon_2.png",
             "pigeon_3.png",
-            "pigeon_2.png",
+            "pigeon_2.png"
         }
     );
     
