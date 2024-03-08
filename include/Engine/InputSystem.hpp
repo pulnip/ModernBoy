@@ -48,3 +48,16 @@ namespace WithSTD{
         ::Logger::Binded logger={"Input", "STD"};
     };
 }
+
+namespace Test{
+    // input system에서 key를 읽음
+    // actor의 controllable은 key를 받음.
+    //   그 후, key를 특정 behaviour에 맵핑?
+    // behaviour은 어떤 component와 연관되어있음.
+    class MoveRight: public Observer<::Skin::Key>{
+      public:
+        void onNotify(const ::Skin::Key& key) noexcept override{
+
+        }
+    };
+}

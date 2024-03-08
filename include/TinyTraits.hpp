@@ -47,3 +47,13 @@ class MakableSingleton:
         Singleton<Base>::base=Makable<Base>::template make<Derived>(args...);
     }
 };
+
+class Callable{
+  public:
+    virtual void operator()() noexcept=0;
+};
+
+class Predicate{
+  public:
+    virtual bool operator()() noexcept=0;
+};
