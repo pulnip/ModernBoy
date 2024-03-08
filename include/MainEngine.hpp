@@ -7,7 +7,6 @@
 class MainEngine{
   public:
     MainEngine() noexcept;
-    ~MainEngine();
 
     void start() noexcept;
 };

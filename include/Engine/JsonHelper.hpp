@@ -4,8 +4,8 @@
 #include <optional>
 #include <string>
 #include <rapidjson/document.h>
-#include "Blueprint.hpp"
 #include "Skin.hpp"
+#include "Actor/Vanilla.hpp"
 
 namespace JsonHelper{
     std::optional<int> getInt(
@@ -21,6 +21,9 @@ namespace JsonHelper{
     std::optional<Array> getArray(
         const rapidjson::Value& object, const std::string& property
     ) noexcept;
+    std::optional<rapidjson::GenericObject<true, rapidjson::Value>> getObject(
+        const rapidjson::Value& object, const std::string& property
+    ) noexcept;
 }
 
 namespace CustomHelper{
@@ -33,7 +36,7 @@ namespace CustomHelper{
 }
 
 namespace ActorHelper{
-    std::optional<Blueprint::Actor> getActor(
+    std::optional<std::shared_ptr<Actor::Vanilla>> getActor(
         const rapidjson::Value& object
     ) noexcept;
 }

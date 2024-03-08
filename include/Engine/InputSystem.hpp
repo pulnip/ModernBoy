@@ -21,12 +21,12 @@ namespace Engine{
         virtual void update(const Game::Time& deltaTime) noexcept=0;
         void registerKey(
             const uint8_t key,
-            const std::weak_ptr<Observer<Skin::Key>> subscriber
+            const std::weak_ptr<Observer<::Skin::Key>> subscriber
         ) noexcept;
         virtual uint8_t escapeKeycode() noexcept{ return 0x1b; }
 
       protected:
-        std::map<uint8_t, Observable<Skin::Key>> keyMap;
+        std::map<uint8_t, Observable<::Skin::Key>> keyMap;
 
       private:
         ::Logger::Binded logger={"Input", "base"};

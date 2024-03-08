@@ -33,6 +33,12 @@ namespace Skin{
         };
     }
     struct Attribute_2D{
+        Attribute_2D() noexcept=default;
+        Attribute_2D(Vector2D position, Vector2D size) noexcept{
+            this->position.linear=position;
+            this->volume.base=size;
+        }
+
         struct Volume{
             Vector2D base;
             Real scale=1.0;

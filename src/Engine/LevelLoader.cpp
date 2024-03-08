@@ -1,5 +1,6 @@
 #include <fstream>
 #include <vector>
+#include "Engine/ActorManager.hpp"
 #include "Engine/LevelLoader.hpp"
 #include "Engine/JsonHelper.hpp"
 
@@ -8,6 +9,7 @@ using namespace WithRapidjson;
 std::optional<Blueprint::Setting> LevelLoader::loadLevel(
     const std::string& fileName
 ) noexcept{
+    // load document from json file
     auto doc=loadJson(fileName);
     if(not doc.has_value()){
         logger.info("load failed");
@@ -15,11 +17,23 @@ std::optional<Blueprint::Setting> LevelLoader::loadLevel(
     }
 
     auto document=std::move(doc.value());
+
     Blueprint::Setting result={};
 
-    auto window=loadWindow(document);
-    if(window){
-        result.window=window.value();
+    result.window=loadWindow(document).value_or(Blueprint::Window{});
+
+    auto qPrints=JsonHelper::getArray(document, "Actors");
+    if(qPrints.has_value()){
+        auto prints=qPrints.value();
+
+        for(auto it=prints.Begin(); it!=prints.End(); ++it){
+            auto qActor=ActorHelper::getActor(
+                it->GetObject()
+            );
+            if(not qActor) break;
+            
+            Engine::ActorManager::get()->appendActor(qActor.value());
+        }
     }
 
     return result;
@@ -29,7 +43,7 @@ std::optional<rapidjson::Document> LevelLoader::loadJson(
     const std::string& fileName
 ) noexcept{
     std::ifstream file(
-        "C:/Users/choiw/Documents/GameEngineDevelopment/"+fileName,
+        "../"+fileName,
         std::ios::in | std::ios::binary | std::ios::ate
     );
     if(not file.is_open()){

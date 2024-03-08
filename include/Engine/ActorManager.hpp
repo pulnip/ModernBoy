@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "Blueprint.hpp"
 #include "TinyTraits.hpp"
 #include "myfwd.hpp"
 #include "Engine/Logger.hpp"
@@ -14,6 +15,7 @@ namespace Engine{
 
       public:
         static void preConstruct() noexcept{}
+        ActorManager() noexcept=default;
         virtual void postConstruct() noexcept override final{}
         virtual ~ActorManager()=default;
 

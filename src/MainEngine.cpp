@@ -13,27 +13,22 @@ MainEngine::MainEngine() noexcept{
     WithSTD::Logger::make();
     Logger::Impl::get()->currlevel=Logger::Level::DEBUG;
 
+    GameLogic::make();
+    WithModel2D::PhysicsSimulator::make();
+
+    Test::ActorManager::make();
     WithRapidjson::LevelLoader::make();
+
+
+    WithSDL::Core::make();
 
     auto setting=LevelLoader::get()->loadLevel(
         "Level0.json").value_or(Blueprint::Setting{}
     );
 
-    WithSDL::Core::make(setting.window);
+    Graphics::get()->initialize(setting.window);
 
-    GameLogic::make();
-    WithModel2D::PhysicsSimulator::make();
-    Test::ActorManager::make();
-
-    std::static_pointer_cast<Test::ActorManager>(ActorManager::get())->test();
-}
-
-MainEngine::~MainEngine(){
-    // ActorManager::base=nullptr;
-    // PhysicsSimulator::base=nullptr;
-    // GameLogic::base=nullptr;
-    // Core::base=nullptr;
-    // Logger::Impl::base=nullptr;
+    // std::static_pointer_cast<Test::ActorManager>(ActorManager::get())->test();
 }
 
 void MainEngine::start() noexcept{

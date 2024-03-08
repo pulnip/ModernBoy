@@ -29,10 +29,7 @@ void CelestialSky::initAbility() noexcept{
     if(textures_f.has_value()){
         auto farbackBG=std::make_shared<BGSprite>(self);
         add(farbackBG);
-        farbackBG->setScreenSize(Vector2D{
-            static_cast<double>(Engine::screen.size.x),
-            static_cast<double>(Engine::screen.size.y)
-        });
+        farbackBG->setScreenSize(Graphics::get()->getWindowSize());
         farbackBG->setScrollSpeed(-100.0f);
 
         farbackBG->setBGTextures(textures_f.value());
@@ -52,10 +49,7 @@ void CelestialSky::initAbility() noexcept{
     if(textures_c.has_value()){
         auto closerBG=std::make_shared<BGSprite>(self);
         add(closerBG);
-        closerBG->setScreenSize(Vector2D(
-            Engine::screen.size.x,
-            Engine::screen.size.y
-        ));
+        closerBG->setScreenSize(Graphics::get()->getWindowSize());
 
         closerBG->setScrollSpeed(-200.0f);
         closerBG->setBGTextures(textures_c.value());
