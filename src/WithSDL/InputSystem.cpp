@@ -25,10 +25,18 @@ void InputSystem::update(const Time& deltaTime) noexcept {
     }
 
     for(auto& [code, target]: keyMap){
-        if(keyState[code]){
-            ::Skin::Key key{::Skin::Key::Status::PRESSED, code};
-            target.notify(key);
+        if(keyState[code] != oldKeyState[code]){
+            if(keyState[code]==SDL_PRESSED){
+                ::Skin::Key key{::Skin::Key::Status::PRESSED, code};
+                target.notify(key);
+            }
+            else if(keyState[code]==SDL_RELEASED){
+                ::Skin::Key key{::Skin::Key::Status::RELEASED, code};
+                target.notify(key);
+            }
+            oldKeyState[code]=keyState[code];
         }
+
     }
 }
 

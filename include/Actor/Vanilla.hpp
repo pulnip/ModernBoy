@@ -9,19 +9,17 @@
 
 namespace Actor{
     enum class Role{
-        Vanilla
+        Neutral, Player, Enemy
     };
 
     enum class State{
         Active, Paused, Dead
     };
 
-    class Vanilla: public Makable<Vanilla>,
+    class Vanilla: public Makable<Vanilla, false, false>,
         public std::enable_shared_from_this<Vanilla>
     {
       public:
-        static void preConstruct() noexcept{}
-        virtual void postConstruct() noexcept override{}
         virtual ~Vanilla()=default;
 
         virtual void initAbility() noexcept{};
@@ -32,6 +30,8 @@ namespace Actor{
         void remove(Component::Type) noexcept;
 
         State getState() noexcept{ return state; }
+        Role getRole() noexcept{ return role; }
+        void setRole(const Role& r) noexcept{ role=r; }
 
         virtual void updateActor(const Game::Time&) noexcept{};
 
@@ -43,6 +43,7 @@ namespace Actor{
       private:
         ::Logger::Binded logger={"Actor", id};
         static int seed;
+        Role role;
         struct UpdateOrder{
             bool operator()(
                 const pComponent& lhs, const pComponent& rhs

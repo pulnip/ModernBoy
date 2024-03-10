@@ -53,28 +53,28 @@ void Ship::initAbility() noexcept {
     auto controllable=std::make_shared<Controllable>(self);
     add(controllable);
     // warning...?
-    controllable->setKey(SDL_SCANCODE_E,
-        [movable](){
-            movable->get().velocity.rotation.get() += Number::PI;
-        }
+    controllable->setKey(SDL_SCANCODE_E
+        // ,[movable](){
+        //     movable->get().velocity.rotation.get() += Number::PI;
+        // }
     );
-    controllable->setKey(SDL_SCANCODE_Q,
-        [movable](){
-            movable->get().velocity.rotation.get() -= Number::PI;
-        }
+    controllable->setKey(SDL_SCANCODE_Q
+        // ,[movable](){
+        //     movable->get().velocity.rotation.get() -= Number::PI;
+        // }
     );
-    controllable->setKey(SDL_SCANCODE_D,
-        [movable](){
-            auto& v=movable->get().velocity.linear;
-            auto& r=movable->get().position.rotation;
-            v += forward(r) * 300.0;
-        }
+    controllable->setKey(SDL_SCANCODE_D
+        // ,[movable](){
+        //     auto& v=movable->get().velocity.linear;
+        //     auto& r=movable->get().position.rotation;
+        //     v += forward(r) * 300.0;
+        // }
     );
-    controllable->setKey(SDL_SCANCODE_A,
-        [movable](){
-            auto& v=movable->get().velocity.linear;
-            auto& r=movable->get().position.rotation;
-            v -= forward(r) * 300.0;
-        }
+    controllable->setKey(SDL_SCANCODE_A
+        // ,[movable](){
+        //     auto& v=movable->get().velocity.linear;
+        //     auto& r=movable->get().position.rotation;
+        //     v -= forward(r) * 300.0;
+        // }
     );
 }

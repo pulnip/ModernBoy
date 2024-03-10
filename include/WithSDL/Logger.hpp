@@ -6,8 +6,6 @@
 namespace WithSDL{
     class Logger: public ::Logger::Impl{
       public:
-        static void preConstruct() noexcept{}
-        void postConstruct() noexcept override final{}
         static void make() noexcept{
             ::Logger::Impl::make<Logger>();
         }

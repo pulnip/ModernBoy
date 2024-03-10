@@ -8,13 +8,11 @@
 #include "Engine/Logger.hpp"
 
 namespace Engine{
-    class InputSystem: public MakableSingleton<InputSystem>,
+    class InputSystem: public MakableSingleton<InputSystem, false, false>,
         public Observable<Game::Status>, Connectable
     {
         friend class Core;
       public:
-        static void preConstruct() noexcept{}
-        void postConstruct() noexcept override final{}
         virtual ~InputSystem()=default;
 
         void connect() noexcept override final;

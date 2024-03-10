@@ -11,7 +11,7 @@
 
 namespace Engine{
     class PhysicsSimulator:
-        public MakableSingleton<PhysicsSimulator>
+        public MakableSingleton<PhysicsSimulator, false, false>
     {
         friend class ::MainEngine;
       protected:
@@ -19,8 +19,6 @@ namespace Engine{
         using wp=std::weak_ptr<Component::Movable>;
 
       public:
-        static void preConstruct() noexcept{}
-        virtual void postConstruct() noexcept override final{}
         virtual ~PhysicsSimulator()=default;
 
         void update(const Game::Time& deltaTime) noexcept;
@@ -38,6 +36,8 @@ namespace Engine{
         std::map<wp, std::list<wp>,
             std::owner_less<wp>
         > collisionMap;
+
+        std::vector<wp> neutrals, players, enemys;
     };
 }
 

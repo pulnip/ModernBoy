@@ -18,6 +18,7 @@ namespace WithSDL{
 
       private:
         ::Logger::Binded logger={"Input", "SDL"};
+        uint8_t oldKeyState[sizeof(uint8_t)]={0, };
     };
 }
 
