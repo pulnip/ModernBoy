@@ -31,7 +31,7 @@ namespace Logger{
         const char msg[]
     ) noexcept;
 
-    class Impl: public MakableSingleton<Impl>{
+    class Impl: public MakableSingleton<Impl, false, false>{
         friend class ::MainEngine;
       public:
         virtual void log(Level, const char msg[]) noexcept=0;
@@ -81,8 +81,6 @@ namespace Logger{
 namespace WithSTD{
     class Logger: public ::Logger::Impl{
       public:
-        static void preConstruct() noexcept{}
-        void postConstruct() noexcept override final{}
         static void make() noexcept{
             ::Logger::Impl::make<Logger>();
         }

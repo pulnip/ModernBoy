@@ -13,14 +13,12 @@ namespace Actors{
 
 namespace Engine{
     class ActorManager:
-        public MakableSingleton<ActorManager>
+        public MakableSingleton<ActorManager, false, false>
     {
         friend class ::MainEngine;
 
       public:
-        static void preConstruct() noexcept{}
         ActorManager() noexcept=default;
-        virtual void postConstruct() noexcept override final{}
         virtual ~ActorManager()=default;
 
         void update(const Game::Time& deltaTime) noexcept;

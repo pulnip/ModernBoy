@@ -11,7 +11,7 @@ namespace Engine{
     // extern std::string title;
     // extern Blueprint::Screen screen;
 
-    class Core: public MakableSingleton<Core>,
+    class Core: public MakableSingleton<Core, true, false>,
         public Receiver
     {
         friend class ::MainEngine;

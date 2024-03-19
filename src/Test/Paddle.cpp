@@ -41,14 +41,14 @@ void Paddle::initAbility() noexcept {
     auto controllable=std::make_shared<Controllable>(self);
     add(controllable);
     // warning...?
-    controllable->setKey(SDL_SCANCODE_W,
-        [movable](){
-            movable->get().velocity.linear.y -= 300.0f;
-        }
+    controllable->setKey(SDL_SCANCODE_W
+        // ,[movable](){
+        //     movable->get().velocity.linear.y -= 300.0f;
+        // }
     );
-    controllable->setKey(SDL_SCANCODE_S,
-        [movable](){
-            movable->get().velocity.linear.y += 300.0f;
-        }
+    controllable->setKey(SDL_SCANCODE_S
+        // ,[movable](){
+        //     movable->get().velocity.linear.y += 300.0f;
+        // }
     );
 }

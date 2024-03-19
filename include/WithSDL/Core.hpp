@@ -9,7 +9,6 @@ namespace WithSDL{
       public:
         static void preConstruct() noexcept;
         Core() noexcept;
-        void postConstruct() noexcept override final{}
         ~Core();
 
         static void make() noexcept{

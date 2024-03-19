@@ -1,5 +1,6 @@
 #include "Engine/PhysicsSimulator.hpp"
 #include "Engine/Graphics.hpp"
+#include "Engine/InputSystem.hpp"
 
 #include <map>
 #include "Engine/JsonHelper.hpp"
@@ -134,7 +135,19 @@ std::optional<std::shared_ptr<Actor::Vanilla>> ActorHelper::getActor(
     const rapidjson::Value& object
 ) noexcept{
     auto actor=Actor::Vanilla::make<Actor::Vanilla>();
-    
+
+    auto role=getString(object, "type");
+
+    if(role){
+        static std::map<std::string, Actor::Role> roleMap={
+            {"Object", Actor::Role::Neutral},
+            {"Player", Actor::Role::Player},
+            {"Enemy", Actor::Role::Enemy}
+        };
+
+        actor->setRole(roleMap[role.value()]);
+    }
+
     auto position=getVector2D(object, "position");
     auto size=getVector2D(object, "size");
     auto velocity=getVector2D(object, "velocity");
@@ -166,6 +179,7 @@ std::optional<std::shared_ptr<Actor::Vanilla>> ActorHelper::getActor(
     auto qControls=getArray(object, "controls");
     if(qControls){
         auto controllable=std::make_shared<Component::Controllable>(actor);
+        actor->add(controllable);
 
         auto controls=qControls.value();
         for(auto it=controls.Begin(); it!=controls.End(); ++it){
@@ -192,9 +206,50 @@ std::optional<std::shared_ptr<Actor::Vanilla>> ActorHelper::getActor(
                         {"leftward", Direction::LEFTWARD},
                         {"rightward", Direction::RIGHTWARD}
                     };
-                }
 
-                #warning "ing..."
+                    Engine::InputSystem::get()->registerKey(key.value()[0]-93, controllable);
+                    
+                    switch(dtypeMap[direction.value()]){
+                      case Direction::UPWARD:
+                        controllable->setKey(key.value()[0]-93,
+                            std::make_shared<Component::Behaviour::MoveY>(
+                                actor, -speed.value()
+                            ),
+                            std::make_shared<Component::Behaviour::MoveY>(
+                                actor, 0
+                            )
+                        );
+                        break;
+                      case Direction::DOWNWARD:
+                        controllable->setKey(key.value()[0]-93,
+                            std::make_shared<Component::Behaviour::MoveY>(
+                                actor, +speed.value()
+                            ),
+                            std::make_shared<Component::Behaviour::MoveY>(
+                                actor, 0
+                            )
+                        );
+                        break;
+                      case Direction::LEFTWARD:
+                        controllable->setKey(key.value()[0]-93,
+                            std::make_shared<Component::Behaviour::MoveX>(
+                                actor, -speed.value()
+                            ),
+                            std::make_shared<Component::Behaviour::MoveX>(
+                                actor, 0
+                            )
+                        );
+                      case Direction::RIGHTWARD:
+                        controllable->setKey(key.value()[0]-93,
+                            std::make_shared<Component::Behaviour::MoveX>(
+                                actor, speed.value()
+                            ),
+                            std::make_shared<Component::Behaviour::MoveX>(
+                                actor, 0
+                            )
+                        );
+                    }
+                }
             }
         }
     }

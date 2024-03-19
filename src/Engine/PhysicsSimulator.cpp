@@ -6,6 +6,13 @@
 
 using namespace Engine;
 
+template<typename T>
+bool isEqual(
+    const std::weak_ptr<T>& lhs, const std::weak_ptr<T>& rhs
+) noexcept{
+    return not (lhs.owner_before(rhs) or rhs.owner_before(lhs));
+}
+
 void PhysicsSimulator::update(const Game::Time& deltaTime) noexcept{
     // remove if expired
     std::erase_if(collisionMap, [](const auto& pair){
@@ -18,18 +25,70 @@ void PhysicsSimulator::update(const Game::Time& deltaTime) noexcept{
     }
 
     // check collision
-    for(auto& [refTarget, list]: collisionMap){
-        assert(not refTarget.expired());
-        auto target=refTarget.lock();
-        // update movable
-        target->get().update(deltaTime);
+    // for(auto& [refTarget, list]: collisionMap){
+    //     assert(not refTarget.expired());
+    //     auto target=refTarget.lock();
+    //     // update movable
+    //     target->get().update(deltaTime);
 
-        for(auto& refOppo: list){
-            assert(not refOppo.expired());
-            auto opponent=refOppo.lock();
+    //     for(auto& refOppo: list){
+    //         assert(not refOppo.expired());
+    //         auto opponent=refOppo.lock();
 
-            redoUpdateIfCollide(target, opponent, deltaTime);
-        }         
+    //         redoUpdateIfCollide(target, opponent, deltaTime);
+    //     }
+    // }
+
+    for(auto& refPlayer: players){
+        assert(not refPlayer.expired());
+        auto player=refPlayer.lock();
+
+        player->get().update(deltaTime);
+
+        for(auto& refOther: players){
+            if(isEqual(refPlayer, refOther)) break;
+
+            assert(not refOther.expired());
+            auto other=refOther.lock();
+
+            redoUpdateIfCollide(player, other, deltaTime);
+        }
+
+        for(auto& refNeutural: neutrals){
+            assert(not refNeutural.expired());
+            auto neutral=refNeutural.lock();
+
+            redoUpdateIfCollide(player, neutral, deltaTime);
+        }
+    }
+
+    for(auto& refEnemy: enemys){
+        assert(not refEnemy.expired());
+        auto enemy=refEnemy.lock();
+
+        enemy->get().update(deltaTime);
+
+        for(auto& refOther: enemys){
+            if(isEqual(refEnemy, refOther)) break;
+
+            assert(not refOther.expired());
+            auto other=refOther.lock();
+
+            redoUpdateIfCollide(enemy, other, deltaTime);
+        }
+
+        for(auto& refNeutural: neutrals){
+            assert(not refNeutural.expired());
+            auto neutral=refNeutural.lock();
+
+            redoUpdateIfCollide(enemy, neutral, deltaTime);
+        }
+        for(auto& refPlayer: players){
+            assert(not refPlayer.expired());
+            auto player=refPlayer.lock();
+
+            redoUpdateIfCollide(enemy, player, deltaTime);
+        }
     }
 }
 
@@ -39,6 +98,17 @@ void PhysicsSimulator::append(pActor actor) noexcept{
     if(opt.has_value()){
         auto movable=std::static_pointer_cast<Component::Movable>(opt.value());
         collisionMap.try_emplace(movable, std::list<wp>());
+
+        switch(actor->getRole()){
+          case Actor::Role::Neutral:
+            neutrals.emplace_back(movable);
+            break;
+          case Actor::Role::Player:
+            players.emplace_back(movable);
+            break;
+          case Actor::Role::Enemy:
+            enemys.emplace_back(movable);
+        }
     } else{
         logger.info("Movable not found");
     }
