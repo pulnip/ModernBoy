@@ -19,12 +19,14 @@ namespace Engine{
         using wp=std::weak_ptr<Component::Movable>;
 
       public:
+        PhysicsSimulator() noexcept;
         virtual ~PhysicsSimulator()=default;
 
         void update(const Game::Time& deltaTime) noexcept;
+        bool updateTarget(wp, const Actor::Role&, const Game::Time&) noexcept;
+        void updateTarget_aux(sp, const std::vector<wp>&, const Game::Time&) noexcept;
 
         void append(pActor) noexcept;
-        void setCollision(pActor who, pActor to) noexcept;
 
       private:
         virtual void redoUpdateIfCollide(
@@ -33,11 +35,7 @@ namespace Engine{
 
       private:
         Logger::Binded logger={"Physics", "base"};
-        std::map<wp, std::list<wp>,
-            std::owner_less<wp>
-        > collisionMap;
-
-        std::vector<wp> neutrals, players, enemys;
+        std::map<Actor::Role, std::vector<wp>> targets;
     };
 }
 
