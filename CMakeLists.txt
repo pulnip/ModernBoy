@@ -17,7 +17,7 @@ add_executable(${PROJECT_NAME}
     main.cpp
 
     src/Math.cpp
-    src/TinyTraits.cpp
+    src/functor.cpp
 
     src/MainEngine.cpp
 

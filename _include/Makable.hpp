@@ -1,25 +1,7 @@
 #pragma once
 
+#include <concepts>
 #include <memory>
-#include "Concept.hpp"
-#include "myfwd.hpp"
-
-template<typename Base>
-class Singleton{
-  public:
-    static auto get() noexcept{ return base; }
-
-  protected:
-    static std::shared_ptr<Base> base;
-};
-
-template<typename Base>
-extern std::shared_ptr<Base> Singleton<Base>::base;
-
-class Connectable{
-  public:
-    virtual void connect() noexcept=0;
-};
 
 template<typename Base, bool hasPreCondition, bool hasPostCondition>
 class Makable{
@@ -76,39 +58,3 @@ class Makable<Base, false, false>{
         return std::make_shared<Derived>(args...);
     }
 };
-
-template<typename Base, bool hasPreCondition, bool hasPostCondition>
-class MakableSingleton:
-    public Singleton<Base>, public Makable<Base, hasPreCondition, hasPostCondition>{
-  public:
-    template<typename Derived, typename... T>
-    static void make(T... args) noexcept{
-        Singleton<Base>::base=Makable<Base,
-            hasPreCondition, hasPostCondition
-        >::template make<Derived>(args...);
-    }
-};
-
-class Callable{
-  public:
-    virtual void operator()() noexcept=0;
-};
-
-class DoNothing final: public Callable{
-  public:
-    void operator()() noexcept override{}
-};
-
-extern std::shared_ptr<DoNothing> doNothing;
-
-class Predicate{
-  public:
-    virtual bool operator()() noexcept=0;
-};
-
-class AlwaysTrue: public Predicate{
-  public:
-    bool operator()() noexcept override{ return true; }
-};
-
-extern std::shared_ptr<AlwaysTrue> alwaysTrue;
