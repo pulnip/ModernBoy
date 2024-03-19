@@ -1,55 +1,41 @@
-#include <iostream>
+#include <memory>
+#include <cassert>
 
-void push(int* stack, int& ptr){
-    int new_num;
-    std::cin>>new_num;
+template<typename T>
+class Mediator{
+  public:
+    static T& get(){
+        assert(not t.expired());
+        return *t.lock();
+    }
+    static void set(const std::shared_ptr<T>& sp){
+        Mediator<T>::t = sp;
+    }
 
-    stack[ptr++]=new_num;
-}
+  private:
+    static std::weak_ptr<T> t;
+};
 
-int pop(int* stack, int& ptr){
-    if(ptr == -1) return -1;
-    return stack[ptr--];
-}
+template<typename T>
+std::weak_ptr<T> Mediator<T>::t;
 
-int len(int* stack, int& ptr){
-    return ptr+1;
-}
+class NullSystem;
+class System{};
+class Impl: public System{};
 
-bool isEmpty(int* stack, int& ptr){
-    return ptr==-1;
-}
+class Main{
+  public:
+    Main()
+    :sys(std::make_shared<Impl>()){
+        Mediator<System>::set(sys);
+    }
 
-int top(int* stack, int& ptr){
-    return stack[ptr];
-}
+    std::shared_ptr<System> sys;
+};
+
 
 int main(void){
-    int stack[1000000];
-    int pointer=-1;
+    Main m;
 
-    int cmd_num;
-    std::cin >> cmd_num;
-
-    for(int i=0; i<cmd_num; ++i){
-        int command;
-        std::cin>>command;
-
-        switch(command){
-        case 1:
-            push(stack, pointer);
-            break;
-        case 2:
-            std::cout<<pop(stack, pointer)<<'\n';
-            break;
-        case 3:
-            std::cout<<len(stack, pointer)<<'\n';
-            break;
-        case 4:
-            std::cout<<static_cast<int>(isEmpty(stack, pointer))<<'\n';
-            break;
-        case 5:
-            std::cout<<top(stack, pointer)<<'\n';
-        }
-    }
+    auto i=Mediator<System>::get();
 }

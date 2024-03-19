@@ -7,6 +7,10 @@
 #include "myfwd.hpp"
 #include "Engine/Logger.hpp"
 
+namespace Actors{
+
+}
+
 namespace Engine{
     class ActorManager:
         public MakableSingleton<ActorManager>
