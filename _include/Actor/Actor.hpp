@@ -34,9 +34,11 @@ class Actor{
     void setRole(const Role& r) noexcept{ role=r; }
     virtual void updateActor(const Game::Time&) noexcept{};
 
+  public:
+    const int id=++seed;
+
   private:
     static int seed;
-    const int id=++seed;
     Logging::Bind logger={"Actor", std::to_string(id)};
     
     State state=State::Active;

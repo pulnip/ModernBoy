@@ -1,7 +1,7 @@
 #pragma once
 
+#include <map>
 #include <memory>
-#include <vector>
 #include "System/Logging/Bind.hpp"
 #include "Engine/Types.hpp"
 #include "FWD.hpp"
@@ -23,8 +23,9 @@ class Actors{
   private:
     Logging::Bind logger={"Actors", "base"};
     bool isUpdating=false;
-    std::vector<pActor> actors;
-    std::vector<pActor> pendingActors;
+    using ID=int;
+    std::map<ID, pActor> actors;
+    std::map<ID, pActor> pendingActors;
 };
 
 class NullActors: public Actors{};
