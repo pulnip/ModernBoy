@@ -7,6 +7,7 @@ namespace Transform{
     using namespace My::Math;
 
     using Vector2D = Vector2<Number::Real>;
+    using Radian = Angle::Radian;
 
     struct Volume{
         Vector2D base;
@@ -16,9 +17,10 @@ namespace Transform{
             return base*scale;
         }
     };
+
     struct PhysicsElement{
         Vector2D linear;
-        Angle::Radian rotation=0.0;
+        Radian rotation=0.0;
 
         PhysicsElement& operator+=(const PhysicsElement& other) noexcept{
             linear+=other.linear;

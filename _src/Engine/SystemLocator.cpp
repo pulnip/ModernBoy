@@ -13,6 +13,7 @@ namespace Getter{
     Actors& actors(){ return getService<Actors>(); }
     Logger& logger(){ return getService<Logger>(); }
     InputReceiver& input(){ return getService<InputReceiver>(); }
+    Graphics& graphics(){ return getService<Graphics>(); }
 }
 
 using namespace SystemLocator;
@@ -20,5 +21,6 @@ using namespace SystemLocator;
 bool SystemLocator::isTest(){
     return isNull<Actors>() or
         isNull<Logger>() or
-        isNull<InputReceiver>();
+        isNull<InputReceiver>() or
+        isNull<Graphics>();
 }

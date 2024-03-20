@@ -9,14 +9,6 @@
 #include "Math.hpp"
 
 namespace Blueprint{
-    struct Screen{
-        My::Math::Vector2<unsigned int> position={}, size={};
-    };
-
-    struct Window{
-        std::string title="";
-        Screen screen={};
-    };
 
     struct Actor{
         Skin::Attribute_2D physicsAttribute;

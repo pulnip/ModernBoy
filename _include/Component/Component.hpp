@@ -9,26 +9,25 @@
 class Component{
   protected:
     using Type=ComponentTraits::Type;
+    using Time=Game::Time;
+
   public:
     Component(int updateOrder) noexcept:
         updateOrder(updateOrder){}
     virtual ~Component()=default;
 
-    virtual void update(const Game::Time&, Actor&)=0;
+    virtual void update(const Time&, Actor&)=0;
 
     virtual Type getType() noexcept{
         return Type::Base;
     }
-    int getUpdateOrder() const noexcept{
-        return updateOrder;
-    }
 
   protected:
     const int id = seed++;
+    const int updateOrder;
 
   private:
     static int seed;
-    int updateOrder;
     Logging::Bind logger={"Component", "base"};
 };
 

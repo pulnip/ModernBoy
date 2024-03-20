@@ -25,7 +25,7 @@ class Actor{
 
     void update(const Game::Time&) noexcept;
 
-    void add(pComp) noexcept;
+    void append(pComp) noexcept;
     std::optional<pComp> get(Type) noexcept;
     void remove(Type) noexcept;
 

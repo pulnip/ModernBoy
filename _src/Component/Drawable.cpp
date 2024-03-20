@@ -1,28 +1,23 @@
-#include <string>
-#include "Skin.hpp"
-#include "Component/Drawable.hpp"
-#include "Engine/Logger.hpp"
-#include "Actor/Vanilla.hpp"
-#include "Component/Movable.hpp"
+#include <cassert>
+#include "Engine/SystemLocator.hpp"
+#include "Actor/Actor.hpp"
+#include "Component/Traits.hpp"
+#include "Component/Drawable/Drawable.hpp"
+#include "Component/Movable/Movable.hpp"
 
-using namespace Component;
+Drawable::~Drawable(){
+    Getter::graphics().remove(id);
+}
 
-Drawable::Drawable(
-    std::weak_ptr<Actor::Vanilla> actor,
-    int drawOrder
-) noexcept:
-    Ability(actor, 300), drawOrder(drawOrder)
-{
-    if(not actor.expired()){
-        auto query=actor.lock()->get(Type::Movable);
-        if(query.has_value()){
-            target=std::static_pointer_cast<Movable>(query.value());
-        } else{
-            logger.info("init Movable failed(Movable not found)");
-        }
+void Drawable::update(const Time&, Actor& actor) noexcept{
+    constexpr auto MOVABLE = ComponentTraits::Type::Movable;
+
+    auto comp=actor.get(MOVABLE);
+    if(comp.has_value()){
+        if(auto movable = std::dynamic_pointer_cast<Movable>(comp.value())){
+            drawAt(movable->get().position);
+        } else assert(false);
     } else{
-        logger.info("init Drawable failed(actor not valid)");
+        drawAt({});
     }
-
-    // logger.debug(("DrawOrder is "+std::to_string(drawOrder)).c_str());
 }

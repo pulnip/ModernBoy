@@ -12,7 +12,7 @@ void Actor::update(const Game::Time& deltaTime) noexcept{
     updateActor(deltaTime);
 }
 
-void Actor::add(pComp ptr) noexcept{
+void Actor::append(pComp ptr) noexcept{
     components.emplace(ptr->getType(), ptr);
     ordered.emplace(ptr);
 }

@@ -15,7 +15,7 @@ class Movable: public Component{
     Movable(const Transform2D&) noexcept;
 
     void update(const Game::Time&, Actor&) noexcept override;
-    Type getType() noexcept{
+    Type getType() noexcept override{
         return Type::Movable;
     }
     auto& get(){ return transform; }
