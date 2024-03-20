@@ -6,3 +6,4 @@ class Logger;
 class Actor;
 
 class Component;
+class Movable;

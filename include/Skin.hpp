@@ -32,42 +32,6 @@ namespace Skin{
             const Radian& rotation;
         };
     }
-    struct Attribute_2D{
-        Attribute_2D() noexcept=default;
-        Attribute_2D(Vector2D position, Vector2D size) noexcept{
-            this->position.linear=position;
-            this->volume.base=size;
-        }
-
-        struct Volume{
-            Vector2D base;
-            Real scale=1.0;
-
-            Vector2D size() const noexcept{ return base*scale; }
-        } volume;
-        struct Position{
-            Vector2D linear;
-            Radian rotation=0.0;
-
-            Position& operator+=(const Position& other) noexcept{
-                linear+=other.linear;
-                rotation.get()+=other.rotation.get();
-                return *this;
-            }
-            Position& operator-=(const Position& other) noexcept{
-                linear-=other.linear;
-                rotation.get()-=other.rotation.get();
-                return *this;
-            }
-        } position;
-        // unit per second
-        struct Velocity{
-            Vector2D linear;
-            Radian rotation=0.0;
-            Position operator*(const Time& time) noexcept{
-                return {linear*time, rotation.get()*time};
-            }
-        } velocity;
 
         Flyweight::Rect rect() const noexcept{
             return{position.linear, volume.size()};

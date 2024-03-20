@@ -7,9 +7,11 @@
 #include "Component/Traits.hpp"
 
 class Component{
+  protected:
     using Type=ComponentTraits::Type;
   public:
-    Component(int updateOrder) noexcept;
+    Component(int updateOrder) noexcept:
+        updateOrder(updateOrder){}
     virtual ~Component()=default;
 
     virtual void update(const Game::Time&, Actor&)=0;
@@ -21,7 +23,11 @@ class Component{
         return updateOrder;
     }
 
+  protected:
+    const int id = seed++;
+
   private:
+    static int seed;
     int updateOrder;
     Logging::Bind logger={"Component", "base"};
 };
