@@ -6,6 +6,6 @@ class Resources{
   public:
     virtual ~Resources()=default;
 
-      private:
+  private:
     Logging::Bind logger={"Resources", "base"};
 };

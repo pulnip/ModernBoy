@@ -5,7 +5,9 @@
             "includePath": [
                 "C:/msys64/mingw64/include",
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/_include"
+                "${workspaceFolder}/WithSTD/include",
+                "${workspaceFolder}/WithSDL/include",
+                "${workspaceFolder}/test/include"
             ],
             "defines": [
                 "_DEBUG",

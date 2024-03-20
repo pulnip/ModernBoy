@@ -15,58 +15,13 @@ add_compile_options(-fmodules-ts)
 
 add_executable(${PROJECT_NAME}
     main.cpp
-
-    src/Math.cpp
-    src/functor.cpp
-
-    src/MainEngine.cpp
-
-    src/Engine/ActorManager.cpp
-    src/Engine/Core.cpp
-    src/Engine/GameLogic.cpp 
-    src/Engine/Graphics.cpp
-    src/Engine/InputSystem.cpp
-    src/Engine/JsonHelper.cpp
-    src/Engine/LevelLoader.cpp
-    src/Engine/Logger.cpp
-    src/Engine/PhysicsSimulator.cpp
-    src/Actor/Vanilla.cpp
-    src/Component/Ability.cpp
-    src/Component/AI.cpp
-    src/Component/Colored.cpp
-    src/Component/Controllable.cpp
-    src/Component/Drawable.cpp
-    src/Component/Movable.cpp
-
-    src/WithSTD/InputSystem.cpp
-    src/WithSTD/Logger.cpp
-    src/WithSTD/Timer.cpp
-
-    src/WithSDL/AnimSprite.cpp
-    src/WithSDL/BGSprite.cpp
-    src/WithSDL/Core.cpp
-    src/WithSDL/Graphics.cpp
-    src/WithSDL/InputSystem.cpp
-    src/WithSDL/Logger.cpp
-    src/WithSDL/ResourceManager.cpp
-    src/WithSDL/Sprite.cpp
-    src/WithSDL/Timer.cpp
-
-    src/Model2D/PhysicsSimulator.cpp
-
-    src/Test/ActorManager.cpp
-    src/Test/Asteroid.cpp
-    src/Test/Ball.cpp
-    src/Test/CelestialSky.cpp
-    src/Test/Paddle.cpp
-    src/Test/Ship.cpp
-    src/Test/Wall.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/GameEngineWithSDL/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/Game/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/WithSTD/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/WithSDL/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/include
 )
 
 target_link_libraries(${PROJECT_NAME}
