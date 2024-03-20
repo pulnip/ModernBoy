@@ -1,9 +1,9 @@
 #include <SDL2/SDL_main.h>
-#include "MainEngine.hpp"
+#include "Engine/Main.hpp"
 
 int main(int argc, char* argv[]){
-    MainEngine me;
-    me.start();
+    Main __main;
+    __main.start();
 
     return 0;
 }
