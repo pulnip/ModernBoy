@@ -1,19 +1,24 @@
 #include <cassert>
 #include "Engine/SystemLocator.hpp"
 
-Actors& __Actors(){
-    assert(Locator<Actors>::get()!=nullptr);
-    return *Locator<Actors>::get();
+template<typename Service> Service& getService(){
+    assert(Locator<Service>::get != nullptr);
+    return *Locator<Service>::get();
+}
+template<typename Service> bool isNull(){
+    return Locator<Service>::get() == Service::null;
 }
 
-Logger& __Logger(){
-    assert(Locator<Logger>::get()!=nullptr);
-    return *Locator<Logger>::get();
+namespace Getter{
+    Actors& actors(){ return getService<Actors>(); }
+    Logger& logger(){ return getService<Logger>(); }
+    InputReceiver& input(){ return getService<InputReceiver>(); }
 }
 
 using namespace SystemLocator;
 
 bool SystemLocator::isTest(){
-    return Locator<Actors>::get() == Actors::null or
-        Locator<Logger>::get() == Logger::null; 
+    return isNull<Actors>() or
+        isNull<Logger>() or
+        isNull<InputReceiver>();
 }

@@ -37,7 +37,7 @@ void Core::run() noexcept{
         // 너무 많이 지연되면,
         while(lag >= SECOND_PER_UPDATE){
             // 게임 세계 업데이트
-            __Actors().update(SECOND_PER_UPDATE);
+            Getter::actors().update(SECOND_PER_UPDATE);
             // 업데이트한 만큼 지연이 없어짐.
             lag -= SECOND_PER_UPDATE;
         }
