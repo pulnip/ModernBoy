@@ -60,5 +60,4 @@ namespace Physics{
         Velocity2D velocity;
         Collision::Circle detector;
     };
-
 }
