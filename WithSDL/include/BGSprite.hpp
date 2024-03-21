@@ -35,7 +35,7 @@ namespace WithSDL{
         void update(const Time& deltaTime) noexcept override final;
 
     private:
-        ::Logger::Binded logger={"BGSprite", id};
+        Logging::Bind logger={"BGSprite", id};
         struct BGTexture {
             class SDL_Texture* texture;
             // 화면이 시작하는 위치

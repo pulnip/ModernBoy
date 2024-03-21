@@ -14,7 +14,19 @@ namespace Getter{
     Logger& logger(){ return getService<Logger>(); }
     InputReceiver& input(){ return getService<InputReceiver>(); }
     Graphics& graphics(){ return getService<Graphics>(); }
+    Core& core(){ return getService<Core>(); }
 }
+
+#define DECLARE_NULL(Base, Null) \
+    std::shared_ptr<Base> Base::null = std::make_shared<Null>()
+
+DECLARE_NULL(Core, NullCore);
+DECLARE_NULL(Actors, NullActors);
+DECLARE_NULL(Logger, NullLogger);
+DECLARE_NULL(InputReceiver, NullInput);
+DECLARE_NULL(Graphics, NullGraphics);
+
+#undef DECLARE_NULL
 
 using namespace SystemLocator;
 
@@ -22,5 +34,6 @@ bool SystemLocator::isTest(){
     return isNull<Actors>() or
         isNull<Logger>() or
         isNull<InputReceiver>() or
-        isNull<Graphics>();
+        isNull<Graphics>() or
+        isNull<Core>();
 }

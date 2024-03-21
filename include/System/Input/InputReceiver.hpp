@@ -11,7 +11,7 @@ class InputReceiver{
   public:
     virtual ~InputReceiver()=default;
     virtual void pollEvent()=0;
-    virtual void subscribe(const Input::Event&, Receiver recv)=0;
+    virtual void subscribe(const Input::Key&, Receiver recv)=0;
 
   public:
     static std::shared_ptr<InputReceiver> null;
@@ -19,5 +19,5 @@ class InputReceiver{
 
 class NullInput: public InputReceiver{
     void pollEvent() override{}
-    void subscribe(const Input::Event&, Receiver recv) override{}
+    void subscribe(const Input::Key&, Receiver recv) override{}
 };

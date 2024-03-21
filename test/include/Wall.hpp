@@ -13,7 +13,7 @@ namespace Test{
         void updateActor(const Game::Time&) noexcept override final{}
 
       private:
-        ::Logger::Binded logger={"Wall", id};
+        Logging::Bind logger={"Wall", id};
     };
 
     class Ceil final: public Wall{

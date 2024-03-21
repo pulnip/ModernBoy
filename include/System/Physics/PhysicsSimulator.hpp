@@ -90,6 +90,6 @@ namespace WithModel2D{
         ) noexcept;
 
       private:
-        ::Logger::Binded logger={"Physics", "Model2D"};
+        Logging::Bind logger={"Physics", "Model2D"};
     };
 }

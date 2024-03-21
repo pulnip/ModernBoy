@@ -17,7 +17,7 @@ namespace WithSDL{
         millisecond getDeltaTime() noexcept override final;
 
       private:
-        ::Logger::Binded logger={"Timer", "SDL"};
+        Logging::Bind logger={"Timer", "SDL"};
         time_point lastTimePoint;
     };
 }

@@ -13,6 +13,6 @@ namespace Test{
         void updateActor(const Game::Time&) noexcept override final;
 
       private:
-        ::Logger::Binded logger={"Ship", id};
+        Logging::Bind logger={"Ship", id};
     };
 }

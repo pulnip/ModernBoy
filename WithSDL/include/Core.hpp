@@ -16,6 +16,6 @@ namespace WithSDL{
         }
 
       private:
-        ::Logger::Binded logger={"Core", "SDL"};
+        Logging::Bind logger={"Core", "SDL"};
     };
 }

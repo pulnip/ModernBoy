@@ -8,20 +8,6 @@ namespace Graphic{
     using namespace Skin;
     using namespace Transform;
 
-    struct ColorBox{
-        const TrueColor color;
-        const Position position;
-    };
-
-    namespace Painter{
-        struct BasicSprite{
-            // used in painter's algorithm.
-            const int drawOrder;
-            const ColorBox box;
-        };
-    }
-
-
     struct Screen{
         My::Math::Vector2<unsigned int> position={}, size={};
     };
@@ -29,5 +15,31 @@ namespace Graphic{
     struct Window{
         std::string title="";
         Screen screen={};
+    };
+
+    struct ColorBox{
+        const TrueColor color;
+        const Position position;
+    };
+}
+
+namespace WithSDL{
+    using namespace Graphic;
+
+    class SDL_Texture;
+}
+
+// painter's algorithm.
+namespace Painter{
+    using namespace Graphic;
+    using namespace WithSDL;
+
+    struct BasicSprite{
+        const int drawOrder;
+        const ColorBox box;
+    };
+    struct SpriteWithSDL{
+        const SDL_Texture* texture=nullptr;
+        const Position position;
     };
 }

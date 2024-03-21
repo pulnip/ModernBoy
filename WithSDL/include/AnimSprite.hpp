@@ -25,7 +25,7 @@ namespace WithSDL{
         ) noexcept override final;
 
     private:
-        ::Logger::Binded logger={"AnimSprite", id};
+        Logging::Bind logger={"AnimSprite", id};
         std::vector<SDL_Texture*> animTextures;
         // 현재 프레임
         float currFrame = 0.0f;

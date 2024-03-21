@@ -17,6 +17,6 @@ namespace Component{
         virtual ~AI()=default;
     
       private:
-        ::Logger::Binded logger={"AI", id};
+        Logging::Bind logger={"AI", id};
     };
 }

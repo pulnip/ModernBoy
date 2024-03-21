@@ -17,7 +17,7 @@ namespace WithSDL{
         uint8_t escapeKeycode() noexcept override final;
 
       private:
-        ::Logger::Binded logger={"Input", "SDL"};
+        Logging::Bind logger={"Input", "SDL"};
         uint8_t oldKeyState[sizeof(uint8_t)]={0, };
     };
 }

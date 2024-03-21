@@ -14,8 +14,15 @@ class Core{
         isRunning=false;
     }
 
+  public:
+    static std::shared_ptr<Core> null;
+
   private:
     bool isRunning=false;
     Logging::Bind logger={"Core", "base"};
     std::unique_ptr<Timer> timer;
+};
+
+class NullCore: public Core{
+
 };

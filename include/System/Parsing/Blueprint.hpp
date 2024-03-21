@@ -1,27 +1,19 @@
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <string>
 #include <vector>
 
-#include "Skin.hpp"
+#include "Component/Movable/Types.hpp"
+#include "Component/Drawable/Types.hpp"
 #include "Math.hpp"
 
 namespace Blueprint{
-
     struct Actor{
-        Skin::Attribute_2D physicsAttribute;
+        Transform::Transform2D physicsAttribute;
         Skin::TrueColor color;
-    };
-
-    struct Setting{
-        Window window;
-        std::vector<Actor> actors;
-    };
-
-    struct LoggerInfo{
-        std::string type="", name="";
     };
 
     struct Player: public Actor{

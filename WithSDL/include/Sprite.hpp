@@ -22,7 +22,7 @@ namespace WithSDL{
         virtual void draw() noexcept override;
 
     private:
-        ::Logger::Binded logger={"Sprite", id};
+        Logging::Bind logger={"Sprite", id};
         SDL_Texture* texture;
     };
 }

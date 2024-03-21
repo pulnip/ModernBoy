@@ -7,7 +7,7 @@
 class Graphics{
   protected:
     using ColorBox = Graphic::ColorBox;
-    using BasicSprite = Graphic::Painter::BasicSprite;
+    using BasicSprite = Painter::BasicSprite;
 
   public:
     virtual ~Graphics()=default;
@@ -34,7 +34,7 @@ class Graphics{
     }
 
   public:
-    static NullGraphics null;
+    static std::shared_ptr<Graphics> null;
 
   private:
     Logging::Bind logger={"Graphics", "base"};

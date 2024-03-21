@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Input{
-    enum class Event{
+    enum class Key{
         // keyboard event
         KB_ARROW_DOWN,
         KB_ARROW_LEFT,
@@ -32,5 +32,13 @@ namespace Input{
         MOUSE_LEFT_CLICK,
         MOUSE_RIGHT_CLICK,
         MOUSE_MOVE
+    };
+
+    struct Event{
+        enum class Status{
+            PRESSED,
+            RELEASED
+        } status;
+        Key key;
     };
 }

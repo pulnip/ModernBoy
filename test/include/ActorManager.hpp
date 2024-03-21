@@ -12,6 +12,6 @@ namespace Test{
         }
         void test() noexcept;
       private:
-        ::Logger::Binded logger={"ActorManager", "Test"};
+        Logging::Bind logger={"ActorManager", "Test"};
     };
 }

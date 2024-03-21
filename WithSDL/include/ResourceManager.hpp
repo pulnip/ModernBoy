@@ -33,7 +33,7 @@ namespace WithSDL{
         SDL_Texture* hw_render(const std::string& fileName) noexcept;
 
     private:
-        ::Logger::Binded logger={"Resource", "SDL"};
+        Logging::Bind logger={"Resource", "SDL"};
         SDL_Renderer* context=nullptr;
         std::map<std::string, SDL_Texture*> textures;
     };

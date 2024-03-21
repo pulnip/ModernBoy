@@ -27,7 +27,7 @@ namespace WithSDL{
         void swapBuffer() noexcept override final;
     
       private:
-        ::Logger::Binded logger={"Graphics", "SDL"};
+        Logging::Bind logger={"Graphics", "SDL"};
         SDL_Window* windowHandle=nullptr;
         SDL_Renderer* renderer=nullptr;
     };

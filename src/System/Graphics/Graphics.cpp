@@ -2,7 +2,7 @@
 #include "System/Graphic/Graphics.hpp"
 
 struct DrawOrder{
-    using Sprite = Graphic::Painter::BasicSprite;
+    using Sprite = Painter::BasicSprite;
     bool operator()(const Sprite& lhs, const Sprite& rhs) const{
         lhs.drawOrder < rhs.drawOrder;
     }

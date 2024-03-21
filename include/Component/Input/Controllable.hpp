@@ -37,7 +37,7 @@ namespace Component{
         std::map<uint8_t, std::shared_ptr<Callable>> ifReleased;
     
       private:
-        ::Logger::Binded logger={"Controllable", id};
+        Logging::Bind logger={"Controllable", id};
     };
 
     namespace Behaviour{
