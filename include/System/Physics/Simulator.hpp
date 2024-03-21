@@ -6,14 +6,17 @@
 #include "FWD.hpp"
 
 class Simulator{
+  protected:
+    using ActorID=int;
     using Time=Game::Time;
 
   public:
     Simulator() noexcept;
     virtual ~Simulator()=default;
 
-    void update(const Time& deltaTime) noexcept;
+    virtual void update(const Time& deltaTime)=0;
 
+    virtual void request(const Actor&)=0;
 
 
 

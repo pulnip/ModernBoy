@@ -5,20 +5,48 @@
 #include "System/Physics/Types.hpp"
 
 class SimulatorA: public Simulator{
-    struct Model{
-        Model(const sp&) noexcept;
-        Game::Vector2D position, velocity, size;
-    };
+    using Object=Physics::ObjectA2D;
+
+    ~SimulatorA()=default;
+
+    void update(const Time&) override;
+
+    void request(ActorID, const Object&);
+    void remove(ActorID id) noexcept;
+
+    // helper
+
+    // first value: x-axis collision
+    // second value: y-axis collision        
+    using Collision2D=std::pair<bool, bool>;
+    // first value: estimated collision time(seconds)
+    // second value: valid if collide
+    using Result=std::pair<Game::Time, Collision2D>;
+
+    static Result collide(const Object&, const Object&);
+    static void applyResult(ActorID id, const Object& result);
+
+    // convert Movable to ObjectA2D
+    static Object convert(const Movable&) noexcept;
+
+    // collision check in one dimension
     struct AxisModel{
         enum class Axis{x, y};
-        AxisModel(const Model&, Axis) noexcept;
-        double position, velocity, size;
+        Physics::Unit position, velocity, size;
     };
-  public:
-    static void make() noexcept{
-        ::Engine::Simulator::make<Simulator>();
-    }
-    ~Simulator()=default;
+
+    static AxisModel downscale(Object&) noexcept;
+
+
+
+
+
+
+
+
+
+
+
 
   private:
     void redoUpdateIfCollide(
@@ -35,12 +63,6 @@ class SimulatorA: public Simulator{
         const CollisionTime&, const CollisionTime&
     ) noexcept;
     bool isCollidable(const CollisionTime&) noexcept;
-    // first value: x-axis collision
-    // second value: y-axis collision        
-    using Collision2D=std::pair<bool, bool>;
-    // first value: estimated collision time(seconds)
-    // second value: valid if collide
-    using Result=std::pair<Game::Time, Collision2D>;
     bool isCloseEnough(
         const Model&, const Model&, const Game::Time&
     ) noexcept;
@@ -53,6 +75,5 @@ class SimulatorA: public Simulator{
 
   private:
     Logging::Bind logger={"Physics", "Model2D"};
-    using ActorID=int;
     std::map<ActorID, Physics::ObjectA2D> objectMap;
 };
