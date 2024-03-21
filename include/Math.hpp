@@ -85,6 +85,8 @@ namespace My{
             }
         };
 
+        template<Numeric Number> using Linear = Vector2<Number>;
+
         template<Numeric Number>
         Vector2<Number> abs(const Vector2<Number>& v) noexcept{
             return Vector2<Number>{std::abs(v.x), std::abs(v.y)};

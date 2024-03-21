@@ -10,6 +10,7 @@
 
 class Movable: public Component{
     using Transform2D=Transform::Transform2D;
+
   public:
     Movable() noexcept=default;
     Movable(const Transform2D&) noexcept;

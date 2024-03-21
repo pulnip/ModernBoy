@@ -21,7 +21,7 @@ namespace Engine{
         ) noexcept=0;
 
       private:
-        Logger::Binded logger={"LevelLoader", "base"};
+        Logging::Bind logger={"LevelLoader", "base"};
     };
 }
 
@@ -47,6 +47,6 @@ namespace WithRapidjson{
         ) noexcept;
 
       private:
-        Logger::Binded logger={"LevelLoader", "Rapidjson"};
+        Logging::Bind logger={"LevelLoader", "Rapidjson"};
     };
 }

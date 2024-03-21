@@ -1,47 +1,43 @@
 #pragma once
 
-#include <list>
 #include <map>
 #include <memory>
-#include <utility>
-#include "Math.hpp"
-#include "TinyTraits.hpp"
-#include "myfwd.hpp"
-#include "Engine/Logger.hpp"
+#include "Engine/Types.hpp"
+#include "System/Logging/Bind.hpp"
+#include "System/Physics/Types.hpp"
+#include "FWD.hpp"
 
-namespace Engine{
-    class PhysicsSimulator:
-        public MakableSingleton<PhysicsSimulator, false, false>
-    {
-        friend class ::MainEngine;
-      protected:
-        using sp=std::shared_ptr<Component::Movable>;
-        using wp=std::weak_ptr<Component::Movable>;
+class Simulator{
+    using Time=Game::Time;
 
-      public:
-        PhysicsSimulator() noexcept;
-        virtual ~PhysicsSimulator()=default;
+  public:
+    Simulator() noexcept;
+    virtual ~Simulator()=default;
 
-        void update(const Game::Time& deltaTime) noexcept;
-        bool updateTarget(wp, const Actor::Role&, const Game::Time&) noexcept;
-        void updateTarget_aux(sp, const std::vector<wp>&, const Game::Time&) noexcept;
+    void update(const Time& deltaTime) noexcept;
 
-        void append(pActor) noexcept;
+    bool updateTarget(wp, const Actor::Role&, const Game::Time&) noexcept;
+    void updateTarget_aux(sp, const std::vector<wp>&, const Game::Time&) noexcept;
 
-      private:
-        virtual void redoUpdateIfCollide(
-            sp who, sp to, const Game::Time& dt
-        ) noexcept=0;
+    void append(pActor) noexcept;
 
-      private:
-        Logger::Binded logger={"Physics", "base"};
-        std::map<Actor::Role, std::vector<wp>> targets;
-    };
-}
+  private:
+    virtual void redoUpdateIfCollide(
+        sp who, sp to, const Game::Time& dt
+    ) noexcept=0;
+
+  public:
+    static std::shared_ptr<Simulator> null;
+
+  private:
+    Logging::Bind logger={"Physics", "base"};
+    using ID=int;
+    std::map<ID, >;
+};
 
 namespace WithModel2D{
-    class PhysicsSimulator final:
-        public Engine::PhysicsSimulator
+    class Simulator final:
+        public Engine::Simulator
     {
         struct Model{
             Model(const sp&) noexcept;
@@ -54,9 +50,9 @@ namespace WithModel2D{
         };
       public:
         static void make() noexcept{
-            ::Engine::PhysicsSimulator::make<PhysicsSimulator>();
+            ::Engine::Simulator::make<Simulator>();
         }
-        ~PhysicsSimulator()=default;
+        ~Simulator()=default;
 
       private:
         void redoUpdateIfCollide(

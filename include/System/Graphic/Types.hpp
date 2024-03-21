@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "Math.hpp"
 #include "Component/Movable/Types.hpp"
 #include "Component/Drawable/Types.hpp"
@@ -19,7 +20,7 @@ namespace Graphic{
 
     struct ColorBox{
         const TrueColor color;
-        const Position position;
+        const Position2D position;
     };
 }
 
@@ -40,6 +41,6 @@ namespace Painter{
     };
     struct SpriteWithSDL{
         const SDL_Texture* texture=nullptr;
-        const Position position;
+        const Position2D position;
     };
 }

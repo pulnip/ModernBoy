@@ -7,3 +7,4 @@ class Actor;
 
 class Component;
 class Movable;
+class Rigidbody;
