@@ -49,6 +49,31 @@ namespace My{
             return 2 * base - target;
         }
 
+        template <Numeric Number>
+        bool inClosedRange(const Number target,
+            const Number start, const Number end
+        ) noexcept{
+            assert(start <= end);
+            return start <= target and target <= end;
+        }
+        template <Numeric Number>
+        bool inOpenedRange(const Number target,
+            const Number start, const Number end
+        ) noexcept{
+            assert(start < end);
+            return start < target and target < end;
+        }
+        template <Numeric Number>
+        bool inCloseOpenedRange(const Number target,
+            const Number start, const Number end
+        ) noexcept{
+            assert(start < end);
+            return start <= target and target < end;
+        }
+
+        Number::Int wrapSmall(const Number::Int target,
+            const Number::Int floor, const Number::Int ceil
+        ) noexcept;
         Number::Int wrap(const Number::Int target,
             const Number::Int floor, const Number::Int ceil
         ) noexcept;
