@@ -14,9 +14,34 @@ concept Initializable = requires(T t){
 // pointer-like mechanism
 using ID_t=unsigned int;
 
+class ref;
+
 template<Initializable T, ID_t MAX>
     requires(MAX < 256*sizeof(ID_t))
 class Localized{
+    class ref{
+        friend class Localized;
+      public:
+        T& operator*(){
+            return container[id];
+        }
+        T* operator->(){
+            return &container[id];
+        }
+
+        void free(){
+            return container.free(id);
+        }
+
+      private:
+        ref(Localized& container, ID_t id) noexcept:
+            container(container), id(id){}
+
+      private:
+        Localized& container;
+        ID_t id;
+    };
+
   public:
     Localized(){
         for(ID_t i=0; i < MAX; ++i){
@@ -28,7 +53,7 @@ class Localized{
     bool isEmpty() const noexcept{ return head==0; }
     bool isFull() const noexcept{ return head==MAX; }
 
-    std::optional<ID_t> allocate(bool init=false){
+    std::optional<ref> allocate(bool init=false){
         assert(isUnique());
         // all memory is allocated.
         if(isFull()){
@@ -47,8 +72,14 @@ class Localized{
             memory[result].data.init();
         }
 
-        return result;
+        return ref(*this, result);
         // memory[poped-id] is now no longer assignable.
+    }
+
+    T& operator[](ID_t id){
+        // segmentation fault...
+        assert(memory[id].assignFlag);
+        return memory[id].data;
     }
 
     void free(ID_t id){
