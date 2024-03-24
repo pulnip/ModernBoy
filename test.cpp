@@ -5,7 +5,7 @@
 
 struct Something{
     void init(){}
-    void func(){
+    virtual void func(){
         std::cout<<id<<" Do Something...\n";
     }
 
@@ -13,18 +13,23 @@ struct Something{
     int id=seed++;
 };
 
+struct ComplexThing: public Something{
+    void func(){
+        std::cout<<id<<" Do Complex thing...\n";
+    }
+};
+
 int Something::seed=0;
 
 int main(void){
     constexpr unsigned int MAX=256;
-    Localized<Something, MAX> memory;
-    {
-        auto pSome=memory.allocate().value();
-        pSome->func();
-        (*pSome).func();
-        pSome.free();
+    Localized<ComplexThing, MAX> memory;
 
+    auto result=memory.allocate();
+    if(result.has_value()){
+        auto a=result.value();
+
+        a->func();
+        a.free();
     }
-
-    (*memory.allocate().value()).func();
 }
