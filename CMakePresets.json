@@ -1,0 +1,161 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "displayName": "Basic Config",
+            "description": "Basic build using Ninja generator",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}"
+            }
+        },
+        {
+            "name": "VCPKG",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": {
+                    "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                    "type": "FILEPATH"
+                }
+            }
+        },
+        {
+            "name": "x86",
+            "hidden": true,
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "DIRECTX_ARCH": "x86"
+            }
+        },
+        {
+            "name": "x64",
+            "hidden": true,
+            "architecture": {
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "DIRECTX_ARCH": "x64"
+            }
+        },
+        {
+            "name": "ARM64",
+            "hidden": true,
+            "architecture": {
+                "value": "arm64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "DIRECTX_ARCH": "arm64"
+            }
+        },
+        {
+            "name": "GNUC",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "g++.exe"
+            },
+            "toolset": {
+                "value": "host=x64",
+                "strategy": "external"
+            }
+        },
+        {
+            "name": "MinGW32",
+            "hidden": true,
+            "environment": {
+                "PATH": "$penv{PATH};c:/mingw32/bin"
+            },
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x86-mingw-dynamic",
+                "VCPKG_HOST_TRIPLET": "x86-mingw-dynamic"
+            }
+        },
+        {
+            "name": "MinGW64",
+            "hidden": true,
+            "environment": {
+                "PATH": "$penv{PATH};c:/mingw64/bin"
+            },
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-mingw-dynamic",
+                "VCPKG_HOST_TRIPLET": "x64-mingw-dynamic"
+            }
+        },
+        {
+            "name": "Debug",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/Debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "Release",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/Release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+            }
+        },
+        {
+            "name": "x86-Debug-MinGW",
+            "description": "MinG-W32 (Debug)",
+            "inherits": [
+                "base",
+                "x86",
+                "Debug",
+                "GNUC",
+                "VCPKG",
+                "MinGW32"
+            ]
+        },
+        {
+            "name": "x86-Release-MinGW",
+            "description": "MinG-W32 (Release)",
+            "inherits": [
+                "base",
+                "x86",
+                "Release",
+                "GNUC",
+                "VCPKG",
+                "MinGW32"
+            ]
+        },
+        {
+            "name": "x64-Debug-MinGW",
+            "description": "MinG-W64 (Debug)",
+            "inherits": [
+                "base",
+                "x64",
+                "Debug",
+                "GNUC",
+                "VCPKG",
+                "MinGW64"
+            ]
+        },
+        {
+            "name": "x64-Release-MinGW",
+            "description": "MinG-W64 (Release)",
+            "inherits": [
+                "base",
+                "x64",
+                "Release",
+                "GNUC",
+                "VCPKG",
+                "MinGW64"
+            ]
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "x64-Release-MinGW",
+            "configurePreset": "x64-Release-MinGW"
+        }
+    ]
+}
