@@ -75,6 +75,9 @@
         "coroutine": "cpp",
         "future": "cpp",
         "mutex": "cpp",
-        "*.idl": "cpp"
+        "*.idl": "cpp",
+        "bitset": "cpp",
+        "regex": "cpp",
+        "codecvt": "cpp"
     }
 }

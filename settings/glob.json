@@ -1,0 +1,14 @@
+{
+    "window": {
+        "title": "ModernBoy",
+        "position": [100.0, 100.0],
+        "size": [1280.0, 720.0]
+    },
+    "globalProperties": {
+        "ambientLight": [0.2, 0.2, 0.2],
+        "directionalLight": {
+            "direction": [0.0, -0.5, -0.5],
+            "color": [0.78, 0.88, 1.0]
+        }
+    }
+}
