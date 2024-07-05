@@ -47,6 +47,14 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 #     )
 # endif()
 
+find_package(gsl-lite CONFIG REQUIRED)
+if(gsl-lite_FOUND)
+    message(STATUS "Using gsl-lite package")
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        gsl::gsl-lite-v1
+    )
+endif()
+
 find_package(RapidJSON CONFIG REQUIRED)
 if(RapidJSON_FOUND)
     message(STATUS "Using RapidJSON package")

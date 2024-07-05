@@ -11,8 +11,8 @@ WindowInfo LevelLoader::getWindowInfo(){
     auto helper=JsonHelper(json).subset("window").value();
 
     auto title=helper.getString("title").value();
-    auto position=helper.getVector2("position").value();
-    auto size=helper.getVector2("size").value();
+    auto position=helper.getVec2i("position").value();
+    auto size=helper.getVec2i("size").value();
 
     return {
         {title.cbegin(), title.cend()},

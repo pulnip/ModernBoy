@@ -59,9 +59,9 @@ Window::Window(const WindowInfo& wi)
 }, wr{
     0L,
     0L,
-    LONG(wi.size.w),
-    LONG(wi.size.h)
-}{
+    wi.size.x,
+    wi.size.y
+}, raytracer(wi.size){ // resolution.
     RegisterClass(&wc);
 
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
@@ -71,7 +71,7 @@ Window::Window(const WindowInfo& wi)
 		wi.title.c_str(),
 		WS_OVERLAPPEDWINDOW,
         wi.position.x, wi.position.y,
-		wi.size.w, wi.size.h,
+		wi.size.x, wi.size.y,
 		nullptr,
 		nullptr,
 		wc.hInstance,
@@ -85,8 +85,8 @@ Window::Window(const WindowInfo& wi)
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc;
     ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-    swapChainDesc.BufferDesc.Width = wi.size.w;   // set the back buffer width
-    swapChainDesc.BufferDesc.Height = wi.size.h; // set the back buffer height
+    swapChainDesc.BufferDesc.Width = wi.size.x;   // set the back buffer width
+    swapChainDesc.BufferDesc.Height = wi.size.y; // set the back buffer height
     swapChainDesc.BufferDesc.Format
         = DXGI_FORMAT_R8G8B8A8_UNORM; // use 32-bit color
     swapChainDesc.BufferCount = 2;  // one back buffer
@@ -127,8 +127,8 @@ Window::Window(const WindowInfo& wi)
     ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
-    viewport.Width = wi.size.w;
-    viewport.Height = wi.size.h;
+    viewport.Width = wi.size.x;
+    viewport.Height = wi.size.y;
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f; // Note: important for depth buffering
     deviceContext->RSSetViewports(1, &viewport);
@@ -159,8 +159,8 @@ Window::Window(const WindowInfo& wi)
     textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
     textureDesc.MiscFlags = 0;
     textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    textureDesc.Width = wi.size.w;
-    textureDesc.Height = wi.size.h;
+    textureDesc.Width = raytracer.resolution.x;
+    textureDesc.Height = raytracer.resolution.y;
 
     device->CreateTexture2D(&textureDesc, nullptr, &canvasTexture);
 
@@ -258,13 +258,13 @@ Window::Window(const WindowInfo& wi)
         device->CreateBuffer(&bufferDesc, &indexBufferData, &indexBuffer);
     }
 
-    pixels.resize(wi.size.w * wi.size.h);
+    pixels.resize(wi.size.x * wi.size.y);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
-    io.DisplaySize = ImVec2(wi.size.w, wi.size.h);
+    io.DisplaySize = ImVec2(wi.size.x, wi.size.y);
     ImGui::StyleColorsLight();
 
 	// Setup Platform/Renderer backends
@@ -422,10 +422,13 @@ void Window::update(){
 			// ImGui::End();
 			// ImGui::Render();
 
+            // pixels.reserve(raytracer.resolution.x * raytracer.resolution.y);
 
             std::fill(pixels.begin(), pixels.end(),
                 glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
             );
+
+            raytracer.render(pixels);
 
             D3D11_MAPPED_SUBRESOURCE ms;
             deviceContext->Map(
@@ -439,9 +442,9 @@ void Window::update(){
             render();
 
 			// ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
+        
 			// switch the back buffer and the front buffer
-			// example->swapChain->Present(1, 0);
+			swapChain->Present(1, 0);
 		}
     }
 }

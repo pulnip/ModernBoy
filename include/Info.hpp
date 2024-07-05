@@ -1,12 +1,12 @@
 #pragma once
 
 #include <string>
-#include "Vector.hpp"
+#include <glm/glm.hpp>
 
 namespace ModernBoy{
     struct WindowInfo{
         std::wstring title;
-        Vector2 position;
-        Vector2 size;
+        glm::ivec2 position;
+        glm::ivec2 size;
     };
 }

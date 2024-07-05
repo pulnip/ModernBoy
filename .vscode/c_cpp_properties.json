@@ -5,8 +5,7 @@
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/include",
-                "${env:VCPKG_ROOT}/installed/x64-windows/include",
-                "${workspaceFolder}/practice/include"
+                "${env:VCPKG_ROOT}/installed/x64-windows/include"
             ],
             "defines": [
                 "_DEBUG",

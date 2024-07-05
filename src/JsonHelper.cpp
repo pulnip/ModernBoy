@@ -5,6 +5,7 @@
 #include <rapidjson/error/error.h>
 
 using namespace std;
+using namespace glm;
 using namespace rapidjson;
 using namespace ModernBoy;
 
@@ -105,7 +106,7 @@ optional<JsonHelper> JsonHelper::subset(const string& propertyName){
     return JsonHelper(property.GetObject());
 }
 
-optional<Vector2> JsonHelper::getVector2(const string& propertyName){
+optional<vec2> JsonHelper::getVec2(const string& propertyName){
     const auto it=object.FindMember(propertyName.c_str());
     if(it==object.MemberEnd()){
         return nullopt;
@@ -125,8 +126,34 @@ optional<Vector2> JsonHelper::getVector2(const string& propertyName){
         throw bad_cast();
     }
 
-    return Vector2{
+    return vec2{
         property[0].GetFloat(),
         property[1].GetFloat()
+    };
+}
+
+optional<ivec2> JsonHelper::getVec2i(const string& propertyName){
+    const auto it=object.FindMember(propertyName.c_str());
+    if(it==object.MemberEnd()){
+        return nullopt;
+    }
+
+    const auto& property=it->value;
+    if(property.Size()!=2){
+        throw length_error(
+            format("{} length NOT 2", propertyName)
+        );
+    }
+
+    const auto& x=property[0];
+    const auto& y=property[1];
+
+    if(!(x.IsInt() && y.IsInt())){
+        throw bad_cast();
+    }
+
+    return ivec2{
+        property[0].GetInt(),
+        property[1].GetInt()
     };
 }

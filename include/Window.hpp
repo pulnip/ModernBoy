@@ -6,6 +6,7 @@
 #include <d3dcompiler.h>
 #include <glm/glm.hpp>
 #include "Info.hpp"
+#include "Raytracer.hpp"
 
 namespace ModernBoy{
     LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -33,6 +34,7 @@ namespace ModernBoy{
         ID3D11SamplerState *colorSampler;
         UINT indexCount;
 
+        Raytracer raytracer;
         std::vector<glm::vec4> pixels;
 
       public:
