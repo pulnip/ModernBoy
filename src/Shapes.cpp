@@ -91,6 +91,6 @@ ModernBoy::Hit Square::shootRay(const Ray& ray){
         return hit2;
     }
     else{
-        return { -inf, zeroVec3, zeroVec3 };
+        return noHit;
     }
 }

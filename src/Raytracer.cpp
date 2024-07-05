@@ -22,8 +22,8 @@ Raytracer::Raytracer(const ivec2& resolution)
 	auto groundTexture = std::make_shared<Texture>("shadertoy_abstract1.jpg");
 
 	auto ground = std::make_shared<Square>(
-        vec3(-10.0f, -1.5f, 0.0f), vec3(-10.0f, -1.5f, 10.0f),
-        vec3(10.0f, -1.5f, 10.0f), vec3(10.0f, -1.5f, 0.0f),
+        vec3(-10.0f, -1.5f, 10.0f), vec3(10.0f, -1.5f, 10.0f),
+        vec3(10.0f, -1.5f, 0.0f), vec3(-10.0f, -1.5f, 0.0f),
         vec2(0.0f, 0.0f), vec2(1.0f, 0.0f),
         vec2(1.0f, 1.0f), vec2(0.0f, 1.0f)
     );
@@ -191,15 +191,18 @@ fRGB Raytracer::traceRay(const Ray& ray, const int level){
 }
 
 vec3 Raytracer::toWorld(const vec2& screenPos){
-    const vec2 worldCenter{resolution.x/2, resolution.y/2};
-    const vec2 worldCoord{resolution.y/2, -resolution.y/2};
-
-    const auto transPos = screenPos - worldCenter;
-    const vec3 worldPos{
-        transPos.x/worldCoord.x,
-        transPos.y/worldCoord.y,
-        0.0f
+    const auto aspect=static_cast<float>(resolution.x)/resolution.y;
+    const auto scale=2.0f/resolution.y;
+    
+    const vec3 afScreenPos{screenPos.x, screenPos.y, 1.0f};
+    const mat3x3 afTransfrom_T{
+        {scale,   0.0f, -aspect},
+        { 0.0f, -scale,    1.0f},
+        { 0.0f,   0.0f,    1.0f}
     };
+    const auto afTransform=transpose(afTransfrom_T);
+    const auto afWorldPos=afTransform*afScreenPos;
+    const vec3 v3ext{afWorldPos.x, afWorldPos.y, 0.0f};
 
-    return worldPos;
+    return v3ext;
 }

@@ -13,7 +13,7 @@ using namespace ModernBoy;
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT WINAPI ModernBoy::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+    if(ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 		return true;
 
     switch (msg){
@@ -21,7 +21,7 @@ LRESULT WINAPI ModernBoy::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 		// Reset and resize swapchain
 		return 0;
 	case WM_SYSCOMMAND:
-		if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+		if((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
 			return 0;
 		break;
 	case WM_MOUSEMOVE:
@@ -61,7 +61,10 @@ Window::Window(const WindowInfo& wi)
     0L,
     wi.size.x,
     wi.size.y
-}, raytracer(wi.size){ // resolution.
+}, raytracer(
+    // resolution.
+    wi.size
+){
     RegisterClass(&wc);
 
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
@@ -85,27 +88,31 @@ Window::Window(const WindowInfo& wi)
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc;
     ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-    swapChainDesc.BufferDesc.Width = wi.size.x;   // set the back buffer width
-    swapChainDesc.BufferDesc.Height = wi.size.y; // set the back buffer height
-    swapChainDesc.BufferDesc.Format
-        = DXGI_FORMAT_R8G8B8A8_UNORM; // use 32-bit color
-    swapChainDesc.BufferCount = 2;  // one back buffer
+    // set the back buffer width
+    swapChainDesc.BufferDesc.Width = wi.size.x;
+    // set the back buffer height
+    swapChainDesc.BufferDesc.Height = wi.size.y;
+    // use 32-bit color
+    swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; 
+    // one back buffer
+    swapChainDesc.BufferCount = 2;
     swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
     swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-    swapChainDesc.BufferUsage =
-        DXGI_USAGE_RENDER_TARGET_OUTPUT; // how swap chain
-    // is to be used
-    swapChainDesc.OutputWindow = hwnd; // the window to be used
-    swapChainDesc.SampleDesc.Count = 1;  // how many multisamples
-    swapChainDesc.Windowed = TRUE;       // windowed/full-screen mode
-    swapChainDesc.Flags =
-        DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // allow full-screen
-    // switching
+    // how swap chain is to be used
+    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; 
+    // the window to be used
+    swapChainDesc.OutputWindow = hwnd; 
+    // how many multisamples
+    swapChainDesc.SampleDesc.Count = 1;
+    // windowed/full-screen mode
+    swapChainDesc.Windowed = TRUE;
+    // allow full-screen switching
+    swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; 
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
     UINT createDeviceFlags = 0;
     const D3D_FEATURE_LEVEL featureLevelArray[1] = {D3D_FEATURE_LEVEL_11_0};
-    if (FAILED(D3D11CreateDeviceAndSwapChain(
+    if(FAILED(D3D11CreateDeviceAndSwapChain(
             NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags,
             featureLevelArray, 1, D3D11_SDK_VERSION, &swapChainDesc, &swapChain,
             &device, NULL, &deviceContext))) {
@@ -115,10 +122,11 @@ Window::Window(const WindowInfo& wi)
     // CreateRenderTarget
     ID3D11Texture2D *pBackBuffer;
     swapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-    if (pBackBuffer) {
+    if(pBackBuffer){
         device->CreateRenderTargetView(pBackBuffer, NULL, &renderTargetView);
         pBackBuffer->Release();
-    } else {
+    }
+    else{
         std::cout << "CreateRenderTargetView() error" << std::endl;
         exit(-1);
     }
@@ -130,7 +138,8 @@ Window::Window(const WindowInfo& wi)
     viewport.Width = wi.size.x;
     viewport.Height = wi.size.y;
     viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f; // Note: important for depth buffering
+    // Note: important for depth buffering
+    viewport.MaxDepth = 1.0f;
     deviceContext->RSSetViewports(1, &viewport);
 
     initShader();
@@ -138,8 +147,8 @@ Window::Window(const WindowInfo& wi)
     // Create texture and rendertarget
     D3D11_SAMPLER_DESC sampDesc;
     ZeroMemory(&sampDesc, sizeof(sampDesc));
-    sampDesc.Filter =
-        D3D11_FILTER_MIN_MAG_MIP_POINT; // D3D11_FILTER_MIN_MAG_MIP_LINEAR
+    // D3D11_FILTER_MIN_MAG_MIP_LINEAR
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
     sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
     sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
     sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -164,7 +173,7 @@ Window::Window(const WindowInfo& wi)
 
     device->CreateTexture2D(&textureDesc, nullptr, &canvasTexture);
 
-    if (canvasTexture) {
+    if(canvasTexture){
         device->CreateShaderResourceView(
             canvasTexture, nullptr, &canvasTextureView
         );
@@ -178,7 +187,8 @@ Window::Window(const WindowInfo& wi)
             canvasTexture, &renderTargetViewDesc,
             &canvasRenderTargetView
         );
-    } else {
+    }
+    else{
         std::cout << "CreateRenderTargetView() error" << std::endl;
     }
 
@@ -205,27 +215,24 @@ Window::Window(const WindowInfo& wi)
 
         D3D11_BUFFER_DESC bufferDesc;
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-        bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // write access access by
-        // CPU and GPU
-        bufferDesc.ByteWidth = UINT(
-            sizeof(Vertex) * vertices.size()); // size is the VERTEX struct * 3
-        bufferDesc.BindFlags =
-            D3D11_BIND_VERTEX_BUFFER; // use as a vertex buffer
-        bufferDesc.CPUAccessFlags =
-            D3D11_CPU_ACCESS_WRITE; // allow CPU to write
-        // in buffer
+        // write access access by CPU and GPU
+        bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+        // size is the VERTEX struct * 3
+        bufferDesc.ByteWidth = UINT(sizeof(Vertex) * vertices.size());
+        // use as a vertex buffer
+        bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        // allow CPU to write in buffer
+        bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
         bufferDesc.StructureByteStride = sizeof(Vertex);
 
-        D3D11_SUBRESOURCE_DATA vertexBufferData = {
-            0,
-        };
+        D3D11_SUBRESOURCE_DATA vertexBufferData = {0, };
         vertexBufferData.pSysMem = vertices.data();
         vertexBufferData.SysMemPitch = 0;
         vertexBufferData.SysMemSlicePitch = 0;
 
         const HRESULT hr =
             device->CreateBuffer(&bufferDesc, &vertexBufferData, &vertexBuffer);
-        if (FAILED(hr)) {
+        if(FAILED(hr)) {
             std::cout << "CreateBuffer() failed. " << std::hex << hr
                       << std::endl;
         };
@@ -240,14 +247,13 @@ Window::Window(const WindowInfo& wi)
         indexCount = UINT(indices.size());
 
         D3D11_BUFFER_DESC bufferDesc = {};
-        bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // write access access by
-        // CPU and GPU
+        // write access access by CPU and GPU
+        bufferDesc.Usage = D3D11_USAGE_DYNAMIC; 
         bufferDesc.ByteWidth = UINT(sizeof(uint16_t) * indices.size());
-        bufferDesc.BindFlags =
-            D3D11_BIND_INDEX_BUFFER; // use as a vertex buffer
-        bufferDesc.CPUAccessFlags =
-            D3D11_CPU_ACCESS_WRITE; // allow CPU to write
-        // in buffer
+        // use as a vertex buffer
+        bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER; 
+        // allow CPU to write in buffer
+        bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE; 
         bufferDesc.StructureByteStride = sizeof(uint16_t);
 
         D3D11_SUBRESOURCE_DATA indexBufferData = {0};
@@ -284,12 +290,12 @@ void Window::initShader(){
         L"VS.hlsl", nullptr, nullptr, "main", "vs_5_0", 0, 0,
         &vertexBlob, &errorBlob
     );
-    if (FAILED(hr)) {
-        if ((hr & D3D11_ERROR_FILE_NOT_FOUND) != 0) {
+    if(FAILED(hr)) {
+        if((hr & D3D11_ERROR_FILE_NOT_FOUND) != 0) {
             std::cout << "File not found." << std::endl;
         }
 
-        if (errorBlob) {
+        if(errorBlob) {
             std::cout << "Vertex shader compile error\n"
                 << (char*)errorBlob->GetBufferPointer() << std::endl;
         }
@@ -301,12 +307,12 @@ void Window::initShader(){
         L"PS.hlsl", 0, 0, "main", "ps_5_0", 0, 0,
         &pixelBlob, &errorBlob
     );
-    if (FAILED(hr)) {
-        if ((hr & D3D11_ERROR_FILE_NOT_FOUND) != 0) {
+    if(FAILED(hr)) {
+        if((hr & D3D11_ERROR_FILE_NOT_FOUND) != 0) {
             std::cout << "File not found." << std::endl;
         }
 
-        if (errorBlob) {
+        if(errorBlob) {
             std::cout << "Pixel shader compile error\n"
                 << (char *)errorBlob->GetBufferPointer() << std::endl;
         }
@@ -349,55 +355,55 @@ Window::~Window(){
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
-    if (layout) {
+    if(layout) {
         layout->Release();
         layout = NULL;
     }
-    if (vertexShader) {
+    if(vertexShader) {
         vertexShader->Release();
         vertexShader = NULL;
     }
-    if (pixelShader) {
+    if(pixelShader) {
         pixelShader->Release();
         pixelShader = NULL;
     }
-    if (vertexBuffer) {
+    if(vertexBuffer) {
         vertexBuffer->Release();
         vertexBuffer = NULL;
     }
-    if (indexBuffer) {
+    if(indexBuffer) {
         indexBuffer->Release();
         indexBuffer = NULL;
     }
-    if (canvasTexture) {
+    if(canvasTexture) {
         canvasTexture->Release();
         canvasTexture = NULL;
     }
-    if (canvasTextureView) {
+    if(canvasTextureView) {
         canvasTextureView->Release();
         canvasTextureView = NULL;
     }
-    if (canvasRenderTargetView) {
+    if(canvasRenderTargetView) {
         canvasRenderTargetView->Release();
         canvasRenderTargetView = NULL;
     }
-    if (colorSampler) {
+    if(colorSampler) {
         colorSampler->Release();
         colorSampler = NULL;
     }
-    if (renderTargetView) {
+    if(renderTargetView) {
         renderTargetView->Release();
         renderTargetView = NULL;
     }
-    if (swapChain) {
+    if(swapChain) {
         swapChain->Release();
         swapChain = NULL;
     }
-    if (deviceContext) {
+    if(deviceContext) {
         deviceContext->Release();
         deviceContext = NULL;
     }
-    if (device) {
+    if(device) {
         device->Release();
         device = NULL;
     }
@@ -409,7 +415,7 @@ Window::~Window(){
 void Window::update(){
     MSG msg;
     while(WM_QUIT!=msg.message){
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
+        if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}

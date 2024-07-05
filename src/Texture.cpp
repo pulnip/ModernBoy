@@ -80,7 +80,7 @@ Texture::PixelPos Texture::toPixelPos(const UVPos& uv) noexcept{
 }
 
 index Texture::getIndex(const PixelPos& pixelPos) noexcept{
-    return channels * (size.x*pixelPos.x + pixelPos.y);
+    return channels * (size.x*pixelPos.y + pixelPos.x);
 }
 
 fRGB Texture::getRGBf(const index chIndex) noexcept{
