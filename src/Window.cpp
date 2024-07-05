@@ -287,7 +287,7 @@ void Window::initShader(){
     ID3DBlob *errorBlob = nullptr;
 
     HRESULT hr=D3DCompileFromFile(
-        L"VS.hlsl", nullptr, nullptr, "main", "vs_5_0", 0, 0,
+        L"src/VS.hlsl", nullptr, nullptr, "main", "vs_5_0", 0, 0,
         &vertexBlob, &errorBlob
     );
     if(FAILED(hr)) {
@@ -304,7 +304,7 @@ void Window::initShader(){
     }
 
     hr=D3DCompileFromFile(
-        L"PS.hlsl", 0, 0, "main", "ps_5_0", 0, 0,
+        L"src/PS.hlsl", 0, 0, "main", "ps_5_0", 0, 0,
         &pixelBlob, &errorBlob
     );
     if(FAILED(hr)) {

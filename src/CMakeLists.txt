@@ -1,15 +1,7 @@
 file(GLOB MAIN_SRC "*.cpp")
-file(GLOB HLSL_SRC "*.hlsl")
 
 add_executable(${PROJECT_NAME}
     ${MAIN_SRC}
-)
-
-add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${HLSL_SRC}
-        ${CMAKE_BINARY_DIR}/bin
 )
 
 add_subdirectory(

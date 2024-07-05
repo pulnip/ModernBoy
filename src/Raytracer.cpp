@@ -19,7 +19,7 @@ Raytracer::Raytracer(const ivec2& resolution)
 
 	objects.push_back(sphere1);
 
-	auto groundTexture = std::make_shared<Texture>("shadertoy_abstract1.jpg");
+	auto groundTexture = std::make_shared<Texture>("resource/shadertoy_abstract1.jpg");
 
 	auto ground = std::make_shared<Square>(
         vec3(-10.0f, -1.5f, 10.0f), vec3(10.0f, -1.5f, 10.0f),
@@ -38,7 +38,7 @@ Raytracer::Raytracer(const ivec2& resolution)
 
     objects.push_back(ground);
 
-	auto squareTexture = std::make_shared<Texture>("back.jpg");
+	auto squareTexture = std::make_shared<Texture>("resource/back.jpg");
 	auto square = std::make_shared<Square>(
         vec3(-10.0f, 10.0f, 10.0f), vec3(10.0f, 10.0f, 10.0f),
         vec3(10.0f, -10.0f, 10.0f), vec3(-10.0f, -10.0f, 10.0f),

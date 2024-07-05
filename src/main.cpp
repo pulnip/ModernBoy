@@ -11,7 +11,7 @@ using namespace ModernBoy;
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int main(void){
-    LevelLoader levelLoader("glob.json");
+    LevelLoader levelLoader("settings/glob.json");
     auto wi=levelLoader.getWindowInfo();
 
     Window window(wi);

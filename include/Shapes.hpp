@@ -46,12 +46,7 @@ namespace ModernBoy{
             const glm::vec2& uv2=glm::vec2(0.0f),
             const glm::vec2& uv3=glm::vec2(0.0f))
         :t1(v0, v1, v2, uv0, uv1, uv2)
-        ,t2(v0, v2, v3, uv0, uv2, uv3){
-            std::cout<<glm::distance(v0, v1)<<std::endl;
-            std::cout<<glm::distance(v1, v2)<<std::endl;
-            std::cout<<glm::distance(v2, v3)<<std::endl;
-            std::cout<<glm::distance(v3, v0)<<std::endl;
-        }
+        ,t2(v0, v2, v3, uv0, uv2, uv3){}
 
         Hit shootRay(const Ray &ray) override;
     };

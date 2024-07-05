@@ -1,3 +1,4 @@
+#include <utility>
 #include "Shapes.hpp"
 
 using namespace std;
@@ -80,17 +81,17 @@ ModernBoy::Hit Square::shootRay(const Ray& ray){
 
     const auto hit1Valid = hit1.distance >= 0;
     const auto hit2Valid = hit2.distance >= 0;
-
-    if(hit1Valid && hit2Valid){
+    const auto hitValid = (static_cast<int>(hit2Valid)<<1) + static_cast<int>(hit1Valid);
+    switch(hitValid){
+    case 0b11:
         return (hit1.distance < hit2.distance) ? hit1 : hit2;
-    }
-    else if(hit1Valid){
-        return hit1;
-    }
-    else if(hit2Valid){
+    case 0b10:
         return hit2;
-    }
-    else{
+    case 0b01:
+        return hit1;
+    case 0b00:
         return noHit;
+    default:
+        unreachable();
     }
 }
