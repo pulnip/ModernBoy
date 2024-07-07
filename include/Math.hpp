@@ -48,7 +48,7 @@ namespace ModernBoy{
 
     iRGB rgbcvt(const fRGB& color) noexcept;
     fRGB rgbcvt(const iRGB& color) noexcept;
-    fRGBA toRGBA(const fRGB& color) noexcept;
+    fRGBA toRGBA(const fRGB& color, float alpha=1.0f) noexcept;
 
     using UVPos = glm::vec2;
     using PixelPos = glm::ivec2;

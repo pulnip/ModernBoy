@@ -3,7 +3,7 @@
         "title": "ModernBoy",
         "position": [100, 100],
         "size": [1280, 720],
-        "resolution": [320, 180]
+        "resolution": [1280, 720]
     },
     "globalProperties": {
         "ambientLight": [0.2, 0.2, 0.2],
