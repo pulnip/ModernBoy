@@ -8,19 +8,23 @@
 namespace ModernBoy{
     class Object{
       public:
-        fRGB ambient = fRGB(0.0f);
-        fRGB diffuse = fRGB(0.0f);
-        fRGB specular = fRGB(0.0f);
+        fRGB ambient;
+        fRGB diffuse;
+        fRGB specular;
+
         float alpha = 10.0f;
-        float reflection = 0.0;
-        float transparency = 0.0;
+        float reflection = 0.0f;
+        float transparency = 0.0f;
 
         std::shared_ptr<Texture> ambTexture;
         std::shared_ptr<Texture> difTexture;
 
-        Object(const fRGB& color = fRGB(1.0f))
-        :ambient(color), diffuse(color), specular(color){}
+        Object(
+            const fRGB& ambient = fDUNE,
+            const fRGB& diffuse = fBLUE,
+            const fRGB& specular = fWHITE)
+        :ambient(ambient), diffuse(diffuse), specular(specular){}
 
-        virtual Hit shootRay(const Ray &ray)=0;
+        virtual Hit shootRay(const Ray& ray) const=0;
     };
 }

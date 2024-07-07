@@ -102,3 +102,7 @@ iRGB ModernBoy::rgbcvt(const fRGB& color) noexcept{
 fRGB ModernBoy::rgbcvt(const iRGB& color) noexcept{
     return static_cast<fRGB>(color) / 256.0f;
 }
+
+fRGBA ModernBoy::toRGBA(const fRGB& color) noexcept{
+    return {color, 1.0f};
+}

@@ -15,7 +15,7 @@ namespace ModernBoy{
       public:
         Raytracer(const glm::ivec2& resulution);
 
-        void render(std::vector<glm::vec4>& pixels);
+        void render(std::vector<fRGBA>& pixels);
         Hit closest(const Ray& ray);
         fRGB traceRay(const Ray& ray, const int level);
         glm::vec3 toWorld(const glm::vec2& screenPos);

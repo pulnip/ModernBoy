@@ -430,9 +430,7 @@ void Window::update(){
 
             // pixels.reserve(raytracer.resolution.x * raytracer.resolution.y);
 
-            std::fill(pixels.begin(), pixels.end(),
-                glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
-            );
+            std::fill(pixels.begin(), pixels.end(), toRGBA(fBLACK));
 
             raytracer.render(pixels);
 
@@ -441,7 +439,7 @@ void Window::update(){
                 canvasTexture, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms
             );
             memcpy(ms.pData, pixels.data(),
-                pixels.size() * sizeof(glm::vec4)
+                pixels.size() * sizeof(fRGBA)
             );
             deviceContext->Unmap(canvasTexture, 0);
 

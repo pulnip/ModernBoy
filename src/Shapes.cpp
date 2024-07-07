@@ -11,7 +11,7 @@ constexpr auto zeroVec3 = vec3{0.0f, 0.0f, 0.0f};
 const Hit noHit{-inf, zeroVec3, zeroVec3, zeroVec2};
 constexpr auto epsilon = 1e-2f;
 
-ModernBoy::Hit Sphere::shootRay(const Ray& ray){
+ModernBoy::Hit Sphere::shootRay(const Ray& ray) const{
     const auto diff = ray.p0 - center;
 
     //const auto a = dot(ray.dir, ray.dir);
@@ -30,7 +30,7 @@ ModernBoy::Hit Sphere::shootRay(const Ray& ray){
     return { distance, point, normal };
 }
 
-ModernBoy::Hit Triangle::shootRay(const Ray& ray){
+ModernBoy::Hit Triangle::shootRay(const Ray& ray) const{
     const auto normal = normalize(cross(v1 - v0, v2 - v0));
     const auto cosToFace = dot(-ray.dir, normal);
 
@@ -75,7 +75,10 @@ ModernBoy::Hit Triangle::shootRay(const Ray& ray){
     };
 }
 
-ModernBoy::Hit Square::shootRay(const Ray& ray){
+ModernBoy::Hit Square::shootRay(const Ray& ray) const{
+    const auto t1 = getTopRight();
+    const auto t2 = getBottomLeft();
+
     const auto hit1 = t1.shootRay(ray);
     const auto hit2 = t2.shootRay(ray);
 
@@ -94,4 +97,38 @@ ModernBoy::Hit Square::shootRay(const Ray& ray){
     default:
         unreachable();
     }
+}
+
+Triangle Square::getTopRight() const{
+    Triangle t(v0, v1, v2, uv0, uv1, uv2);
+
+    t.ambient = ambient;
+    t.diffuse = diffuse;
+    t.specular = specular;
+
+    t.alpha = alpha;
+    t.reflection = reflection;
+    t.transparency = transparency;
+
+    t.ambTexture = ambTexture;
+    t.difTexture = difTexture;
+
+    return t;
+}
+
+Triangle Square::getBottomLeft() const{
+    Triangle t(v0, v2, v3, uv0, uv2, uv3);
+
+    t.ambient = ambient;
+    t.diffuse = diffuse;
+    t.specular = specular;
+
+    t.alpha = alpha;
+    t.reflection = reflection;
+    t.transparency = transparency;
+
+    t.ambTexture = ambTexture;
+    t.difTexture = difTexture;
+
+    return t;
 }

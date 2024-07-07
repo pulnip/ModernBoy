@@ -72,7 +72,7 @@ vec2 Texture::scaleUV(const UVPos& uv) noexcept{
     return uv*static_cast<vec2>(size);
 }
 
-Texture::PixelPos Texture::toPixelPos(const UVPos& uv) noexcept{
+PixelPos Texture::toPixelPos(const UVPos& uv) noexcept{
     return wrap(
         narrow_cast<ivec2>(scaleUV(uv)),
         {{0, 0}, size}

@@ -35,7 +35,7 @@ namespace ModernBoy{
         UINT indexCount;
 
         Raytracer raytracer;
-        std::vector<glm::vec4> pixels;
+        std::vector<fRGBA> pixels;
 
       public:
         Window(const WindowInfo& wi);

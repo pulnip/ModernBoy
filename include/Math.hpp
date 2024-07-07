@@ -34,11 +34,28 @@ namespace ModernBoy{
 
     glm::vec2 floor(const glm::vec2& vec) noexcept;
 
+    using Channel = uint8_t;
     // rgb in range [0, 256)
     using iRGB = glm::ivec3;
     // rgb in range [0, 1)
     using fRGB = glm::vec3;
+    using fRGBA = glm::vec4;
+
+    constexpr fRGB fBLACK(0.0f);
+    constexpr fRGB fBLUE(0.0f, 0.0f, 1.0f);
+    constexpr fRGB fWHITE(1.0f);
+    constexpr fRGB fDUNE(0.2f);
 
     iRGB rgbcvt(const fRGB& color) noexcept;
     fRGB rgbcvt(const iRGB& color) noexcept;
+    fRGBA toRGBA(const fRGB& color) noexcept;
+
+    using UVPos = glm::vec2;
+    using PixelPos = glm::ivec2;
+    using WorldPos = glm::vec3;
+
+    constexpr UVPos uvTopLeft{0.0f, 0.0f};
+    constexpr UVPos uvTopRight{1.0f, 0.0f};
+    constexpr UVPos uvBottomLeft{0.0f, 1.0f};
+    constexpr UVPos uvBottomRight{1.0f, 1.0f};
 }

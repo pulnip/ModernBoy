@@ -1,53 +1,64 @@
 #pragma once
 
+#include "Math.hpp"
 #include "Object.hpp"
 
 namespace ModernBoy{
     class Sphere: public Object{
       public:
-        glm::vec3 center;
+        WorldPos center;
         float radius;
 
-        Sphere(const glm::vec3 &center, const float radius,
-        const fRGB &color = fRGB(1.0f))
-        :center(center), radius(radius), Object(color){}
+        Sphere(
+            const WorldPos& center,
+            const float radius,
+            const fRGB& color = fBLUE)
+        : center(center), radius(radius)
+        , Object(fDUNE, color, fWHITE){}
 
-        Hit shootRay(const Ray &ray) override;
+        Hit shootRay(const Ray& ray) const override;
     };
 
     class Triangle: public Object{
       public:
-        glm::vec3 v0, v1, v2;
-        glm::vec2 uv0, uv1, uv2;
+        WorldPos v0, v1, v2;
+        UVPos uv0, uv1, uv2;
 
         Triangle(
-            const glm::vec3& v0=glm::vec3(0.0f),
-            const glm::vec3& v1=glm::vec3(0.0f),
-            const glm::vec3& v2=glm::vec3(0.0f),
-            const glm::vec2& uv0=glm::vec2(0.0f),
-            const glm::vec2& uv1=glm::vec2(0.0f),
-            const glm::vec2& uv2=glm::vec2(0.0f))
-        :v0(v0), v1(v1), v2(v2), uv0(uv0), uv1(uv1), uv2(uv2){}
+            const WorldPos& v0,
+            const WorldPos& v1,
+            const WorldPos& v2,
+            const UVPos& uv0 = uvTopLeft,
+            const UVPos& uv1 = uvTopRight,
+            const UVPos& uv2 = uvBottomLeft)
+        : v0(v0), v1(v1), v2(v2)
+        , uv0(uv0), uv1(uv1), uv2(uv2)
+        , Object(fWHITE, fBLACK, fBLACK){}
 
-        Hit shootRay(const Ray &ray) override;
+        Hit shootRay(const Ray& ray) const override;
     };
 
     class Square: public Object{
       public:
-        Triangle t1, t2;
+        WorldPos v0, v1, v2, v3;
+        UVPos uv0, uv1, uv2, uv3;
 
         Square(
-            const glm::vec3& v0=glm::vec3(0.0f),
-            const glm::vec3& v1=glm::vec3(0.0f),
-            const glm::vec3& v2=glm::vec3(0.0f),
-            const glm::vec3& v3=glm::vec3(0.0f),
-            const glm::vec2& uv0=glm::vec2(0.0f),
-            const glm::vec2& uv1=glm::vec2(0.0f),
-            const glm::vec2& uv2=glm::vec2(0.0f),
-            const glm::vec2& uv3=glm::vec2(0.0f))
-        :t1(v0, v1, v2, uv0, uv1, uv2)
-        ,t2(v0, v2, v3, uv0, uv2, uv3){}
+            const WorldPos& v0,
+            const WorldPos& v1,
+            const WorldPos& v2,
+            const WorldPos& v3,
+            const UVPos& uv0 = uvTopLeft,
+            const UVPos& uv1 = uvTopRight,
+            const UVPos& uv2 = uvBottomRight,
+            const UVPos& uv3 = uvBottomLeft)
+        : v0(v0), v1(v1), v2(v2), v3(v3)
+        , uv0(uv0), uv1(uv1), uv2(uv2), uv3(uv3)
+        , Object(fWHITE, fBLACK, fBLACK){}
 
-        Hit shootRay(const Ray &ray) override;
+        Hit shootRay(const Ray& ray) const override;
+
+        Triangle getTopRight() const;
+        Triangle getBottomLeft() const;
     };
 }
