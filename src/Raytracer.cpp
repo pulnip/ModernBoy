@@ -49,8 +49,6 @@ Raytracer::Raytracer(const ivec2& resolution)
 }
 
 void Raytracer::render(vector<fRGBA>& pixels){
-    std::fill(pixels.begin(), pixels.end(), toRGBA(fBLACK));
-
 	const vec3 eyePos(0.0f, 0.0f, -1.5f);
 
     const auto width=resolution.x;

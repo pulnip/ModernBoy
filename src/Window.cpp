@@ -62,8 +62,7 @@ Window::Window(const WindowInfo& wi)
     wi.size.x,
     wi.size.y
 }, raytracer(
-    // resolution.
-    wi.size
+    wi.resolution
 ){
     RegisterClass(&wc);
 
@@ -264,7 +263,7 @@ Window::Window(const WindowInfo& wi)
         device->CreateBuffer(&bufferDesc, &indexBufferData, &indexBuffer);
     }
 
-    pixels.resize(wi.size.x * wi.size.y);
+    pixels.reserve(raytracer.resolution.x * raytracer.resolution.y);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -428,9 +427,8 @@ void Window::update(){
 			// ImGui::End();
 			// ImGui::Render();
 
-            // pixels.reserve(raytracer.resolution.x * raytracer.resolution.y);
-
-            std::fill(pixels.begin(), pixels.end(), toRGBA(fBLACK));
+            const auto size = raytracer.resolution.x * raytracer.resolution.y;
+            pixels.resize(size, toRGBA(fBLACK));
 
             raytracer.render(pixels);
 

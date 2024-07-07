@@ -8,5 +8,6 @@ namespace ModernBoy{
         std::wstring title;
         glm::ivec2 position;
         glm::ivec2 size;
+        glm::ivec2 resolution;
     };
 }

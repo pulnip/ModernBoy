@@ -13,10 +13,12 @@ WindowInfo LevelLoader::getWindowInfo(){
     auto title=helper.getString("title").value();
     auto position=helper.getVec2i("position").value();
     auto size=helper.getVec2i("size").value();
+    auto resolution=helper.getVec2i("resolution").value();
 
     return {
         {title.cbegin(), title.cend()},
         position,
-        size
+        size,
+        resolution
     };
 }
