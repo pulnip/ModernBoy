@@ -15,21 +15,8 @@
             "name": "VCPKG",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": {
-                    "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-                    "type": "FILEPATH"
-                }
-            }
-        },
-        {
-            "name": "x86",
-            "hidden": true,
-            "architecture": {
-                "value": "x86",
-                "strategy": "external"
-            },
-            "cacheVariables": {
-                "DIRECTX_ARCH": "x86"
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_INSTALLED_DIR": "${sourceDir}/build/vcpkg_installed"
             }
         },
         {
@@ -40,17 +27,6 @@
             },
             "cacheVariables": {
                 "DIRECTX_ARCH": "x64"
-            }
-        },
-        {
-            "name": "ARM64",
-            "hidden": true,
-            "architecture": {
-                "value": "arm64",
-                "strategy": "external"
-            },
-            "cacheVariables": {
-                "DIRECTX_ARCH": "arm64"
             }
         },
         {
@@ -65,18 +41,7 @@
             }
         },
         {
-            "name": "MinGW32",
-            "hidden": true,
-            "environment": {
-                "PATH": "$penv{PATH};c:/mingw32/bin"
-            },
-            "cacheVariables": {
-                "VCPKG_TARGET_TRIPLET": "x86-mingw-dynamic",
-                "VCPKG_HOST_TRIPLET": "x86-mingw-dynamic"
-            }
-        },
-        {
-            "name": "MinGW64",
+            "name": "MinGW-w64",
             "hidden": true,
             "environment": {
                 "PATH": "$penv{PATH};c:/mingw64/bin"
@@ -104,51 +69,27 @@
             }
         },
         {
-            "name": "x86-Debug-MinGW",
-            "description": "MinG-W32 (Debug)",
-            "inherits": [
-                "base",
-                "x86",
-                "Debug",
-                "GNUC",
-                "VCPKG",
-                "MinGW32"
-            ]
-        },
-        {
-            "name": "x86-Release-MinGW",
-            "description": "MinG-W32 (Release)",
-            "inherits": [
-                "base",
-                "x86",
-                "Release",
-                "GNUC",
-                "VCPKG",
-                "MinGW32"
-            ]
-        },
-        {
             "name": "x64-Debug-MinGW",
-            "description": "MinG-W64 (Debug)",
+            "description": "MinGW-w64 (Debug)",
             "inherits": [
                 "base",
                 "x64",
                 "Debug",
                 "GNUC",
                 "VCPKG",
-                "MinGW64"
+                "MinGW-w64"
             ]
         },
         {
             "name": "x64-Release-MinGW",
-            "description": "MinG-W64 (Release)",
+            "description": "MinGW-w64 (Release)",
             "inherits": [
                 "base",
                 "x64",
                 "Release",
                 "GNUC",
                 "VCPKG",
-                "MinGW64"
+                "MinGW-w64"
             ]
         }
     ]
