@@ -179,15 +179,15 @@ vec3 Raytracer::toWorld(const vec2& screenPos){
     const auto scale=2.0f/resolution.y;
     const auto aspect=static_cast<float>(resolution.x)/resolution.y;
     
-    const vec2 xAxis{  scale,   0.0f};
-    const vec2 yAxis{   0.0f, -scale};
-    const vec2  move{-aspect,   1.0f};
+    const vec2  newAxisX{  scale,   0.0f};
+    const vec2  newAxisY{   0.0f, -scale};
+    const vec2 translate{-aspect,   1.0f};
     
-    const vec3 afScreenPos{screenPos, 1.0f};
-    const mat3x2 afTransform{
-        xAxis, yAxis, move
+    const vec3 extended{screenPos, 1.0f};
+    const mat3x2 transform{
+        newAxisX, newAxisY, translate
     };
     
-    auto afWorldPos=afTransform*afScreenPos;
-    return {afWorldPos, 0.0f};
+    auto worldPos=transform*extended;
+    return {worldPos, 0.0f};
 }
