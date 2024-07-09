@@ -13,7 +13,7 @@ namespace ModernBoy{
 
     class Window{
       private:
-        WNDCLASS wc;
+        WNDCLASSEX wc;
         RECT wr;
         HWND hwnd;
 

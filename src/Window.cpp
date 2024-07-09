@@ -47,6 +47,7 @@ LRESULT WINAPI ModernBoy::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 Window::Window(const WindowInfo& wi)
 :wc{
+    sizeof(WNDCLASSEX),
     CS_CLASSDC,
     WndProc,
     0,
@@ -56,7 +57,8 @@ Window::Window(const WindowInfo& wi)
     nullptr,
     nullptr,
     nullptr,
-    wi.title.c_str()
+    wi.title.c_str(),
+    nullptr
 }, wr{
     0L,
     0L,
@@ -65,7 +67,7 @@ Window::Window(const WindowInfo& wi)
 }, raytracer(
     wi.resolution
 ){
-    RegisterClass(&wc);
+    RegisterClassEx(&wc);
 
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
 
