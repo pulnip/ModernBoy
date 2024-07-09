@@ -1,4 +1,5 @@
 #pragma once
+#define USE_RAYTRACER
 
 #include <vector>
 #include <windows.h>
@@ -6,7 +7,12 @@
 #include <d3dcompiler.h>
 #include <glm/glm.hpp>
 #include "Info.hpp"
+
+#ifndef USE_RAYTRACER
+#include "Rasterizer.hpp"
+#else
 #include "Raytracer.hpp"
+#endif
 
 namespace ModernBoy{
     LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -33,7 +39,11 @@ namespace ModernBoy{
         ID3D11SamplerState *colorSampler;
         UINT indexCount;
 
+#ifndef USE_RAYTRACER
+        Rasterizer rasterizer;
+#else
         Raytracer raytracer;
+#endif
         std::vector<fRGBA> pixels;
 
       public:

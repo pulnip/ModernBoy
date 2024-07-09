@@ -59,7 +59,11 @@ Window::Window(const WindowInfo& wi)
     nullptr,
     wi.title.c_str(),
     nullptr
+#ifndef USE_RAYTRACER
+}, rasterizer(
+#else
 }, raytracer(
+#endif
     wi.resolution
 ){
     RegisterClassEx(&wc);
@@ -166,8 +170,13 @@ Window::Window(const WindowInfo& wi)
     textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
     textureDesc.MiscFlags = 0;
     textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+#ifndef USE_RAYTRACER
+    textureDesc.Width = rasterizer.resolution.x;
+    textureDesc.Height = rasterizer.resolution.y;
+#else
     textureDesc.Width = raytracer.resolution.x;
     textureDesc.Height = raytracer.resolution.y;
+#endif
 
     device->CreateTexture2D(&textureDesc, nullptr, &canvasTexture);
 
@@ -262,7 +271,11 @@ Window::Window(const WindowInfo& wi)
         device->CreateBuffer(&bufferDesc, &indexBufferData, &indexBuffer);
     }
 
+#ifndef USE_RAYTRACER
+    pixels.reserve(rasterizer.resolution.x * rasterizer.resolution.y);
+#else
     pixels.reserve(raytracer.resolution.x * raytracer.resolution.y);
+#endif
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -429,10 +442,18 @@ bool Window::update(){
 		// ImGui::End();
 		// ImGui::Render();
 
+#ifndef USE_RAYTRACER
+        const auto size = rasterizer.resolution.x * rasterizer.resolution.y;
+#else
         const auto size = raytracer.resolution.x * raytracer.resolution.y;
+#endif
         pixels.resize(size, toRGBA(fBLACK));
 
+#ifndef USE_RAYTRACER
+        rasterizer.render(pixels);
+#else
         raytracer.render(pixels);
+#endif
 
         D3D11_MAPPED_SUBRESOURCE ms;
         deviceContext->Map(
