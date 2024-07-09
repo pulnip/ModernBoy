@@ -79,6 +79,13 @@ if(Stb_FOUND)
     )
 endif()
 
+find_package(SDL2 CONFIG REQUIRED)
+    message(STATUS "Using SDL2 package")
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    )
+
 # Uncomment if using the DirectX Tool Kit
 # find_package(directxtk CONFIG REQUIRED)
 # target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectXTK)
