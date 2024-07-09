@@ -14,7 +14,6 @@ namespace ModernBoy{
     class Window{
       private:
         WNDCLASSEX wc;
-        RECT wr;
         HWND hwnd;
 
         ID3D11Device* device;

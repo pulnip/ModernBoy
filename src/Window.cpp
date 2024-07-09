@@ -59,16 +59,12 @@ Window::Window(const WindowInfo& wi)
     nullptr,
     wi.title.c_str(),
     nullptr
-}, wr{
-    0L,
-    0L,
-    wi.size.x,
-    wi.size.y
 }, raytracer(
     wi.resolution
 ){
     RegisterClassEx(&wc);
 
+    RECT wr{0L, 0L, wi.size.x, wi.size.y};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
 
     hwnd = CreateWindow(
@@ -76,7 +72,7 @@ Window::Window(const WindowInfo& wi)
 		wi.title.c_str(),
 		WS_OVERLAPPEDWINDOW,
         wi.position.x, wi.position.y,
-		wi.size.x, wi.size.y,
+        wr.right-wr.left, wr.bottom-wr.top,
 		nullptr,
 		nullptr,
 		wc.hInstance,
