@@ -42,7 +42,7 @@ namespace ModernBoy{
         void initShader();
         ~Window();
 
-        void update();
+        bool update();
         void render();
     };
 }

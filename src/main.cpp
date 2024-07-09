@@ -16,7 +16,9 @@ int main(int argc, char* argv[]){
     auto wi=levelLoader.getWindowInfo();
 
     Window window(wi);
-    window.update();
+    while(window.update()){
+
+    }
 
 	return 0;
 }

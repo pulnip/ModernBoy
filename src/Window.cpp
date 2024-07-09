@@ -4,6 +4,7 @@
 #include <imgui_impl_dx11.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
+#include "InputSystem.hpp"
 #include "Window.hpp"
 #include "Vertex.hpp"
 
@@ -411,44 +412,48 @@ Window::~Window(){
 	UnregisterClass(wc.lpszClassName, wc.hInstance);
 }
 
-void Window::update(){
+bool Window::update(){
     MSG msg;
-    while(WM_QUIT!=msg.message){
-        if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		else{
-			// Start the Dear ImGui frame
-			// ImGui_ImplDX11_NewFrame();
-			// ImGui_ImplWin32_NewFrame();
-			// ImGui::NewFrame();
-			// ImGui::Begin("Scene Control");
-			// ImGui::End();
-			// ImGui::Render();
-
-            const auto size = raytracer.resolution.x * raytracer.resolution.y;
-            pixels.resize(size, toRGBA(fBLACK));
-
-            raytracer.render(pixels);
-
-            D3D11_MAPPED_SUBRESOURCE ms;
-            deviceContext->Map(
-                canvasTexture, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms
-            );
-            memcpy(ms.pData, pixels.data(),
-                pixels.size() * sizeof(fRGBA)
-            );
-            deviceContext->Unmap(canvasTexture, 0);
-
-            render();
-
-			// ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
         
-			// switch the back buffer and the front buffer
-			swapChain->Present(1, 0);
-		}
-    }
+        if(WM_QUIT==msg.message){
+            return false;
+        }
+	}
+	else{
+		// Start the Dear ImGui frame
+		// ImGui_ImplDX11_NewFrame();
+		// ImGui_ImplWin32_NewFrame();
+		// ImGui::NewFrame();
+		// ImGui::Begin("Scene Control");
+		// ImGui::End();
+		// ImGui::Render();
+
+        const auto size = raytracer.resolution.x * raytracer.resolution.y;
+        pixels.resize(size, toRGBA(fBLACK));
+
+        raytracer.render(pixels);
+
+        D3D11_MAPPED_SUBRESOURCE ms;
+        deviceContext->Map(
+            canvasTexture, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms
+        );
+        memcpy(ms.pData, pixels.data(),
+            pixels.size() * sizeof(fRGBA)
+        );
+        deviceContext->Unmap(canvasTexture, 0);
+
+        render();
+
+		// ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        
+		// switch the back buffer and the front buffer
+		swapChain->Present(1, 0);
+	}
+
+    return true;
 }
 
 void Window::render(){
