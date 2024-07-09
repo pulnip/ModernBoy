@@ -86,14 +86,14 @@ ModernBoy::Hit Square::shootRay(const Ray& ray) const{
     const auto hit2Valid = hit2.distance >= 0;
     const auto hitValid = (static_cast<int>(hit2Valid)<<1) + static_cast<int>(hit1Valid);
     switch(hitValid){
-    case 0b11:
-        return (hit1.distance < hit2.distance) ? hit1 : hit2;
-    case 0b10:
-        return hit2;
-    case 0b01:
-        return hit1;
     case 0b00:
         return noHit;
+    case 0b01:
+        return hit1;
+    case 0b10:
+        return hit2;
+    case 0b11:
+        return (hit1.distance < hit2.distance) ? hit1 : hit2;
     default:
         unreachable();
     }
