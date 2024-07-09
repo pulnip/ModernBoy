@@ -13,7 +13,7 @@ namespace ModernBoy{
         std::vector<std::shared_ptr<Object>> objects;
 
       public:
-        Raytracer(const glm::ivec2& resulution);
+        Raytracer(const glm::ivec2& resolution);
 
         void render(std::vector<fRGBA>& pixels);
         Hit closest(const Ray& ray);
