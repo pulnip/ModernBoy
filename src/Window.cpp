@@ -1,92 +1,37 @@
-#include <iostream>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include "InputSystem.hpp"
 #include "Window.hpp"
 #include "Vertex.hpp"
 
 using namespace ModernBoy;
 
-// Forward declare message handler from imgui_impl_win32.cpp
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-LRESULT WINAPI ModernBoy::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
-    if(ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-		return true;
-
-    switch (msg){
-	case WM_SIZE:
-		// Reset and resize swapchain
-		return 0;
-	case WM_SYSCOMMAND:
-		if((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
-			return 0;
-		break;
-	case WM_MOUSEMOVE:
-		// std::cout << "Mouse " << LOWORD(lParam) << " " << HIWORD(lParam) << std::endl;
-		break;
-	case WM_LBUTTONUP:
-		// std::cout << "WM_LBUTTONUP Left mouse button" << std::endl;
-		break;
-	case WM_RBUTTONUP:
-		// std::cout << "WM_RBUTTONUP Right mouse button" << std::endl;
-		break;
-	case WM_KEYDOWN:
-		// std::cout << "WM_KEYDOWN " << (int)wParam << std::endl;
-		break;
-	case WM_DESTROY:
-		::PostQuitMessage(0);
-		return 0;
-	}
-
-	return ::DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
 Window::Window(const WindowInfo& wi)
-:wc{
-    sizeof(WNDCLASSEX),
-    CS_CLASSDC,
-    WndProc,
-    0,
-    0,
-    GetModuleHandle(nullptr),
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    wi.title.c_str(),
-    nullptr
 #ifndef USE_RAYTRACER
-}, rasterizer(
+:rasterizer(wi.resolution)
 #else
-}, raytracer(
+:raytracer(wi.resolution)
 #endif
-    wi.resolution
-){
-    RegisterClassEx(&wc);
+{
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
-    RECT wr{0L, 0L, wi.size.x, wi.size.y};
-    AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
-
-    hwnd = CreateWindow(
-		wc.lpszClassName,
-		wi.title.c_str(),
-		WS_OVERLAPPEDWINDOW,
+    window=SDL_CreateWindow(
+        wi.title.c_str(),
         wi.position.x, wi.position.y,
-        wr.right-wr.left, wr.bottom-wr.top,
-		nullptr,
-		nullptr,
-		wc.hInstance,
-		nullptr
+        wi.size.x, wi.size.y,
+        0
+    );  
+
+    auto renderer=SDL_CreateRenderer(
+        window, -1, SDL_RENDERER_ACCELERATED
     );
 
-    ShowWindow(hwnd, SW_SHOWDEFAULT);
-	UpdateWindow(hwnd);
-
-    SetForegroundWindow(hwnd);
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(window, &wmInfo);
+    HWND hwnd = wmInfo.info.win.window;
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc;
     ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
@@ -419,20 +364,34 @@ Window::~Window(){
         device = NULL;
     }
 
-    DestroyWindow(hwnd);
-	UnregisterClass(wc.lpszClassName, wc.hInstance);
+    SDL_DestroyWindow(window);
 }
 
 bool Window::update(){
-    MSG msg;
-    if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-        
-        if(WM_QUIT==msg.message){
+    SDL_Event event;
+    if(SDL_PollEvent(&event)){
+        using namespace std;
+
+        switch(event.type){
+        case SDL_QUIT:
             return false;
+        case SDL_WINDOWEVENT:
+            // cout<<"SDL Window Event"<<endl;
+            break;
+        case SDL_MOUSEMOTION:
+            // cout<<"Mouse Button Move"<<endl;
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+		    // cout<<"Mouse Button Down"<<endl;
+            break;
+        case SDL_MOUSEBUTTONUP:
+		    // cout<<"Mouse Button Up"<<endl;
+            break;
+        case SDL_KEYDOWN:
+            // cout<<"Keyboard Button Down"<<endl;
+            break;
         }
-	}
+    }
 	else{
 		// Start the Dear ImGui frame
 		// ImGui_ImplDX11_NewFrame();

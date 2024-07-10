@@ -16,7 +16,9 @@ WindowInfo LevelLoader::getWindowInfo(){
     auto resolution=helper.getVec2i("resolution").value();
 
     return {
-        {title.cbegin(), title.cend()},
+        // for wstring
+        // {title.cbegin(), title.cend()},
+        title,
         position,
         size,
         resolution

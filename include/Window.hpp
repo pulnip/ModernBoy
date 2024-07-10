@@ -2,10 +2,10 @@
 #define USE_RAYTRACER
 
 #include <vector>
-#include <windows.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <glm/glm.hpp>
+#include <SDL2/SDL_video.h>
 #include "Info.hpp"
 
 #ifndef USE_RAYTRACER
@@ -18,9 +18,7 @@ namespace ModernBoy{
     LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
     class Window{
-      private:
-        WNDCLASSEX wc;
-        HWND hwnd;
+        SDL_Window* window;
 
         ID3D11Device* device;
         ID3D11DeviceContext* deviceContext;

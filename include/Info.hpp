@@ -5,7 +5,7 @@
 
 namespace ModernBoy{
     struct WindowInfo{
-        std::wstring title;
+        std::string title;
         glm::ivec2 position;
         glm::ivec2 size;
         glm::ivec2 resolution;
