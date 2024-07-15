@@ -4,6 +4,7 @@
 #include "Hit.hpp"
 #include "Ray.hpp"
 #include "Texture.hpp"
+#include "Attributes.hpp"
 
 namespace ModernBoy{
     class Object{
@@ -26,5 +27,11 @@ namespace ModernBoy{
         :ambient(ambient), diffuse(diffuse), specular(specular){}
 
         virtual Hit shootRay(const Ray& ray) const=0;
+    };
+
+    class MeshObject{
+        Transform transform;
+        Material material;
+        Mesh mesh;
     };
 }
