@@ -16,6 +16,9 @@
             "name": "gsl-lite"
         },
         {
+            "name": "gtest"
+        },
+        {
             "name": "imgui",
             "features": [
                 "dx11-binding",
