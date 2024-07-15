@@ -10,6 +10,12 @@
             "host" : true
         },
         {
+            "name": "glm"
+        },
+        {
+            "name": "gsl-lite"
+        },
+        {
             "name": "imgui",
             "features": [
                 "dx11-binding",
@@ -17,19 +23,13 @@
             ]
         },
         {
-            "name": "glm"
-        },
-        {
-            "name": "stb"
-        },
-        {
             "name": "rapidjson"
         },
         {
-            "name": "gsl-lite"
+            "name": "sdl2"
         },
         {
-            "name": "sdl2"
+            "name": "stb"
         }
     ]
 }
