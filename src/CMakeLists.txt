@@ -6,6 +6,7 @@ add_executable(${PROJECT_NAME}
 
 add_subdirectory(
     imgui_impl
+    Algorithm
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC

@@ -4,6 +4,10 @@ add_executable(Test
     ${TEST_SRC}
 )
 
+target_include_directories(Test PRIVATE
+    "${CMAKE_SOURCE_DIR}/include"
+)
+
 find_package(GTest CONFIG REQUIRED)
 if(GTest_FOUND)
     message(STATUS "Using GTest package")
@@ -18,4 +22,9 @@ endif()
 
 add_test(NAME ${PROJECT_NAME}_test
     COMMAND Test
+)
+
+set_tests_properties(${PROJECT_NAME}_test
+PROPERTIES
+    TIMEOUT 10
 )
