@@ -28,6 +28,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE
     d3d11 D3DCompiler
     imgui_impl
+    algorithm_impl
 )
 
 # find_package(directxmath CONFIG REQUIRED)
