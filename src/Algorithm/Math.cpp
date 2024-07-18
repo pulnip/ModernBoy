@@ -90,6 +90,59 @@ ivec2 ModernBoy::wrap(const ivec2& x, const iLine2& line) noexcept{
     };
 }
 
+vec2 ModernBoy::wrap(const vec2& x, const Line2& line) noexcept{
+    return {
+        wrap(x.x, {line.point0.x, line.point1.x}),
+        wrap(x.y, {line.point0.y, line.point1.y})
+    };
+}
+
+ivec2 ModernBoy::clamp(const ivec2& x, const iLine2& line) noexcept{
+    return {
+        clamp(x.x, {line.point0.x, line.point1.x}),
+        clamp(x.y, {line.point0.y, line.point1.y})
+    };
+}
+
+vec2 ModernBoy::clamp(const vec2& x, const Line2& line) noexcept{
+    return {
+        clamp(x.x, {line.point0.x, line.point1.x}),
+        clamp(x.y, {line.point0.y, line.point1.y})
+    };
+}
+
+ivec3 ModernBoy::wrap(const ivec3& x, const iLine& line) noexcept{
+    return {
+        wrap(x.x, {line.point0.x, line.point1.x}),
+        wrap(x.y, {line.point0.y, line.point1.y}),
+        wrap(x.z, {line.point0.z, line.point1.z})
+    };
+}
+
+vec3 ModernBoy::wrap(const vec3& x, const Line& line) noexcept{
+    return {
+        wrap(x.x, {line.point0.x, line.point1.x}),
+        wrap(x.y, {line.point0.y, line.point1.y}),
+        wrap(x.z, {line.point0.z, line.point1.z})
+    };
+}
+
+ivec3 ModernBoy::clamp(const ivec3& x, const iLine& line) noexcept{
+    return {
+        clamp(x.x, {line.point0.x, line.point1.x}),
+        clamp(x.y, {line.point0.y, line.point1.y}),
+        clamp(x.z, {line.point0.z, line.point1.z})
+    };
+}
+
+vec3 ModernBoy::clamp(const vec3& x, const Line& line) noexcept{
+    return {
+        clamp(x.x, {line.point0.x, line.point1.x}),
+        clamp(x.y, {line.point0.y, line.point1.y}),
+        clamp(x.z, {line.point0.z, line.point1.z})
+    };
+}
+
 vec2 ModernBoy::floor(const vec2& vec) noexcept{
     return {std::floor(vec.x), std::floor(vec.y)};
 }

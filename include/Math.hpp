@@ -32,6 +32,13 @@ namespace ModernBoy{
     float wrap(float x, const Line1& line) noexcept;
     float clamp(float x, const Line1& line) noexcept;
     glm::ivec2 wrap(const glm::ivec2& x, const iLine2& line) noexcept;
+    glm::ivec2 clamp(const glm::ivec2& x, const iLine2& line) noexcept;
+    glm::vec2 wrap(const glm::vec2& x, const Line2& line) noexcept;
+    glm::vec2 clamp(const glm::vec2& x, const Line2& line) noexcept;
+    glm::ivec3 wrap(const glm::ivec3& x, const iLine& line) noexcept;
+    glm::ivec3 clamp(const glm::ivec3& x, const iLine& line) noexcept;
+    glm::vec3 wrap(const glm::vec3& x, const Line& line) noexcept;
+    glm::vec3 clamp(const glm::vec3& x, const Line& line) noexcept;
 
     glm::vec2 floor(const glm::vec2& vec) noexcept;
 
