@@ -8,6 +8,10 @@ target_include_directories(Test PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
 )
 
+target_link_libraries(Test PRIVATE
+    algorithm_impl
+)
+
 find_package(GTest CONFIG REQUIRED)
 if(GTest_FOUND)
     message(STATUS "Using GTest package")
@@ -26,10 +30,6 @@ if(gsl-lite_FOUND)
         gsl::gsl-lite-v1
     )
 endif()
-
-target_link_libraries(Test PRIVATE
-    algorithm_impl
-)
 
 add_test(NAME ${PROJECT_NAME}_test
     COMMAND Test
