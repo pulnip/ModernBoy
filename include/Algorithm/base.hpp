@@ -6,12 +6,15 @@
 
 namespace ModernBoy{
 
-    bool odd(Int auto n) noexcept{ return n & 0b1; }
-    bool even(Int auto n) noexcept{ return !odd(n); }
-    Int auto half(Int auto n) noexcept{ return n >> 1; }
-    Int auto pow2(Int auto x, Int auto n) noexcept{ return x << n; }
+    constexpr bool odd(std::integral auto n) noexcept{ return n & 0b1; }
+    constexpr bool even(std::integral auto n) noexcept{ return !odd(n); }
+    template<std::integral N>
+    constexpr N half(N n) noexcept{ return n >> 1; }
+    template<std::integral N>
+    constexpr N twice(N n) noexcept{ return n << 1; }
 
-    Int auto multiply_aux(Int auto r, Int auto n, Int auto a) noexcept{
+    template<std::integral N>
+    constexpr N multiply_aux(N r, N n, N a) noexcept{
         while(true){
             if(odd(n)){
                 r+=a;
@@ -24,8 +27,9 @@ namespace ModernBoy{
         }
     }
 
-    Int auto multiply(Int auto n, Int auto a) noexcept{
-        while(!odd(n)){
+    template<std::integral N>
+    constexpr N multiply(N n, N a) noexcept{
+        while(even(n)){
             a+=a;
             n=half(n);
         }
@@ -38,7 +42,7 @@ namespace ModernBoy{
 
     bool isPrime(gsl::index n) noexcept;
 
-    template<Int N> N gcd(N a, N b) noexcept{
+    template<std::integral N> N gcd(N a, N b) noexcept{
         while(b != 0){
             a %= b;
             std::swap(a, b);

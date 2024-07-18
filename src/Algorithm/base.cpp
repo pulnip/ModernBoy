@@ -19,7 +19,7 @@ namespace ModernBoy{
         }
 
         void sift(index unchecked) noexcept{
-            auto m_1 = pow2(odds.size(), 1) + 3;
+            auto m_1 = twice(odds.size()) + 3;
 
             for(index p=3; p*p < m_1; p+=2){
                 auto pp = p*p;
@@ -34,7 +34,7 @@ namespace ModernBoy{
         bool isPrime(index n){
             assert(2<n && odd(n));
 
-            auto unchecked=pow2(odds.size(), 1)+3;
+            auto unchecked = twice(odds.size()) + 3;
             auto idx = half(n-3);
 
             if(unchecked <= n){
