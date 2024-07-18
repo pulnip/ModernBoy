@@ -12,7 +12,7 @@ namespace ModernBoy{
     struct iLine1{ int point0, point1; };
     struct Line1{ float point0, point1; };
     struct iLine2{ glm::ivec2 point0, point1; };
-    struct Line2{ glm::vec3 point0, point1; };
+    struct Line2{ glm::vec2 point0, point1; };
     struct iLine{ glm::ivec3 point0, point1; };
     struct Line{ glm::vec3 point0, point1; };
 
