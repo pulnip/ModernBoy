@@ -4,10 +4,8 @@ add_executable(${PROJECT_NAME}
     ${MAIN_SRC}
 )
 
-add_subdirectory(
-    imgui_impl
-    Algorithm
-)
+add_subdirectory(Algorithm)
+add_subdirectory(imgui_impl)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
     $<IF:$<CONFIG:DEBUG>,_DEBUG D3DCOMPILE_DEBUG D3DCOMPILE_SKIP_OPTIMIZATION D3DCOMPILE_ENABLE_STRICTNESS,NDEBUG>

@@ -7,3 +7,10 @@ add_library(algorithm_impl
 target_include_directories(algorithm_impl PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
 )
+
+find_package(gsl-lite CONFIG REQUIRED)
+if(gsl-lite_FOUND)
+    target_link_libraries(algorithm_impl PRIVATE
+        gsl::gsl-lite-v1
+    )
+endif()
