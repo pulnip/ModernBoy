@@ -1,13 +1,10 @@
 #pragma once
 
 #include <cassert>
-#include <concepts>
-#include <iterator>
 #include <gsl-lite/gsl-lite.hpp>
+#include "Concepts.hpp"
 
 namespace ModernBoy{
-    template<typename T> concept Int=std::integral<T>;
-    template<typename T> concept R_It=std::random_access_iterator<T>;
 
     bool odd(Int auto n) noexcept{ return n & 0b1; }
     Int auto half(Int auto n) noexcept{ return n >> 1; }
