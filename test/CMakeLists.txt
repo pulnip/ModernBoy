@@ -30,12 +30,3 @@ if(gsl-lite_FOUND)
         gsl::gsl-lite-v1
     )
 endif()
-
-add_test(NAME ${PROJECT_NAME}_test
-    COMMAND Test
-)
-
-set_tests_properties(${PROJECT_NAME}_test
-PROPERTIES
-    TIMEOUT 10
-)

@@ -1,5 +1,9 @@
 {
-    "version": 2,
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28
+    },
     "configurePresets": [
         {
             "name": "base",
@@ -70,6 +74,7 @@
         },
         {
             "name": "x64-Debug-MinGW",
+            "displayName": "Debug build",
             "description": "MinGW-w64 (Debug)",
             "inherits": [
                 "base",
@@ -82,6 +87,7 @@
         },
         {
             "name": "x64-Release-MinGW",
+            "displayName": "Release build",
             "description": "MinGW-w64 (Release)",
             "inherits": [
                 "base",
@@ -91,6 +97,21 @@
                 "VCPKG",
                 "MinGW-w64"
             ]
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "x64-Release-Test",
+            "displayName": "gTest for Release",
+            "description": "Google Test (Release)",
+            "configurePreset": "x64-Release-MinGW",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "timeout": 10,
+                "stopOnFailure": true
+            }
         }
     ]
 }
