@@ -3,7 +3,7 @@
 #include "Algorithm/base.hpp"
 
 using namespace std;
-using namespace ModernBoy::Algorithm;
+using namespace ModernBoy;
 
 TEST(AlgorithmTest, odd_test){
     EXPECT_EQ(odd(1), true);

@@ -4,7 +4,6 @@
 using namespace std;
 using namespace gsl;
 using namespace ModernBoy;
-using namespace ModernBoy::Algorithm;
 
 class Sieve{
     vector<bool> odds;
@@ -46,7 +45,7 @@ class Sieve{
     }
 };
 
-bool Algorithm::isPrime(index n) noexcept{
+bool ModernBoy::isPrime(index n) noexcept{
     static Sieve sieve;
 
     switch(n){
