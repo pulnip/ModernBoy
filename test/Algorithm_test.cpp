@@ -1,8 +1,12 @@
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <vector>
 #include <gtest/gtest.h>
+#include <glm/glm.hpp>
 #include "Algorithm/base.hpp"
 
 using namespace std;
+using namespace glm;
 using namespace ModernBoy;
 
 TEST(AlgorithmTest, odd_test){
@@ -71,4 +75,26 @@ TEST(AlgorithmTest, gcd_test){
 
     EXPECT_EQ(gcd(0, 5), 5);
     EXPECT_EQ(gcd(-24, 18), -6);
+}
+
+TEST(MathTest, pow_trivial_test){
+    EXPECT_EQ(pow(2, 1), 2);
+    EXPECT_EQ(pow(2, 2), 4);
+    EXPECT_EQ(pow(2, 3), 8);
+    EXPECT_EQ(pow(2, 4), 16);
+    EXPECT_EQ(pow(2, 5), 32);
+    EXPECT_EQ(pow(3, 5), 243);
+}
+
+TEST(MathTest, pow_mat_test){
+    constexpr mat2 fib1{{1, 1}, {1, 0}};
+    constexpr mat2 fib2=fib1*fib1;
+    constexpr mat2 fib3=fib2*fib1;
+    constexpr mat2 fib4=fib3*fib1;
+
+    EXPECT_EQ(pow(fib1, 1), fib1);
+    EXPECT_EQ(pow(fib1, 2), fib2);
+    EXPECT_EQ(pow(fib1, 3), fib3);
+    EXPECT_EQ(pow(fib1, 4), fib4);
+    EXPECT_EQ(pow(fib2, 2), fib4);
 }
