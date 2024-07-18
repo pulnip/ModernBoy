@@ -58,3 +58,17 @@ TEST(AlgorithmTest, prime_test){
 
     EXPECT_EQ(isPrime(101), true);
 }
+
+TEST(AlgorithmTest, gcd_test){
+    EXPECT_EQ(gcd(24, 8), 8);
+    EXPECT_EQ(gcd(12, 18), 6);
+    EXPECT_EQ(gcd(15, 25), 5);
+    EXPECT_EQ(gcd(120, 36), 12);
+    EXPECT_EQ(gcd(625, 150), 25);
+    EXPECT_EQ(gcd(1071, 462), 21);
+    EXPECT_EQ(gcd(2304, 1440), 288);
+    EXPECT_EQ(gcd(123456, 789012), 12);
+
+    EXPECT_EQ(gcd(0, 5), 5);
+    EXPECT_EQ(gcd(-24, 18), -6);
+}

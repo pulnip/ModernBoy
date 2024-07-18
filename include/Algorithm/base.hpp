@@ -40,5 +40,14 @@ namespace ModernBoy{
         }
 
         bool isPrime(gsl::index n) noexcept;
+
+        template<Int N> N gcd(N a, N b) noexcept{
+            while(b != 0){
+                a %= b;
+                std::swap(a, b);
+            }
+
+            return a;
+        }
     }
 }
