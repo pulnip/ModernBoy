@@ -48,7 +48,7 @@ namespace ModernBoy{
 }
 
 bool ModernBoy::isPrime(index n) noexcept{
-    static Sieve sieve;
+    constinit static Sieve sieve;
 
     switch(n){
     case 0:
