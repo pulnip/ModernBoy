@@ -45,6 +45,18 @@
             }
         },
         {
+            "name": "Clang",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "clang++.exe",
+                "CMAKE_CXX_FLAGS": "-fuse-ld=lld"
+            },
+            "toolset": {
+                "value": "host=x64",
+                "strategy": "external"
+            }
+        },
+        {
             "name": "MinGW-w64",
             "hidden": true,
             "environment": {
@@ -80,7 +92,7 @@
                 "base",
                 "x64",
                 "Debug",
-                "GNUC",
+                "Clang",
                 "VCPKG",
                 "MinGW-w64"
             ]
@@ -93,7 +105,7 @@
                 "base",
                 "x64",
                 "Release",
-                "GNUC",
+                "Clang",
                 "VCPKG",
                 "MinGW-w64"
             ]
