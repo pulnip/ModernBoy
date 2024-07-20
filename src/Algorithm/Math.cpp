@@ -6,13 +6,6 @@ using namespace gsl;
 using namespace glm;
 using namespace ModernBoy;
 
-vec3 ModernBoy::lerp2(
-    const Line3& line0, const Line3& line1,
-    float t0, float t1
-) noexcept{
-    return lerp(Line3{lerp(line0, t0), lerp(line1, t0)}, t1);
-}
-
 bool ModernBoy::in(const int x, const iLine1& range) noexcept{
     assert(range.point0 < range.point1);
     return range.point0 <= x && x < range.point1;

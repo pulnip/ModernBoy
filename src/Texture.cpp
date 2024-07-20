@@ -61,10 +61,11 @@ fRGB Texture::getRGB_lerp(const UVPos& uv) noexcept{
     const auto color01 = getRGB(pos00 + ivec2{0, 1});
     const auto color11 = getRGB(pos00 + ivec2{1, 1});
 
-    return lerp2(
-        {color00, color10},
-        {color01, color11},
-        dx, dy
+    return lerp2<vec3>(
+        {
+            {color00, color10},
+            {color01, color11},
+        }, dx, dy
     );
 }
 

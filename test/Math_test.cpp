@@ -29,6 +29,17 @@ TEST(MathTest, lerp_test){
     static_assert(lerp<mat4>({0.0f, 1.0f}, 0.1f) == mat4(0.1f));
 }
 
+TEST(MathTest, lerp2_test){
+    constexpr Line top{uvTopLeft, uvTopRight};
+    constexpr Line bottom{uvBottomLeft, uvBottomRight};
+    constexpr Line uv{top, bottom};
+
+    constexpr vec2 expected1{0.2f, 0.3f};
+    constexpr auto case1 = lerp2(uv, expected1.x, expected1.y);
+
+    static_assert(expected1 == case1);
+}
+
 TEST(MathTest, in_test){
     EXPECT_TRUE(in(3.4f, {1.0f, 10.0f}));
     EXPECT_FALSE(in(12.4f, {1.0f, 10.0f}));

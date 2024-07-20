@@ -20,7 +20,16 @@ namespace ModernBoy{
     constexpr T lerp(const Line<T>& line, S t) noexcept{
         return line.point0*(S(1)-t) + line.point1*t;
     }
-    glm::vec3 lerp2(const Line3& line0, const Line3& line1, float t0, float t1) noexcept;
+    template<additive T=double, std::scalar S=double>
+        requires scalar_multiplicative<S, T>
+    constexpr T lerp2(const Line<Line<T>>& line, S t0, S t1) noexcept{
+        return lerp<T>(
+            {
+                lerp(line.point0, t0),
+                lerp(line.point1, t0)
+            }, t1
+        );
+    }
 
     bool in(const int x, const iLine1& range) noexcept;
     bool in(const float x, const Line1& range) noexcept;
