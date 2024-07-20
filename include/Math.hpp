@@ -1,9 +1,9 @@
 #pragma once
 #define GLM_ENABLE_EXPERIMENTAL
 
-#include <concepts>
 #include <cmath>
 #include <glm/glm.hpp>
+#include "Concepts.hpp"
 
 namespace ModernBoy{
     template <typename T>
@@ -15,7 +15,15 @@ namespace ModernBoy{
     struct Line2{ glm::vec2 point0, point1; };
     struct iLine{ glm::ivec3 point0, point1; };
     struct Line{ glm::vec3 point0, point1; };
+    template<additive T>
+        requires scalar_multiplicative<T, float> ||
+            scalar_multiplicative<float, T>
+    struct gLine{ T point0, point1; };
 
+    template<typename T=float>
+    constexpr T glerp(const gLine<T>& line, float t) noexcept{
+        return line.point0*(1.0f-t) + line.point1*t;
+    }
     float lerp(const Line1& line, float t) noexcept;
     glm::vec3 lerp(const Line& line, float t) noexcept;
     glm::vec3 lerp2(const Line& line0, const Line& line1, float t0, float t1) noexcept;
