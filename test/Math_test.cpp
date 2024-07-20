@@ -7,20 +7,26 @@ using namespace ModernBoy;
 constexpr Line2 WINDOW_RANGE{uvTopLeft, uvBottomRight};
 constexpr Line fCOLOR_RANGE{fBLACK, fWHITE};
 
-TEST(MathTest, lerpf_test){
-    EXPECT_FLOAT_EQ(lerp({0.0f, 10.0f}, 0.5f), 5.0f);
-    EXPECT_FLOAT_EQ(lerp({0.0f, 5.0f}, 0.2f), 1.0f);
-    EXPECT_FLOAT_EQ(lerp({2.0f, 10.0f}, 0.2f), 3.6f);
-    EXPECT_FLOAT_EQ(lerp({10.0f, 33.0f}, 0.23f), 15.29f);
-    EXPECT_FLOAT_EQ(lerp({5423.0f, 45565.0f}, 0.1234f), 10376.5228f);
-}
+TEST(MathTest, lerp_test){
+    static_assert(lerp({0, 1}, 0.4) == 0.4);
+    static_assert(lerp({0, 1}, 1.2) == 1.2);
+    static_assert(lerp<float>({2.0f, 10.0f}, 0.2f) == 3.6f);
+    static_assert(lerp<float>({0.0f, 10.0f}, 2) == 20.0f);
+    
+    // floating-point precision problem
+    EXPECT_DOUBLE_EQ(lerp({10.0, 33.0}, 0.23), 15.29);
+    EXPECT_DOUBLE_EQ(lerp({5423.0, 45565.0}, 0.1234), 10376.5228);
 
-TEST(MathTest, lerpv_test){
-    EXPECT_EQ(lerp({fBLACK, fWHITE}, 0.2f), fDUNE);
 
-    auto case2 = lerp({{1.0f, 2.0f, 3.0f}, {3.0f, 6.0f, 9.0f}}, 0.25f);
-    vec3 expected2{1.5f, 3.0f, 4.5f};
-    EXPECT_EQ(case2, expected2);
+    static_assert(lerp<vec3>({fBLACK, fWHITE}, 0.2f) == fDUNE);
+    static_assert(lerp<vec3>(
+        {
+            {1.0f, 2.0f, 3.0f},
+            {3.0f, 6.0f, 9.0f}
+        }, 0.25f) == vec3{1.5f, 3.0f, 4.5f}
+    );
+
+    static_assert(lerp<mat4>({0.0f, 1.0f}, 0.1f) == mat4(0.1f));
 }
 
 TEST(MathTest, in_test){
@@ -90,11 +96,4 @@ TEST(MathTest, clamp2_test){
     EXPECT_FLOAT_EQ(clamped2.x, 1.0f);
     EXPECT_FLOAT_EQ(origin2.y, clamped2.y);
     EXPECT_EQ(clamped3, uvBottomRight);
-}
-
-TEST(MathTest, glerp_test){
-    static_assert(glerp({0, 1}, 0.4) == 0.4);
-    static_assert(glerp({0, 1}, 1.2) == 1.2);
-    static_assert(glerp(gLine<vec3>{fBLACK, fWHITE}, 0.2f) == fDUNE);
-    static_assert(glerp(gLine<mat4>{0.0f, 1.0f}, 0.1f) == mat4(0.1f));
 }

@@ -2,37 +2,32 @@
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include <cmath>
+#include <gsl-lite/gsl-lite.hpp>
 #include <glm/glm.hpp>
 #include "Concepts.hpp"
 
 namespace ModernBoy{
-    template <typename T>
-    concept arithmetic = std::integral<T> || std::floating_point<T>;
+    template<typename T> struct Line{ T point0, point1; };
+    using iLine1=Line<int>;
+    using Line1=Line<float>;
+    using iLine2=Line<glm::ivec2>;
+    using Line2=Line<glm::vec2>;
+    using iLine3=Line<glm::ivec3>;
+    using Line3=Line<glm::vec3>;
 
-    struct iLine1{ int point0, point1; };
-    struct Line1{ float point0, point1; };
-    struct iLine2{ glm::ivec2 point0, point1; };
-    struct Line2{ glm::vec2 point0, point1; };
-    struct iLine{ glm::ivec3 point0, point1; };
-    struct Line{ glm::vec3 point0, point1; };
-
-    template<typename T> struct gLine{ T point0, point1; };
-
-    template<std::scalar S, additive T=double>
+    template<additive T=double, std::scalar S=double>
         requires scalar_multiplicative<S, T>
-    constexpr T glerp(const gLine<T>& line, S t) noexcept{
+    constexpr T lerp(const Line<T>& line, S t) noexcept{
         return line.point0*(S(1)-t) + line.point1*t;
     }
-    float lerp(const Line1& line, float t) noexcept;
-    glm::vec3 lerp(const Line& line, float t) noexcept;
-    glm::vec3 lerp2(const Line& line0, const Line& line1, float t0, float t1) noexcept;
+    glm::vec3 lerp2(const Line3& line0, const Line3& line1, float t0, float t1) noexcept;
 
     bool in(const int x, const iLine1& range) noexcept;
     bool in(const float x, const Line1& range) noexcept;
     bool in(const glm::ivec2& x, const iLine2& range) noexcept;
     bool in(const glm::vec2& x, const Line2& range) noexcept;
-    bool in(const glm::ivec3& x, const iLine& range) noexcept;
-    bool in(const glm::vec3& x, const Line& range) noexcept;
+    bool in(const glm::ivec3& x, const iLine3& range) noexcept;
+    bool in(const glm::vec3& x, const Line3& range) noexcept;
 
     int wrap(int x, const iLine1& line) noexcept;
     int clamp(int x, const iLine1& line) noexcept;
@@ -42,10 +37,10 @@ namespace ModernBoy{
     glm::ivec2 clamp(const glm::ivec2& x, const iLine2& line) noexcept;
     glm::vec2 wrap(const glm::vec2& x, const Line2& line) noexcept;
     glm::vec2 clamp(const glm::vec2& x, const Line2& line) noexcept;
-    glm::ivec3 wrap(const glm::ivec3& x, const iLine& line) noexcept;
-    glm::ivec3 clamp(const glm::ivec3& x, const iLine& line) noexcept;
-    glm::vec3 wrap(const glm::vec3& x, const Line& line) noexcept;
-    glm::vec3 clamp(const glm::vec3& x, const Line& line) noexcept;
+    glm::ivec3 wrap(const glm::ivec3& x, const iLine3& line) noexcept;
+    glm::ivec3 clamp(const glm::ivec3& x, const iLine3& line) noexcept;
+    glm::vec3 wrap(const glm::vec3& x, const Line3& line) noexcept;
+    glm::vec3 clamp(const glm::vec3& x, const Line3& line) noexcept;
 
     glm::vec2 floor(const glm::vec2& vec) noexcept;
 

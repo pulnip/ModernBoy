@@ -6,19 +6,11 @@ using namespace gsl;
 using namespace glm;
 using namespace ModernBoy;
 
-float ModernBoy::lerp(const Line1& line, float t) noexcept{
-    return line.point0*(1.0f-t) + line.point1*t;
-}
-
-vec3 ModernBoy::lerp(const Line& line, float t) noexcept{
-    return line.point0*(1.0f-t) + line.point1*t;
-}
-
 vec3 ModernBoy::lerp2(
-    const Line& line0, const Line& line1,
+    const Line3& line0, const Line3& line1,
     float t0, float t1
 ) noexcept{
-    return lerp({lerp(line0, t0), lerp(line1, t0)}, t1);
+    return lerp(Line3{lerp(line0, t0), lerp(line1, t0)}, t1);
 }
 
 bool ModernBoy::in(const int x, const iLine1& range) noexcept{
@@ -43,14 +35,14 @@ bool ModernBoy::in(const vec2& x, const Line2& range) noexcept{
     return in_x && in_y; 
 }
 
-bool ModernBoy::in(const ivec3& x, const iLine& range) noexcept{
+bool ModernBoy::in(const ivec3& x, const iLine3& range) noexcept{
     const auto in_x=in(x.x, {range.point0.x, range.point1.x}); 
     const auto in_y=in(x.y, {range.point0.y, range.point1.y});
     const auto in_z=in(x.z, {range.point0.z, range.point1.z});
     return in_x && in_y && in_z; 
 }
 
-bool ModernBoy::in(const vec3& x, const Line& range) noexcept{
+bool ModernBoy::in(const vec3& x, const Line3& range) noexcept{
     const auto in_x=in(x.x, {range.point0.x, range.point1.x}); 
     const auto in_y=in(x.y, {range.point0.y, range.point1.y});
     const auto in_z=in(x.z, {range.point0.z, range.point1.z});
@@ -111,7 +103,7 @@ vec2 ModernBoy::clamp(const vec2& x, const Line2& line) noexcept{
     };
 }
 
-ivec3 ModernBoy::wrap(const ivec3& x, const iLine& line) noexcept{
+ivec3 ModernBoy::wrap(const ivec3& x, const iLine3& line) noexcept{
     return {
         wrap(x.x, {line.point0.x, line.point1.x}),
         wrap(x.y, {line.point0.y, line.point1.y}),
@@ -119,7 +111,7 @@ ivec3 ModernBoy::wrap(const ivec3& x, const iLine& line) noexcept{
     };
 }
 
-vec3 ModernBoy::wrap(const vec3& x, const Line& line) noexcept{
+vec3 ModernBoy::wrap(const vec3& x, const Line3& line) noexcept{
     return {
         wrap(x.x, {line.point0.x, line.point1.x}),
         wrap(x.y, {line.point0.y, line.point1.y}),
@@ -127,7 +119,7 @@ vec3 ModernBoy::wrap(const vec3& x, const Line& line) noexcept{
     };
 }
 
-ivec3 ModernBoy::clamp(const ivec3& x, const iLine& line) noexcept{
+ivec3 ModernBoy::clamp(const ivec3& x, const iLine3& line) noexcept{
     return {
         clamp(x.x, {line.point0.x, line.point1.x}),
         clamp(x.y, {line.point0.y, line.point1.y}),
@@ -135,7 +127,7 @@ ivec3 ModernBoy::clamp(const ivec3& x, const iLine& line) noexcept{
     };
 }
 
-vec3 ModernBoy::clamp(const vec3& x, const Line& line) noexcept{
+vec3 ModernBoy::clamp(const vec3& x, const Line3& line) noexcept{
     return {
         clamp(x.x, {line.point0.x, line.point1.x}),
         clamp(x.y, {line.point0.y, line.point1.y}),
