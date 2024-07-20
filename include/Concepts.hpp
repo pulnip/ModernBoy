@@ -3,6 +3,11 @@
 #include <concepts>
 #include <iterator>
 
+namespace std{
+    template<typename S>
+    concept scalar=std::is_scalar_v<S>;
+}
+
 namespace ModernBoy{
     template<typename T>
     concept multiplicative=requires(T lhs, T rhs){
@@ -16,13 +21,10 @@ namespace ModernBoy{
         lhs+rhs;
         requires std::same_as<decltype(lhs+rhs), T>;
     };
-    template<typename T>
-    concept scalar=std::integral<T> && std::floating_point<T>;
-    template<typename L, typename R>
-    concept scalar_multiplicative=requires(L lhs, R rhs){
-        requires std::regular<L> && std::regular<R>;
-        lhs*rhs;
-        (scalar<L> && std::same_as<decltype(lhs*rhs), R>) ||
-        (scalar<R> && std::same_as<decltype(lhs*rhs), L>);
+    template<typename S, typename T>
+    concept scalar_multiplicative=requires(S s, T t){
+        requires std::regular<T> && std::scalar<S>;
+        s*t; t*s;
+        requires std::same_as<decltype(s*t), T> && std::same_as<decltype(t*s), T>;
     };
 }

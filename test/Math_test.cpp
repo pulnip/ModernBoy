@@ -93,7 +93,8 @@ TEST(MathTest, clamp2_test){
 }
 
 TEST(MathTest, glerp_test){
-    static_assert(glerp({0.0f, 1.0f}, 0.4f) == 0.4f);
+    static_assert(glerp({0, 1}, 0.4) == 0.4);
+    static_assert(glerp({0, 1}, 1.2) == 1.2);
     static_assert(glerp(gLine<vec3>{fBLACK, fWHITE}, 0.2f) == fDUNE);
     static_assert(glerp(gLine<mat4>{0.0f, 1.0f}, 0.1f) == mat4(0.1f));
 }

@@ -15,14 +15,13 @@ namespace ModernBoy{
     struct Line2{ glm::vec2 point0, point1; };
     struct iLine{ glm::ivec3 point0, point1; };
     struct Line{ glm::vec3 point0, point1; };
-    template<additive T>
-        requires scalar_multiplicative<T, float> ||
-            scalar_multiplicative<float, T>
-    struct gLine{ T point0, point1; };
 
-    template<typename T=float>
-    constexpr T glerp(const gLine<T>& line, float t) noexcept{
-        return line.point0*(1.0f-t) + line.point1*t;
+    template<typename T> struct gLine{ T point0, point1; };
+
+    template<std::scalar S, additive T=double>
+        requires scalar_multiplicative<S, T>
+    constexpr T glerp(const gLine<T>& line, S t) noexcept{
+        return line.point0*(S(1)-t) + line.point1*t;
     }
     float lerp(const Line1& line, float t) noexcept;
     glm::vec3 lerp(const Line& line, float t) noexcept;
