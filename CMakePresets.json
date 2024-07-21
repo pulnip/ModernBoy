@@ -26,11 +26,23 @@
         {
             "name": "x64",
             "hidden": true,
-            "architecture": {
-                "strategy": "external"
-            },
             "cacheVariables": {
                 "DIRECTX_ARCH": "x64"
+            }
+        },
+        {
+            "name": "MSVC",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "cl.exe"
+            },
+            "architecture": {
+                "value": "host=x64",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "host=x64",
+                "strategy": "external"
             }
         },
         {
@@ -38,10 +50,6 @@
             "hidden": true,
             "cacheVariables": {
                 "CMAKE_CXX_COMPILER": "g++.exe"
-            },
-            "toolset": {
-                "value": "host=x64",
-                "strategy": "external"
             }
         },
         {
@@ -50,17 +58,13 @@
             "cacheVariables": {
                 "CMAKE_CXX_COMPILER": "clang++.exe",
                 "CMAKE_CXX_FLAGS": "-fuse-ld=lld"
-            },
-            "toolset": {
-                "value": "host=x64",
-                "strategy": "external"
             }
         },
         {
             "name": "MinGW-w64",
             "hidden": true,
             "environment": {
-                "PATH": "$penv{PATH};c:/mingw64/bin"
+                "PATH": "$env{PATH};$penv{PATH}"
             },
             "cacheVariables": {
                 "VCPKG_TARGET_TRIPLET": "x64-mingw-dynamic",
