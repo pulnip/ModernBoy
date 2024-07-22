@@ -11,9 +11,9 @@ namespace ModernBoy{
         float distance;
         glm::vec3 point;
         glm::vec3 normal;
-        glm::vec2 uv;
+        glm::vec2 uv{0.0f};
 
-        std::shared_ptr<class Object> object;
+        std::shared_ptr<class Object> object{};
     
       public:
         // Hit() = default;

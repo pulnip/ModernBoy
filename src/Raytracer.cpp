@@ -73,7 +73,7 @@ Hit Raytracer::closest(const Ray& ray){
 	Hit closestHit=objects[0]->shootRay(ray);
     closestHit.object=objects[0];
 
-    const auto num=objects.size();
+    const index num=objects.size();
     for(index i=1; i<num; ++i){
         auto newHit=objects[i]->shootRay(ray);
 
@@ -113,9 +113,6 @@ fRGB Raytracer::traceRay(const Ray& ray, const int level){
     const auto cosToEye = dot(reflectDir, -ray.dir);
     const float specular = pow(glm::max(cosToEye, 0.0f), hit.object->alpha);
 
-    // Ambient
-    const auto ambient = hit.object->ambient;
-
     fRGB phongColor=hit.object->specular*specular;
 
     if (hit.object->difTexture){
@@ -125,6 +122,7 @@ fRGB Raytracer::traceRay(const Ray& ray, const int level){
 		phongColor += diffuse * hit.object->diffuse;
 	}
 
+    // Ambient
     if(hit.object->ambTexture){
         phongColor += hit.object->ambient * hit.object->ambTexture->getRGB_lerp(hit.uv);
     }

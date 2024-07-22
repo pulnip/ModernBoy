@@ -6,9 +6,8 @@ using namespace glm;
 using namespace ModernBoy;
 
 constexpr auto inf = numeric_limits<float>::infinity();
-constexpr auto zeroVec2 = vec2{0.0f, 0.0f};
-constexpr auto zeroVec3 = vec3{0.0f, 0.0f, 0.0f};
-const Hit noHit{-inf, zeroVec3, zeroVec3, zeroVec2};
+constexpr vec3 zeroVec3{0.0f};
+const Hit noHit{-inf, zeroVec3, zeroVec3};
 constexpr auto epsilon = 1e-2f;
 
 ModernBoy::Hit Sphere::shootRay(const Ray& ray) const{
@@ -27,7 +26,7 @@ ModernBoy::Hit Sphere::shootRay(const Ray& ray) const{
     const auto point = ray.p0 + distance * ray.dir;
     const auto normal = normalize(point - center);
 
-    return { distance, point, normal };
+    return {distance, point, normal};
 }
 
 ModernBoy::Hit Triangle::shootRay(const Ray& ray) const{

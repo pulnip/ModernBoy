@@ -25,6 +25,7 @@ namespace ModernBoy{
             const fRGB& diffuse = fBLUE,
             const fRGB& specular = fWHITE)
         :ambient(ambient), diffuse(diffuse), specular(specular){}
+        virtual ~Object()=default;
 
         virtual Hit shootRay(const Ray& ray) const=0;
     };

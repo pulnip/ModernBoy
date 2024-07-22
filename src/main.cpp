@@ -11,7 +11,7 @@ using namespace ModernBoy;
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-int main(int argc, char* argv[]){
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     LevelLoader levelLoader("settings/glob.json");
     auto wi=levelLoader.getWindowInfo();
 

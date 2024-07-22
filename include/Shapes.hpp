@@ -13,8 +13,8 @@ namespace ModernBoy{
             const WorldPos& center,
             const float radius,
             const fRGB& color = fBLUE)
-        : center(center), radius(radius)
-        , Object(fDUNE, color, fWHITE){}
+        : Object(fDUNE, color, fWHITE)
+        , center(center), radius(radius){}
 
         Hit shootRay(const Ray& ray) const override;
     };
@@ -31,9 +31,9 @@ namespace ModernBoy{
             const UVPos& uv0 = uvTopLeft,
             const UVPos& uv1 = uvTopRight,
             const UVPos& uv2 = uvBottomLeft)
-        : v0(v0), v1(v1), v2(v2)
-        , uv0(uv0), uv1(uv1), uv2(uv2)
-        , Object(fWHITE, fBLACK, fBLACK){}
+        : Object(fWHITE, fBLACK, fBLACK)
+        , v0(v0), v1(v1), v2(v2)
+        , uv0(uv0), uv1(uv1), uv2(uv2){}
 
         Hit shootRay(const Ray& ray) const override;
     };
@@ -52,9 +52,9 @@ namespace ModernBoy{
             const UVPos& uv1 = uvTopRight,
             const UVPos& uv2 = uvBottomRight,
             const UVPos& uv3 = uvBottomLeft)
-        : v0(v0), v1(v1), v2(v2), v3(v3)
-        , uv0(uv0), uv1(uv1), uv2(uv2), uv3(uv3)
-        , Object(fWHITE, fBLACK, fBLACK){}
+        : Object(fWHITE, fBLACK, fBLACK)
+        , v0(v0), v1(v1), v2(v2), v3(v3)
+        , uv0(uv0), uv1(uv1), uv2(uv2), uv3(uv3){}
 
         Hit shootRay(const Ray& ray) const override;
 

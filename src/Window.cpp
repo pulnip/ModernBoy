@@ -24,7 +24,7 @@ Window::Window(const WindowInfo& wi)
         0
     );  
 
-    auto renderer=SDL_CreateRenderer(
+    [[maybe_unused]] auto renderer=SDL_CreateRenderer(
         window, -1, SDL_RENDERER_ACCELERATED
     );
 
@@ -177,10 +177,11 @@ Window::Window(const WindowInfo& wi)
         bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
         bufferDesc.StructureByteStride = sizeof(Vertex);
 
-        D3D11_SUBRESOURCE_DATA vertexBufferData = {0, };
-        vertexBufferData.pSysMem = vertices.data();
-        vertexBufferData.SysMemPitch = 0;
-        vertexBufferData.SysMemSlicePitch = 0;
+        D3D11_SUBRESOURCE_DATA vertexBufferData{
+            vertices.data(),
+            0,
+            0
+        };
 
         const HRESULT hr =
             device->CreateBuffer(&bufferDesc, &vertexBufferData, &vertexBuffer);
@@ -208,10 +209,11 @@ Window::Window(const WindowInfo& wi)
         bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE; 
         bufferDesc.StructureByteStride = sizeof(uint16_t);
 
-        D3D11_SUBRESOURCE_DATA indexBufferData = {0};
-        indexBufferData.pSysMem = indices.data();
-        indexBufferData.SysMemPitch = 0;
-        indexBufferData.SysMemSlicePitch = 0;
+        D3D11_SUBRESOURCE_DATA indexBufferData = {
+            indices.data(),
+            0,
+            0
+        };
 
         device->CreateBuffer(&bufferDesc, &indexBufferData, &indexBuffer);
     }

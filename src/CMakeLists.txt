@@ -96,7 +96,8 @@ find_package(SDL2 CONFIG REQUIRED)
 
 target_compile_options(${PROJECT_NAME}
 PRIVATE
-    -Wno-ignored-attributes
+    -Wall -Wextra
+    # -Wno-ignored-attributes
 )
 
 if(WIN32)
