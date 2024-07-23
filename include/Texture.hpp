@@ -1,6 +1,4 @@
- #pragma once
-
-#define GLM_ENABLE_EXPERIMENTAL
+#pragma once
 
 #include <string>
 #include <iostream>

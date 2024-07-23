@@ -1,5 +1,4 @@
 #pragma once
-#define GLM_ENABLE_EXPERIMENTAL
 
 #include <vector>
 #include <gsl-lite/gsl-lite.hpp>

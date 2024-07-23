@@ -1,5 +1,3 @@
-#define GLM_ENABLE_EXPERIMENTAL
-
 #include <vector>
 #include <gtest/gtest.h>
 #include <glm/glm.hpp>
