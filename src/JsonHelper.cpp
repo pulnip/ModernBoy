@@ -1,6 +1,7 @@
 #include "JsonHelper.hpp"
 #include <format>
 #include <fstream>
+#include <vector>
 #include <rapidjson/error/en.h>
 #include <rapidjson/error/error.h>
 
@@ -23,10 +24,10 @@ Json::Json(const string& fileName){
     size_t fileSize=file.tellg();
     file.seekg(0, ios::beg);
 
-    char json[fileSize+1];
-    file.read(json, fileSize);
+    vector<char> json(fileSize+1);
+    file.read(json.data(), fileSize);
 
-    ParseResult ok=doc.Parse<kParseStopWhenDoneFlag>(json);
+    ParseResult ok=doc.Parse<kParseStopWhenDoneFlag>(json.data());
     if(!ok){
         throw std::format("JSON parse error: {} ({})",
             GetParseError_En(ok.Code()),
