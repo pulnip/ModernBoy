@@ -10,6 +10,9 @@
             "host" : true
         },
         {
+            "name": "directxtk"
+        },
+        {
             "name": "glm"
         },
         {
