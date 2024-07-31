@@ -1,3 +1,5 @@
+enable_testing()
+
 file(GLOB TEST_SRC "*.cpp")
 
 add_executable(Test
@@ -18,6 +20,8 @@ if(GTest_FOUND)
     target_link_libraries(Test PRIVATE
         GTest::gtest    
         GTest::gtest_main
+        GTest::gmock
+        GTest::gmock_main
     )
 
     include(GoogleTest)

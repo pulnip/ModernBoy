@@ -108,3 +108,22 @@ TEST(MathTest, clamp2_test){
     EXPECT_FLOAT_EQ(origin2.y, clamped2.y);
     EXPECT_EQ(clamped3, uvBottomRight);
 }
+
+struct fake_pos{
+    using value_type=float;
+    value_type x=0.0f, y=0.0f, z=0.0f;
+};
+// constexpr bool operator==(const fake_pos& lhs, const fake_pos& rhs) noexcept{
+//     return lhs.x==rhs.x && lhs.y==rhs.y && lhs.z==rhs.z;
+// }
+inline constexpr fake_pos operator+(const vec3& v, const fake_pos& p) noexcept{
+    return{.x=p.x+v.x, .y=p.y+v.y, .z=p.z+v.z};
+}
+inline constexpr fake_pos operator+(const fake_pos& p, const vec3& v) noexcept{
+    return v+p;
+}
+
+TEST(MathTest, affine_test){
+    static_assert(affine_additive<vec3, pos>);
+    static_assert(!affine_additive<vec3, fake_pos>);
+}
