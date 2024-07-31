@@ -19,27 +19,27 @@ bool ModernBoy::in(const float x, const Line1& range) noexcept{
 bool ModernBoy::in(const ivec2& x, const iLine2& range) noexcept{
     const auto in_x=in(x.x, {range.point0.x, range.point1.x}); 
     const auto in_y=in(x.y, {range.point0.y, range.point1.y});
-    return in_x && in_y; 
+    return in_x && in_y;
 }
 
 bool ModernBoy::in(const vec2& x, const Line2& range) noexcept{
     const auto in_x=in(x.x, {range.point0.x, range.point1.x}); 
     const auto in_y=in(x.y, {range.point0.y, range.point1.y});
-    return in_x && in_y; 
+    return in_x && in_y;
 }
 
 bool ModernBoy::in(const ivec3& x, const iLine3& range) noexcept{
     const auto in_x=in(x.x, {range.point0.x, range.point1.x}); 
     const auto in_y=in(x.y, {range.point0.y, range.point1.y});
     const auto in_z=in(x.z, {range.point0.z, range.point1.z});
-    return in_x && in_y && in_z; 
+    return in_x && in_y && in_z;
 }
 
 bool ModernBoy::in(const vec3& x, const Line3& range) noexcept{
     const auto in_x=in(x.x, {range.point0.x, range.point1.x}); 
     const auto in_y=in(x.y, {range.point0.y, range.point1.y});
     const auto in_z=in(x.z, {range.point0.z, range.point1.z});
-    return in_x && in_y && in_z; 
+    return in_x && in_y && in_z;
 }
 
 int ModernBoy::wrap(int x, const iLine1& line) noexcept{
