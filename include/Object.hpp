@@ -31,6 +31,7 @@ namespace ModernBoy{
     };
 
     class MeshObject{
+      public:
         Transform transform;
         Material material;
         Mesh mesh;
