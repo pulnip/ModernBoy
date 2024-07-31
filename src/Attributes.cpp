@@ -3,12 +3,9 @@
 using namespace glm;
 using namespace ModernBoy;
 
-WorldPos Transform::transform(const WorldPos& vertexPos){
-    const auto translation=translate(mat4(1.0f), position);
-    const auto rotation=toMat4(quaternion);
-    const auto _scale=glm::scale(mat4(1.0f), scale);
+pos Transform::transform(const pos& vertexPos){
+    const auto rotation=toMat3(quaternion);
+    const mat3 scaling{vec3(scale.x), vec3(scale.y), vec3(scale.z)};
 
-    const auto transform=translation*rotation*_scale;
-
-    return transform*vec4{vertexPos, 1.0f};
+    return rotation*scaling*static_cast<vec3>(vertexPos) + position;
 }

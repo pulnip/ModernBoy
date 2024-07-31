@@ -14,13 +14,13 @@ namespace ModernBoy{
     using iLine3=Line<glm::ivec3>;
     using Line3=Line<glm::vec3>;
 
-    template<additive T=double, std::scalar S=double>
-        requires scalar_multiplicative<S, T>
+    template<linear T=double, std::scalar S=double>
     constexpr T lerp(const Line<T>& line, S t) noexcept{
-        return line.point0*(S(1)-t) + line.point1*t;
+        const auto dir = line.point1-line.point0;
+        return line.point0 + t*dir;
+        // return line.point0*(S(1)-t) + line.point1*t;
     }
-    template<additive T=double, std::scalar S=double>
-        requires scalar_multiplicative<S, T>
+    template<linear T=double, std::scalar S=double>
     constexpr T lerp2(const Line<Line<T>>& line, S t0, S t1) noexcept{
         return lerp<T>(
             {
@@ -67,6 +67,30 @@ namespace ModernBoy{
     iRGB rgbcvt(const fRGB& color) noexcept;
     fRGB rgbcvt(const iRGB& color) noexcept;
     fRGBA toRGBA(const fRGB& color, float alpha=1.0f) noexcept;
+
+    struct pos{
+        using value_type=float;
+        value_type x=0.0f, y=0.0f, z=0.0f;
+
+        inline explicit operator glm::vec3() const noexcept{ return{x, y, z}; }
+        inline constexpr pos& operator+=(const glm::vec3& v) noexcept{
+            x+=v.x; y+=v.y; z+=v.z;
+            return *this;
+        }
+    };
+    constexpr bool operator==(const pos& lhs, const pos& rhs) noexcept{
+        return lhs.x==rhs.x && lhs.y==rhs.y && lhs.z==rhs.z;
+    }
+
+    inline constexpr pos operator+(const pos& p, const glm::vec3& v) noexcept{
+        return pos{p}+=v;
+    }
+    inline constexpr pos operator+(const glm::vec3& v, const pos& p) noexcept{
+        return p+v;
+    }
+    inline constexpr glm::vec3 operator-(const pos& lhs, const pos& rhs) noexcept{
+        return {lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z};
+    }
 
     using UVPos = glm::vec2;
     using PixelPos = glm::ivec2;

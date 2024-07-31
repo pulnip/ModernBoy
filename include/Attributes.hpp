@@ -7,11 +7,11 @@
 
 namespace ModernBoy{
     struct Transform{
-        WorldPos position{0.0f};
+        pos position{0.0f};
         glm::quat quaternion{0.0f, 0.0f, 0.0f, 1.0f};
         glm::vec3 scale{1.0f};
 
-        WorldPos transform(const WorldPos& vertexPos);
+        pos transform(const pos& vertexPos);
     };
 
     struct Material{
