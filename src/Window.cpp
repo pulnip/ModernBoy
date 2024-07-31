@@ -1,3 +1,4 @@
+#include <print>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <imgui.h>
@@ -63,7 +64,7 @@ Window::Window(const WindowInfo& wi)
             NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags,
             featureLevelArray, 1, D3D11_SDK_VERSION, &swapChainDesc, &swapChain,
             &device, NULL, &deviceContext))) {
-        std::cout << "D3D11CreateDeviceAndSwapChain() error" << std::endl;
+        std::println("D3D11CreateDeviceAndSwapChain() error");
     }
 
     // CreateRenderTarget
@@ -74,7 +75,7 @@ Window::Window(const WindowInfo& wi)
         pBackBuffer->Release();
     }
     else{
-        std::cout << "CreateRenderTargetView() error" << std::endl;
+        std::println("CreateRenderTargetView() error");
         exit(-1);
     }
 
@@ -141,7 +142,7 @@ Window::Window(const WindowInfo& wi)
         );
     }
     else{
-        std::cout << "CreateRenderTargetView() error" << std::endl;
+        std::println("CreateRenderTargetView() error");
     }
 
     // Create a vertex buffer
@@ -186,8 +187,7 @@ Window::Window(const WindowInfo& wi)
         const HRESULT hr =
             device->CreateBuffer(&bufferDesc, &vertexBufferData, &vertexBuffer);
         if(FAILED(hr)) {
-            std::cout << "CreateBuffer() failed. " << std::hex << hr
-                      << std::endl;
+            std::println("CreateBuffer() failed. {:x}", hr);
         };
     }
 
@@ -250,12 +250,12 @@ void Window::initShader(){
     );
     if(FAILED(hr)) {
         if((hr & D3D11_ERROR_FILE_NOT_FOUND) != 0) {
-            std::cout << "File not found." << std::endl;
+            std::println("File not found.");
         }
 
         if(errorBlob) {
-            std::cout << "Vertex shader compile error\n"
-                << (char*)errorBlob->GetBufferPointer() << std::endl;
+            std::println("Vertex shader compile error");
+            // std::println("{:s}", (char*)errorBlob->GetBufferPointer());
         }
 
         exit(-1);
@@ -267,12 +267,12 @@ void Window::initShader(){
     );
     if(FAILED(hr)) {
         if((hr & D3D11_ERROR_FILE_NOT_FOUND) != 0) {
-            std::cout << "File not found." << std::endl;
+            std::println("File not found.");
         }
 
         if(errorBlob) {
-            std::cout << "Pixel shader compile error\n"
-                << (char *)errorBlob->GetBufferPointer() << std::endl;
+            std::println("Pixel shader compile error");
+            // std::println("{:s}", (char*)errorBlob->GetBufferPointer());
         }
 
         exit(-1);
@@ -378,19 +378,19 @@ bool Window::update(){
         case SDL_QUIT:
             return false;
         case SDL_WINDOWEVENT:
-            // cout<<"SDL Window Event"<<endl;
+            // print("SDL Window Event");
             break;
         case SDL_MOUSEMOTION:
-            // cout<<"Mouse Button Move"<<endl;
+            // print("Mouse Button Move");
             break;
         case SDL_MOUSEBUTTONDOWN:
-		    // cout<<"Mouse Button Down"<<endl;
+		    // print("Mouse Button Down");
             break;
         case SDL_MOUSEBUTTONUP:
-		    // cout<<"Mouse Button Up"<<endl;
+		    // print("Mouse Button Up");
             break;
         case SDL_KEYDOWN:
-            // cout<<"Keyboard Button Down"<<endl;
+            // print("Keyboard Button Down");
             break;
         }
     }

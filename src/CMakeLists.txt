@@ -27,6 +27,7 @@ if(NOT ${DIRECTX_ARCH} MATCHES "^arm")
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    stdc++exp
     d3d11 D3DCompiler
     imgui_impl
     algorithm_impl
@@ -61,6 +62,14 @@ if(imgui_FOUND)
     message(STATUS "Using ImGUI package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         imgui::imgui
+    )
+endif()
+
+find_package(directxtk CONFIG REQUIRED)
+if(directxtk_FOUND)
+    message(STATUS "Using DirectX Tool Kit package")
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        Microsoft::DirectXTK
     )
 endif()
 
