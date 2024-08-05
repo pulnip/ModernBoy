@@ -8,46 +8,46 @@ using namespace DirectX::Colors;
 using namespace ModernBoy;
 
 MeshBuffer::MeshBuffer(){
-    constexpr float scale=1.0f;
+    constexpr float cubeScale=1.0f;
     auto cube=make_shared<MeshObject>();
 
     Vertex leftBottomBack{
-        .position=scale*Vector3(-1.0f, -1.0f, -1.0f),
+        .position=cubeScale*Vector3(-1.0f, -1.0f, -1.0f),
         .normal{-1.0f, -1.0f, -1.0f},
         .color=Black.v
     };
     Vertex leftBottomFront{
-        .position=scale*Vector3(-1.0f, -1.0f, 1.0f),
+        .position=cubeScale*Vector3(-1.0f, -1.0f, 1.0f),
         .normal{-1.0f, -1.0f, 1.0f},
         .color=Blue.v
     };
     Vertex leftTopBack{
-        .position=scale*Vector3(-1.0f, 1.0f, -1.0f),
+        .position=cubeScale*Vector3(-1.0f, 1.0f, -1.0f),
         .normal{-1.0f, 1.0f, -1.0f},
         .color=Green.v
     };
     Vertex leftTopFront{
-        .position=scale*Vector3(-1.0f, 1.0f, 1.0f),
+        .position=cubeScale*Vector3(-1.0f, 1.0f, 1.0f),
         .normal{-1.0f, 1.0f, 1.0f},
         .color=Cyan.v
     };
     Vertex rightBottomBack{
-        .position=scale*Vector3(1.0f, -1.0f, -1.0f),
+        .position=cubeScale*Vector3(1.0f, -1.0f, -1.0f),
         .normal{1.0f, -1.0f, -1.0f},
         .color=Red.v
     };
     Vertex rightBottomFront{
-        .position=scale*Vector3(1.0f, -1.0f, 1.0f),
+        .position=cubeScale*Vector3(1.0f, -1.0f, 1.0f),
         .normal{1.0f, -1.0f, 1.0f},
         .color=Magenta.v
     };
     Vertex rightTopBack{
-        .position=scale*Vector3(1.0f, 1.0f, -1.0f),
+        .position=cubeScale*Vector3(1.0f, 1.0f, -1.0f),
         .normal{1.0f, 1.0f, -1.0f},
         .color=Yellow.v
     };
     Vertex rightTopFront{
-        .position=scale*Vector3(1.0f, 1.0f, 1.0f),
+        .position=cubeScale*Vector3(1.0f, 1.0f, 1.0f),
         .normal{1.0f, 1.0f, 1.0f},
         .color=White.v
     };
@@ -74,23 +74,24 @@ MeshBuffer::MeshBuffer(){
     cube->mesh.verticies=std::move(cubeVertices);
     cube->mesh.polygons=std::move(cubePolygons);
 
-    // objects.emplace_back(std::move(cube));
+    objects.emplace_back(std::move(cube));
 
     constexpr float sqrt3=1.7321f;
+    constexpr float triangleScale=2.0f;
     auto triangle=std::make_shared<MeshObject>();
 
     Vertex leftBottom{
-        .position=scale*Vector3{-sqrt3/2, -0.5f, 0.0f},
+        .position=triangleScale*Vector3{-sqrt3/2, -0.5f, 0.0f},
         .normal{0.0f, 0.0f, -1.0f},
         .color=Red.v
     };
     Vertex midTop{
-        .position=scale*Vector3{0.0f, 1.0f, 0.0f},
+        .position=triangleScale*Vector3{0.0f, 1.0f, 0.0f},
         .normal{0.0f, 0.0f, -1.0f},
         .color=Green.v
     };
     Vertex rightBottom{
-        .position=scale*Vector3{sqrt3/2, -0.5f, 0.0f},
+        .position=triangleScale*Vector3{sqrt3/2, -0.5f, 0.0f},
         .normal{0.0f, 0.0f, -1.0f},
         .color=Blue.v
     };
