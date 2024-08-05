@@ -80,6 +80,11 @@
         "bitset": "cpp",
         "regex": "cpp",
         "codecvt": "cpp",
-        "print": "cpp"
+        "print": "cpp",
+        "any": "cpp",
+        "csignal": "cpp",
+        "shared_mutex": "cpp",
+        "text_encoding": "cpp",
+        "source_location": "cpp"
     }
 }
