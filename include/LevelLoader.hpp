@@ -11,6 +11,6 @@ namespace ModernBoy{
 
     public:
         LevelLoader(const std::string& fileName);
-        WindowInfo getWindowInfo();
+        WindowDesc getWindowDesc();
     };
 }
