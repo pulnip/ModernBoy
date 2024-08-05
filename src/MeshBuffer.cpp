@@ -115,6 +115,7 @@ tuple<vector<ColorVertex>, vector<uint16_t>> MeshBuffer::extract(){
     vector<ColorVertex> vertices;
     vector<uint16_t> indices;
 
+    size_t indexOffset=0;
     for(const auto& o: objects){
         vertices.reserve(vertices.size()+o->mesh.verticies.size());
         for(const auto& v: o->mesh.verticies){
@@ -126,10 +127,12 @@ tuple<vector<ColorVertex>, vector<uint16_t>> MeshBuffer::extract(){
 
         indices.reserve(indices.size() + 3*o->mesh.polygons.size());
         for(const auto& p: o->mesh.polygons){
-            indices.emplace_back(p.index[0]);
-            indices.emplace_back(p.index[1]);
-            indices.emplace_back(p.index[2]);
+            indices.emplace_back(indexOffset + p.index[0]);
+            indices.emplace_back(indexOffset + p.index[1]);
+            indices.emplace_back(indexOffset + p.index[2]);
         }
+
+        indexOffset += o->mesh.verticies.size();
     }
 
     return {vertices, indices};
