@@ -100,7 +100,7 @@ struct RenderAdaptor::ShaderAdaptor final{
         D3D11_BUFFER_DESC bufferDesc;
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
         // write access access by CPU and GPU
-        // bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+        // bufferDesc.Usage=D3D11_USAGE_DYNAMIC;
         bufferDesc.Usage=D3D11_USAGE_IMMUTABLE;
         bufferDesc.ByteWidth=UINT(sizeof(V) * vertices.size());
         // use as a vertex buffer
@@ -185,8 +185,8 @@ inline SDL_Window* createWindow(const WindowDesc& wd){
 }
 
 inline tuple<ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceContext>> createDevice(){
-    // constexpr auto DRIVER_TYPE = D3D_DRIVER_TYPE_WARP;
-    constexpr auto DRIVER_TYPE = D3D_DRIVER_TYPE_HARDWARE;
+    // constexpr auto DRIVER_TYPE=D3D_DRIVER_TYPE_WARP;
+    constexpr auto DRIVER_TYPE=D3D_DRIVER_TYPE_HARDWARE;
     constexpr UINT CREATE_DEVICE_FLAGS=IS_DEBUG ? D3D11_CREATE_DEVICE_DEBUG : 0;
     constexpr D3D_FEATURE_LEVEL FEATURE_LEVELS[]={
         D3D_FEATURE_LEVEL_11_0,
@@ -303,7 +303,7 @@ void RenderAdaptor::Impl::setupRender(){
     // RS: Rasterizer stage
     // OM: Output-Merger stage
 
-    float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    float clearColor[4]={0.0f, 0.0f, 0.0f, 1.0f};
     context->RSSetViewports(1, &screenViewport);
     // use depth buffer
     context->OMSetRenderTargets(1, renderTargetView.GetAddressOf(),
@@ -467,8 +467,8 @@ void RenderAdaptor::Impl::initDirect3D(const WindowDesc& wd){
 void RenderAdaptor::Impl::initGUI(const WindowDesc& wd){
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.DisplaySize = ImVec2(wd.size.x, wd.size.y);
+    ImGuiIO& io=ImGui::GetIO(); (void)io;
+    io.DisplaySize=ImVec2(wd.size.x, wd.size.y);
     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
@@ -565,8 +565,8 @@ void RenderAdaptor::ShaderAdaptor::render(
     context->RSSetState(rs.Get());
 
     // select which vertex buffer to display
-    UINT stride = sizeof(ColorVertex);
-    UINT offset = 0;
+    UINT stride=sizeof(ColorVertex);
+    UINT offset=0;
     context->IASetInputLayout(il.Get());
     context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
     context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
@@ -627,13 +627,13 @@ void RenderAdaptor::ShaderAdaptor::createIB(const vector<uint16_t>& indices,
 ){
     D3D11_BUFFER_DESC bufferDesc{};
     // write access access by CPU and GPU
-    // bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    // bufferDesc.Usage=D3D11_USAGE_DYNAMIC;
     bufferDesc.Usage=D3D11_USAGE_IMMUTABLE;
     bufferDesc.ByteWidth=static_cast<UINT>(sizeof(uint16_t) * indices.size());
     // use as a index buffer
     bufferDesc.BindFlags=D3D11_BIND_INDEX_BUFFER;
     // allow CPU to write in buffer
-    // bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    // bufferDesc.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;
     bufferDesc.CPUAccessFlags=0;
     bufferDesc.StructureByteStride=sizeof(uint16_t);
 
@@ -663,7 +663,7 @@ static void updateBuffer(ComPtr<ID3D11Buffer>& buffer,
 void RenderAdaptor::ShaderAdaptor::update(float dt,
     const ComPtr<ID3D11DeviceContext>& context
 ){
-    static float rot = 0.0f;
+    static float rot=0.0f;
     rot+=dt;
 
     const auto translation=Matrix::CreateTranslation(0.0f, -0.3f, 1.0f);
@@ -677,7 +677,7 @@ void RenderAdaptor::ShaderAdaptor::update(float dt,
     constants.view=DirectX::XMMatrixLookAtLH(eyePos, focus, upDir);
 
     if(usePerspective){
-        constexpr float fovAngleY = 70.0f * XM_PI / 180.0f;
+        constexpr float fovAngleY=70.0f * XM_PI / 180.0f;
         constants.projection=DirectX::XMMatrixPerspectiveFovLH(
             fovAngleY, ASPECT_RATIO,
             0.01f, 100.0f
@@ -689,9 +689,9 @@ void RenderAdaptor::ShaderAdaptor::update(float dt,
         );
     }
 
-    constants.model = constants.model.Transpose();
-    constants.view = constants.view.Transpose();
-    constants.projection = constants.projection.Transpose();
+    constants.model=constants.model.Transpose();
+    constants.view=constants.view.Transpose();
+    constants.projection=constants.projection.Transpose();
 
     updateBuffer(constantBuffer, constants, context);
 }
