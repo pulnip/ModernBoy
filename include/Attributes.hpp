@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <vector>
 #include <gsl-lite/gsl-lite.hpp>
 #include <directxtk/SimpleMath.h>
