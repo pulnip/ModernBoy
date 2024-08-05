@@ -4,6 +4,7 @@
 
 using namespace std;
 using namespace DirectX::SimpleMath;
+using namespace DirectX::Colors;
 using namespace ModernBoy;
 
 MeshBuffer::MeshBuffer(){
@@ -13,42 +14,42 @@ MeshBuffer::MeshBuffer(){
     Vertex leftBottomBack{
         .position=scale*Vector3(-1.0f, -1.0f, -1.0f),
         .normal{-1.0f, -1.0f, -1.0f},
-        .color{0.0f, 0.0f, 0.0f}
+        .color=Black.v
     };
     Vertex leftBottomFront{
         .position=scale*Vector3(-1.0f, -1.0f, 1.0f),
         .normal{-1.0f, -1.0f, 1.0f},
-        .color{0.0f, 0.0f, 1.0f}
+        .color=Blue.v
     };
     Vertex leftTopBack{
         .position=scale*Vector3(-1.0f, 1.0f, -1.0f),
         .normal{-1.0f, 1.0f, -1.0f},
-        .color{0.0f, 1.0f, 0.0f}
+        .color=Green.v
     };
     Vertex leftTopFront{
         .position=scale*Vector3(-1.0f, 1.0f, 1.0f),
         .normal{-1.0f, 1.0f, 1.0f},
-        .color{0.0f, 1.0f, 1.0f}
+        .color=Cyan.v
     };
     Vertex rightBottomBack{
         .position=scale*Vector3(1.0f, -1.0f, -1.0f),
         .normal{1.0f, -1.0f, -1.0f},
-        .color{1.0f, 0.0f, 0.0f}
+        .color=Red.v
     };
     Vertex rightBottomFront{
         .position=scale*Vector3(1.0f, -1.0f, 1.0f),
         .normal{1.0f, -1.0f, 1.0f},
-        .color{1.0f, 0.0f, 1.0f}
+        .color=Magenta.v
     };
     Vertex rightTopBack{
         .position=scale*Vector3(1.0f, 1.0f, -1.0f),
         .normal{1.0f, 1.0f, -1.0f},
-        .color{1.0f, 1.0f, 0.0f}
+        .color=Yellow.v
     };
     Vertex rightTopFront{
         .position=scale*Vector3(1.0f, 1.0f, 1.0f),
         .normal{1.0f, 1.0f, 1.0f},
-        .color{1.0f, 1.0f, 1.0f}
+        .color=White.v
     };
 
     std::vector cubeVertices{
@@ -81,17 +82,17 @@ MeshBuffer::MeshBuffer(){
     Vertex leftBottom{
         .position=scale*Vector3{-sqrt3/2, -0.5f, 0.0f},
         .normal{0.0f, 0.0f, -1.0f},
-        .color{1.0f, 0.0f, 0.0f}
+        .color=Red.v
     };
     Vertex midTop{
         .position=scale*Vector3{0.0f, 1.0f, 0.0f},
         .normal{0.0f, 0.0f, -1.0f},
-        .color{0.0f, 1.0f, 0.0f}
+        .color=Green.v
     };
     Vertex rightBottom{
         .position=scale*Vector3{sqrt3/2, -0.5f, 0.0f},
         .normal{0.0f, 0.0f, -1.0f},
-        .color{0.0f, 0.0f, 1.0f}
+        .color=Blue.v
     };
 
     std::vector triangleVertices{
@@ -118,7 +119,7 @@ tuple<vector<ColorVertex>, vector<uint16_t>> MeshBuffer::extract(){
         for(const auto& v: o->mesh.verticies){
             vertices.emplace_back(ColorVertex{
                 .position=v.position,
-                .color=v.color
+                .color=v.color.ToVector3()
             });
         }
 

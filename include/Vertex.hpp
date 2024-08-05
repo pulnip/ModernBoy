@@ -7,7 +7,7 @@ namespace ModernBoy{
         WorldPos position;
         Vector3 normal;
         union{
-            Vector3 color;
+            Color color;
             UVPos uv;
         };
     };
