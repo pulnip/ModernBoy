@@ -3,13 +3,14 @@
 
 using namespace std;
 using namespace gsl;
-using namespace glm;
+using namespace DirectX::SimpleMath;
+using namespace DirectX::Colors;
 using namespace ModernBoy;
 
-Raytracer::Raytracer(const ivec2& resolution)
+Raytracer::Raytracer(const ipoint2& resolution)
 :resolution(resolution){
     auto sphere = std::make_shared<Sphere>(
-        vec3(0.0f, -0.1f, 1.5f),
+        Vector3(0.0f, -0.1f, 1.5f),
         1.0f
     );
 
@@ -20,8 +21,8 @@ Raytracer::Raytracer(const ivec2& resolution)
 	objects.push_back(sphere);
 
 	auto ground = std::make_shared<Square>(
-        vec3(-10.0f, -1.5f, 10.0f), vec3(10.0f, -1.5f, 10.0f),
-        vec3(10.0f, -1.5f, 0.0f), vec3(-10.0f, -1.5f, 0.0f)
+        Vector3(-10.0f, -1.5f, 10.0f), Vector3(10.0f, -1.5f, 10.0f),
+        Vector3(10.0f, -1.5f, 0.0f), Vector3(-10.0f, -1.5f, 0.0f)
     );
 
 	auto groundTexture = std::make_shared<Texture>(
@@ -33,8 +34,8 @@ Raytracer::Raytracer(const ivec2& resolution)
     objects.push_back(ground);
 
 	auto square = std::make_shared<Square>(
-        vec3(-10.0f, 10.0f, 10.0f), vec3(10.0f, 10.0f, 10.0f),
-        vec3(10.0f, -10.0f, 10.0f), vec3(-10.0f, -10.0f, 10.0f)
+        Vector3(-10.0f, 10.0f, 10.0f), Vector3(10.0f, 10.0f, 10.0f),
+        Vector3(10.0f, -10.0f, 10.0f), Vector3(-10.0f, -10.0f, 10.0f)
     );
 
 	auto squareTexture = std::make_shared<Texture>(
@@ -48,23 +49,28 @@ Raytracer::Raytracer(const ivec2& resolution)
 	light = Light{{0.7f, 0.8f, -0.5f}};
 }
 
-void Raytracer::render(vector<fRGBA>& pixels){
-	const vec3 eyePos(0.0f, 0.0f, -1.5f);
+void Raytracer::render(vector<RGBA>& pixels){
+	const Vector3 eyePos(0.0f, 0.0f, -1.5f);
 
     const auto width=resolution.x;
     const auto height=resolution.y;
 #pragma omp parallel for
-	for(index i=0; i<height; ++i){
+	for(int i=0; i<height; ++i){
         const auto floor=width*i;
-		for(index j=0; j<width; ++j){
+		for(int j=0; j<width; ++j){
             const auto index=floor+j;
 
-			const vec3 pixelPosWorld = toWorld(vec2(j, i));
-			const Ray pixelRay{pixelPosWorld, normalize(pixelPosWorld - eyePos)};
+			const auto pixelPosWorld = toWorld({
+                static_cast<float>(j), static_cast<float>(i)
+            });
+            auto diff = pixelPosWorld - eyePos;
+            diff.Normalize();
+
+			const Ray pixelRay{pixelPosWorld, std::move(diff)};
 
             const auto traced = traceRay(pixelRay, 5);
-            const auto clamped = clamp(traced, 0.0f, 1.0f);
-            pixels[index] = toRGBA(clamped);
+            const auto clamped = clamp(traced, {Black.v, White.v});
+            pixels[index] = rgbcvt(clamped);
 		}
     }
 }
@@ -90,30 +96,30 @@ Hit Raytracer::closest(const Ray& ray){
     return closestHit;
 }
 
-fRGB Raytracer::traceRay(const Ray& ray, const int level){
+Color Raytracer::traceRay(const Ray& ray, const int level){
     if(level < 0){
-		return fBLACK;
+		return Black.v;
     }
 
 	// Render first hit
 	const auto hit = closest(ray);
 	if(hit.distance < 0.0f){
-        return fBLACK;
+        return Black.v;
     }
 
     // Diffuse
-    const auto diffHitToLight = light.pos - hit.point;
-    const auto dirToLight = normalize(diffHitToLight);
-    const auto cosToLight = dot(hit.normal, dirToLight);
-    const float diffuse = glm::max(cosToLight, 0.0f);
+    auto dirToLight = light.pos - hit.point;
+    dirToLight.Normalize();
+    const auto cosToLight = hit.normal.Dot(dirToLight);
+    const float diffuse = std::max(cosToLight, 0.0f);
 
     // Specular
     const auto reflectDir = 2.0f * cosToLight * hit.normal - dirToLight;
 
-    const auto cosToEye = dot(reflectDir, -ray.dir);
-    const float specular = pow(glm::max(cosToEye, 0.0f), hit.object->alpha);
+    const auto cosToEye = reflectDir.Dot(-ray.dir);
+    const float specular = pow(std::max(cosToEye, 0.0f), hit.object->alpha);
 
-    fRGB phongColor=hit.object->specular*specular;
+    Color phongColor=hit.object->specular*specular;
 
     if (hit.object->difTexture){
 		phongColor += diffuse * hit.object->diffuse * hit.object->difTexture->getRGB_lerp(hit.uv);
@@ -131,10 +137,11 @@ fRGB Raytracer::traceRay(const Ray& ray, const int level){
     }
 
 
-    fRGB color = phongColor * (1.0f - hit.object->reflection - hit.object->transparency);
+    Color color = phongColor * (1.0f - hit.object->reflection - hit.object->transparency);
 
 	if(hit.object->reflection){
-		const auto reflectedDirection = normalize(2.0f * hit.normal * dot(-ray.dir, hit.normal) + ray.dir);
+		auto reflectedDirection = 2.0f * hit.normal * hit.normal.Dot(-ray.dir) + ray.dir;
+        reflectedDirection.Normalize();
 		Ray reflection_ray{hit.point + reflectedDirection * 1e-4f, reflectedDirection}; // add a small vector to avoid numerical issue
 
 		color += traceRay(reflection_ray, level - 1) * hit.object->reflection;
@@ -148,20 +155,22 @@ fRGB Raytracer::traceRay(const Ray& ray, const int level){
         // Diamond: 2.417
         const float ior = 2.417f;
 
-		const float cosTheta1 = dot(-ray.dir, hit.normal);
+		const float cosTheta1 = hit.normal.Dot(-ray.dir);
         const auto inside = cosTheta1 < 0.0f;
         // sin($SOURCE) / sin($TARGET)
 		float eta = inside ? 1.0f/ior : ior;
-		vec3 normal = inside ? -hit.normal : hit.normal;
+		Vector3 normal = inside ? -hit.normal : hit.normal;
 
 		const float sinTheta1 = sqrt(1.0f - cosTheta1 * cosTheta1);
 		const float sinTheta2 = sinTheta1 / eta;
 		const float cosTheta2 = sqrt(1.0f - sinTheta2 * sinTheta2);
 
-		const vec3 m = normalize(dot(normal, -ray.dir) * normal + ray.dir);
-		const vec3 a = m * sinTheta2;
-		const vec3 b = -normal * cosTheta2;
-		const vec3 refractedDirection = normalize(a + b);
+	    Vector3 m = normal.Dot(-ray.dir) * normal + ray.dir;
+        m.Normalize();
+        const Vector3 a = m * sinTheta2;
+		const Vector3 b = -normal * cosTheta2;
+		Vector3 refractedDirection = a + b;
+        refractedDirection.Normalize();
 
 		Ray refractionRay{
             hit.point + refractedDirection * 1e-4f,
@@ -173,22 +182,20 @@ fRGB Raytracer::traceRay(const Ray& ray, const int level){
 	return color;
 }
 
-vec3 Raytracer::toWorld(const vec2& screenPos){
+Vector3 Raytracer::toWorld(const Vector2& screenPos
+) noexcept{
     const auto scale=2.0f/resolution.y;
     const auto aspect=static_cast<float>(resolution.x)/resolution.y;
     
-    constexpr vec2 axisX{1.0f, 0.0f};
-    constexpr vec2 axisY{0.0f, 1.0f};
-
-    const vec2 newAxisX= scale*axisX;
-    const vec2 newAxisY=-scale*axisY;
-    const vec2 translate=-aspect*axisX + axisY;
+    const auto newAxisX= scale*Vector4::UnitX;
+    const auto newAxisY=-scale*Vector4::UnitY;
+    const Vector4 translate=-aspect*Vector4::UnitX + Vector4::UnitY;
     
-    const vec3 extended{screenPos, 1.0f};
-    const mat3x2 transform{
-        newAxisX, newAxisY, translate
+    const Vector4 extended{screenPos.x, screenPos.y, 0.0f, 1.0f};
+    const Matrix transform{
+        newAxisX, newAxisY, Vector4::Zero, translate
     };
-    
-    auto worldPos=transform*extended;
-    return {worldPos, 0.0f};
+
+    auto worldPos=Vector4::Transform(extended, transform);
+    return {worldPos.x, worldPos.y, 0.0f};
 }

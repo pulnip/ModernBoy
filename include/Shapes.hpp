@@ -10,14 +10,15 @@ namespace ModernBoy{
         float radius;
 
         Sphere(
-            const WorldPos& center,
-            const float radius,
-            const fRGB& color = fBLUE)
-        : Object(fDUNE, color, fWHITE)
+            const WorldPos& center, const float radius,
+            const DirectX::SimpleMath::Color& color=DirectX::Colors::Blue.v)
+        : Object(DUNE, color, DirectX::Colors::White.v)
         , center(center), radius(radius){}
 
         Hit shootRay(const Ray& ray) const override;
     };
+
+    
 
     class Triangle: public Object{
       public:
@@ -31,7 +32,9 @@ namespace ModernBoy{
             const UVPos& uv0 = uvTopLeft,
             const UVPos& uv1 = uvTopRight,
             const UVPos& uv2 = uvBottomLeft)
-        : Object(fWHITE, fBLACK, fBLACK)
+        : Object(DirectX::Colors::White.v,
+            DirectX::Colors::Black.v,
+            DirectX::Colors::Black.v)
         , v0(v0), v1(v1), v2(v2)
         , uv0(uv0), uv1(uv1), uv2(uv2){}
 
@@ -52,7 +55,9 @@ namespace ModernBoy{
             const UVPos& uv1 = uvTopRight,
             const UVPos& uv2 = uvBottomRight,
             const UVPos& uv3 = uvBottomLeft)
-        : Object(fWHITE, fBLACK, fBLACK)
+        : Object(DirectX::Colors::White.v,
+            DirectX::Colors::Black.v,
+            DirectX::Colors::Black.v)
         , v0(v0), v1(v1), v2(v2), v3(v3)
         , uv0(uv0), uv1(uv1), uv2(uv2), uv3(uv3){}
 

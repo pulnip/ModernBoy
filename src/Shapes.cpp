@@ -2,20 +2,19 @@
 #include "Shapes.hpp"
 
 using namespace std;
-using namespace glm;
+using namespace DirectX::SimpleMath;
 using namespace ModernBoy;
 
 constexpr auto inf = numeric_limits<float>::infinity();
-constexpr vec3 zeroVec3{0.0f};
-const Hit noHit{-inf, zeroVec3, zeroVec3};
+const Hit noHit{-inf, Vector3::Zero, Vector3::Zero};
 constexpr auto epsilon = 1e-2f;
 
 ModernBoy::Hit Sphere::shootRay(const Ray& ray) const{
     const auto diff = ray.p0 - center;
 
-    //const auto a = dot(ray.dir, ray.dir);
-    const auto b = dot(ray.dir, diff);
-    const auto c = dot(diff, diff) - radius * radius;
+    //const auto a = ray.dir.Dot(ray.dir);
+    const auto b = ray.dir.Dot(diff);
+    const auto c = diff.Dot(diff) - radius * radius;
 
     const auto disc = b * b - c;
     if (disc < 0.0f) {
@@ -24,14 +23,16 @@ ModernBoy::Hit Sphere::shootRay(const Ray& ray) const{
 
     const auto distance = -b - sqrt(disc);
     const auto point = ray.p0 + distance * ray.dir;
-    const auto normal = normalize(point - center);
+    auto normal = point - center;
+    normal.Normalize();
 
     return {distance, point, normal};
 }
 
 ModernBoy::Hit Triangle::shootRay(const Ray& ray) const{
-    const auto normal = normalize(cross(v1 - v0, v2 - v0));
-    const auto cosToFace = dot(-ray.dir, normal);
+    auto normal=(v1-v0).Cross(v2-v0);
+    normal.Normalize();
+    const auto cosToFace = -ray.dir.Dot(normal);
 
     // backface culling.
     if(cosToFace < 0.0f) return noHit;
@@ -40,7 +41,7 @@ ModernBoy::Hit Triangle::shootRay(const Ray& ray) const{
     if(abs(cosToFace) < ::epsilon) return noHit;
 
     const auto diff=ray.p0-v0;
-    const auto t=dot(diff, normal)/cosToFace;
+    const auto t=diff.Dot(normal)/cosToFace;
 
     if(t < 0.0f) return noHit;
 
@@ -50,17 +51,17 @@ ModernBoy::Hit Triangle::shootRay(const Ray& ray) const{
     const auto toV1 = v1-point;
     const auto toV2 = v2-point;
 
-    const auto cross0 = cross(toV1, toV2);
-    const auto cross1 = cross(toV2, toV0);
-    const auto cross2 = cross(toV0, toV1);
+    const auto cross0 = toV1.Cross(toV2);
+    const auto cross1 = toV2.Cross(toV0);
+    const auto cross2 = toV0.Cross(toV1);
 
-    if(dot(cross0, normal) < 0.0f) return noHit;
-    if(dot(cross1, normal) < 0.0f) return noHit;
-    if(dot(cross2, normal) < 0.0f) return noHit;
+    if(cross0.Dot(normal) < 0.0f) return noHit;
+    if(cross1.Dot(normal) < 0.0f) return noHit;
+    if(cross2.Dot(normal) < 0.0f) return noHit;
 
-    const auto area0 = length(cross0) / 2.0f;
-    const auto area1 = length(cross1) / 2.0f;
-    const auto area2 = length(cross2) / 2.0f;
+    const auto area0 = cross0.Length() / 2.0f;
+    const auto area1 = cross1.Length() / 2.0f;
+    const auto area2 = cross2.Length() / 2.0f;
 
     const auto areaSum = area0 + area1 + area2;
 

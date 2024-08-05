@@ -1,17 +1,18 @@
 #pragma once
 
-#include "Math.hpp"
+#include "Attributes.hpp"
 #include "Hit.hpp"
+#include "Math.hpp"
 #include "Ray.hpp"
 #include "Texture.hpp"
-#include "Attributes.hpp"
+#include "Vertex.hpp"
 
 namespace ModernBoy{
     class Object{
       public:
-        fRGB ambient;
-        fRGB diffuse;
-        fRGB specular;
+        Color ambient;
+        Color diffuse;
+        Color specular;
 
         float alpha = 10.0f;
         float reflection = 0.0f;
@@ -21,9 +22,9 @@ namespace ModernBoy{
         std::shared_ptr<Texture> difTexture;
 
         Object(
-            const fRGB& ambient = fDUNE,
-            const fRGB& diffuse = fBLUE,
-            const fRGB& specular = fWHITE)
+            const Color& ambient={0.2f, 0.2f, 0.2f},
+            const Color& diffuse=DirectX::Colors::Blue.v,
+            const Color& specular=DirectX::Colors::White.v)
         :ambient(ambient), diffuse(diffuse), specular(specular){}
         virtual ~Object()=default;
 
@@ -34,6 +35,6 @@ namespace ModernBoy{
       public:
         Transform transform;
         Material material;
-        Mesh mesh;
+        Mesh<Vertex> mesh;
     };
 }

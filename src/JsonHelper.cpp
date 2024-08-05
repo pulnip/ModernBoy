@@ -6,7 +6,6 @@
 #include <rapidjson/error/error.h>
 
 using namespace std;
-using namespace glm;
 using namespace rapidjson;
 using namespace ModernBoy;
 
@@ -104,10 +103,10 @@ optional<JsonHelper> JsonHelper::subset(const string& propertyName){
         );
     }
 
-    return JsonHelper(property.GetObject());
+    return JsonHelper(property.GetObj());
 }
 
-optional<vec2> JsonHelper::getVec2(const string& propertyName){
+optional<point2<>> JsonHelper::getPoint2(const string& propertyName){
     const auto it=object.FindMember(propertyName.c_str());
     if(it==object.MemberEnd()){
         return nullopt;
@@ -127,13 +126,13 @@ optional<vec2> JsonHelper::getVec2(const string& propertyName){
         throw bad_cast();
     }
 
-    return vec2{
+    return point2<>{
         property[0].GetFloat(),
         property[1].GetFloat()
     };
 }
 
-optional<ivec2> JsonHelper::getVec2i(const string& propertyName){
+optional<ipoint2> JsonHelper::getPoint2i(const string& propertyName){
     const auto it=object.FindMember(propertyName.c_str());
     if(it==object.MemberEnd()){
         return nullopt;
@@ -153,7 +152,7 @@ optional<ivec2> JsonHelper::getVec2i(const string& propertyName){
         throw bad_cast();
     }
 
-    return ivec2{
+    return ipoint2{
         property[0].GetInt(),
         property[1].GetInt()
     };

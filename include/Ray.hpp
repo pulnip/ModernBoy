@@ -1,11 +1,11 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "Math.hpp"
 
 namespace ModernBoy{
     class Ray{
       public:
-        glm::vec3 p0;
-        glm::vec3 dir;
+        DirectX::SimpleMath::Vector3 p0;
+        DirectX::SimpleMath::Vector3 dir;
     };
 }

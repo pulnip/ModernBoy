@@ -1,11 +1,14 @@
 #include "Attributes.hpp"
 
-using namespace glm;
+using namespace DirectX::SimpleMath;
 using namespace ModernBoy;
 
-pos Transform::transform(const pos& vertexPos){
-    const auto rotation=toMat3(quaternion);
-    const mat3 scaling{vec3(scale.x), vec3(scale.y), vec3(scale.z)};
+Matrix Transform::transform() const{
+    std::lock_guard lg(mtx);
 
-    return rotation*scaling*static_cast<vec3>(vertexPos) + position;
+    const auto translation=Matrix::CreateTranslation(position);
+    const auto rotation=Matrix::CreateFromQuaternion(quaternion);
+    const auto scaling=Matrix::CreateScale(scale);
+
+    return scaling*rotation*translation;
 }

@@ -1,16 +1,16 @@
 #pragma once
 
 #include <memory>
-#include <glm/glm.hpp>
+#include <directxtk/SimpleMath.h>
 #include "Object.hpp"
 
 namespace ModernBoy{
     class Hit{
       public:
         float distance;
-        glm::vec3 point;
-        glm::vec3 normal;
-        glm::vec2 uv{0.0f};
+        DirectX::SimpleMath::Vector3 point;
+        DirectX::SimpleMath::Vector3 normal;
+        DirectX::SimpleMath::Vector2 uv{0, 0};
 
         std::shared_ptr<class Object> object{};
     

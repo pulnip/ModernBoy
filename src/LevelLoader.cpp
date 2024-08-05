@@ -7,13 +7,13 @@ using namespace ModernBoy;
 LevelLoader::LevelLoader(const string& fileName)
 :json(fileName){}
 
-WindowInfo LevelLoader::getWindowInfo(){
+WindowDesc LevelLoader::getWindowDesc(){
     auto helper=JsonHelper(json).subset("window").value();
 
     auto title=helper.getString("title").value();
-    auto position=helper.getVec2i("position").value();
-    auto size=helper.getVec2i("size").value();
-    auto resolution=helper.getVec2i("resolution").value();
+    auto position=helper.getPoint2i("position").value();
+    auto size=helper.getPoint2i("size").value();
+    auto resolution=helper.getPoint2i("resolution").value();
 
     return {
         // for wstring

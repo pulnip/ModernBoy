@@ -13,9 +13,6 @@
             "name": "directxtk"
         },
         {
-            "name": "glm"
-        },
-        {
             "name": "gsl-lite"
         },
         {
@@ -25,7 +22,7 @@
             "name": "imgui",
             "features": [
                 "dx11-binding",
-                "win32-binding"
+                "sdl2-binding"
             ]
         },
         {

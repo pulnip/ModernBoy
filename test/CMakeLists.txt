@@ -8,6 +8,8 @@ add_executable(Test
 
 target_include_directories(Test PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
+    "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxtk"
+    "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxmath"
 )
 
 target_link_libraries(Test PRIVATE

@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
+#include <directxmath/DirectXColors.h>
 #include "Math.hpp"
 
-using namespace glm;
+using namespace DirectX::SimpleMath;
+using namespace DirectX::Colors;
 using namespace ModernBoy;
 
-constexpr Line2 WINDOW_RANGE{uvTopLeft, uvBottomRight};
-constexpr Line fCOLOR_RANGE{fBLACK, fWHITE};
+constexpr Line WINDOW_RANGE{uvTopLeft, uvBottomRight};
+const Line<Color> COLOR_RANGE{Black.v, White.v};
 
 TEST(MathTest, lerp_test){
     static_assert(lerp({0, 1}, 0.4) == 0.4);
@@ -16,17 +18,6 @@ TEST(MathTest, lerp_test){
     // floating-point precision problem
     EXPECT_DOUBLE_EQ(lerp({10.0, 33.0}, 0.23), 15.29);
     EXPECT_DOUBLE_EQ(lerp({5423.0, 45565.0}, 0.1234), 10376.5228);
-
-
-    static_assert(lerp<vec3>({fBLACK, fWHITE}, 0.2f) == fDUNE);
-    static_assert(lerp<vec3>(
-        {
-            {1.0f, 2.0f, 3.0f},
-            {3.0f, 6.0f, 9.0f}
-        }, 0.25f) == vec3{1.5f, 3.0f, 4.5f}
-    );
-
-    static_assert(lerp<mat4>({0.0f, 1.0f}, 0.1f) == mat4(0.1f));
 }
 
 TEST(MathTest, lerp2_test){
@@ -34,10 +25,10 @@ TEST(MathTest, lerp2_test){
     constexpr Line bottom{uvBottomLeft, uvBottomRight};
     constexpr Line uv{top, bottom};
 
-    constexpr vec2 expected1{0.2f, 0.3f};
-    constexpr auto case1 = lerp2(uv, expected1.x, expected1.y);
+    constexpr Vector2 expected1{0.2f, 0.3f};
+    auto case1 = lerp2(uv, expected1.x, expected1.y);
 
-    static_assert(expected1 == case1);
+    EXPECT_EQ(expected1, case1);
 }
 
 TEST(MathTest, in_test){
@@ -50,8 +41,8 @@ TEST(MathTest, in_test){
     EXPECT_FALSE(in({-0.1f, -0.1f}, WINDOW_RANGE));
     EXPECT_FALSE(in({1.1f, 1.1f}, WINDOW_RANGE));
 
-    EXPECT_TRUE(in(fDUNE, fCOLOR_RANGE));
-    EXPECT_FALSE(in(fWHITE, {fBLACK, fDUNE}));
+    EXPECT_TRUE(in(DUNE, COLOR_RANGE));
+    EXPECT_FALSE(in<Color>(White.v, {Black.v, DUNE}));
 }
 
 TEST(MathTest, wrap_test){
@@ -71,9 +62,9 @@ TEST(MathTest, clamp_test){
 }
 
 TEST(MathTest, wrap2_test){
-    constexpr vec2 origin1{0.7f, 1.3f};
-    constexpr vec2 origin2{1.1f, 0.7f};
-    constexpr vec2 origin3{1.2f, 1.2f};
+    constexpr Vector2 origin1{0.7f, 1.3f};
+    constexpr Vector2 origin2{1.1f, 0.7f};
+    constexpr Vector2 origin3{1.2f, 1.2f};
     auto wrapped1=wrap(origin1, WINDOW_RANGE);
     auto wrapped2=wrap(origin2, WINDOW_RANGE);
     auto wrapped3=wrap(origin3, WINDOW_RANGE);
@@ -91,39 +82,38 @@ TEST(MathTest, wrap2_test){
 }
 
 TEST(MathTest, clamp2_test){
-    constexpr vec2 origin1{0.7f, 1.3f};
-    constexpr vec2 origin2{1.1f, 0.7f};
-    constexpr vec2 origin3{1.2f, 1.2f};
-    auto clamped1=clamp(origin1, WINDOW_RANGE);
-    auto clamped2=clamp(origin2, WINDOW_RANGE);
-    auto clamped3=clamp(origin3, WINDOW_RANGE);
+    constexpr Vector2 origin1{0.7f, 1.3f};
+    constexpr Vector2 origin2{1.1f, 0.7f};
+    constexpr Vector2 origin3{1.2f, 1.2f};
+    constexpr auto clamped1=clamp(origin1, WINDOW_RANGE);
+    constexpr auto clamped2=clamp(origin2, WINDOW_RANGE);
+    constexpr auto clamped3=clamp(origin3, WINDOW_RANGE);
 
-    EXPECT_FALSE(in(clamped1, WINDOW_RANGE));
-    EXPECT_FALSE(in(clamped2, WINDOW_RANGE));
-    EXPECT_FALSE(in(clamped3, WINDOW_RANGE));
+    static_assert(!in(clamped1, WINDOW_RANGE));
+    static_assert(!in(clamped2, WINDOW_RANGE));
+    static_assert(!in(clamped3, WINDOW_RANGE));
 
-    EXPECT_FLOAT_EQ(origin1.x, clamped1.x);
-    EXPECT_FLOAT_EQ(clamped1.y, 1.0f);
-    EXPECT_FLOAT_EQ(clamped2.x, 1.0f);
-    EXPECT_FLOAT_EQ(origin2.y, clamped2.y);
+    static_assert(origin1.x == clamped1.x);
+    static_assert(clamped1.y == 1.0f);
+    static_assert(clamped2.x == 1.0f);
+    static_assert(origin2.y == clamped2.y);
     EXPECT_EQ(clamped3, uvBottomRight);
 }
 
 struct fake_pos{
-    using value_type=float;
-    value_type x=0.0f, y=0.0f, z=0.0f;
+    float x=0.0f, y=0.0f, z=0.0f;
 };
 // constexpr bool operator==(const fake_pos& lhs, const fake_pos& rhs) noexcept{
 //     return lhs.x==rhs.x && lhs.y==rhs.y && lhs.z==rhs.z;
 // }
-inline constexpr fake_pos operator+(const vec3& v, const fake_pos& p) noexcept{
+inline constexpr fake_pos operator+(const Vector3& v, const fake_pos& p) noexcept{
     return{.x=p.x+v.x, .y=p.y+v.y, .z=p.z+v.z};
 }
-inline constexpr fake_pos operator+(const fake_pos& p, const vec3& v) noexcept{
+inline constexpr fake_pos operator+(const fake_pos& p, const Vector3& v) noexcept{
     return v+p;
 }
 
 TEST(MathTest, affine_test){
-    static_assert(affine_additive<vec3, pos>);
-    static_assert(!affine_additive<vec3, fake_pos>);
+    static_assert(affine_additive<Vector3, pos>);
+    static_assert(!affine_additive<Vector3, fake_pos>);
 }

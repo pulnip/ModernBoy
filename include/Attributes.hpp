@@ -2,22 +2,29 @@
 
 #include <vector>
 #include <gsl-lite/gsl-lite.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include <directxtk/SimpleMath.h>
+#include <directxmath/DirectXColors.h>
 #include "Math.hpp"
 
 namespace ModernBoy{
     struct Transform{
-        pos position{0.0f};
-        glm::quat quaternion{0.0f, 0.0f, 0.0f, 1.0f};
-        glm::vec3 scale{1.0f};
+        DirectX::SimpleMath::Vector3 position
+            =DirectX::SimpleMath::Vector3::Zero;
+        DirectX::SimpleMath::Quaternion quaternion
+            =DirectX::SimpleMath::Quaternion::Identity;
+        DirectX::SimpleMath::Vector3 scale
+            =DirectX::SimpleMath::Vector3::One;
 
-        pos transform(const pos& vertexPos);
+        DirectX::SimpleMath::Matrix transform() const;
+
+      private:
+        mutable std::mutex mtx;
     };
 
     struct Material{
-        fRGB ambient=fDUNE;
-        fRGB diffuse=fBLUE;
-        fRGB specular=fWHITE;
+        DirectX::SimpleMath::Color ambient{0.2f, 0.2f, 0.2f};
+        DirectX::SimpleMath::Color diffuse=DirectX::Colors::Blue.v;
+        DirectX::SimpleMath::Color specular=DirectX::Colors::White.v;
         float shininess=10.0f;
 
         float reflection=0.0f;
@@ -28,9 +35,8 @@ namespace ModernBoy{
         gsl::index index[3];
     };
 
-    struct Mesh{
-        std::vector<glm::vec3> verticies;
-        std::vector<glm::vec3> normals;
+    template<typename V> struct Mesh{
+        std::vector<V> verticies;
         std::vector<Polygon> polygons;
     };
 }

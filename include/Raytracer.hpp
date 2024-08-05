@@ -8,16 +8,18 @@
 namespace ModernBoy{
     class Raytracer{
       public:
-        const glm::ivec2 resolution;
+        const ipoint2 resolution;
         Light light;
         std::vector<std::shared_ptr<Object>> objects;
 
       public:
-        Raytracer(const glm::ivec2& resolution);
+        Raytracer(const ipoint2& resolution);
 
-        void render(std::vector<fRGBA>& pixels);
+        void render(std::vector<RGBA>& pixels);
         Hit closest(const Ray& ray);
-        fRGB traceRay(const Ray& ray, const int level);
-        glm::vec3 toWorld(const glm::vec2& screenPos);
+        DirectX::SimpleMath::Color traceRay(const Ray& ray, const int level);
+        DirectX::SimpleMath::Vector3 toWorld(
+            const DirectX::SimpleMath::Vector2& screenPos
+        ) noexcept;
     };
 }

@@ -1,18 +1,14 @@
 #pragma once
 
+#include <cassert>
 #include <cmath>
-#include <gsl-lite/gsl-lite.hpp>
-#include <glm/glm.hpp>
+#include <directxtk/SimpleMath.h>
 #include "Concepts.hpp"
 
 namespace ModernBoy{
     template<typename T> struct Line{ T point0, point1; };
     using iLine1=Line<int>;
     using Line1=Line<float>;
-    using iLine2=Line<glm::ivec2>;
-    using Line2=Line<glm::vec2>;
-    using iLine3=Line<glm::ivec3>;
-    using Line3=Line<glm::vec3>;
 
     template<linear T=double, std::scalar S=double>
     constexpr T lerp(const Line<T>& line, S t) noexcept{
@@ -30,74 +26,207 @@ namespace ModernBoy{
         );
     }
 
-    bool in(const int x, const iLine1& range) noexcept;
-    bool in(const float x, const Line1& range) noexcept;
-    bool in(const glm::ivec2& x, const iLine2& range) noexcept;
-    bool in(const glm::vec2& x, const Line2& range) noexcept;
-    bool in(const glm::ivec3& x, const iLine3& range) noexcept;
-    bool in(const glm::vec3& x, const Line3& range) noexcept;
+    template<Dim2 T>
+    inline constexpr bool operator<(const T& lhs, const T& rhs){
+        return lhs.x<rhs.x && lhs.y<rhs.y;
+    }
+    template<Dim2 T>
+    inline constexpr bool operator>(const T& lhs, const T& rhs){
+        return lhs.x>rhs.x && lhs.y>rhs.y;
+    }
+    template<Dim2 T>
+    inline constexpr bool operator<=(const T& lhs, const T& rhs){
+        return lhs.x<=rhs.x && lhs.y<=rhs.y;
+    }
+    template<Dim2 T>
+    inline constexpr bool operator>=(const T& lhs, const T& rhs){
+        return lhs.x>=rhs.x && lhs.y>=rhs.y;
+    }
 
-    int wrap(int x, const iLine1& line) noexcept;
-    int clamp(int x, const iLine1& line) noexcept;
-    float wrap(float x, const Line1& line) noexcept;
-    float clamp(float x, const Line1& line) noexcept;
-    glm::ivec2 wrap(const glm::ivec2& x, const iLine2& line) noexcept;
-    glm::ivec2 clamp(const glm::ivec2& x, const iLine2& line) noexcept;
-    glm::vec2 wrap(const glm::vec2& x, const Line2& line) noexcept;
-    glm::vec2 clamp(const glm::vec2& x, const Line2& line) noexcept;
-    glm::ivec3 wrap(const glm::ivec3& x, const iLine3& line) noexcept;
-    glm::ivec3 clamp(const glm::ivec3& x, const iLine3& line) noexcept;
-    glm::vec3 wrap(const glm::vec3& x, const Line3& line) noexcept;
-    glm::vec3 clamp(const glm::vec3& x, const Line3& line) noexcept;
+    template<Dim3 T>
+    inline constexpr bool operator<(const T& lhs, const T& rhs){
+        return lhs.x<rhs.x && lhs.y<rhs.y && lhs.z<rhs.z;
+    }
+    template<Dim3 T>
+    inline constexpr bool operator>(const T& lhs, const T& rhs){
+        return lhs.x>rhs.x && lhs.y>rhs.y && lhs.z>rhs.z;
+    }
+    template<Dim3 T>
+    inline constexpr bool operator<=(const T& lhs, const T& rhs){
+        return lhs.x<=rhs.x && lhs.y<=rhs.y && lhs.z<=rhs.z;
+    }
+    template<Dim3 T>
+    inline constexpr bool operator>=(const T& lhs, const T& rhs){
+        return lhs.x>=rhs.x && lhs.y>=rhs.y && lhs.z>=rhs.z;
+    }
 
-    glm::vec2 floor(const glm::vec2& vec) noexcept;
+    template<std::totally_ordered T>
+    constexpr bool in(const T& val, const Line<T>& range) noexcept{
+        assert(line.point0 < line.point1);
+        return range.point0 <= val && val < range.point1;
+    }
+
+    template<std::integral T>
+    constexpr T mod(const T& dividend, const T& divisor) noexcept{
+        return dividend % divisor;
+    }
+    template<std::floating_point T>
+    T mod(const T& dividend, const T& divisor) noexcept{
+        return std::fmod(dividend, divisor);
+    }
+    template<std::scalar T>
+    constexpr T wrap(const T& x, const Line<T>& range) noexcept{
+        assert(range.point0 <= range.point1);
+        const auto xf = x - range.point0;
+        const auto len = range.point1 - range.point0;
+        const auto r = mod(xf, len);
+        return r>=0 ? r+range.point0 : r+range.point1;
+    }
+    template<Dim2 T>
+    constexpr T wrap(const T& val, const Line<T>& range) noexcept{
+        return {
+            wrap(val.x, {range.point0.x, range.point1.x}),
+            wrap(val.y, {range.point0.y, range.point1.y})
+        };
+    }
+    template<Dim3 T>
+    constexpr T wrap(const T& val, const Line<T>& range) noexcept{
+        return {
+            wrap(val.x, {range.point0.x, range.point1.x}),
+            wrap(val.y, {range.point0.y, range.point1.y}),
+            wrap(val.z, {range.point0.z, range.point1.z})
+        };
+    }
+    template<Dim4 T>
+    constexpr T wrap(const T& val, const Line<T>& range) noexcept{
+        return {
+            wrap(val.x, {range.point0.x, range.point1.x}),
+            wrap(val.y, {range.point0.y, range.point1.y}),
+            wrap(val.z, {range.point0.z, range.point1.z}),
+            wrap(val.w, {range.point0.w, range.point1.w})
+        };
+    }
+
+    template<std::scalar T>
+    constexpr T clamp(const T& val, const Line<T>& range) noexcept{
+        assert(range.point0 <= range.point1);
+        return std::min(std::max(val, range.point0), range.point1);
+    }
+    template<Dim2 T>
+    constexpr T clamp(const T& val, const Line<T>& range) noexcept{
+        return {
+            clamp(val.x, {range.point0.x, range.point1.x}),
+            clamp(val.y, {range.point0.y, range.point1.y})
+        };
+    }
+    template<Dim3 T>
+    constexpr T clamp(const T& val, const Line<T>& range) noexcept{
+        return {
+            clamp(val.x, {range.point0.x, range.point1.x}),
+            clamp(val.y, {range.point0.y, range.point1.y}),
+            clamp(val.z, {range.point0.z, range.point1.z})
+        };
+    }
+    template<Dim4 T>
+    constexpr T clamp(const T& val, const Line<T>& range) noexcept{
+        return {
+            clamp(val.x, {range.point0.x, range.point1.x}),
+            clamp(val.y, {range.point0.y, range.point1.y}),
+            clamp(val.z, {range.point0.z, range.point1.z}),
+            clamp(val.w, {range.point0.w, range.point1.w})
+        };
+    }
+
+    template<Dim2 T>
+    constexpr T floor(const T& val) noexcept{
+        return {std::floor(val.x), std::floor(val.y)};
+    }
+
+    using Color=DirectX::SimpleMath::Color;
+    constexpr Color DUNE{0.2f, 0.2f, 0.2f};
 
     using Channel = uint8_t;
-    // rgb in range [0, 256)
-    using iRGB = glm::ivec3;
-    // rgb in range [0, 1)
-    using fRGB = glm::vec3;
-    using fRGBA = glm::vec4;
+    // rgb, rgba in range [0, 256)
+    struct RGB{ Channel r, g, b; };
+    struct RGBA{ Channel r, g, b, a; };
+    constexpr RGB BLACK{0, 0, 0};
+    constexpr RGB WHITE{255, 255, 255};
 
-    constexpr fRGB fBLACK(0.0f);
-    constexpr fRGB fBLUE(0.0f, 0.0f, 1.0f);
-    constexpr fRGB fWHITE(1.0f);
-    constexpr fRGB fDUNE(0.2f);
+    RGBA toRGBA(const RGB& color, Channel alpha=255) noexcept;
+    RGBA rgbcvt(const Color& color) noexcept;
+    Color rgbcvt(const RGBA& color) noexcept;
 
-    iRGB rgbcvt(const fRGB& color) noexcept;
-    fRGB rgbcvt(const iRGB& color) noexcept;
-    fRGBA toRGBA(const fRGB& color, float alpha=1.0f) noexcept;
+    using Vector2=DirectX::SimpleMath::Vector2;
+    using Vector3=DirectX::SimpleMath::Vector3;
+
+    using WorldPos=Vector3;
+    using UVPos=Vector2;
+
+    constexpr UVPos uvTopLeft{0, 0};
+    constexpr UVPos uvTopRight{1, 0};
+    constexpr UVPos uvBottomLeft{0, 1};
+    constexpr UVPos uvBottomRight{1, 1};
+
+    template<typename T=float>
+    struct point2{
+        T x=static_cast<T>(0), y=static_cast<T>(0);
+
+        point2()=default;
+        point2(const point2&)=default;
+        point2(point2&&)=default;
+        point2(const T& x, const T& y):x(x), y(y){}
+        point2(const Vector2& v)
+        :x(static_cast<T>(v.x)), y(static_cast<T>(v.y)){}
+        ~point2()=default;
+        point2& operator=(const point2&)=default;
+        point2& operator=(point2&&)=default;
+
+        inline operator Vector2() const noexcept{
+            return{static_cast<float>(x), static_cast<float>(y)};
+        }
+        inline constexpr auto& operator+=(
+            const Vector2& v
+        ) noexcept{ x+=v.x; y+=v.y; return *this; }
+    };
+    template<typename T>
+    constexpr bool operator==(const point2<T>& lhs, const point2<T>& rhs) noexcept{
+        return lhs.x==rhs.x && lhs.y==rhs.y;
+    }
+
+    template<typename T>
+    inline constexpr auto operator+(const point2<T>& p,
+        const Vector2& v
+    ) noexcept{ return point2{p}+=v; }
+    template<typename T>
+    inline constexpr auto operator+(const Vector3& v,
+        const point2<T>& p
+    ) noexcept{ return p+v; }
+    template<typename T>
+    inline constexpr Vector3 operator-(
+        const point2<T>& lhs, const point2<T>& rhs
+    ) noexcept{ return {lhs.x-rhs.x, lhs.y-rhs.y}; }
+
+    using ipoint2=point2<int>;
+    using PixelPos=ipoint2;
 
     struct pos{
-        using value_type=float;
-        value_type x=0.0f, y=0.0f, z=0.0f;
+        float x=0.0f, y=0.0f, z=0.0f;
 
-        inline explicit operator glm::vec3() const noexcept{ return{x, y, z}; }
-        inline constexpr pos& operator+=(const glm::vec3& v) noexcept{
-            x+=v.x; y+=v.y; z+=v.z;
-            return *this;
+        inline explicit operator Vector3() const noexcept{
+            return {x, y, z};
         }
+        inline constexpr pos& operator+=(
+            const Vector3& v
+        ) noexcept{ x+=v.x; y+=v.y; z+=v.z; return *this; }
     };
     constexpr bool operator==(const pos& lhs, const pos& rhs) noexcept{
         return lhs.x==rhs.x && lhs.y==rhs.y && lhs.z==rhs.z;
     }
 
-    inline constexpr pos operator+(const pos& p, const glm::vec3& v) noexcept{
-        return pos{p}+=v;
-    }
-    inline constexpr pos operator+(const glm::vec3& v, const pos& p) noexcept{
-        return p+v;
-    }
-    inline constexpr glm::vec3 operator-(const pos& lhs, const pos& rhs) noexcept{
-        return {lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z};
-    }
-
-    using UVPos = glm::vec2;
-    using PixelPos = glm::ivec2;
-    using WorldPos = glm::vec3;
-
-    constexpr UVPos uvTopLeft{0.0f, 0.0f};
-    constexpr UVPos uvTopRight{1.0f, 0.0f};
-    constexpr UVPos uvBottomLeft{0.0f, 1.0f};
-    constexpr UVPos uvBottomRight{1.0f, 1.0f};
+    inline constexpr pos operator+(const pos& p, const Vector3& v
+    ) noexcept{ return pos{p}+=v;}
+    inline constexpr pos operator+(const Vector3& v, const pos& p
+    ) noexcept{ return p+v; }
+    inline constexpr Vector3 operator-(const pos& lhs, const pos& rhs
+    ) noexcept{ return {lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z}; }
 }

@@ -6,7 +6,7 @@
 
 using namespace std;
 using namespace gsl;
-using namespace glm;
+using namespace DirectX::SimpleMath;
 using namespace ModernBoy;
 
 Texture::Texture(const string& fileName){
@@ -18,7 +18,7 @@ Texture::Texture(const string& fileName){
 	delete img;
 }
 
-Texture::Texture(const PixelPos& size, const vector<fRGB>& pixels)
+Texture::Texture(const PixelPos& size, const vector<Color>& pixels)
 :size(size), channels(3){
     const auto width=size.x;
     const auto height=size.y;
@@ -39,29 +39,29 @@ Texture::Texture(const PixelPos& size, const vector<fRGB>& pixels)
     }
 }
 
-fRGB Texture::getRGB(const PixelPos& pixelPos) noexcept{
-    const auto wrapped = wrap(pixelPos, {{0, 0}, size});
+Color Texture::getRGB(const PixelPos& pixelPos) noexcept{
+    const PixelPos wrapped = wrap<Vector2>(pixelPos, {{0, 0}, size});
     const auto chIndex = getIndex(wrapped);
     return getRGBf(chIndex);
 }
 
-fRGB Texture::getRGB(const UVPos& uv) noexcept{
+Color Texture::getRGB(const UVPos& uv) noexcept{
     const auto nearestPos = toPixelPos(uv);
     return getRGB(nearestPos);
 }
 
-fRGB Texture::getRGB_lerp(const UVPos& uv) noexcept{
+Color Texture::getRGB_lerp(const UVPos& uv) noexcept{
     const auto accuratePos = scaleUV(uv);
-    const auto pos00 = narrow_cast<ivec2>(floor(accuratePos - vec2(0.5f)));
+    const ipoint2 pos00{floor(accuratePos - Vector2(0.5f))};
     const auto dx = accuratePos.x - pos00.x;
     const auto dy = accuratePos.y - pos00.y;
 
     const auto color00 = getRGB(pos00);
-    const auto color10 = getRGB(pos00 + ivec2{1, 0});
-    const auto color01 = getRGB(pos00 + ivec2{0, 1});
-    const auto color11 = getRGB(pos00 + ivec2{1, 1});
+    const auto color10 = getRGB(pos00 + Vector2{1, 0});
+    const auto color01 = getRGB(pos00 + Vector2{0, 1});
+    const auto color11 = getRGB(pos00 + Vector2{1, 1});
 
-    return lerp2<vec3>(
+    return lerp2<Color>(
         {
             {color00, color10},
             {color01, color11},
@@ -69,27 +69,24 @@ fRGB Texture::getRGB_lerp(const UVPos& uv) noexcept{
     );
 }
 
-vec2 Texture::scaleUV(const UVPos& uv) noexcept{
-    return uv*static_cast<vec2>(size);
+Vector2 Texture::scaleUV(const UVPos& uv) noexcept{
+    return {size.x*uv.x, size.y*uv.y};
 }
 
 PixelPos Texture::toPixelPos(const UVPos& uv) noexcept{
-    return wrap(
-        narrow_cast<ivec2>(scaleUV(uv)),
-        {{0, 0}, size}
-    );
+    return wrap<Vector2>(uv, {{0, 0}, size});
 }
 
 index Texture::getIndex(const PixelPos& pixelPos) noexcept{
     return channels * (size.x*pixelPos.y + pixelPos.x);
 }
 
-fRGB Texture::getRGBf(const index chIndex) noexcept{
-    return rgbcvt(getRGBi(chIndex));
+Color Texture::getRGBf(const index chIndex) noexcept{
+    return rgbcvt(toRGBA(getRGBi(chIndex)));
 }
 
-iRGB Texture::getRGBi(const index chIndex) noexcept{
-    return ivec3{
+RGB Texture::getRGBi(const index chIndex) noexcept{
+    return {
         image[chIndex + 0],
         image[chIndex + 1],
         image[chIndex + 2]

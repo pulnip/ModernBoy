@@ -1,10 +1,10 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include <directxtk/SimpleMath.h>
 
 namespace ModernBoy{
     // point light
     struct Light{
-        glm::vec3 pos;
+        DirectX::SimpleMath::Vector3 pos;
     };
 }

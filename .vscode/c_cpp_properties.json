@@ -5,7 +5,7 @@
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/build/vcpkg_installed/x64-mingw-dynamic/include"
+                "${workspaceFolder}/build/vcpkg_installed/x64-mingw-dynamic/include/**"
             ],
             "defines": [
                 "_DEBUG",

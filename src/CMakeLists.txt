@@ -5,7 +5,6 @@ add_executable(${PROJECT_NAME}
 )
 
 add_subdirectory(Algorithm)
-add_subdirectory(imgui_impl)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
     $<IF:$<CONFIG:DEBUG>,_DEBUG D3DCOMPILE_DEBUG D3DCOMPILE_SKIP_OPTIMIZATION D3DCOMPILE_ENABLE_STRICTNESS,NDEBUG>
@@ -14,6 +13,8 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
+    "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxtk"
+    "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxmath"
 )
 
 if(NOT ${DIRECTX_ARCH} MATCHES "^arm")
@@ -28,8 +29,7 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     stdc++exp
-    d3d11 D3DCompiler
-    imgui_impl
+    d3d11 d3dcompiler dxgi
     algorithm_impl
 )
 
@@ -73,14 +73,6 @@ if(directxtk_FOUND)
     )
 endif()
 
-find_package(glm CONFIG REQUIRED)
-if(glm_FOUND)
-    message(STATUS "Using OpenGL Math package")
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        glm::glm
-    )
-endif()
-
 find_package(Stb REQUIRED)
 if(Stb_FOUND)
     message(STATUS "Using Stb package")
@@ -90,11 +82,13 @@ if(Stb_FOUND)
 endif()
 
 find_package(SDL2 CONFIG REQUIRED)
+if(SDL2_FOUND)
     message(STATUS "Using SDL2 package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
     )
+endif()
 
 # Uncomment if using the DirectX Tool Kit
 # find_package(directxtk CONFIG REQUIRED)

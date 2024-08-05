@@ -3,32 +3,31 @@
 #include <string>
 #include <vector>
 #include <gsl-lite/gsl-lite.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtx/string_cast.hpp>
+#include <directxtk/SimpleMath.h>
 #include "Math.hpp"
 
 namespace ModernBoy{
     class Texture{
       private:
-        PixelPos size;
-        int channels;
+        ipoint2 size;
         std::vector<Channel> image;
+        int channels;
     
       public:
         Texture(const std::string& fileName);
         Texture(const PixelPos& size,
-            const std::vector<fRGB>& pixels
+            const std::vector<DirectX::SimpleMath::Color>& pixels
         );
 
-        fRGB getRGB(const PixelPos& pixelPos) noexcept;
-        fRGB getRGB(const UVPos& uv) noexcept;
-        fRGB getRGB_lerp(const UVPos& uv) noexcept;
+        DirectX::SimpleMath::Color getRGB(const PixelPos& pixelPos) noexcept;
+        DirectX::SimpleMath::Color getRGB(const UVPos& uv) noexcept;
+        DirectX::SimpleMath::Color getRGB_lerp(const UVPos& uv) noexcept;
 
       private:
-        glm::vec2 scaleUV(const UVPos& uv) noexcept;
+        DirectX::SimpleMath::Vector2 scaleUV(const UVPos& uv) noexcept;
         PixelPos toPixelPos(const UVPos& uv) noexcept;
         gsl::index getIndex(const PixelPos& pixelPos) noexcept;
-        iRGB getRGBi(const gsl::index chIndex) noexcept;
-        fRGB getRGBf(const gsl::index chIndex) noexcept;
+        RGB getRGBi(const gsl::index chIndex) noexcept;
+        DirectX::SimpleMath::Color getRGBf(const gsl::index chIndex) noexcept;
     };
 }

@@ -1,22 +1,24 @@
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_win32.h>
+#include <print>
 #include <SDL2/SDL_main.h>
+#include "helper.hpp"
 #include "Window.hpp"
 #include "LevelLoader.hpp"
 
 using namespace ModernBoy;
 
-// Forward declare message handler from imgui_impl_win32.cpp
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]){
     LevelLoader levelLoader("settings/glob.json");
-    auto wi=levelLoader.getWindowInfo();
+    auto wd=levelLoader.getWindowDesc();
 
-    Window window(wi);
-    while(window.update()){
+    try{
+        Window window(wd);
 
+        while(window.run()){
+
+        }
+    }
+    catch(Exception& e){
+        std::println("{} ({}, {})", e.msg, e.fileName, e.lineNumber);
     }
 
 	return 0;

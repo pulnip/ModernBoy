@@ -14,7 +14,7 @@ struct ParseException: std::runtime_error, rapidjson::ParseResult{
 };
 
 #include <rapidjson/document.h>
-#include <glm/glm.hpp>
+#include "Math.hpp"
 
 namespace ModernBoy{
     class JsonHelper{
@@ -27,8 +27,8 @@ namespace ModernBoy{
         std::optional<double> getDouble(const std::string& propertyName);
         std::optional<std::string> getString(const std::string& propertyName);
         std::optional<JsonHelper> subset(const std::string& propertyName);
-        std::optional<glm::vec2> getVec2(const std::string& propertyName);
-        std::optional<glm::ivec2> getVec2i(const std::string& propertyName);
+        std::optional<point2<>> getPoint2(const std::string& propertyName);
+        std::optional<ipoint2> getPoint2i(const std::string& propertyName);
     };
 
     class Json{

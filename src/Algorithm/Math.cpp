@@ -1,146 +1,23 @@
-#include <cassert>
-#include <gsl-lite/gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include "Math.hpp"
 
+using namespace std;
 using namespace gsl;
-using namespace glm;
+using namespace DirectX::SimpleMath;
 using namespace ModernBoy;
 
-bool ModernBoy::in(const int x, const iLine1& range) noexcept{
-    assert(range.point0 < range.point1);
-    return range.point0 <= x && x < range.point1;
+RGBA ModernBoy::toRGBA(const RGB& color, Channel alpha) noexcept{
+    return {color.r, color.g, color.b, alpha};
 }
-
-bool ModernBoy::in(const float x, const Line1& range) noexcept{
-    assert(range.point0 < range.point1);
-    return range.point0 <= x && x < range.point1;
-}
-
-bool ModernBoy::in(const ivec2& x, const iLine2& range) noexcept{
-    const auto in_x=in(x.x, {range.point0.x, range.point1.x}); 
-    const auto in_y=in(x.y, {range.point0.y, range.point1.y});
-    return in_x && in_y;
-}
-
-bool ModernBoy::in(const vec2& x, const Line2& range) noexcept{
-    const auto in_x=in(x.x, {range.point0.x, range.point1.x}); 
-    const auto in_y=in(x.y, {range.point0.y, range.point1.y});
-    return in_x && in_y;
-}
-
-bool ModernBoy::in(const ivec3& x, const iLine3& range) noexcept{
-    const auto in_x=in(x.x, {range.point0.x, range.point1.x}); 
-    const auto in_y=in(x.y, {range.point0.y, range.point1.y});
-    const auto in_z=in(x.z, {range.point0.z, range.point1.z});
-    return in_x && in_y && in_z;
-}
-
-bool ModernBoy::in(const vec3& x, const Line3& range) noexcept{
-    const auto in_x=in(x.x, {range.point0.x, range.point1.x}); 
-    const auto in_y=in(x.y, {range.point0.y, range.point1.y});
-    const auto in_z=in(x.z, {range.point0.z, range.point1.z});
-    return in_x && in_y && in_z;
-}
-
-int ModernBoy::wrap(int x, const iLine1& line) noexcept{
-    assert(line.point0 <= line.point1);
-    const auto xf = x - line.point0;
-    const auto len = line.point1 - line.point0;
-    const auto r = xf % len;
-    return (r >= 0) ? r+line.point0 : r+line.point1;
-}
-
-int ModernBoy::clamp(int x, const iLine1& line) noexcept{
-    assert(line.point0 <= line.point1);
-    return min(max(x, line.point0), line.point1);
-}
-
-float ModernBoy::wrap(float x, const Line1& line) noexcept{
-    assert(line.point0 <= line.point1);
-    const auto xf = x - line.point0;
-    const auto len = line.point1 - line.point0;
-    const auto r = fmodf(xf, len);
-    return (r >= 0) ? r+line.point0 : r+line.point1;
-}
-
-float ModernBoy::clamp(float x, const Line1& line) noexcept{
-    assert(line.point0 <= line.point1);
-    return min(max(x, line.point0), line.point1);
-}
-
-ivec2 ModernBoy::wrap(const ivec2& x, const iLine2& line) noexcept{
+RGBA ModernBoy::rgbcvt(const Color& color) noexcept{
     return {
-        wrap(x.x, {line.point0.x, line.point1.x}),
-        wrap(x.y, {line.point0.y, line.point1.y})
+        narrow_cast<Channel>(255*color.R()),
+        narrow_cast<Channel>(255*color.G()),
+        narrow_cast<Channel>(255*color.B()),
+        narrow_cast<Channel>(255*color.A()),
     };
 }
 
-vec2 ModernBoy::wrap(const vec2& x, const Line2& line) noexcept{
-    return {
-        wrap(x.x, {line.point0.x, line.point1.x}),
-        wrap(x.y, {line.point0.y, line.point1.y})
-    };
-}
-
-ivec2 ModernBoy::clamp(const ivec2& x, const iLine2& line) noexcept{
-    return {
-        clamp(x.x, {line.point0.x, line.point1.x}),
-        clamp(x.y, {line.point0.y, line.point1.y})
-    };
-}
-
-vec2 ModernBoy::clamp(const vec2& x, const Line2& line) noexcept{
-    return {
-        clamp(x.x, {line.point0.x, line.point1.x}),
-        clamp(x.y, {line.point0.y, line.point1.y})
-    };
-}
-
-ivec3 ModernBoy::wrap(const ivec3& x, const iLine3& line) noexcept{
-    return {
-        wrap(x.x, {line.point0.x, line.point1.x}),
-        wrap(x.y, {line.point0.y, line.point1.y}),
-        wrap(x.z, {line.point0.z, line.point1.z})
-    };
-}
-
-vec3 ModernBoy::wrap(const vec3& x, const Line3& line) noexcept{
-    return {
-        wrap(x.x, {line.point0.x, line.point1.x}),
-        wrap(x.y, {line.point0.y, line.point1.y}),
-        wrap(x.z, {line.point0.z, line.point1.z})
-    };
-}
-
-ivec3 ModernBoy::clamp(const ivec3& x, const iLine3& line) noexcept{
-    return {
-        clamp(x.x, {line.point0.x, line.point1.x}),
-        clamp(x.y, {line.point0.y, line.point1.y}),
-        clamp(x.z, {line.point0.z, line.point1.z})
-    };
-}
-
-vec3 ModernBoy::clamp(const vec3& x, const Line3& line) noexcept{
-    return {
-        clamp(x.x, {line.point0.x, line.point1.x}),
-        clamp(x.y, {line.point0.y, line.point1.y}),
-        clamp(x.z, {line.point0.z, line.point1.z})
-    };
-}
-
-vec2 ModernBoy::floor(const vec2& vec) noexcept{
-    return {std::floor(vec.x), std::floor(vec.y)};
-}
-
-iRGB ModernBoy::rgbcvt(const fRGB& color) noexcept{
-    assert(in(color, {vec3(0.0f), vec3(1.0f)}));
-    return narrow_cast<iRGB>(256.0f * color);
-}
-
-fRGB ModernBoy::rgbcvt(const iRGB& color) noexcept{
-    return static_cast<fRGB>(color) / 256.0f;
-}
-
-fRGBA ModernBoy::toRGBA(const fRGB& color, float alpha) noexcept{
-    return {color, alpha};
+Color ModernBoy::rgbcvt(const RGBA& color) noexcept{
+    return {color.r/255.0f, color.g/255.0f, color.b/255.0f, color.a/255.0f};
 }
