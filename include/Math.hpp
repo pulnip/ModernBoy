@@ -62,7 +62,7 @@ namespace ModernBoy{
 
     template<std::totally_ordered T>
     constexpr bool in(const T& val, const Line<T>& range) noexcept{
-        assert(line.point0 < line.point1);
+        assert(range.point0 < range.point1);
         return range.point0 <= val && val < range.point1;
     }
 
