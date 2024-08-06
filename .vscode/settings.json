@@ -85,6 +85,7 @@
         "csignal": "cpp",
         "shared_mutex": "cpp",
         "text_encoding": "cpp",
-        "source_location": "cpp"
+        "source_location": "cpp",
+        "*.def": "cpp"
     }
 }

@@ -11,6 +11,7 @@
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_dx11.h>
+#include "Camera.hpp"
 #include "helper.hpp"
 #include "MeshBuffer.hpp"
 #include "Vertex.hpp"
@@ -70,8 +71,7 @@ struct RenderAdaptor::ShaderAdaptor final{
 
     Constants constants;
 
-    const float ASPECT_RATIO;
-    bool usePerspective=true;
+    Camera camera;
 
     ShaderAdaptor(const ComPtr<ID3D11Device>& device,
         const wstring& vsFileName, const wstring& psFileName,
@@ -529,9 +529,9 @@ RenderAdaptor::ShaderAdaptor::ShaderAdaptor(
 const ComPtr<ID3D11Device>& device,
     const wstring& vsFileName, const wstring& psFileName,
     const float ASPECT_RATIO)
-: rs(createRS(device))
-, ASPECT_RATIO(ASPECT_RATIO)
-{
+: rs(createRS(device)){
+    camera.setAspectRatio(ASPECT_RATIO);
+
     MeshBuffer meshBuffer;
     auto [vertices, indices]=meshBuffer.extract();
 
@@ -671,33 +671,26 @@ void RenderAdaptor::ShaderAdaptor::update(float dt,
     const auto scaling=Matrix::CreateScale(0.5f);
     constants.model=scaling*rotation*translation;
 
-    constexpr XMVECTOR eyePos{0.0f, 0.0f, -1.0f};
-    constexpr XMVECTOR focus{0.0f, 0.0f, 1.0f};
-    constexpr XMVECTOR upDir{0.0f, 1.0f, 0.0f};
-    constants.view=DirectX::XMMatrixLookAtLH(eyePos, focus, upDir);
+    camera.setEyePos({0.0f, 0.0f, -1.0f});
+    camera.setEyeDir(Vector3::UnitZ);
+    camera.setUpDir(Vector3::UnitY);
 
-    if(usePerspective){
-        constexpr float fovAngleY=70.0f * XM_PI / 180.0f;
-        constants.projection=DirectX::XMMatrixPerspectiveFovLH(
-            fovAngleY, ASPECT_RATIO,
-            0.01f, 100.0f
-        );
-    } else{
-        constants.projection=DirectX::XMMatrixOrthographicOffCenterLH(
-            -ASPECT_RATIO, ASPECT_RATIO, -1.0f, 1.0f,
-            0.1f, 10.0f
-        );
-    }
+    // constexpr float fov=XMConvertToRadians(70.0f);
+    // camera.setPerspective(fov);
 
     constants.model=constants.model.Transpose();
-    constants.view=constants.view.Transpose();
-    constants.projection=constants.projection.Transpose();
+    constants.view=camera.view().Transpose();
+    constants.projection=camera.projection().Transpose();
 
     updateBuffer(constantBuffer, constants, context);
 }
 
 void Window::updateGUI(){
-    ImGui::Checkbox("usePerspective", &shader->usePerspective);
+    // ImGui::Checkbox("usePerspective", &shader->usePerspective);
+    static float fov=70.0f;
+    ImGui::SliderFloat("Field of View", &fov, 0.0f, 120.0f);
+
+    shader->camera.setPerspective(XMConvertToRadians(fov));
 }
 
 void Window::update([[maybe_unused]] float dt){}

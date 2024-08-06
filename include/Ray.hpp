@@ -5,7 +5,7 @@
 namespace ModernBoy{
     class Ray{
       public:
-        DirectX::SimpleMath::Vector3 p0;
-        DirectX::SimpleMath::Vector3 dir;
+        Vector3 p0=Vector3::Zero;
+        Vector3 dir=Vector3::UnitZ;
     };
 }
