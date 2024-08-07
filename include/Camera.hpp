@@ -13,7 +13,7 @@ namespace ModernBoy{
             .dir=Vector3::UnitZ
         };
         Vector3 upDir=Vector3::UnitY;
-        float aspectRatio=16.0f/9.0f;
+        ipoint2 screenSize;
         Line1 zRange{0.01f, 100.0f};
 
         // Radian relative to upDir
@@ -32,10 +32,14 @@ namespace ModernBoy{
         void setEyePos(const Vector3& pos) noexcept;
         void setEyeDir(const Vector3& dir) noexcept;
         void setUpDir(const Vector3& dir) noexcept;
-        void setAspectRatio(const float& ratio) noexcept;
+        void setScreenSize(const ipoint2& screenSize) noexcept;
         void setNearZ(const float& nearZ) noexcept;
         void setFarZ(const float& farZ) noexcept;
         void setPerspective(const float& fov) noexcept;
         void setOrthographic() noexcept;
+
+        inline float getAspectRatio() const noexcept{
+            return static_cast<float>(screenSize.x) / screenSize.y;
+        }
     };
 }

@@ -151,8 +151,7 @@ RenderAdaptor::RenderAdaptor(const WindowDesc& wd)
 , shader(std::make_unique<ShaderAdaptor>(pImpl->device,
     L"src/CVS.hlsl", L"src/CPS.hlsl")
 ){
-    const float ASPECT_RATIO=static_cast<float>(wd.size.x) / wd.size.y;
-    camera.setAspectRatio(ASPECT_RATIO);
+    camera.setScreenSize(wd.size);
 }
 RenderAdaptor::~RenderAdaptor()=default;
 

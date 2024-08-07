@@ -20,12 +20,12 @@ Matrix Camera::projection() const noexcept{
     [[unlikely]] if(!_projection.has_value()){
         [[likely]] if(isPerspective()){
             _projection=XMMatrixPerspectiveFovLH(
-                fieldOfView.value(), aspectRatio,
+                fieldOfView.value(), getAspectRatio(),
                 zRange.point0, zRange.point1
             );
         } else{
             _projection=XMMatrixOrthographicOffCenterLH(
-                -aspectRatio, aspectRatio, -1.0f, 1.0f,
+                -getAspectRatio(), getAspectRatio(), -1.0f, 1.0f,
                 zRange.point0, zRange.point1
             );
         }
@@ -55,9 +55,9 @@ void Camera::setUpDir(const Vector3& dir) noexcept{
         _view.reset();
     }
 }
-void Camera::setAspectRatio(const float& ratio) noexcept{
-    [[likely]] if(aspectRatio!=ratio){
-        aspectRatio=ratio;
+void Camera::setScreenSize(const ipoint2& size) noexcept{
+    [[likely]] if(screenSize!=size){
+        screenSize=size;
         _projection.reset();
     }
 }
