@@ -27,6 +27,10 @@ static constexpr bool IS_DEBUG=true;
 #else
 static constexpr bool IS_DEBUG=false;
 #endif
+static constexpr UINT CREATE_DEVICE_FLAGS=IS_DEBUG ?
+    D3D11_CREATE_DEVICE_DEBUG : 0;
+static constexpr UINT COMPILE_FLAGS=IS_DEBUG ?
+    D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION : 0;
 
 struct RenderAdaptor::Impl final{
     SDL_Window* window=nullptr;
@@ -187,7 +191,6 @@ inline SDL_Window* createWindow(const WindowDesc& wd){
 inline tuple<ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceContext>> createDevice(){
     // constexpr auto DRIVER_TYPE=D3D_DRIVER_TYPE_WARP;
     constexpr auto DRIVER_TYPE=D3D_DRIVER_TYPE_HARDWARE;
-    constexpr UINT CREATE_DEVICE_FLAGS=IS_DEBUG ? D3D11_CREATE_DEVICE_DEBUG : 0;
     constexpr D3D_FEATURE_LEVEL FEATURE_LEVELS[]={
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_9_3
@@ -330,6 +333,8 @@ bool RenderAdaptor::run(){
                 case SDL_WINDOWEVENT_CLOSE:
                     return false;
                 case SDL_WINDOWEVENT_RESIZED:
+                    camera.setScreenSize({event.window.data1, event.window.data2});
+                    break;
                     pImpl->cleanupRenderTarget();
                     pImpl->swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
                     pImpl->renderTargetView=createRenderTargetView(
@@ -584,7 +589,7 @@ void RenderAdaptor::ShaderAdaptor::createVSAndIL(const wstring& fileName,
     ComPtr<ID3DBlob> errorBlob;
 
     HRESULT hr=D3DCompileFromFile(fileName.c_str(),
-        nullptr, nullptr, "main", "vs_5_0", 0, 0,
+        nullptr, nullptr, "main", "vs_5_0", COMPILE_FLAGS, 0,
         &shaderBlob, &errorBlob
     );
     SC_throwIf(hr, errorBlob.Get());
@@ -609,7 +614,7 @@ void RenderAdaptor::ShaderAdaptor::createPS(const wstring& fileName,
     ComPtr<ID3DBlob> errorBlob;
 
     HRESULT hr=D3DCompileFromFile(fileName.c_str(),
-        nullptr, nullptr, "main", "ps_5_0", 0, 0,
+        nullptr, nullptr, "main", "ps_5_0", COMPILE_FLAGS, 0,
         &shaderBlob, &errorBlob
     );
     SC_throwIf(hr, errorBlob.Get());
