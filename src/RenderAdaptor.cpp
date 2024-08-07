@@ -517,8 +517,10 @@ inline ComPtr<ID3D11RasterizerState> createRS(
     ZeroMemory(&rd, sizeof(D3D11_RASTERIZER_DESC));
     rd.FillMode=D3D11_FILL_MODE::D3D11_FILL_SOLID;
     // rd.FillMode=D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
-    rd.CullMode=D3D11_CULL_MODE::D3D11_CULL_NONE;
+    // rd.CullMode=D3D11_CULL_MODE::D3D11_CULL_NONE;
+    rd.CullMode=D3D11_CULL_MODE::D3D11_CULL_BACK;
     rd.FrontCounterClockwise=false;
+    rd.DepthClipEnable=true;
 
     ComPtr<ID3D11RasterizerState> rs;
     DX_throwIf(device->CreateRasterizerState(&rd, &rs));
