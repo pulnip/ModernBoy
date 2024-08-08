@@ -6,18 +6,11 @@ namespace ModernBoy{
     struct Vertex{
         WorldPos position;
         Vector3 normal;
-        union{
-            Color color;
-            UVPos uv;
-        };
+        Color color;
+        UVPos uv;
     };
 
-    struct ColorVertex{
-        WorldPos position;
-        Vector3 color;
-    };
-
-    struct Constants{
+    struct VSConstants{
         DirectX::SimpleMath::Matrix model{};
         DirectX::SimpleMath::Matrix view{};
         DirectX::SimpleMath::Matrix projection{};
