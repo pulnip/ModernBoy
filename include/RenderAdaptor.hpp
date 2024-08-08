@@ -13,6 +13,7 @@ namespace ModernBoy{
 
       protected:
         Camera camera;
+        float xSplit=0.0f;
 
       public:
         RenderAdaptor(const WindowDesc& wd);

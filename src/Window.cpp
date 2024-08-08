@@ -8,6 +8,7 @@ void Window::updateGUI(){
     // ImGui::Checkbox("usePerspective", &shader->usePerspective);
     static float fov=70.0f;
     ImGui::SliderFloat("Field of View", &fov, 0.0f, 120.0f);
+    ImGui::SliderFloat("X Split", &xSplit, 0.0f, 1.0f);
 
     camera.setPerspective(XMConvertToRadians(fov));
 }

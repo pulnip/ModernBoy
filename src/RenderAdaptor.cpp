@@ -68,11 +68,13 @@ struct RenderAdaptor::ShaderAdaptor final{
 
     ComPtr<ID3D11Buffer> vertexBuffer;
     ComPtr<ID3D11Buffer> indexBuffer;
-    ComPtr<ID3D11Buffer> constantBuffer;
+    ComPtr<ID3D11Buffer> vsconstantBuffer;
+    ComPtr<ID3D11Buffer> psconstantBuffer;
 
     UINT indexCount=0;
 
-    Constants constants;
+    VSConstants vsconstants;
+    PSConstants psconstants;
 
     ShaderAdaptor(const ComPtr<ID3D11Device>& device,
         const wstring& vsFileName, const wstring& psFileName
@@ -80,7 +82,7 @@ struct RenderAdaptor::ShaderAdaptor final{
 
     void update(float dt,
         const ComPtr<ID3D11DeviceContext>& context,
-        const Camera& camera
+        const Camera& camera, const float xSplit
     );
     void render(const ComPtr<ID3D11DeviceContext>& context);
 
@@ -124,31 +126,34 @@ struct RenderAdaptor::ShaderAdaptor final{
             vertexBuffer.GetAddressOf()
         ));
     }
-
-    template <typename T>
-    void createCB(const T& constantBufferData,
-        const ComPtr<ID3D11Device>& device
-    ){
-        D3D11_BUFFER_DESC cbDesc;
-        cbDesc.ByteWidth=sizeof(constantBufferData);
-        cbDesc.Usage=D3D11_USAGE_DYNAMIC;
-        cbDesc.BindFlags=D3D11_BIND_CONSTANT_BUFFER;
-        cbDesc.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;
-        cbDesc.MiscFlags=0;
-        cbDesc.StructureByteStride=0;
-
-        // Fill in the subresource data.
-        D3D11_SUBRESOURCE_DATA InitData;
-        InitData.pSysMem=&constantBufferData;
-        InitData.SysMemPitch=0;
-        InitData.SysMemSlicePitch=0;
-
-        DX_throwIf(device->CreateBuffer(&cbDesc,
-            &InitData,
-            constantBuffer.GetAddressOf()
-        ));
-    }
 };
+
+template <typename T>
+ComPtr<ID3D11Buffer> createCB(const T& constantBufferData,
+    const ComPtr<ID3D11Device>& device
+){
+    D3D11_BUFFER_DESC cbDesc;
+    cbDesc.ByteWidth=sizeof(constantBufferData);
+    cbDesc.Usage=D3D11_USAGE_DYNAMIC;
+    cbDesc.BindFlags=D3D11_BIND_CONSTANT_BUFFER;
+    cbDesc.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;
+    cbDesc.MiscFlags=0;
+    cbDesc.StructureByteStride=0;
+
+    // Fill in the subresource data.
+    D3D11_SUBRESOURCE_DATA InitData;
+    InitData.pSysMem=&constantBufferData;
+    InitData.SysMemPitch=0;
+    InitData.SysMemSlicePitch=0;
+
+    ComPtr<ID3D11Buffer> constantBuffer;
+    DX_throwIf(device->CreateBuffer(&cbDesc,
+        &InitData,
+        constantBuffer.GetAddressOf()
+    ));
+
+    return constantBuffer;
+}
 
 RenderAdaptor::RenderAdaptor(const WindowDesc& wd)
 : pImpl(std::make_unique<Impl>(wd))
@@ -336,7 +341,11 @@ bool RenderAdaptor::run(){
                     camera.setScreenSize({event.window.data1, event.window.data2});
                     break;
                     pImpl->cleanupRenderTarget();
-                    pImpl->swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+                    pImpl->swapChain->ResizeBuffers(2,
+                        event.window.data1, event.window.data2,
+                        DXGI_FORMAT_R8G8B8A8_UNORM,
+                        DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+                    );
                     pImpl->renderTargetView=createRenderTargetView(
                         pImpl->device, pImpl->swapChain
                     );
@@ -373,7 +382,7 @@ bool RenderAdaptor::run(){
         const float dt=ImGui::GetIO().DeltaTime;
         updateGUI();
         update(dt);
-        shader->update(dt, pImpl->context, camera);
+        shader->update(dt, pImpl->context, camera, xSplit);
 
 		ImGui::End();
 
@@ -542,12 +551,15 @@ const ComPtr<ID3D11Device>& device,
     createVB(vertices, device);
     indexCount=static_cast<UINT>(indices.size());
     createIB(indices, device);
-    createCB(constants, device);
+    vsconstantBuffer=createCB(vsconstants, device);
+    psconstantBuffer=createCB(psconstants, device);
 
     // create shader
     D3D11_INPUT_ELEMENT_DESC inputElements[]={
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 3*sizeof(float), D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 3*sizeof(float), D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 6*sizeof(float), D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 10*sizeof(float), D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
     createVSAndIL(vsFileName, device, inputElements);
     createPS(psFileName, device);
@@ -563,13 +575,14 @@ void RenderAdaptor::ShaderAdaptor::render(
     // OM: Output-Merger stage
 
     // set the shader objects
-    context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
+    context->VSSetConstantBuffers(0, 1, vsconstantBuffer.GetAddressOf());
     context->VSSetShader(vs.Get(), 0, 0);
+    context->PSSetConstantBuffers(0, 1, psconstantBuffer.GetAddressOf());
     context->PSSetShader(ps.Get(), 0, 0);
     context->RSSetState(rs.Get());
 
     // select which vertex buffer to display
-    UINT stride=sizeof(ColorVertex);
+    UINT stride=sizeof(Vertex);
     UINT offset=0;
     context->IASetInputLayout(il.Get());
     context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
@@ -666,7 +679,7 @@ static void updateBuffer(ComPtr<ID3D11Buffer>& buffer,
 
 void RenderAdaptor::ShaderAdaptor::update(float dt,
     const ComPtr<ID3D11DeviceContext>& context,
-    const Camera& camera
+    const Camera& camera, const float xSplit
 ){
     static float rot=0.0f;
     rot+=dt;
@@ -674,14 +687,18 @@ void RenderAdaptor::ShaderAdaptor::update(float dt,
     const auto translation=Matrix::CreateTranslation(0.0f, -0.3f, 1.0f);
     const auto rotation=Matrix::CreateRotationY(rot);
     const auto scaling=Matrix::CreateScale(0.5f);
-    constants.model=scaling*rotation*translation;
+    vsconstants.model=scaling*rotation*translation;
 
     // constexpr float fov=XMConvertToRadians(70.0f);
     // camera.setPerspective(fov);
 
-    constants.model=constants.model.Transpose();
-    constants.view=camera.view().Transpose();
-    constants.projection=camera.projection().Transpose();
+    vsconstants.model=vsconstants.model.Transpose();
+    vsconstants.view=camera.view().Transpose();
+    vsconstants.projection=camera.projection().Transpose();
 
-    updateBuffer(constantBuffer, constants, context);
+    updateBuffer(vsconstantBuffer, vsconstants, context);
+
+    psconstants.xSplit=xSplit;
+
+    updateBuffer(psconstantBuffer, psconstants, context);
 }
