@@ -11,7 +11,7 @@ struct PixelShaderInput{
 };
 
 float4 main(PixelShaderInput input): SV_TARGET{
-    if(input.uv.x < xSplit)
+    if(input.uv.x<xSplit || xSplit==1.0f)
         input.color=float4(1.0f, 1.0f, 1.0f, 1.0f);
 
     // Use the interpolated vertex color
