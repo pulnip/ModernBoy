@@ -86,6 +86,7 @@
         "shared_mutex": "cpp",
         "text_encoding": "cpp",
         "source_location": "cpp",
-        "*.def": "cpp"
+        "*.def": "cpp",
+        "*.inc": "cpp"
     }
 }
