@@ -7,8 +7,12 @@ add_executable(${PROJECT_NAME}
 add_subdirectory(Algorithm)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
-    $<IF:$<CONFIG:DEBUG>,_DEBUG D3DCOMPILE_DEBUG D3DCOMPILE_SKIP_OPTIMIZATION D3DCOMPILE_ENABLE_STRICTNESS,NDEBUG>
-    GLM_ENABLE_EXPERIMENTAL
+    $<IF:$<CONFIG:DEBUG>,
+        _DEBUG
+        D3DCOMPILE_DEBUG D3DCOMPILE_SKIP_OPTIMIZATION
+        D3DCOMPILE_ENABLE_STRICTNESS,
+        NDEBUG
+    >
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -90,23 +94,16 @@ if(SDL2_FOUND)
     )
 endif()
 
-# Uncomment if using the DirectX Tool Kit
-# find_package(directxtk CONFIG REQUIRED)
-# target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectXTK)
-
 # Uncomment if using XAudio2Redist (required for MINGW)
 # find_package(xaudio2redist CONFIG REQUIRED)
 # target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::XAudio2Redist)
 
-target_compile_options(${PROJECT_NAME}
-PRIVATE
+target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall -Wextra
-    # -Wno-ignored-attributes
 )
 
 if(WIN32)
-    target_compile_definitions(${PROJECT_NAME}
-    PRIVATE
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
         _UNICODE
         UNICODE
     )

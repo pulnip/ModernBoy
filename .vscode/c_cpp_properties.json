@@ -10,8 +10,7 @@
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE",
-                "GLM_ENABLE_EXPERIMENTAL"
+                "_UNICODE"
             ],
             "windowsSdkVersion": "10.0.22621.0",
             "cStandard": "c23",
