@@ -502,6 +502,49 @@ void RenderAdaptor::Impl::setupRender(){
     );
 }
 
+[[nodiscard]] static ComPtr<ID3DBlob> compileShader(
+    const wstring& fileName, const char* target
+){
+    ComPtr<ID3DBlob> errorBlob;
+    ComPtr<ID3DBlob> shaderBlob;
+    HRESULT hr=D3DCompileFromFile(fileName.c_str(),
+        nullptr, nullptr, "main", target, COMPILE_FLAGS, 0,
+        &shaderBlob, &errorBlob
+    );
+    SC_throwIf(hr, errorBlob.Get());
+
+    return shaderBlob;
+}
+
+[[nodiscard]] static ComPtr<ID3D11VertexShader> createVS(
+    const ComPtr<ID3DBlob>& shaderBlob,
+    const ComPtr<ID3D11Device>& device
+){
+    ComPtr<ID3D11VertexShader> vs;
+    DX_throwIf(device->CreateVertexShader(
+        shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(),
+        nullptr,
+        &vs
+    ));
+
+    return vs;
+}
+
+[[nodiscard]] static ComPtr<ID3D11InputLayout> createIL(
+    const ComPtr<ID3DBlob>& shaderBlob,
+    const ComPtr<ID3D11Device>& device,
+    std::span<const D3D11_INPUT_ELEMENT_DESC> iedesc
+){
+    ComPtr<ID3D11InputLayout> il;
+    DX_throwIf(device->CreateInputLayout(
+        iedesc.data(), static_cast<UINT>(iedesc.size()),
+        shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(),
+        &il
+    ));
+
+    return il;
+}
+
 [[nodiscard]] static tuple<ComPtr<ID3D11VertexShader>,
     ComPtr<ID3D11InputLayout>
 > createVSAndIL(
@@ -509,43 +552,19 @@ void RenderAdaptor::Impl::setupRender(){
     const ComPtr<ID3D11Device>& device,
     std::span<const D3D11_INPUT_ELEMENT_DESC> iedesc
 ){
-    ComPtr<ID3DBlob> shaderBlob;
-    ComPtr<ID3DBlob> errorBlob;
+    auto shaderBlob=compileShader(fileName, "vs_5_0");
 
-    HRESULT hr=D3DCompileFromFile(fileName.c_str(),
-        nullptr, nullptr, "main", "vs_5_0", COMPILE_FLAGS, 0,
-        &shaderBlob, &errorBlob
-    );
-    SC_throwIf(hr, errorBlob.Get());
-
-    ComPtr<ID3D11VertexShader> vertexShader;
-    ComPtr<ID3D11InputLayout> inputLayout;
-    DX_throwIf(device->CreateVertexShader(
-        shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(),
-        nullptr,
-        &vertexShader
-    ));
-    DX_throwIf(device->CreateInputLayout(
-        iedesc.data(), static_cast<UINT>(iedesc.size()),
-        shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(),
-        &inputLayout
-    ));
-
-    return {vertexShader, inputLayout};
+    return {
+        createVS(shaderBlob, device),
+        createIL(shaderBlob, device, iedesc)
+    };
 }
 
 [[nodiscard]] static ComPtr<ID3D11PixelShader> createPS(
     const wstring& fileName,
     const ComPtr<ID3D11Device>& device
 ){
-    ComPtr<ID3DBlob> shaderBlob;
-    ComPtr<ID3DBlob> errorBlob;
-
-    HRESULT hr=D3DCompileFromFile(fileName.c_str(),
-        nullptr, nullptr, "main", "ps_5_0", COMPILE_FLAGS, 0,
-        &shaderBlob, &errorBlob
-    );
-    SC_throwIf(hr, errorBlob.Get());
+    auto shaderBlob=compileShader(fileName, "ps_5_0");
 
     ComPtr<ID3D11PixelShader> pixelShader;
     DX_throwIf(device->CreatePixelShader(
