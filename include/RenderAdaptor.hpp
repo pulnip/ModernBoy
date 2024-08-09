@@ -10,6 +10,8 @@ namespace ModernBoy{
         std::unique_ptr<Impl> pImpl;
         struct ShaderAdaptor;
         std::unique_ptr<ShaderAdaptor> shader;
+        struct TextureAdaptor;
+        std::unique_ptr<TextureAdaptor> texturer;
 
       protected:
         Camera camera;

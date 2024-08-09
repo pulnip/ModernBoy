@@ -46,13 +46,15 @@ namespace ModernBoy{
     ){
         throwIfFailed<int>(code, is_neg<int>, sl);
     }
-    inline void SC_throwIf(HRESULT hr, ID3DBlob* errorBlob){
+    inline void SC_throwIf(HRESULT hr, ID3DBlob* errorBlob,
+        const std::source_location& sl=std::source_location::current()
+    ){
         if(is_neg(hr)){
             throwIfTrue((hr&D3D11_ERROR_FILE_NOT_FOUND) != 0,
-                nameof(D3D11_ERROR_FILE_NOT_FOUND)
+                nameof(D3D11_ERROR_FILE_NOT_FOUND), sl
             );
             throwIfTrue(errorBlob != nullptr,
-                (char*)errorBlob->GetBufferPointer()
+                (char*)errorBlob->GetBufferPointer(), sl
             );
         }
     }
