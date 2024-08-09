@@ -507,7 +507,7 @@ void RenderAdaptor::Impl::setupRender(){
 > createVSAndIL(
     const wstring& fileName,
     const ComPtr<ID3D11Device>& device,
-    std::span<D3D11_INPUT_ELEMENT_DESC> iedesc
+    std::span<const D3D11_INPUT_ELEMENT_DESC> iedesc
 ){
     ComPtr<ID3DBlob> shaderBlob;
     ComPtr<ID3DBlob> errorBlob;
@@ -577,7 +577,7 @@ void RenderAdaptor::Impl::setupRender(){
 
 template<typename V>
 [[nodiscard]] static ComPtr<ID3D11Buffer> createVB(
-    std::span<V> vertices,
+    std::span<const V> vertices,
     const ComPtr<ID3D11Device>& device
 ){
     D3D11_BUFFER_DESC bufferDesc{};
@@ -609,7 +609,7 @@ template<typename V>
 }
 
 [[nodiscard]] static ComPtr<ID3D11Buffer> createIB(
-    std::span<uint16_t> indices,
+    std::span<const uint16_t> indices,
     const ComPtr<ID3D11Device>& device
 ){
     D3D11_BUFFER_DESC bufferDesc{};
@@ -675,14 +675,14 @@ RenderAdaptor::ShaderAdaptor::ShaderAdaptor(
     MeshBuffer meshBuffer;
     auto [vertices, indices]=meshBuffer.extract();
 
-    vertexBuffer=createVB(std::span(vertices), device);
+    vertexBuffer=createVB<Vertex>(vertices, device);
     indexCount=static_cast<UINT>(indices.size());
     indexBuffer=createIB(indices, device);
     vscBuffer=createCB(vsc, device);
     pscBuffer=createCB(psc, device);
 
     // create shader
-    D3D11_INPUT_ELEMENT_DESC inputElements[]={
+    constexpr D3D11_INPUT_ELEMENT_DESC inputElements[]={
         {
             .SemanticName="POSITION",
             .SemanticIndex=0,
