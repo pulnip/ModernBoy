@@ -40,13 +40,13 @@ struct RenderAdaptor::Impl final{
 
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> context;
-    ComPtr<ID3D11RenderTargetView> renderTargetView;
+    ComPtr<ID3D11RenderTargetView> rtv;
     ComPtr<IDXGISwapChain> swapChain;
 
     // depth buffer
     ComPtr<ID3D11Texture2D> depthStencilBuffer;
-    ComPtr<ID3D11DepthStencilView> depthStencilView;
-    ComPtr<ID3D11DepthStencilState> depthStencilState;
+    ComPtr<ID3D11DepthStencilView> dsv;
+    ComPtr<ID3D11DepthStencilState> dss;
 
     D3D11_VIEWPORT screenViewport{};
 
@@ -71,13 +71,13 @@ struct RenderAdaptor::ShaderAdaptor final{
 
     ComPtr<ID3D11Buffer> vertexBuffer;
     ComPtr<ID3D11Buffer> indexBuffer;
-    ComPtr<ID3D11Buffer> vsconstantBuffer;
-    ComPtr<ID3D11Buffer> psconstantBuffer;
+    ComPtr<ID3D11Buffer> vscBuffer;
+    ComPtr<ID3D11Buffer> pscBuffer;
 
     UINT indexCount=0;
 
-    VSConstants vsconstants;
-    PSConstants psconstants;
+    VSConstants vsc;
+    PSConstants psc;
 
     ShaderAdaptor(const ComPtr<ID3D11Device>& device,
         const wstring& vsFileName, const wstring& psFileName
@@ -88,52 +88,11 @@ struct RenderAdaptor::ShaderAdaptor final{
         const Camera& camera, const float xSplit
     );
     void render(const ComPtr<ID3D11DeviceContext>& context);
-
-  private:
-    void createVSAndIL(const std::wstring& fileName,
-        const ComPtr<ID3D11Device>& device,
-        const std::span<D3D11_INPUT_ELEMENT_DESC>& iedesc
-    );
-    void createPS(const std::wstring& fileName,
-        const ComPtr<ID3D11Device>& device
-    );
-    void createIB(const std::vector<uint16_t>& indices,
-        const ComPtr<ID3D11Device>& device
-    );
-
-    template<typename V>
-    void createVB(const std::vector<V>& vertices,
-        const ComPtr<ID3D11Device>& device
-    ){
-        D3D11_BUFFER_DESC bufferDesc{};
-        // ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
-        // write access access by CPU and GPU
-        // bufferDesc.Usage=D3D11_USAGE_DYNAMIC;
-        bufferDesc.Usage=D3D11_USAGE_IMMUTABLE;
-        bufferDesc.ByteWidth=UINT(sizeof(V) * vertices.size());
-        // use as a vertex buffer
-        bufferDesc.BindFlags=D3D11_BIND_VERTEX_BUFFER;
-        // allow CPU to write in buffer
-        // bufferDesc.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;
-        bufferDesc.CPUAccessFlags=0;
-        bufferDesc.StructureByteStride=sizeof(V);
-
-        D3D11_SUBRESOURCE_DATA vertexBufferData{
-            vertices.data(),
-            0,
-            0
-        };
-
-        DX_throwIf(device->CreateBuffer(&bufferDesc,
-            &vertexBufferData,
-            vertexBuffer.GetAddressOf()
-        ));
-    }
 };
 
 struct RenderAdaptor::TextureAdaptor final{
     ComPtr<ID3D11Texture2D> texture;
-    ComPtr<ID3D11ShaderResourceView> textureResourceView;
+    ComPtr<ID3D11ShaderResourceView> textureView;
     ComPtr<ID3D11SamplerState> sampler;
 
     TextureAdaptor(const ComPtr<ID3D11Device>& device,
@@ -143,59 +102,9 @@ struct RenderAdaptor::TextureAdaptor final{
     void render(const ComPtr<ID3D11DeviceContext>& context);
 };
 
-template <typename T>
-ComPtr<ID3D11Buffer> createCB(const T& constantBufferData,
-    const ComPtr<ID3D11Device>& device
+[[nodiscard]] static SDL_Window* createWindow(
+    const WindowDesc& wd
 ){
-    D3D11_BUFFER_DESC cbDesc;
-    cbDesc.ByteWidth=sizeof(T);
-    cbDesc.Usage=D3D11_USAGE_DYNAMIC;
-    cbDesc.BindFlags=D3D11_BIND_CONSTANT_BUFFER;
-    cbDesc.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;
-    cbDesc.MiscFlags=0;
-    cbDesc.StructureByteStride=0;
-
-    // Fill in the subresource data.
-    D3D11_SUBRESOURCE_DATA InitData;
-    InitData.pSysMem=&constantBufferData;
-    InitData.SysMemPitch=0;
-    InitData.SysMemSlicePitch=0;
-
-    ComPtr<ID3D11Buffer> constantBuffer;
-    DX_throwIf(device->CreateBuffer(&cbDesc,
-        &InitData,
-        constantBuffer.GetAddressOf()
-    ));
-
-    return constantBuffer;
-}
-
-RenderAdaptor::RenderAdaptor(const WindowDesc& wd)
-: pImpl(std::make_unique<Impl>(wd))
-, shader(std::make_unique<ShaderAdaptor>(pImpl->device,
-    L"src/CVS.hlsl", L"src/CPS.hlsl"))
-, texturer(std::make_unique<TextureAdaptor>(pImpl->device,
-    "assets/crate.png"))
-{
-    camera.setScreenSize(wd.size);
-}
-RenderAdaptor::~RenderAdaptor()=default;
-
-inline HWND getHandle(SDL_Window* window){
-    SDL_SysWMinfo wmInfo; SDL_VERSION(&wmInfo.version);
-    SDL_GetWindowWMInfo(window, &wmInfo);
-
-    return wmInfo.info.win.window;
-}
-
-inline std::string getRendererName(SDL_Renderer* renderer){
-    SDL_RendererInfo info;
-    SDL_GetRendererInfo(renderer, &info);
-
-    return info.name;
-}
-
-inline SDL_Window* createWindow(const WindowDesc& wd){
     SDL_throwIf(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS));
 #ifdef SDL_HINT_IME_SHOW_UI
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
@@ -210,7 +119,26 @@ inline SDL_Window* createWindow(const WindowDesc& wd){
     );
 }
 
-inline tuple<ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceContext>> createDevice(){
+[[nodiscard]] static HWND getHandle(SDL_Window* window){
+    SDL_SysWMinfo wmInfo; SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(window, &wmInfo);
+
+    return wmInfo.info.win.window;
+}
+
+[[nodiscard, maybe_unused]]
+static std::string getRendererName(
+    SDL_Renderer* renderer
+){
+    SDL_RendererInfo info;
+    SDL_GetRendererInfo(renderer, &info);
+
+    return info.name;
+}
+
+[[nodiscard]] static tuple<ComPtr<ID3D11Device>,
+    ComPtr<ID3D11DeviceContext>
+> createDevice(){
     // constexpr auto DRIVER_TYPE=D3D_DRIVER_TYPE_WARP;
     constexpr auto DRIVER_TYPE=D3D_DRIVER_TYPE_HARDWARE;
     constexpr D3D_FEATURE_LEVEL FEATURE_LEVELS[]={
@@ -232,7 +160,9 @@ inline tuple<ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceContext>> createDevice(){
     return {device, context};
 }
 
-inline UINT getQualityLevel(const ComPtr<ID3D11Device>& device){
+[[nodiscard]] static UINT getQualityLevel(
+    const ComPtr<ID3D11Device>& device
+){
     UINT numQualityLevels;
     DX_throwIf(device->CheckMultisampleQualityLevels(
         DXGI_FORMAT_R8G8B8A8_UNORM, 4,
@@ -243,8 +173,8 @@ inline UINT getQualityLevel(const ComPtr<ID3D11Device>& device){
     return numQualityLevels;
 }
 
-inline ComPtr<IDXGISwapChain> createSwapChain(HWND hwnd,
-    const ComPtr<ID3D11Device>& device,
+[[nodiscard]] static ComPtr<IDXGISwapChain> createSwapChain(
+    HWND hwnd, const ComPtr<ID3D11Device>& device,
     const ipoint2& screenSize, UINT numQualityLevels
 ){
     const bool MSAA_4X=numQualityLevels > 0;
@@ -289,8 +219,9 @@ inline ComPtr<IDXGISwapChain> createSwapChain(HWND hwnd,
     return swapChain;
 }
 
-inline ComPtr<ID3D11RenderTargetView> createRenderTargetView(
-    const ComPtr<ID3D11Device>& device, const ComPtr<IDXGISwapChain>& swapChain
+[[nodiscard]] static ComPtr<ID3D11RenderTargetView> createRTV(
+    const ComPtr<ID3D11Device>& device,
+    const ComPtr<IDXGISwapChain>& swapChain
 ){
     ID3D11Texture2D* pBackBuffer;
     DX_throwIf(swapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer)));
@@ -303,43 +234,92 @@ inline ComPtr<ID3D11RenderTargetView> createRenderTargetView(
     return rtv;
 }
 
-RenderAdaptor::Impl::Impl(const WindowDesc& wd){
-    // SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
-    throwIfTrue((window=createWindow(wd))==nullptr,
-        "SDL_CreateWindow() Failed."
-    );
-    initDirect3D(wd);
-    initGUI(wd);
-}
+[[nodiscard]] static D3D11_VIEWPORT setScreenViewPort(
+    const ipoint2& screenSize,
+    const ComPtr<ID3D11DeviceContext>& context
+){
+    D3D11_VIEWPORT screenViewport{};
+    // ZeroMemory(&screenViewport, sizeof(D3D11_VIEWPORT));
+    screenViewport.TopLeftX=0;
+    screenViewport.TopLeftY=0;
+    screenViewport.Width=screenSize.x;
+    screenViewport.Height=screenSize.y;
+    screenViewport.MinDepth=0.0f;
+    // Note: important for depth buffering
+    screenViewport.MaxDepth=1.0f;
 
-RenderAdaptor::Impl::~Impl(){
-    ImGui_ImplDX11_Shutdown();
-	ImGui_ImplSDL2_Shutdown();
-	ImGui::DestroyContext();
-
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-}
-
-void RenderAdaptor::Impl::setupRender(){
-    // IA: Input-Assembler stage
-    // VS: Vertex Shader
-    // PS: Pixel Shader
-    // RS: Rasterizer stage
-    // OM: Output-Merger stage
-
-    float clearColor[4]={0.0f, 0.0f, 0.0f, 1.0f};
     context->RSSetViewports(1, &screenViewport);
-    // use depth buffer
-    context->OMSetRenderTargets(1, renderTargetView.GetAddressOf(),
-        depthStencilView.Get()
-    );
-    context->ClearRenderTargetView(renderTargetView.Get(), clearColor);
-    context->OMSetDepthStencilState(depthStencilState.Get(), 0);
-    context->ClearDepthStencilView(depthStencilView.Get(),
-        D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
-    );
+
+    return screenViewport;
 }
+
+[[nodiscard]] static ComPtr<ID3D11Texture2D> createDepthStencilBuffer(
+    const ipoint2& screenSize, UINT numQualityLevels,
+    const ComPtr<ID3D11Device>& device
+){
+    const bool MSAA_4X=numQualityLevels > 0;
+
+    D3D11_TEXTURE2D_DESC dsb_desc;
+    dsb_desc.Width=screenSize.x;
+    dsb_desc.Height=screenSize.y;
+    dsb_desc.MipLevels=1;
+    dsb_desc.ArraySize=1;
+    dsb_desc.Format=DXGI_FORMAT_D24_UNORM_S8_UINT;
+    // how many multisamples
+    dsb_desc.SampleDesc.Count=MSAA_4X ? 4 : 1;
+    dsb_desc.SampleDesc.Quality=MSAA_4X ? numQualityLevels-1 : 0;
+    dsb_desc.Usage=D3D11_USAGE_DEFAULT;
+    dsb_desc.BindFlags=D3D11_BIND_DEPTH_STENCIL;
+    dsb_desc.CPUAccessFlags=0;
+    dsb_desc.MiscFlags=0;
+
+    ComPtr<ID3D11Texture2D> dsb;
+    DX_throwIf(device->CreateTexture2D(&dsb_desc,
+        nullptr, dsb.GetAddressOf()
+    ));
+
+    return dsb;
+}
+
+[[nodiscard]] static ComPtr<ID3D11DepthStencilState> createDSS(
+    const ComPtr<ID3D11Device>& device
+){
+    D3D11_DEPTH_STENCIL_DESC dsd{};
+    // ZeroMemory(&dsd, sizeof(D3D11_DEPTH_STENCIL_DESC));
+    dsd.DepthEnable=true;
+    dsd.DepthWriteMask=D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+    dsd.DepthFunc=D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+    
+    ComPtr<ID3D11DepthStencilState> dss;
+    DX_throwIf(device->CreateDepthStencilState(&dsd,
+        dss.GetAddressOf())
+    );
+
+    return dss;
+}
+
+template <typename T>
+static void updateBuffer(ComPtr<ID3D11Buffer>& buffer,
+    const T& bufferData,
+    const ComPtr<ID3D11DeviceContext>& context
+){
+    D3D11_MAPPED_SUBRESOURCE ms;
+    context->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+    memcpy(ms.pData, &bufferData, sizeof(T));
+    context->Unmap(buffer.Get(), 0);
+}
+
+RenderAdaptor::RenderAdaptor(const WindowDesc& wd)
+: pImpl(std::make_unique<Impl>(wd))
+, shader(std::make_unique<ShaderAdaptor>(pImpl->device,
+    L"src/CVS.hlsl", L"src/CPS.hlsl"))
+, texturer(std::make_unique<TextureAdaptor>(pImpl->device,
+    "assets/crate.png"))
+{
+    camera.setScreenSize(wd.size);
+}
+
+RenderAdaptor::~RenderAdaptor()=default;
 
 bool RenderAdaptor::run(){
     SDL_Event event;
@@ -363,7 +343,7 @@ bool RenderAdaptor::run(){
                         DXGI_FORMAT_R8G8B8A8_UNORM,
                         DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
                     );
-                    pImpl->renderTargetView=createRenderTargetView(
+                    pImpl->rtv=createRTV(
                         pImpl->device, pImpl->swapChain
                     );
                     break;
@@ -421,68 +401,13 @@ bool RenderAdaptor::run(){
     return true;
 }
 
-inline D3D11_VIEWPORT setScreenViewPort(
-    const ipoint2& screenSize,
-    const ComPtr<ID3D11DeviceContext>& context
-){
-    D3D11_VIEWPORT screenViewport{};
-    // ZeroMemory(&screenViewport, sizeof(D3D11_VIEWPORT));
-    screenViewport.TopLeftX=0;
-    screenViewport.TopLeftY=0;
-    screenViewport.Width=screenSize.x;
-    screenViewport.Height=screenSize.y;
-    screenViewport.MinDepth=0.0f;
-    // Note: important for depth buffering
-    screenViewport.MaxDepth=1.0f;
-
-    context->RSSetViewports(1, &screenViewport);
-
-    return screenViewport;
-}
-
-inline ComPtr<ID3D11Texture2D> createDepthStencilBuffer(
-    const ipoint2& screenSize, UINT numQualityLevels,
-    const ComPtr<ID3D11Device>& device
-){
-    const bool MSAA_4X=numQualityLevels > 0;
-    ComPtr<ID3D11Texture2D> dsb;
-
-    D3D11_TEXTURE2D_DESC dsb_desc;
-    dsb_desc.Width=screenSize.x;
-    dsb_desc.Height=screenSize.y;
-    dsb_desc.MipLevels=1;
-    dsb_desc.ArraySize=1;
-    dsb_desc.Format=DXGI_FORMAT_D24_UNORM_S8_UINT;
-    // how many multisamples
-    dsb_desc.SampleDesc.Count=MSAA_4X ? 4 : 1;
-    dsb_desc.SampleDesc.Quality=MSAA_4X ? numQualityLevels-1 : 0;
-    dsb_desc.Usage=D3D11_USAGE_DEFAULT;
-    dsb_desc.BindFlags=D3D11_BIND_DEPTH_STENCIL;
-    dsb_desc.CPUAccessFlags=0;
-    dsb_desc.MiscFlags=0;
-
-    DX_throwIf(device->CreateTexture2D(&dsb_desc,
-        nullptr, dsb.GetAddressOf()
-    ));
-
-    return dsb;
-}
-
-inline ComPtr<ID3D11DepthStencilState> createDepthStencilState(
-    const ComPtr<ID3D11Device>& device
-){
-    ComPtr<ID3D11DepthStencilState> dss;
-
-    D3D11_DEPTH_STENCIL_DESC dsd{};
-    // ZeroMemory(&dsd, sizeof(D3D11_DEPTH_STENCIL_DESC));
-    dsd.DepthEnable=true;
-    dsd.DepthWriteMask=D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-    dsd.DepthFunc=D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-    DX_throwIf(device->CreateDepthStencilState(&dsd,
-        dss.GetAddressOf())
+RenderAdaptor::Impl::Impl(const WindowDesc& wd){
+    // SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
+    throwIfTrue((window=createWindow(wd))==nullptr,
+        "SDL_CreateWindow() Failed."
     );
-
-    return dss;
+    initDirect3D(wd);
+    initGUI(wd);
 }
 
 void RenderAdaptor::Impl::initDirect3D(const WindowDesc& wd){
@@ -492,15 +417,15 @@ void RenderAdaptor::Impl::initDirect3D(const WindowDesc& wd){
     const auto qualityLevel=getQualityLevel(device);
     swapChain=createSwapChain(hwnd, device, wd.size, qualityLevel);
 
-    renderTargetView=createRenderTargetView(device, swapChain);
+    rtv=createRTV(device, swapChain);
     screenViewport=setScreenViewPort(wd.size, context);
 
     depthStencilBuffer=createDepthStencilBuffer(wd.size, qualityLevel, device);
     DX_throwIf(device->CreateDepthStencilView(depthStencilBuffer.Get(),
-        0, &depthStencilView
+        0, &dsv
     ));
 
-    depthStencilState=createDepthStencilState(device);
+    dss=createDSS(device);
 }
 
 void RenderAdaptor::Impl::initGUI(const WindowDesc& wd){
@@ -542,13 +467,97 @@ void RenderAdaptor::Impl::cleanupDeviceD3D(){
 }
 
 void RenderAdaptor::Impl::cleanupRenderTarget(){
-    if(renderTargetView){
-        renderTargetView->Release();
-        renderTargetView=nullptr;
+    if(rtv){
+        rtv->Release();
+        rtv=nullptr;
     }
 }
 
-inline ComPtr<ID3D11RasterizerState> createRS(
+RenderAdaptor::Impl::~Impl(){
+    ImGui_ImplDX11_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
+
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+
+void RenderAdaptor::Impl::setupRender(){
+    // IA: Input-Assembler stage
+    // VS: Vertex Shader
+    // PS: Pixel Shader
+    // RS: Rasterizer stage
+    // OM: Output-Merger stage
+
+    float clearColor[4]={0.0f, 0.0f, 0.0f, 1.0f};
+    context->RSSetViewports(1, &screenViewport);
+    // use depth buffer
+    context->OMSetRenderTargets(1, rtv.GetAddressOf(),
+        dsv.Get()
+    );
+    context->ClearRenderTargetView(rtv.Get(), clearColor);
+    context->OMSetDepthStencilState(dss.Get(), 0);
+    context->ClearDepthStencilView(dsv.Get(),
+        D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
+    );
+}
+
+[[nodiscard]] static tuple<ComPtr<ID3D11VertexShader>,
+    ComPtr<ID3D11InputLayout>
+> createVSAndIL(
+    const wstring& fileName,
+    const ComPtr<ID3D11Device>& device,
+    std::span<D3D11_INPUT_ELEMENT_DESC> iedesc
+){
+    ComPtr<ID3DBlob> shaderBlob;
+    ComPtr<ID3DBlob> errorBlob;
+
+    HRESULT hr=D3DCompileFromFile(fileName.c_str(),
+        nullptr, nullptr, "main", "vs_5_0", COMPILE_FLAGS, 0,
+        &shaderBlob, &errorBlob
+    );
+    SC_throwIf(hr, errorBlob.Get());
+
+    ComPtr<ID3D11VertexShader> vertexShader;
+    ComPtr<ID3D11InputLayout> inputLayout;
+    DX_throwIf(device->CreateVertexShader(
+        shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(),
+        nullptr,
+        &vertexShader
+    ));
+    DX_throwIf(device->CreateInputLayout(
+        iedesc.data(), static_cast<UINT>(iedesc.size()),
+        shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(),
+        &inputLayout
+    ));
+
+    return {vertexShader, inputLayout};
+}
+
+[[nodiscard]] static ComPtr<ID3D11PixelShader> createPS(
+    const wstring& fileName,
+    const ComPtr<ID3D11Device>& device
+){
+    ComPtr<ID3DBlob> shaderBlob;
+    ComPtr<ID3DBlob> errorBlob;
+
+    HRESULT hr=D3DCompileFromFile(fileName.c_str(),
+        nullptr, nullptr, "main", "ps_5_0", COMPILE_FLAGS, 0,
+        &shaderBlob, &errorBlob
+    );
+    SC_throwIf(hr, errorBlob.Get());
+
+    ComPtr<ID3D11PixelShader> pixelShader;
+    DX_throwIf(device->CreatePixelShader(
+        shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(),
+        nullptr,
+        &pixelShader
+    ));
+
+    return pixelShader;
+}
+
+[[nodiscard]] static ComPtr<ID3D11RasterizerState> createRS(
     const ComPtr<ID3D11Device>& device
 ){
     D3D11_RASTERIZER_DESC rd{};
@@ -566,6 +575,99 @@ inline ComPtr<ID3D11RasterizerState> createRS(
     return rs;
 }
 
+template<typename V>
+[[nodiscard]] static ComPtr<ID3D11Buffer> createVB(
+    std::span<V> vertices,
+    const ComPtr<ID3D11Device>& device
+){
+    D3D11_BUFFER_DESC bufferDesc{};
+    // ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
+    // write access access by CPU and GPU
+    // bufferDesc.Usage=D3D11_USAGE_DYNAMIC;
+    bufferDesc.Usage=D3D11_USAGE_IMMUTABLE;
+    bufferDesc.ByteWidth=UINT(sizeof(V) * vertices.size());
+    // use as a vertex buffer
+    bufferDesc.BindFlags=D3D11_BIND_VERTEX_BUFFER;
+    // allow CPU to write in buffer
+    // bufferDesc.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;
+    bufferDesc.CPUAccessFlags=0;
+    bufferDesc.StructureByteStride=sizeof(V);
+
+    D3D11_SUBRESOURCE_DATA vertexBufferData{
+        .pSysMem=vertices.data(),
+        .SysMemPitch=0,
+        .SysMemSlicePitch=0
+    };
+
+    ComPtr<ID3D11Buffer> vertexBuffer;
+    DX_throwIf(device->CreateBuffer(&bufferDesc,
+        &vertexBufferData,
+        vertexBuffer.GetAddressOf()
+    ));
+
+    return vertexBuffer;
+}
+
+[[nodiscard]] static ComPtr<ID3D11Buffer> createIB(
+    std::span<uint16_t> indices,
+    const ComPtr<ID3D11Device>& device
+){
+    D3D11_BUFFER_DESC bufferDesc{};
+    // write access access by CPU and GPU
+    // bufferDesc.Usage=D3D11_USAGE_DYNAMIC;
+    bufferDesc.Usage=D3D11_USAGE_IMMUTABLE;
+    bufferDesc.ByteWidth=static_cast<UINT>(sizeof(uint16_t) * indices.size());
+    // use as a index buffer
+    bufferDesc.BindFlags=D3D11_BIND_INDEX_BUFFER;
+    // allow CPU to write in buffer
+    // bufferDesc.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;
+    bufferDesc.CPUAccessFlags=0;
+    bufferDesc.StructureByteStride=sizeof(uint16_t);
+
+    D3D11_SUBRESOURCE_DATA indexBufferData{
+        .pSysMem=indices.data(),
+        .SysMemPitch=0,
+        .SysMemSlicePitch=0
+    };
+
+    ComPtr<ID3D11Buffer> indexBuffer;
+    DX_throwIf(device->CreateBuffer(&bufferDesc,
+        &indexBufferData,
+        indexBuffer.GetAddressOf()
+    ));
+
+    return indexBuffer;
+}
+
+template <typename T>
+[[nodiscard]] static ComPtr<ID3D11Buffer> createCB(
+    const T& constants,
+    const ComPtr<ID3D11Device>& device
+){
+    D3D11_BUFFER_DESC cbDesc;
+    cbDesc.ByteWidth=sizeof(T);
+    cbDesc.Usage=D3D11_USAGE_DYNAMIC;
+    cbDesc.BindFlags=D3D11_BIND_CONSTANT_BUFFER;
+    cbDesc.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;
+    cbDesc.MiscFlags=0;
+    cbDesc.StructureByteStride=0;
+
+    // Fill in the subresource data.
+    D3D11_SUBRESOURCE_DATA constantBufferData{
+        .pSysMem=&constants,
+        .SysMemPitch=0,
+        .SysMemSlicePitch=0
+    };
+
+    ComPtr<ID3D11Buffer> constantBuffer;
+    DX_throwIf(device->CreateBuffer(&cbDesc,
+        &constantBufferData,
+        constantBuffer.GetAddressOf()
+    ));
+
+    return constantBuffer;
+}
+
 RenderAdaptor::ShaderAdaptor::ShaderAdaptor(
     const ComPtr<ID3D11Device>& device,
     const wstring& vsFileName, const wstring& psFileName)
@@ -573,11 +675,11 @@ RenderAdaptor::ShaderAdaptor::ShaderAdaptor(
     MeshBuffer meshBuffer;
     auto [vertices, indices]=meshBuffer.extract();
 
-    createVB(vertices, device);
+    vertexBuffer=createVB(std::span(vertices), device);
     indexCount=static_cast<UINT>(indices.size());
-    createIB(indices, device);
-    vsconstantBuffer=createCB(vsconstants, device);
-    psconstantBuffer=createCB(psconstants, device);
+    indexBuffer=createIB(indices, device);
+    vscBuffer=createCB(vsc, device);
+    pscBuffer=createCB(psc, device);
 
     // create shader
     D3D11_INPUT_ELEMENT_DESC inputElements[]={
@@ -615,8 +717,8 @@ RenderAdaptor::ShaderAdaptor::ShaderAdaptor(
             .InstanceDataStepRate=0
         }
     };
-    createVSAndIL(vsFileName, device, inputElements);
-    createPS(psFileName, device);
+    tie(vs, il)=createVSAndIL(vsFileName, device, inputElements);
+    ps=createPS(psFileName, device);
 }
 
 void RenderAdaptor::ShaderAdaptor::render(
@@ -629,9 +731,9 @@ void RenderAdaptor::ShaderAdaptor::render(
     // OM: Output-Merger stage
 
     // set the shader objects
-    context->VSSetConstantBuffers(0, 1, vsconstantBuffer.GetAddressOf());
+    context->VSSetConstantBuffers(0, 1, vscBuffer.GetAddressOf());
     context->VSSetShader(vs.Get(), 0, 0);
-    context->PSSetConstantBuffers(0, 1, psconstantBuffer.GetAddressOf());
+    context->PSSetConstantBuffers(0, 1, pscBuffer.GetAddressOf());
     context->PSSetShader(ps.Get(), 0, 0);
     context->RSSetState(rs.Get());
 
@@ -648,89 +750,6 @@ void RenderAdaptor::ShaderAdaptor::render(
     context->DrawIndexed(indexCount, 0, 0);
 }
 
-void RenderAdaptor::ShaderAdaptor::createVSAndIL(const wstring& fileName,
-    const ComPtr<ID3D11Device>& device,
-    const std::span<D3D11_INPUT_ELEMENT_DESC>& iedesc
-){
-    ComPtr<ID3DBlob> shaderBlob;
-    ComPtr<ID3DBlob> errorBlob;
-
-    HRESULT hr=D3DCompileFromFile(fileName.c_str(),
-        nullptr, nullptr, "main", "vs_5_0", COMPILE_FLAGS, 0,
-        &shaderBlob, &errorBlob
-    );
-    SC_throwIf(hr, errorBlob.Get());
-
-    DX_throwIf(device->CreateVertexShader(
-        shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(),
-        nullptr,
-        &vs
-    ));
-
-    DX_throwIf(device->CreateInputLayout(
-        iedesc.data(), static_cast<UINT>(iedesc.size()),
-        shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(),
-        &il
-    ));
-}
-
-void RenderAdaptor::ShaderAdaptor::createPS(const wstring& fileName,
-    const ComPtr<ID3D11Device>& device
-){
-    ComPtr<ID3DBlob> shaderBlob;
-    ComPtr<ID3DBlob> errorBlob;
-
-    HRESULT hr=D3DCompileFromFile(fileName.c_str(),
-        nullptr, nullptr, "main", "ps_5_0", COMPILE_FLAGS, 0,
-        &shaderBlob, &errorBlob
-    );
-    SC_throwIf(hr, errorBlob.Get());
-
-    DX_throwIf(device->CreatePixelShader(
-        shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(),
-        nullptr,
-        &ps
-    ));
-}
-
-void RenderAdaptor::ShaderAdaptor::createIB(const vector<uint16_t>& indices,
-    const ComPtr<ID3D11Device>& device
-){
-    D3D11_BUFFER_DESC bufferDesc{};
-    // write access access by CPU and GPU
-    // bufferDesc.Usage=D3D11_USAGE_DYNAMIC;
-    bufferDesc.Usage=D3D11_USAGE_IMMUTABLE;
-    bufferDesc.ByteWidth=static_cast<UINT>(sizeof(uint16_t) * indices.size());
-    // use as a index buffer
-    bufferDesc.BindFlags=D3D11_BIND_INDEX_BUFFER;
-    // allow CPU to write in buffer
-    // bufferDesc.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;
-    bufferDesc.CPUAccessFlags=0;
-    bufferDesc.StructureByteStride=sizeof(uint16_t);
-
-    D3D11_SUBRESOURCE_DATA indexBufferData{
-        .pSysMem=indices.data(),
-        .SysMemPitch=0,
-        .SysMemSlicePitch=0
-    };
-
-    DX_throwIf(device->CreateBuffer(&bufferDesc,
-        &indexBufferData,
-        indexBuffer.GetAddressOf()
-    ));
-}
-
-template <typename T>
-static void updateBuffer(ComPtr<ID3D11Buffer>& buffer,
-    const T& bufferData,
-    const ComPtr<ID3D11DeviceContext>& context
-){
-    D3D11_MAPPED_SUBRESOURCE ms;
-    context->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
-    memcpy(ms.pData, &bufferData, sizeof(T));
-    context->Unmap(buffer.Get(), 0);
-}
-
 void RenderAdaptor::ShaderAdaptor::update(float dt,
     const ComPtr<ID3D11DeviceContext>& context,
     const Camera& camera, const float xSplit
@@ -741,23 +760,23 @@ void RenderAdaptor::ShaderAdaptor::update(float dt,
     const auto translation=Matrix::CreateTranslation(0.0f, -0.3f, 1.0f);
     const auto rotation=Matrix::CreateRotationY(rot);
     const auto scaling=Matrix::CreateScale(0.5f);
-    vsconstants.model=scaling*rotation*translation;
+    vsc.model=scaling*rotation*translation;
 
     // constexpr float fov=XMConvertToRadians(70.0f);
     // camera.setPerspective(fov);
 
-    vsconstants.model=vsconstants.model.Transpose();
-    vsconstants.view=camera.view().Transpose();
-    vsconstants.projection=camera.projection().Transpose();
+    vsc.model=vsc.model.Transpose();
+    vsc.view=camera.view().Transpose();
+    vsc.projection=camera.projection().Transpose();
 
-    updateBuffer(vsconstantBuffer, vsconstants, context);
+    updateBuffer(vscBuffer, vsc, context);
 
-    psconstants.xSplit=xSplit;
+    psc.xSplit=xSplit;
 
-    updateBuffer(psconstantBuffer, psconstants, context);
+    updateBuffer(pscBuffer, psc, context);
 }
 
-inline ComPtr<ID3D11SamplerState> createSS(
+[[nodiscard]] static ComPtr<ID3D11SamplerState> createSS(
     const ComPtr<ID3D11Device>& device
 ){
     D3D11_SAMPLER_DESC sd{};
@@ -814,7 +833,7 @@ RenderAdaptor::TextureAdaptor::TextureAdaptor(
         texture.GetAddressOf()
     ));
     DX_throwIf(device->CreateShaderResourceView(texture.Get(), nullptr,
-        textureResourceView.GetAddressOf()
+        textureView.GetAddressOf()
     ));
 
     delete[] image;
@@ -824,7 +843,7 @@ void RenderAdaptor::TextureAdaptor::render(
     const ComPtr<ID3D11DeviceContext>& context
 ){
     ID3D11ShaderResourceView* resources[]={
-        textureResourceView.Get()
+        textureView.Get()
     };
 
     context->PSSetShaderResources(
