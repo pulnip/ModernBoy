@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "Attributes.hpp"
 #include "Camera.hpp"
 #include "Info.hpp"
 
@@ -15,7 +16,9 @@ namespace ModernBoy{
 
       protected:
         Camera camera;
-        float xSplit=0.0f;
+        [[maybe_unused]] float xSplit=0.0f;
+        Light light{};
+        int lightType=0;
 
       public:
         RenderAdaptor(const WindowDesc& wd);

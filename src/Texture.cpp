@@ -1,6 +1,4 @@
-#define STB_IMAGE_IMPLEMENTATION
-
-#include <stb_image.h>
+#include <SDL2/SDL_image.h>
 #include "Math.hpp"
 #include "Texture.hpp"
 
@@ -10,12 +8,14 @@ using namespace DirectX::SimpleMath;
 using namespace ModernBoy;
 
 Texture::Texture(const string& fileName){
-    auto img = stbi_load(fileName.c_str(), &size.x, &size.y, &channels, 0);
+    auto surf=IMG_Load(fileName.c_str());
+
+    size.x=surf->w;
+    size.y=surf->h;
+    channels=surf->format->BytesPerPixel;
 
 	image.resize(size.x * size.y * channels);
-	memcpy(image.data(), img, image.size() * sizeof(Channel));
-
-	delete img;
+	memcpy(image.data(), surf->pixels, image.size() * sizeof(Channel));
 }
 
 Texture::Texture(const PixelPos& size, const vector<Color>& pixels)

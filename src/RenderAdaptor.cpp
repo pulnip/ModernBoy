@@ -4,6 +4,7 @@
 #include <imgui_impl_dx11.h>
 #include "MeshBuffer.hpp"
 #include "RenderAdaptor.hpp"
+#include "ShaderConstant.hpp"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -143,11 +144,12 @@ struct RenderAdaptor::ShaderAdaptor final{
     VSConstants vsc;
     PSConstants psc;
 
+    MeshBuffer meshBuffer{};
+
     ShaderAdaptor(
         const ComPtr<ID3D11Device>& device,
         const wstring& vsFileName, const wstring& psFileName)
     : rs(createRS(device)){
-        MeshBuffer meshBuffer;
         auto [vertices, indices]=meshBuffer.extract();
 
         vertexBuffer=createVB<Vertex>(vertices, device);
@@ -175,14 +177,14 @@ struct RenderAdaptor::ShaderAdaptor final{
                 .InputSlotClass=D3D11_INPUT_PER_VERTEX_DATA,
                 .InstanceDataStepRate=0
             }, {
-                .SemanticName="COLOR",
-                .SemanticIndex=0,
-                .Format=DXGI_FORMAT_R32G32B32A32_FLOAT,
-                .InputSlot=0,
-                .AlignedByteOffset=6*sizeof(float),
-                .InputSlotClass=D3D11_INPUT_PER_VERTEX_DATA,
-                .InstanceDataStepRate=0
-            }, {
+            //     .SemanticName="COLOR",
+            //     .SemanticIndex=0,
+            //     .Format=DXGI_FORMAT_R32G32B32A32_FLOAT,
+            //     .InputSlot=0,
+            //     .AlignedByteOffset=6*sizeof(float),
+            //     .InputSlotClass=D3D11_INPUT_PER_VERTEX_DATA,
+            //     .InstanceDataStepRate=0
+            // }, {
                 .SemanticName="TEXCOORD",
                 .SemanticIndex=0,
                 .Format=DXGI_FORMAT_R32G32_FLOAT,
@@ -196,29 +198,44 @@ struct RenderAdaptor::ShaderAdaptor final{
         ps=createPS(psFileName, device);
     }
 
-    void update(float dt,
+    void update([[maybe_unused]] float dt,
         const ComPtr<ID3D11DeviceContext>& context,
-        const Camera& camera, const float xSplit
+        const Camera& camera, const MeshObject& object,
+        const Light& light, size_t lightType
     ){
-        static float rot=0.0f;
-        rot+=dt;
-
-        const auto translation=Matrix::CreateTranslation(0.0f, -0.3f, 1.0f);
-        const auto rotation=Matrix::CreateRotationY(rot);
-        const auto scaling=Matrix::CreateScale(0.5f);
+        const auto translation=Matrix::CreateTranslation(
+            object.transform.position);
+        const auto rotation=Matrix::CreateFromQuaternion(
+            object.transform.quaternion);
+        const auto scaling=Matrix::CreateScale(
+            object.transform.scale);
         vsc.model=scaling*rotation*translation;
 
+        vsc.invTranspose=vsc.model;
+        vsc.invTranspose.Translation(Vector3::Zero);
+        vsc.invTranspose=vsc.invTranspose.Transpose().Invert();
         // constexpr float fov=XMConvertToRadians(70.0f);
         // camera.setPerspective(fov);
 
+        vsc.view=camera.view();
+        vsc.projection=camera.projection();
+
+        // psc.xSplit=xSplit;
+        psc.eyePos=Vector3::Transform(Vector3::Zero, vsc.view.Transpose());
+        psc.material=object.material;
+        for(size_t i=0; i<MAX_LIGHTS; ++i){
+            if(i!=lightType){
+                psc.lights[i].strength=Vector3::Zero;
+            } else{
+                psc.lights[i]=light;
+            }
+        }
+
         vsc.model=vsc.model.Transpose();
-        vsc.view=camera.view().Transpose();
-        vsc.projection=camera.projection().Transpose();
+        vsc.view=vsc.view.Transpose();
+        vsc.projection=vsc.projection.Transpose();
 
         updateBuffer(vscBuffer, vsc, context);
-
-        psc.xSplit=xSplit;
-
         updateBuffer(pscBuffer, psc, context);
     }
     void render(const ComPtr<ID3D11DeviceContext>& context){
@@ -410,7 +427,12 @@ bool RenderAdaptor::run(){
         const float dt=ImGui::GetIO().DeltaTime;
         updateGUI();
         update(dt);
-        shader->update(dt, pImpl->context, camera, xSplit);
+
+        for(const auto& o: shader->meshBuffer.objects){
+            shader->update(dt, pImpl->context, camera,
+                *o, light, lightType
+            );
+        }
 
 		ImGui::End();
 

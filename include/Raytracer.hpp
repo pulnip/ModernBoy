@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <vector>
-#include "Light.hpp"
 #include "Object.hpp"
 
 namespace ModernBoy{

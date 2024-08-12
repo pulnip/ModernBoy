@@ -14,49 +14,49 @@ MeshBuffer::MeshBuffer(){
     Vertex leftBottomBack{
         .position=cubeScale*Vector3(-1.0f, -1.0f, -1.0f),
         .normal{-1.0f, -1.0f, -1.0f},
-        .color=Black.v,
+        // .color=Black.v,
         .uv={0.0f, 1.0f}
     };
     Vertex leftBottomFront{
         .position=cubeScale*Vector3(-1.0f, -1.0f, 1.0f),
         .normal{-1.0f, -1.0f, 1.0f},
-        .color=Blue.v,
+        // .color=Blue.v,
         .uv={0.0f, 1.0f}
     };
     Vertex leftTopBack{
         .position=cubeScale*Vector3(-1.0f, 1.0f, -1.0f),
         .normal{-1.0f, 1.0f, -1.0f},
-        .color=Green.v,
+        // .color=Green.v,
         .uv={0.0f, 0.0f}
     };
     Vertex leftTopFront{
         .position=cubeScale*Vector3(-1.0f, 1.0f, 1.0f),
         .normal{-1.0f, 1.0f, 1.0f},
-        .color=Cyan.v,
+        // .color=Cyan.v,
         .uv={0.0f, 0.0f}
     };
     Vertex rightBottomBack{
         .position=cubeScale*Vector3(1.0f, -1.0f, -1.0f),
         .normal{1.0f, -1.0f, -1.0f},
-        .color=Red.v,
+        // .color=Red.v,
         .uv={1.0f, 1.0f}
     };
     Vertex rightBottomFront{
         .position=cubeScale*Vector3(1.0f, -1.0f, 1.0f),
         .normal{1.0f, -1.0f, 1.0f},
-        .color=Magenta.v,
+        // .color=Magenta.v,
         .uv={1.0f, 1.0f}
     };
     Vertex rightTopBack{
         .position=cubeScale*Vector3(1.0f, 1.0f, -1.0f),
         .normal{1.0f, 1.0f, -1.0f},
-        .color=Yellow.v,
+        // .color=Yellow.v,
         .uv={1.0f, 0.0f}
     };
     Vertex rightTopFront{
         .position=cubeScale*Vector3(1.0f, 1.0f, 1.0f),
         .normal{1.0f, 1.0f, 1.0f},
-        .color=White.v,
+        // .color=White.v,
         .uv={1.0f, 0.0f}
     };
 
@@ -91,19 +91,19 @@ MeshBuffer::MeshBuffer(){
     Vertex leftBottom{
         .position=triangleScale*Vector3{-sqrt3/2, -0.5f, 0.0f},
         .normal{0.0f, 0.0f, -1.0f},
-        .color=Red.v,
+        // .color=Red.v,
         .uv={0.0f, 1.0f}
     };
     Vertex midTop{
         .position=triangleScale*Vector3{0.0f, 1.0f, 0.0f},
         .normal{0.0f, 0.0f, -1.0f},
-        .color=Green.v,
+        // .color=Green.v,
         .uv={0.5f, 0.0f}
     };
     Vertex rightBottom{
         .position=triangleScale*Vector3{sqrt3/2, -0.5f, 0.0f},
         .normal{0.0f, 0.0f, -1.0f},
-        .color=Blue.v,
+        // .color=Blue.v,
         .uv={1.0f, 1.0f}
     };
 
