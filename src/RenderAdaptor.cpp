@@ -340,7 +340,7 @@ struct RenderAdaptor::TextureAdaptor final{
 RenderAdaptor::RenderAdaptor(const WindowDesc& wd)
 : pImpl(std::make_unique<Impl>(wd))
 , shader(std::make_unique<ShaderAdaptor>(pImpl->device,
-    L"src/CVS.hlsl", L"src/CPS.hlsl"))
+    L"src/VS.hlsl", L"src/PS.hlsl"))
 , texturer(std::make_unique<TextureAdaptor>(pImpl->device,
     (string[]){"assets/crate.png", "assets/wall.jpg"}))
 {
