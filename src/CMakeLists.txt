@@ -77,20 +77,34 @@ if(directxtk_FOUND)
     )
 endif()
 
-find_package(Stb REQUIRED)
-if(Stb_FOUND)
-    message(STATUS "Using Stb package")
-    target_include_directories(${PROJECT_NAME} PRIVATE
-        ${Stb_INCLUDE_DIR}
-    )
-endif()
+# find_package(Stb REQUIRED)
+# if(Stb_FOUND)
+#     message(STATUS "Using Stb package")
+#     target_include_directories(${PROJECT_NAME} PRIVATE
+#         ${Stb_INCLUDE_DIR}
+#     )
+# endif()
 
 find_package(SDL2 CONFIG REQUIRED)
 if(SDL2_FOUND)
     message(STATUS "Using SDL2 package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,
+            SDL2::SDL2,
+            SDL2::SDL2-static
+        >
+    )
+endif()
+
+find_package(SDL2_image CONFIG REQUIRED)
+if(SDL2_FOUND)
+    message(STATUS "Using SDL2_image package")
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,
+            SDL2_image::SDL2_image,
+            SDL2_image::SDL2_image-static
+        >
     )
 endif()
 

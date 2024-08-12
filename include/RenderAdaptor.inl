@@ -4,6 +4,7 @@
 #include <span>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <SDL2/SDL_image.h>
 #include <wrl/client.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -26,6 +27,8 @@ namespace ModernBoy{
         const WindowDesc& wd
     ){
         SDL_throwIf(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS));
+        constexpr auto IMG_FLAGS=IMG_INIT_JPG|IMG_INIT_PNG;
+        throwIfTrue(IMG_Init(IMG_FLAGS)!=IMG_FLAGS, IMG_GetError());
 #ifdef SDL_HINT_IME_SHOW_UI
         SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif

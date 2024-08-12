@@ -2,7 +2,6 @@
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_dx11.h>
-#include <stb_image.h>
 #include "MeshBuffer.hpp"
 #include "RenderAdaptor.hpp"
 
@@ -39,6 +38,7 @@ struct RenderAdaptor::Impl final{
         ImGui::DestroyContext();
 
         SDL_DestroyWindow(window);
+        IMG_Quit();
         SDL_Quit();
     }
 
@@ -251,60 +251,87 @@ struct RenderAdaptor::ShaderAdaptor final{
     }
 };
 
+struct SDL_RAII_Surface{
+    SDL_Surface* surface=nullptr;
+
+    SDL_RAII_Surface(const string& fileName)
+    : surface(IMG_Load(fileName.c_str())){
+        throwIfTrue(surface==nullptr, IMG_GetError());
+    }
+    SDL_RAII_Surface(const string& fileName,
+        const SDL_PixelFormatEnum format
+    ){
+        SDL_RAII_Surface raw(fileName);
+        surface=SDL_ConvertSurfaceFormat(raw.surface, format, 0);
+        throwIfTrue(surface==nullptr, IMG_GetError());
+    }
+    ~SDL_RAII_Surface(){
+        SDL_FreeSurface(surface);
+    }
+};
+
 struct RenderAdaptor::TextureAdaptor final{
-    ComPtr<ID3D11Texture2D> texture;
-    ComPtr<ID3D11ShaderResourceView> textureView;
+    std::vector<ComPtr<ID3D11Texture2D>> textures;
+    std::vector<ComPtr<ID3D11ShaderResourceView>> texViews;
     ComPtr<ID3D11SamplerState> sampler;
 
     TextureAdaptor(const ComPtr<ID3D11Device>& device,
-        const string& fileName)
+        span<const string> files)
     : sampler(createSS(device)){
-        // load texture from file
-        int width, height, chnum;
-        uint8_t* img=stbi_load(fileName.c_str(),
-            &width, &height,
-            &chnum, 4
-        );
-        assert(chnum==4);
-
-        const auto size=chnum*width*height;
-        auto image=new uint8_t[size];
-        memcpy(image, img, size);
-
-        // create texture
         D3D11_TEXTURE2D_DESC td{};
-        td.Width=width;
-        td.Height=height;
         td.MipLevels=td.ArraySize=1;
         td.Format=DXGI_FORMAT_R8G8B8A8_UNORM;
         td.SampleDesc.Count=1;
         td.Usage=D3D11_USAGE_IMMUTABLE;
         td.BindFlags=D3D11_BIND_SHADER_RESOURCE;
 
-        D3D11_SUBRESOURCE_DATA textureData{
-            .pSysMem=image,
-            .SysMemPitch=static_cast<UINT>(chnum*width),
-            .SysMemSlicePitch=0
-        };
+        textures.reserve(files.size());
+        texViews.reserve(files.size());
 
-        DX_throwIf(device->CreateTexture2D(&td, &textureData,
-            texture.GetAddressOf()
-        ));
-        DX_throwIf(device->CreateShaderResourceView(texture.Get(), nullptr,
-            textureView.GetAddressOf()
-        ));
+        for(const auto& name: files){
+            // int width, height, chnum;
+            
+            // uint8_t* img=stbi_load(name.c_str(),
+            //     &width, &height,
+            //     &chnum, 4
+            // );
+            // assert(chnum==4);
+            // load texture from file
+            SDL_RAII_Surface wrapper(name, SDL_PIXELFORMAT_RGBA32);
+            SDL_Surface*& surf=wrapper.surface;
 
-        delete[] image;
+            // create texture
+            td.Width=surf->w;
+            td.Height=surf->h;
+            D3D11_SUBRESOURCE_DATA textureData{
+                .pSysMem=surf->pixels,
+                .SysMemPitch=static_cast<UINT>(surf->pitch),
+                .SysMemSlicePitch=static_cast<UINT>(surf->pitch*surf->h)
+            };
+
+            ComPtr<ID3D11Texture2D> texture;
+            ComPtr<ID3D11ShaderResourceView> texView;
+            DX_throwIf(device->CreateTexture2D(&td, &textureData,
+                texture.GetAddressOf()
+            ));
+            DX_throwIf(device->CreateShaderResourceView(texture.Get(), nullptr,
+                texView.GetAddressOf()
+            ));
+
+            textures.emplace_back(texture);
+            texViews.emplace_back(texView);
+        }
     }
 
     void render(const ComPtr<ID3D11DeviceContext>& context){
-        ID3D11ShaderResourceView* resources[]={
-            textureView.Get()
-        };
+        std::vector<ID3D11ShaderResourceView*> resources;
+        for(auto& view: texViews){
+            resources.emplace_back(view.Get());
+        }
 
         context->PSSetShaderResources(
-            0, sizeof(resources)/sizeof(ID3D11ShaderResourceView*),
-            resources
+            0, resources.size(),
+            resources.data()
         );
         context->PSSetSamplers(0, 1, sampler.GetAddressOf());
     }
@@ -315,7 +342,7 @@ RenderAdaptor::RenderAdaptor(const WindowDesc& wd)
 , shader(std::make_unique<ShaderAdaptor>(pImpl->device,
     L"src/CVS.hlsl", L"src/CPS.hlsl"))
 , texturer(std::make_unique<TextureAdaptor>(pImpl->device,
-    "assets/crate.png"))
+    (string[]){"assets/crate.png", "assets/wall.jpg"}))
 {
     camera.setScreenSize(wd.size);
 }
