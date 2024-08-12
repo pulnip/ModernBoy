@@ -1,34 +1,26 @@
+#include "Common.hlsli"
+
 cbuffer VSConstants: register(b0){
     matrix model;
+    matrix invTranspose;
     matrix view;
     matrix projection;
 };
 
-struct VSInput{
-    float3 pos: POSITION;
-    float3 normal: NORMAL;
-    float4 color: COLOR0;
-    float2 uv: TEXCOORD;
-};
+PSInput main(VSInput input){
+    PSInput output;
 
-struct VSOutput{
-    float4 pos: SV_POSITION;
-    float3 normal: NORMAL;
-    float4 color: COLOR;
-    float2 uv: TEXCOORD;
-};
+    float4 pos=mul(float4(input.pos, 1.0f), model);
+    output.pos=pos.xyz;
 
-VSOutput main(VSInput input){
-    VSOutput output;
-
-    float4 pos=float4(input.pos, 1.0f);
-    pos=mul(pos, model);
     pos=mul(pos, view);
     pos=mul(pos, projection);
+    output.projected=pos;
 
-    output.pos=pos;
-    output.normal=input.normal;
-    output.color=input.color;
+    output.normal=normalize(
+        mul(float4(input.normal, 0.0), invTranspose).xyz
+    );
+    // output.color=input.color;
     output.uv=input.uv;
 
     return output;

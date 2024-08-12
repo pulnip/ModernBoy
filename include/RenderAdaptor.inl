@@ -244,7 +244,8 @@ namespace ModernBoy{
         ComPtr<ID3DBlob> errorBlob;
         ComPtr<ID3DBlob> shaderBlob;
         HRESULT hr=D3DCompileFromFile(fileName.c_str(),
-            nullptr, nullptr, "main", target, COMPILE_FLAGS, 0,
+            nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+            "main", target, COMPILE_FLAGS, 0,
             &shaderBlob, &errorBlob
         );
         SC_throwIf(hr, errorBlob.Get());
