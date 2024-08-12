@@ -26,7 +26,7 @@ Raytracer::Raytracer(const ipoint2& resolution)
     );
 
 	auto groundTexture = std::make_shared<Texture>(
-        "resource/shadertoy_abstract1.jpg"
+        "assets/shadertoy_abstract1.jpg"
     );
     ground->ambTexture = groundTexture;
     ground->difTexture = groundTexture;
@@ -39,7 +39,7 @@ Raytracer::Raytracer(const ipoint2& resolution)
     );
 
 	auto squareTexture = std::make_shared<Texture>(
-        "resource/back.jpg"
+        "assets/back.jpg"
     );
     square->ambTexture = squareTexture;
     square->difTexture = squareTexture;
