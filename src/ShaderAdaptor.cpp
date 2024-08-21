@@ -3,7 +3,7 @@
 #include "LightComponent.hpp"
 #include "MeshBuffer.hpp"
 #include "MeshComponent.hpp"
-#include "RenderAdaptor.inl"
+#include "ShaderAdaptor.inl"
 #include "ShaderAdaptor.hpp"
 #include "Vertex.hpp"
 

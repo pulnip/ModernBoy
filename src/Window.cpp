@@ -38,6 +38,14 @@ namespace ModernBoy{
 
         return wmInfo.info.win.window;
     }
+    
+    [[nodiscard, maybe_unused]]
+    inline std::string getRendererName(SDL_Renderer* renderer){
+        SDL_RendererInfo info;
+        SDL_GetRendererInfo(renderer, &info);
+
+        return info.name;
+    }
 }
 
 Window::Window([[maybe_unused]] const Core& core,
