@@ -28,25 +28,9 @@ RenderAdaptor::RenderAdaptor(HWND hwnd, const ipoint2& screenSize){
     dss=createDSS(device);
 }
 
-RenderAdaptor::~RenderAdaptor(){
-    // cleanupRenderTargetView();
-
-    // if(swapChain){
-    //     swapChain->Release();
-    //     swapChain=nullptr;
-    // }
-    // if(context){
-    //     context->Release();
-    //     context=nullptr;
-    // }
-    // if(device){
-    //     device->Release();
-    //     device=nullptr;
-    // }
-}
+RenderAdaptor::~RenderAdaptor()=default;
 
 void RenderAdaptor::recreateRenderTarget(int w, int h){
-    // cleanupRenderTargetView();
     rtv.Reset();
     swapChain->ResizeBuffers(0,
         w, h,
@@ -58,13 +42,6 @@ void RenderAdaptor::recreateRenderTarget(int w, int h){
         {w, h}, qualityLevel, device
     );
     screenViewport=setScreenViewPort({w, h}, context);
-}
-
-void RenderAdaptor::cleanupRenderTargetView(){
-    if(rtv){
-        rtv->Release();
-        rtv=nullptr;
-    }
 }
 
 void RenderAdaptor::setup(){

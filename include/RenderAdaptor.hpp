@@ -38,8 +38,5 @@ namespace ModernBoy{
         void setup();
         void swap();
         void recreateRenderTarget(int width, int height);
-
-      private:
-        void cleanupRenderTargetView();
     };
 }
