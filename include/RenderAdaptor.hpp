@@ -12,26 +12,32 @@ namespace ModernBoy{
         using Device=ID3D11Device;
         using Context=ID3D11DeviceContext;
 
+      public:
+        ComPtr<Device> device;
+        ComPtr<Context> context;
+
+      private:
         ComPtr<ID3D11RenderTargetView> rtv;
+      public:
         ComPtr<IDXGISwapChain> swapChain;
 
-        // depth buffer
+      private:
+        // depth stencil buffer
         ComPtr<ID3D11Texture2D> depthStencilBuffer;
         ComPtr<ID3D11DepthStencilView> dsv;
         ComPtr<ID3D11DepthStencilState> dss;
 
         D3D11_VIEWPORT screenViewport{};
 
-      public:
-        ComPtr<Device> device;
-        ComPtr<Context> context;
+        UINT qualityLevel;
 
+      public:
         RenderAdaptor(HWND hwnd, const ipoint2& screenSize);
         ~RenderAdaptor();
 
         void setup();
         void swap();
-        void recreateRenderTargetView(int width, int height);
+        void recreateRenderTarget(int width, int height);
 
       private:
         void cleanupRenderTargetView();

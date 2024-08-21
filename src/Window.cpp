@@ -28,10 +28,11 @@ namespace ModernBoy{
             wd.title.c_str(),
             wd.position.x, wd.position.y,
             wd.size.x, wd.size.y,
-            0
-            // SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
+            // 0
+            SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
         );
     }
+    
     [[nodiscard]] inline HWND getHandle(SDL_Window* window){
         SDL_SysWMinfo wmInfo; SDL_VERSION(&wmInfo.version);
         SDL_GetWindowWMInfo(window, &wmInfo);
@@ -84,12 +85,12 @@ void Window::process(const SDL_WindowEvent& e){
         return;
 
     switch(e.event){
-    case SDL_WINDOWEVENT_RESIZED:
+    case SDL_WINDOWEVENT_SIZE_CHANGED:
         const auto width=e.data1;
         const auto height=e.data2;
         shader->mainCamera->setScreenSize(width, height);
-        break;
-        renderer->recreateRenderTargetView(width, height);
+        // break;
+        renderer->recreateRenderTarget(width, height);
         break;
     }
 }

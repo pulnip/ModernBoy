@@ -15,18 +15,15 @@ using namespace ModernBoy;
 RenderAdaptor::RenderAdaptor(HWND hwnd, const ipoint2& screenSize){
     tie(device, context)=createDevice();
 
-    const auto qualityLevel=getQualityLevel(device);
+    qualityLevel=getQualityLevel(device);
     swapChain=createSwapChain(hwnd, device, screenSize, qualityLevel);
 
     rtv=createRTV(device, swapChain);
     screenViewport=setScreenViewPort(screenSize, context);
 
-    depthStencilBuffer=createDepthStencilBuffer(
+    tie(depthStencilBuffer, dsv)=createDepthStencil(
         screenSize, qualityLevel, device
     );
-    DX_throwIf(device->CreateDepthStencilView(
-        depthStencilBuffer.Get(), 0, &dsv
-    ));
 
     dss=createDSS(device);
 }
@@ -48,14 +45,19 @@ RenderAdaptor::~RenderAdaptor(){
     // }
 }
 
-void RenderAdaptor::recreateRenderTargetView(int w, int h){
-    cleanupRenderTargetView();
-    swapChain->ResizeBuffers(2,
+void RenderAdaptor::recreateRenderTarget(int w, int h){
+    // cleanupRenderTargetView();
+    rtv.Reset();
+    swapChain->ResizeBuffers(0,
         w, h,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
+        DXGI_FORMAT_UNKNOWN,
         DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
     );
     rtv=createRTV(device, swapChain);
+    tie(depthStencilBuffer, dsv)=createDepthStencil(
+        {w, h}, qualityLevel, device
+    );
+    screenViewport=setScreenViewPort({w, h}, context);
 }
 
 void RenderAdaptor::cleanupRenderTargetView(){
