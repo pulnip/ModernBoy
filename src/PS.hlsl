@@ -1,7 +1,6 @@
 #include "Common.hlsli"
 
-Texture2D gtexture0: register(t0);
-Texture2D gtexture1: register(t1);
+Texture2D gtexture: register(t0);
 SamplerState gsampler: register(s0);
 
 cbuffer PSConstants: register(b0){
@@ -34,6 +33,6 @@ float4 main(PSInput input): SV_TARGET{
     }
 
     return useTexture ?
-        float4(color, 1.0)*gtexture0.Sample(gsampler, input.uv):
+        float4(color, 1.0)*gtexture.Sample(gsampler, input.uv):
         float4(color, 1.0);
 }

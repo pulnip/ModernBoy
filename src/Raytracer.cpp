@@ -25,7 +25,7 @@ Raytracer::Raytracer(const ipoint2& resolution)
         Vector3(10.0f, -1.5f, 0.0f), Vector3(-10.0f, -1.5f, 0.0f)
     );
 
-	auto groundTexture = std::make_shared<Texture>(
+	auto groundTexture = std::make_shared<SimpleTexture>(
         "assets/shadertoy_abstract1.jpg"
     );
     ground->ambTexture = groundTexture;
@@ -38,7 +38,7 @@ Raytracer::Raytracer(const ipoint2& resolution)
         Vector3(10.0f, -10.0f, 10.0f), Vector3(-10.0f, -10.0f, 10.0f)
     );
 
-	auto squareTexture = std::make_shared<Texture>(
+	auto squareTexture = std::make_shared<SimpleTexture>(
         "assets/back.jpg"
     );
     square->ambTexture = squareTexture;

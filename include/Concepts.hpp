@@ -8,6 +8,8 @@ namespace std{
     concept scalar=std::is_scalar_v<S>;
     template<typename P>
     concept pointer=std::is_pointer_v<P>;
+    template<typename T>
+    concept arithmetic=std::is_arithmetic_v<T>;
 }
 
 namespace ModernBoy{

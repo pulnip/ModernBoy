@@ -23,25 +23,6 @@ namespace ModernBoy{
     static constexpr bool IS_DEBUG=false;
 #endif
 
-    [[nodiscard]] inline SDL_Window* createWindow(
-        const WindowDesc& wd
-    ){
-        SDL_throwIf(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS));
-        constexpr auto IMG_FLAGS=IMG_INIT_JPG|IMG_INIT_PNG;
-        throwIfTrue(IMG_Init(IMG_FLAGS)!=IMG_FLAGS, IMG_GetError());
-#ifdef SDL_HINT_IME_SHOW_UI
-        SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
-#endif
-
-        return SDL_CreateWindow(
-            wd.title.c_str(),
-            wd.position.x, wd.position.y,
-            wd.size.x, wd.size.y,
-            0
-            // SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
-        );
-    }
-
     [[nodiscard]] inline HWND getHandle(SDL_Window* window){
         SDL_SysWMinfo wmInfo; SDL_VERSION(&wmInfo.version);
         SDL_GetWindowWMInfo(window, &wmInfo);
@@ -422,26 +403,5 @@ namespace ModernBoy{
         ));
 
         return constantBuffer;
-    }
-
-    [[nodiscard]] inline ComPtr<ID3D11SamplerState> createSS(
-        const ComPtr<ID3D11Device>& device
-    ){
-        D3D11_SAMPLER_DESC sd{};
-        // ZeroMemory(&sd, sizeof(D3D11_SAMPLER_DESC));
-        sd.Filter=D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-        sd.AddressU=D3D11_TEXTURE_ADDRESS_WRAP;
-        sd.AddressV=D3D11_TEXTURE_ADDRESS_WRAP;
-        sd.AddressW=D3D11_TEXTURE_ADDRESS_WRAP;
-        sd.ComparisonFunc=D3D11_COMPARISON_NEVER;
-        sd.MinLOD=0;
-        sd.MaxLOD=D3D11_FLOAT32_MAX;
-
-        ComPtr<ID3D11SamplerState> sampler;
-        DX_throwIf(device->CreateSamplerState(&sd,
-            sampler.GetAddressOf()
-        ));
-
-        return sampler;
     }
 }

@@ -1,3 +1,4 @@
+#include <print>
 #include "RenderAdaptor.inl"
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
@@ -6,450 +7,87 @@
 #include "RenderAdaptor.hpp"
 #include "ShaderConstant.hpp"
 
+using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using namespace ModernBoy;
 
-struct RenderAdaptor::Impl final{
-    SDL_Window* window=nullptr;
+RenderAdaptor::RenderAdaptor(HWND hwnd, const ipoint2& screenSize){
+    tie(device, context)=createDevice();
 
-    ComPtr<ID3D11Device> device;
-    ComPtr<ID3D11DeviceContext> context;
-    ComPtr<ID3D11RenderTargetView> rtv;
-    ComPtr<IDXGISwapChain> swapChain;
+    const auto qualityLevel=getQualityLevel(device);
+    swapChain=createSwapChain(hwnd, device, screenSize, qualityLevel);
 
-    // depth buffer
-    ComPtr<ID3D11Texture2D> depthStencilBuffer;
-    ComPtr<ID3D11DepthStencilView> dsv;
-    ComPtr<ID3D11DepthStencilState> dss;
+    rtv=createRTV(device, swapChain);
+    screenViewport=setScreenViewPort(screenSize, context);
 
-    D3D11_VIEWPORT screenViewport{};
+    depthStencilBuffer=createDepthStencilBuffer(
+        screenSize, qualityLevel, device
+    );
+    DX_throwIf(device->CreateDepthStencilView(
+        depthStencilBuffer.Get(), 0, &dsv
+    ));
 
-    Impl(const WindowDesc& wd){
-        // SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
-        throwIfTrue((window=createWindow(wd))==nullptr,
-            "SDL_CreateWindow() Failed."
-        );
-        initDirect3D(wd);
-        initGUI(wd);
-    }
-    ~Impl(){
-        ImGui_ImplDX11_Shutdown();
-        ImGui_ImplSDL2_Shutdown();
-        ImGui::DestroyContext();
-
-        SDL_DestroyWindow(window);
-        IMG_Quit();
-        SDL_Quit();
-    }
-
-    void setupRender(){
-        // IA: Input-Assembler stage
-        // VS: Vertex Shader
-        // PS: Pixel Shader
-        // RS: Rasterizer stage
-        // OM: Output-Merger stage
-
-        float clearColor[4]={0.0f, 0.0f, 0.0f, 1.0f};
-        context->RSSetViewports(1, &screenViewport);
-        // use depth buffer
-        context->OMSetRenderTargets(1, rtv.GetAddressOf(),
-            dsv.Get()
-        );
-        context->ClearRenderTargetView(rtv.Get(), clearColor);
-        context->OMSetDepthStencilState(dss.Get(), 0);
-        context->ClearDepthStencilView(dsv.Get(),
-            D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
-        );
-    }
-
-    void cleanupDeviceD3D(){
-        cleanupRenderTarget();
-
-        if(swapChain){
-            swapChain->Release();
-            swapChain=nullptr;
-        }
-        if(context){
-            context->Release();
-            context=nullptr;
-        }
-        if(device){
-            device->Release();
-            device=nullptr;
-        }
-    }
-    void cleanupRenderTarget(){
-        if(rtv){
-            rtv->Release();
-            rtv=nullptr;
-        }
-    }
-
-  private:
-    void initDirect3D(const WindowDesc& wd){
-        tie(device, context)=createDevice();
-
-        HWND hwnd=getHandle(window);
-        const auto qualityLevel=getQualityLevel(device);
-        swapChain=createSwapChain(hwnd, device, wd.size, qualityLevel);
-
-        rtv=createRTV(device, swapChain);
-        screenViewport=setScreenViewPort(wd.size, context);
-
-        depthStencilBuffer=createDepthStencilBuffer(
-            wd.size, qualityLevel, device
-        );
-        DX_throwIf(device->CreateDepthStencilView(
-            depthStencilBuffer.Get(), 0, &dsv
-        ));
-
-        dss=createDSS(device);
-    }
-    void initGUI(const WindowDesc& wd){
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io=ImGui::GetIO(); (void)io;
-        io.DisplaySize=ImVec2(wd.size.x, wd.size.y);
-        // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-        // Setup Dear ImGui style
-        // ImGui::StyleColorsDark();
-        ImGui::StyleColorsLight();
-
-        // Setup Platform/Renderer backends
-        throwIfTrue(!ImGui_ImplSDL2_InitForD3D(window),
-            "ImGui_SDL2 Init Failed."
-        );
-        throwIfTrue(!ImGui_ImplDX11_Init(device.Get(), context.Get()),
-            "ImGui_DX11 Init Failed."
-        );
-    }
-};
-
-struct RenderAdaptor::ShaderAdaptor final{
-    ComPtr<ID3D11VertexShader> vs;
-    ComPtr<ID3D11PixelShader> ps;
-    ComPtr<ID3D11InputLayout> il;
-    ComPtr<ID3D11RasterizerState> rs;
-
-    ComPtr<ID3D11Buffer> vertexBuffer;
-    ComPtr<ID3D11Buffer> indexBuffer;
-    ComPtr<ID3D11Buffer> vscBuffer;
-    ComPtr<ID3D11Buffer> pscBuffer;
-
-    UINT indexCount=0;
-
-    VSConstants vsc;
-    PSConstants psc;
-
-    MeshBuffer meshBuffer{};
-
-    ShaderAdaptor(
-        const ComPtr<ID3D11Device>& device,
-        const wstring& vsFileName, const wstring& psFileName)
-    : rs(createRS(device)){
-        auto [vertices, indices]=meshBuffer.extract();
-
-        vertexBuffer=createVB<Vertex>(vertices, device);
-        indexCount=static_cast<UINT>(indices.size());
-        indexBuffer=createIB(indices, device);
-        vscBuffer=createCB(vsc, device);
-        pscBuffer=createCB(psc, device);
-
-        // create shader
-        constexpr D3D11_INPUT_ELEMENT_DESC inputElements[]={
-            {
-                .SemanticName="POSITION",
-                .SemanticIndex=0,
-                .Format=DXGI_FORMAT_R32G32B32_FLOAT,
-                .InputSlot=0,
-                .AlignedByteOffset=0,
-                .InputSlotClass=D3D11_INPUT_PER_VERTEX_DATA,
-                .InstanceDataStepRate=0
-            }, {
-                .SemanticName="NORMAL",
-                .SemanticIndex=0,
-                .Format=DXGI_FORMAT_R32G32B32_FLOAT,
-                .InputSlot=0,
-                .AlignedByteOffset=3*sizeof(float),
-                .InputSlotClass=D3D11_INPUT_PER_VERTEX_DATA,
-                .InstanceDataStepRate=0
-            }, {
-            //     .SemanticName="COLOR",
-            //     .SemanticIndex=0,
-            //     .Format=DXGI_FORMAT_R32G32B32A32_FLOAT,
-            //     .InputSlot=0,
-            //     .AlignedByteOffset=6*sizeof(float),
-            //     .InputSlotClass=D3D11_INPUT_PER_VERTEX_DATA,
-            //     .InstanceDataStepRate=0
-            // }, {
-                .SemanticName="TEXCOORD",
-                .SemanticIndex=0,
-                .Format=DXGI_FORMAT_R32G32_FLOAT,
-                .InputSlot=0,
-                .AlignedByteOffset=10*sizeof(float),
-                .InputSlotClass=D3D11_INPUT_PER_VERTEX_DATA,
-                .InstanceDataStepRate=0
-            }
-        };
-        tie(vs, il)=createVSAndIL(vsFileName, device, inputElements);
-        ps=createPS(psFileName, device);
-    }
-
-    void update([[maybe_unused]] float dt,
-        const ComPtr<ID3D11DeviceContext>& context,
-        const Camera& camera, const MeshObject& object,
-        const Light& light, size_t lightType
-    ){
-        const auto translation=Matrix::CreateTranslation(
-            object.transform.position);
-        const auto rotation=Matrix::CreateFromQuaternion(
-            object.transform.quaternion);
-        const auto scaling=Matrix::CreateScale(
-            object.transform.scale);
-        vsc.model=scaling*rotation*translation;
-
-        vsc.invTranspose=vsc.model;
-        vsc.invTranspose.Translation(Vector3::Zero);
-        vsc.invTranspose=vsc.invTranspose.Transpose().Invert();
-        // constexpr float fov=XMConvertToRadians(70.0f);
-        // camera.setPerspective(fov);
-
-        vsc.view=camera.view();
-        vsc.projection=camera.projection();
-
-        // psc.xSplit=xSplit;
-        psc.eyePos=Vector3::Transform(Vector3::Zero, vsc.view.Transpose());
-        psc.material=object.material;
-        for(size_t i=0; i<MAX_LIGHTS; ++i){
-            if(i!=lightType){
-                psc.lights[i].strength=Vector3::Zero;
-            } else{
-                psc.lights[i]=light;
-            }
-        }
-
-        vsc.model=vsc.model.Transpose();
-        vsc.view=vsc.view.Transpose();
-        vsc.projection=vsc.projection.Transpose();
-
-        updateBuffer(vscBuffer, vsc, context);
-        updateBuffer(pscBuffer, psc, context);
-    }
-    void render(const ComPtr<ID3D11DeviceContext>& context){
-        // IA: Input-Assembler stage
-        // VS: Vertex Shader
-        // PS: Pixel Shader
-        // RS: Rasterizer stage
-        // OM: Output-Merger stage
-
-        // set the shader objects
-        context->VSSetConstantBuffers(0, 1, vscBuffer.GetAddressOf());
-        context->VSSetShader(vs.Get(), 0, 0);
-        context->PSSetConstantBuffers(0, 1, pscBuffer.GetAddressOf());
-        context->PSSetShader(ps.Get(), 0, 0);
-        context->RSSetState(rs.Get());
-
-        // select which vertex buffer to display
-        UINT stride=sizeof(Vertex);
-        UINT offset=0;
-        context->IASetInputLayout(il.Get());
-        context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(),
-            &stride, &offset
-        );
-        context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
-
-        context->IASetPrimitiveTopology(
-            D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-        );
-        context->DrawIndexed(indexCount, 0, 0);
-    }
-};
-
-struct SDL_RAII_Surface{
-    SDL_Surface* surface=nullptr;
-
-    SDL_RAII_Surface(const string& fileName)
-    : surface(IMG_Load(fileName.c_str())){
-        throwIfTrue(surface==nullptr, IMG_GetError());
-    }
-    SDL_RAII_Surface(const string& fileName,
-        const SDL_PixelFormatEnum format
-    ){
-        SDL_RAII_Surface raw(fileName);
-        surface=SDL_ConvertSurfaceFormat(raw.surface, format, 0);
-        throwIfTrue(surface==nullptr, IMG_GetError());
-    }
-    ~SDL_RAII_Surface(){
-        SDL_FreeSurface(surface);
-    }
-};
-
-struct RenderAdaptor::TextureAdaptor final{
-    std::vector<ComPtr<ID3D11Texture2D>> textures;
-    std::vector<ComPtr<ID3D11ShaderResourceView>> texViews;
-    ComPtr<ID3D11SamplerState> sampler;
-
-    TextureAdaptor(const ComPtr<ID3D11Device>& device,
-        span<const string> files)
-    : sampler(createSS(device)){
-        D3D11_TEXTURE2D_DESC td{};
-        td.MipLevels=td.ArraySize=1;
-        td.Format=DXGI_FORMAT_R8G8B8A8_UNORM;
-        td.SampleDesc.Count=1;
-        td.Usage=D3D11_USAGE_IMMUTABLE;
-        td.BindFlags=D3D11_BIND_SHADER_RESOURCE;
-
-        textures.reserve(files.size());
-        texViews.reserve(files.size());
-
-        for(const auto& name: files){
-            // int width, height, chnum;
-            
-            // uint8_t* img=stbi_load(name.c_str(),
-            //     &width, &height,
-            //     &chnum, 4
-            // );
-            // assert(chnum==4);
-            // load texture from file
-            SDL_RAII_Surface wrapper(name, SDL_PIXELFORMAT_RGBA32);
-            SDL_Surface*& surf=wrapper.surface;
-
-            // create texture
-            td.Width=surf->w;
-            td.Height=surf->h;
-            D3D11_SUBRESOURCE_DATA textureData{
-                .pSysMem=surf->pixels,
-                .SysMemPitch=static_cast<UINT>(surf->pitch),
-                .SysMemSlicePitch=static_cast<UINT>(surf->pitch*surf->h)
-            };
-
-            ComPtr<ID3D11Texture2D> texture;
-            ComPtr<ID3D11ShaderResourceView> texView;
-            DX_throwIf(device->CreateTexture2D(&td, &textureData,
-                texture.GetAddressOf()
-            ));
-            DX_throwIf(device->CreateShaderResourceView(texture.Get(), nullptr,
-                texView.GetAddressOf()
-            ));
-
-            textures.emplace_back(texture);
-            texViews.emplace_back(texView);
-        }
-    }
-
-    void render(const ComPtr<ID3D11DeviceContext>& context){
-        std::vector<ID3D11ShaderResourceView*> resources;
-        for(auto& view: texViews){
-            resources.emplace_back(view.Get());
-        }
-
-        context->PSSetShaderResources(
-            0, resources.size(),
-            resources.data()
-        );
-        context->PSSetSamplers(0, 1, sampler.GetAddressOf());
-    }
-};
-
-RenderAdaptor::RenderAdaptor(const WindowDesc& wd)
-: pImpl(std::make_unique<Impl>(wd))
-, shader(std::make_unique<ShaderAdaptor>(pImpl->device,
-    L"src/VS.hlsl", L"src/PS.hlsl"))
-, texturer(std::make_unique<TextureAdaptor>(pImpl->device,
-    (string[]){"assets/crate.png", "assets/wall.jpg"}))
-{
-    camera.setScreenSize(wd.size);
+    dss=createDSS(device);
 }
 
-RenderAdaptor::~RenderAdaptor()=default;
+RenderAdaptor::~RenderAdaptor(){
+    // cleanupRenderTargetView();
 
-bool RenderAdaptor::run(){
-    SDL_Event event;
-    if(SDL_PollEvent(&event)){
-        ImGui_ImplSDL2_ProcessEvent(&event);
-        switch(event.type){
-        case SDL_QUIT:
-            return false;
-        case SDL_WINDOWEVENT:
-            // print("SDL Window Event");
-            if(event.window.windowID==SDL_GetWindowID(pImpl->window)){
-                switch(event.window.event){
-                case SDL_WINDOWEVENT_CLOSE:
-                    return false;
-                case SDL_WINDOWEVENT_RESIZED:
-                    camera.setScreenSize({
-                        event.window.data1,
-                        event.window.data2
-                    });
-                    break;
-                    pImpl->cleanupRenderTarget();
-                    pImpl->swapChain->ResizeBuffers(2,
-                        event.window.data1, event.window.data2,
-                        DXGI_FORMAT_R8G8B8A8_UNORM,
-                        DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
-                    );
-                    pImpl->rtv=createRTV(
-                        pImpl->device, pImpl->swapChain
-                    );
-                    break;
-                }
-            }
-            break;
-        case SDL_MOUSEMOTION:
-            // print("Mouse Button Move");
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-		    // print("Mouse Button Down");
-            break;
-        case SDL_MOUSEBUTTONUP:
-		    // print("Mouse Button Up");
-            break;
-        case SDL_KEYDOWN:
-            // print("Keyboard Button Down");
-            break;
-        }
+    // if(swapChain){
+    //     swapChain->Release();
+    //     swapChain=nullptr;
+    // }
+    // if(context){
+    //     context->Release();
+    //     context=nullptr;
+    // }
+    // if(device){
+    //     device->Release();
+    //     device=nullptr;
+    // }
+}
+
+void RenderAdaptor::recreateRenderTargetView(int w, int h){
+    cleanupRenderTargetView();
+    swapChain->ResizeBuffers(2,
+        w, h,
+        DXGI_FORMAT_R8G8B8A8_UNORM,
+        DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+    );
+    rtv=createRTV(device, swapChain);
+}
+
+void RenderAdaptor::cleanupRenderTargetView(){
+    if(rtv){
+        rtv->Release();
+        rtv=nullptr;
     }
-    else if(SDL_GetWindowFlags(pImpl->window)&SDL_WINDOW_MINIMIZED){
-        SDL_Delay(10);
-    }
-	else{
-		// Start the Dear ImGui frame
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplSDL2_NewFrame();
-		ImGui::NewFrame();
+}
 
-		ImGui::Begin("Scene Control");
-        ImGui::Text("%.2f FPS", ImGui::GetIO().Framerate);
+void RenderAdaptor::setup(){
+    // IA: Input-Assembler stage
+    // VS: Vertex Shader
+    // PS: Pixel Shader
+    // RS: Rasterizer stage
+    // OM: Output-Merger stage
 
-        const float dt=ImGui::GetIO().DeltaTime;
-        updateGUI();
-        update(dt);
+    float clearColor[4]={0.0f, 0.0f, 0.0f, 1.0f};
+    context->RSSetViewports(1, &screenViewport);
+    // use depth buffer
+    context->OMSetRenderTargets(1, rtv.GetAddressOf(),
+        dsv.Get()
+    );
+    context->ClearRenderTargetView(rtv.Get(), clearColor);
+    context->OMSetDepthStencilState(dss.Get(), 0);
+    context->ClearDepthStencilView(dsv.Get(),
+        D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
+    );
+}
 
-        for(const auto& o: shader->meshBuffer.objects){
-            shader->update(dt, pImpl->context, camera,
-                *o, light, lightType
-            );
-        }
-
-		ImGui::End();
-
-        // Rendering
-		ImGui::Render();
-        
-        pImpl->setupRender();
-        texturer->render(pImpl->context);
-        shader->render(pImpl->context);
-
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-		// Present with vsync
-		pImpl->swapChain->Present(1, 0);
-		// Present without vsync
-        // pImpl->swapChain->Present(0, 0);
-	}
-
-    return true;
+void RenderAdaptor::swap(){
+    // Present with vsync
+    swapChain->Present(1, 0);
+    // Present without vsync
+    // pImpl->swapChain->Present(0, 0);
 }

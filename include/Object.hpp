@@ -18,8 +18,8 @@ namespace ModernBoy{
         float reflection = 0.0f;
         float transparency = 0.0f;
 
-        std::shared_ptr<Texture> ambTexture;
-        std::shared_ptr<Texture> difTexture;
+        std::shared_ptr<SimpleTexture> ambTexture;
+        std::shared_ptr<SimpleTexture> difTexture;
 
         Object(
             const Color& ambient={0.2f, 0.2f, 0.2f},

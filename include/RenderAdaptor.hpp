@@ -1,33 +1,39 @@
 #pragma once
 
 #include <memory>
+#include <windef.h>
+#include <SDL2/SDL_events.h>
 #include "Attributes.hpp"
-#include "Camera.hpp"
 #include "Info.hpp"
 
 namespace ModernBoy{
     class RenderAdaptor{
-        struct Impl;
-        std::unique_ptr<Impl> pImpl;
-        struct ShaderAdaptor;
-        std::unique_ptr<ShaderAdaptor> shader;
-        struct TextureAdaptor;
-        std::unique_ptr<TextureAdaptor> texturer;
+        template<typename T> using ComPtr=Microsoft::WRL::ComPtr<T>;
+        using Device=ID3D11Device;
+        using Context=ID3D11DeviceContext;
 
-      protected:
-        Camera camera;
-        [[maybe_unused]] float xSplit=0.0f;
-        Light light{};
-        int lightType=0;
+        ComPtr<ID3D11RenderTargetView> rtv;
+        ComPtr<IDXGISwapChain> swapChain;
+
+        // depth buffer
+        ComPtr<ID3D11Texture2D> depthStencilBuffer;
+        ComPtr<ID3D11DepthStencilView> dsv;
+        ComPtr<ID3D11DepthStencilState> dss;
+
+        D3D11_VIEWPORT screenViewport{};
 
       public:
-        RenderAdaptor(const WindowDesc& wd);
-        virtual ~RenderAdaptor();
+        ComPtr<Device> device;
+        ComPtr<Context> context;
 
-        bool run();
+        RenderAdaptor(HWND hwnd, const ipoint2& screenSize);
+        ~RenderAdaptor();
+
+        void setup();
+        void swap();
+        void recreateRenderTargetView(int width, int height);
 
       private:
-        virtual void updateGUI()=0;
-        virtual void update(float dt)=0;
+        void cleanupRenderTargetView();
     };
 }
