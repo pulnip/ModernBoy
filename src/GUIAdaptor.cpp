@@ -48,6 +48,8 @@ void GUIAdaptor::update(){
     ImGui::Begin("Scene Control");
     
     ImGui::Text("%.2f FPS", ImGui::GetIO().Framerate);
+    
+    ImGui::Checkbox("WireFrame", &drawAsWire);
     // ImGui::Checkbox("usePerspective", &shader->usePerspective);
     ImGui::SliderFloat("Field of View", &fov, 0.0f, 120.0f);
     ImGui::SliderFloat("X Split", &xSplit, 0.0f, 1.0f);

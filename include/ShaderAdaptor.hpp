@@ -22,6 +22,7 @@ namespace ModernBoy{
         ComPtr<ID3D11PixelShader> ps;
         ComPtr<ID3D11InputLayout> il;
         ComPtr<ID3D11RasterizerState> rs;
+        ComPtr<ID3D11RasterizerState> wireState;
 
         ComPtr<ID3D11Buffer> vertexBuffer;
         ComPtr<ID3D11Buffer> indexBuffer;
@@ -47,6 +48,7 @@ namespace ModernBoy{
         void draw(const DirectX::SimpleMath::Matrix& transform,
             const Material& material, const ComPtr<Context>& context
         );
+        void setWireFrame(bool enable, const ComPtr<Context>& context);
         void render(const ComPtr<Context>& context);
     };
 }

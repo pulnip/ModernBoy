@@ -13,7 +13,7 @@ using namespace ModernBoy;
 
 ShaderAdaptor::ShaderAdaptor(const ComPtr<ID3D11Device>& device,
     const wstring& vsFileName, const wstring& psFileName)
-: rs(createRS(device)){
+: rs(createRS(device)), wireState(createWireState(device)){
     // auto [vertices, indices]=MeshBuffer{}.extract();
 
     // vertexBuffer=createVB<Vertex>(vertices, device);
@@ -104,6 +104,13 @@ void ShaderAdaptor::draw(const Matrix& transform,
     updateBuffer(pscBuffer, psc, context);
 }
 
+void ShaderAdaptor::setWireFrame(bool enable, const ComPtr<Context>& context){
+    if(enable)
+        context->RSSetState(wireState.Get());
+    else
+        context->RSSetState(rs.Get());
+}
+
 void ShaderAdaptor::render(const ComPtr<Context>& context){
     // IA: Input-Assembler stage
     // VS: Vertex Shader
@@ -116,7 +123,7 @@ void ShaderAdaptor::render(const ComPtr<Context>& context){
     context->VSSetShader(vs.Get(), 0, 0);
     context->PSSetConstantBuffers(0, 1, pscBuffer.GetAddressOf());
     context->PSSetShader(ps.Get(), 0, 0);
-    context->RSSetState(rs.Get());
+    // context->RSSetState(rs.Get());
 
     // select which vertex buffer to display
     UINT stride=sizeof(Vertex);

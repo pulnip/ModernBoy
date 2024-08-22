@@ -12,6 +12,7 @@ namespace ModernBoy{
       public:
         float deltaTime=0.0f;
 
+        bool drawAsWire=false;
         float fov=70.0f;
         float xSplit=0.0f;
         size_t lightType=0;

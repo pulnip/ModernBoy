@@ -109,6 +109,7 @@ void Window::update(){
     for(const auto& mesh: meshes){
         mesh->draw(*shader, *texturer, renderer->context);
     }
+    shader->setWireFrame(gui->drawAsWire, renderer->context);
     shader->render(renderer->context);
     gui->render();
 
