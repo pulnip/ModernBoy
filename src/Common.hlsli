@@ -31,7 +31,16 @@ float3 blinnPhong(float3 str, float3 dir, float3 normal, float3 toEye, Material 
     float3 halfway=normalize(toEye+dir);
     float cosH=dot(normal, halfway);
 
-    float3 specular=m.specular*pow(max(0.0f, cosH), m.shininess);
+    float3 specular=m.specular*pow(max(0.0f, cosH), 2.0*m.shininess);
+
+    return m.ambient + (m.diffuse + specular)*str;
+}
+
+float3 phong(float3 str, float3 dir, float3 normal, float3 toEye, Material m){
+    float3 refl=-reflect(dir, normal);
+    float cosR=dot(toEye, refl);
+
+    float3 specular=m.specular*pow(max(cosR, 0.0), m.shininess);
 
     return m.ambient + (m.diffuse + specular)*str;
 }
