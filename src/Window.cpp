@@ -103,6 +103,9 @@ void Window::update(){
 
     shader->lights=lights;
     shader->lightType=gui->lightType;
+    if(gui->normalScale != 0.0f){
+        shader->normalScale=gui->normalScale;
+    }
 
     // Rendering
     renderer->setup();
@@ -111,6 +114,9 @@ void Window::update(){
     }
     shader->setWireFrame(gui->drawAsWire, renderer->context);
     shader->render(renderer->context);
+    if(gui->normalScale != 0.0f){
+        shader->renderNormal(renderer->context);
+    }
     gui->render();
 
     renderer->swap();
@@ -137,4 +143,5 @@ void Window::addLight(shared_ptr<LightComponent> light){
 void Window::addMesh(shared_ptr<MeshComponent> mesh){
     meshes.emplace_back(mesh);
     shader->loadMesh(mesh->mesh, renderer->device);
+    shader->loadNormal(mesh->mesh, renderer->device);
 }

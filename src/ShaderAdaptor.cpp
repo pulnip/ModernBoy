@@ -21,6 +21,7 @@ ShaderAdaptor::ShaderAdaptor(const ComPtr<ID3D11Device>& device,
     // indexBuffer=createIB(indices, device);
     vscBuffer=createCB(vsc, device);
     pscBuffer=createCB(psc, device);
+    nvcBuffer=createCB(nvc, device);
 
     // create shader
     constexpr D3D11_INPUT_ELEMENT_DESC inputElements[]={
@@ -60,6 +61,9 @@ ShaderAdaptor::ShaderAdaptor(const ComPtr<ID3D11Device>& device,
     };
     tie(vs, il)=createVSAndIL(vsFileName, device, inputElements);
     ps=createPS(psFileName, device);
+
+    tie(nvs, nil)=createVSAndIL(L"src/NormalVS.hlsl", device, inputElements);
+    nps=createPS(L"src/NormalPS.hlsl", device);
 }
 
 void ShaderAdaptor::loadMesh(const Mesh<Vertex>& mesh,
@@ -74,6 +78,16 @@ void ShaderAdaptor::loadMesh(const Mesh<Vertex>& mesh,
     indexBuffer=createIB(indices, device);
 }
 
+void ShaderAdaptor::loadNormal(const Mesh<Vertex>& mesh,
+    const ComPtr<Device>& device
+){
+    auto [vertices, indices]=mesh.extractNormal();
+
+    nvb=createVB<Vertex>(vertices, device);
+    nic=static_cast<UINT>(indices.size());
+    nib=createIB(indices, device);
+}
+
 void ShaderAdaptor::draw(const Matrix& transform,
     const Material& material, const ComPtr<Context>& context
 ){
@@ -86,6 +100,18 @@ void ShaderAdaptor::draw(const Matrix& transform,
     vsc.view=mainCamera->view();
     vsc.projection=mainCamera->projection();
 
+    vsc.model=vsc.model.Transpose();
+    vsc.view=vsc.view.Transpose();
+    vsc.projection=vsc.projection.Transpose();
+    updateBuffer(vscBuffer, vsc, context);
+
+    static float oldNormalScale=0.0f;
+    if(oldNormalScale!=normalScale){
+        nvc.scale=normalScale;
+        updateBuffer(nvcBuffer, nvc, context);
+        oldNormalScale=normalScale;
+    }
+
     psc.eyePos=Vector3::Transform(Vector3::Zero, vsc.view.Transpose());
     psc.material=material;
     for(size_t i=0; i<MAX_LIGHTS; ++i){
@@ -96,11 +122,6 @@ void ShaderAdaptor::draw(const Matrix& transform,
         }
     }
 
-    vsc.model=vsc.model.Transpose();
-    vsc.view=vsc.view.Transpose();
-    vsc.projection=vsc.projection.Transpose();
-
-    updateBuffer(vscBuffer, vsc, context);
     updateBuffer(pscBuffer, psc, context);
 }
 
@@ -138,4 +159,24 @@ void ShaderAdaptor::render(const ComPtr<Context>& context){
         D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
     );
     context->DrawIndexed(indexCount, 0, 0);
+}
+
+void ShaderAdaptor::renderNormal(const ComPtr<Context>& context){
+    ID3D11Buffer* vscs[]={vscBuffer.Get(), nvcBuffer.Get()};
+    context->VSSetConstantBuffers(0, sizeof(vscs)/sizeof(ID3D11Buffer*), vscs);
+    context->VSSetShader(nvs.Get(), 0, 0);
+    context->PSSetShader(nps.Get(), 0, 0);
+
+    UINT stride=sizeof(Vertex);
+    UINT offset=0;
+    context->IASetInputLayout(nil.Get());
+    context->IASetVertexBuffers(0, 1, nvb.GetAddressOf(),
+        &stride, &offset
+    );
+    context->IASetIndexBuffer(nib.Get(), DXGI_FORMAT_R16_UINT, 0);
+
+    context->IASetPrimitiveTopology(
+        D3D11_PRIMITIVE_TOPOLOGY_LINELIST
+    );
+    context->DrawIndexed(nic, 0, 0);
 }

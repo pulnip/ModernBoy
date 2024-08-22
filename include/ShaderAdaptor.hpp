@@ -34,10 +34,23 @@ namespace ModernBoy{
         VSConstants vsc;
         PSConstants psc;
 
+        ComPtr<ID3D11InputLayout> nil;
+        ComPtr<ID3D11VertexShader> nvs;
+        ComPtr<ID3D11PixelShader> nps;
+
+        ComPtr<ID3D11Buffer> nvb;
+        ComPtr<ID3D11Buffer> nib;
+        ComPtr<ID3D11Buffer> nvcBuffer;
+
+        UINT nic=0;
+
+        NormalConstants nvc;
+
       public:
         std::shared_ptr<CameraComponent> mainCamera;
         std::vector<std::shared_ptr<LightComponent>> lights;
         size_t lightType=0;
+        float normalScale=1.0f;
 
       public:
         ShaderAdaptor(const ComPtr<Device>& device,
@@ -45,10 +58,14 @@ namespace ModernBoy{
         void loadMesh(const Mesh<Vertex>& mesh,
             const ComPtr<Device>& device
         );
+        void loadNormal(const Mesh<Vertex>& mesh,
+            const ComPtr<Device>& device
+        );
         void draw(const DirectX::SimpleMath::Matrix& transform,
             const Material& material, const ComPtr<Context>& context
         );
         void setWireFrame(bool enable, const ComPtr<Context>& context);
         void render(const ComPtr<Context>& context);
+        void renderNormal(const ComPtr<Context>& context);
     };
 }

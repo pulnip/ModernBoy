@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include <print>
 #include <tuple>
 #include <vector>
 #include <gsl-lite/gsl-lite.hpp>
@@ -66,5 +67,34 @@ namespace ModernBoy{
 
             return {verticies, indices};
         }
+
+        std::tuple<VertexBuffer, IndexBuffer> extractNormal() const{
+            VertexBuffer nv;
+            IndexBuffer ni;
+            std::println("Called");
+            nv.reserve(2*verticies.size());
+            ni.reserve(2*verticies.size());
+            uint16_t i=0;
+            for(const auto& vertex: verticies){
+                V normalStart{
+                    .position=vertex.position,
+                    .normal=vertex.normal,
+                    .uv={0.0f, 0.0f}
+                };
+                V normalEnd{
+                    .position=vertex.position,
+                    .normal=vertex.normal,
+                    .uv={1.0f, 0.0f}
+                };
+                nv.emplace_back(normalStart);
+                nv.emplace_back(normalEnd);
+                ni.emplace_back(i);
+                ni.emplace_back(i+1);
+
+                i+=2;
+            }
+
+            return {nv, ni};
+        };
     };
 }

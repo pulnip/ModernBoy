@@ -24,4 +24,11 @@ namespace ModernBoy{
     };
     // check 16-byte aligned
     static_assert((sizeof(PSConstants) & 0xf) == 0);
+
+    struct NormalConstants{
+        float scale;
+        float dummy[3];
+    };
+    // check 16-byte aligned
+    static_assert((sizeof(NormalConstants) & 0xf) == 0);
 }

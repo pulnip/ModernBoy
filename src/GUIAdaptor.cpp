@@ -50,9 +50,12 @@ void GUIAdaptor::update(){
     ImGui::Text("%.2f FPS", ImGui::GetIO().Framerate);
     
     ImGui::Checkbox("WireFrame", &drawAsWire);
+    // ImGui::SameLine();
+    // ImGui::Checkbox("DrawNormal", &drawNormal);
+
     // ImGui::Checkbox("usePerspective", &shader->usePerspective);
     ImGui::SliderFloat("Field of View", &fov, 0.0f, 120.0f);
-    ImGui::SliderFloat("X Split", &xSplit, 0.0f, 1.0f);
+    ImGui::SliderFloat("Normal Scale", &normalScale, 0.0f, 1.0f);
 
     if(ImGui::RadioButton("DirLight", lightType==0))
         lightType=0;

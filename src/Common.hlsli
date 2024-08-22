@@ -101,6 +101,6 @@ struct PSInput{
     float4 projected: SV_POSITION;
     float3 pos: POSITION;
     float3 normal: NORMAL;
-    // float4 color: COLOR;
+    float4 color: COLOR;
     float2 uv: TEXCOORD;
 };

@@ -14,7 +14,7 @@ namespace ModernBoy{
 
         bool drawAsWire=false;
         float fov=70.0f;
-        float xSplit=0.0f;
+        float normalScale=0.0f;
         size_t lightType=0;
 
       public:
