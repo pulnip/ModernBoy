@@ -71,9 +71,9 @@ namespace ModernBoy{
         std::tuple<VertexBuffer, IndexBuffer> extractNormal() const{
             VertexBuffer nv;
             IndexBuffer ni;
-            std::println("Called");
             nv.reserve(2*verticies.size());
             ni.reserve(2*verticies.size());
+
             uint16_t i=0;
             for(const auto& vertex: verticies){
                 V normalStart{
