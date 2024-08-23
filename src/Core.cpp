@@ -6,6 +6,7 @@
 #include "CameraComponent.hpp"
 #include "Core.hpp"
 #include "CubeMeshComponent.hpp"
+#include "GridMeshComponent.hpp"
 #include "helper.hpp"
 #include "LevelLoader.hpp"
 #include "LightComponent.hpp"
@@ -54,8 +55,13 @@ Core::Core(){
     auto simpleObject=make_shared<Actor>(*this);
     actors->addActor(simpleObject);
 
-    auto simpleMesh=make_shared<CubeMeshComponent>(
+    // auto simpleMesh=make_shared<CubeMeshComponent>(
+    //     *simpleObject, window->renderer->device,
+    //     "assets/crate.png"
+    // );
+    auto simpleMesh=make_shared<GridMeshComponent>(
         *simpleObject, window->renderer->device,
+        5, 3,
         "assets/crate.png"
     );
     simpleObject->addComponent(simpleMesh);

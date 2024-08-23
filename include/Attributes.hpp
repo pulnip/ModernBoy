@@ -4,7 +4,6 @@
 #include <print>
 #include <tuple>
 #include <vector>
-#include <gsl-lite/gsl-lite.hpp>
 #include <directxtk/SimpleMath.h>
 #include <directxmath/DirectXColors.h>
 #include "Math.hpp"
@@ -45,7 +44,7 @@ namespace ModernBoy{
     static_assert((sizeof(Light) & 0xf) == 0);
 
     struct Polygon{
-        gsl::index index[3];
+        size_t index[3];
     };
 
     template<typename V> struct Mesh{
