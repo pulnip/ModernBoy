@@ -1,0 +1,57 @@
+#include <directxmath/DirectXMath.h>
+#include "CylinderMeshComponent.hpp"
+
+using namespace std;
+using namespace Microsoft::WRL;
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
+using namespace DirectX::Colors;
+using namespace ModernBoy;
+
+CylinderMeshComponent::CylinderMeshComponent(const Actor& actor,
+    const ComPtr<ID3D11Device>& device,
+    const size_t xfrag, const size_t yfrag,
+    const string& texName)
+: MeshComponent(actor, texName, device){
+    constexpr float scale=2.0f;
+
+    const float dx=1.0f/xfrag;
+    const float dy=1.0f/yfrag;
+    vector<Vertex> vertices;
+    vertices.reserve((xfrag+1)*(yfrag+1));
+
+    for(float y=0.0f; y<=1.0f; y+=dy){
+        for(float x=0.0f; x<1.0f; x+=dx){
+            const Matrix transform=Matrix::CreateRotationY(XM_2PI*x);
+
+            vertices.emplace_back(Vertex{
+                .position=scale*Vector3::Transform({1.0f, y-0.5f, 0.0f}, transform),
+                .normal=Vector3::TransformNormal({1.0f, 0.0f, 0.0f}, transform),
+                .uv{2*x>1.0f? 2*x-1.0f : 2*x, y}
+            });
+        }
+    }
+
+    vector<Polygon> polygons;
+    polygons.reserve(2*xfrag*yfrag);
+
+    for(size_t j=0; j<yfrag; ++j){
+        const size_t j1=j+1;
+        for(size_t i=0; i<xfrag; ++i){
+            const size_t i1=(i+1)%xfrag;
+
+            const size_t bottomLeft =xfrag* j+ i;
+            const size_t bottomRight=xfrag* j+i1;
+            const size_t topLeft    =xfrag*j1+ i;
+            const size_t topRight   =xfrag*j1+i1;
+
+            polygons.emplace_back(Polygon{topLeft, bottomRight, topRight});
+            polygons.emplace_back(Polygon{bottomRight, topLeft, bottomLeft});
+        }
+    }
+
+    mesh.verticies=std::move(vertices);
+    mesh.polygons=std::move(polygons);
+}
+
+CylinderMeshComponent::~CylinderMeshComponent()=default;
