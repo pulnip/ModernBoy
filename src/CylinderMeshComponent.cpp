@@ -15,19 +15,20 @@ CylinderMeshComponent::CylinderMeshComponent(const Actor& actor,
 : MeshComponent(actor, texName, device){
     constexpr float scale=2.0f;
 
-    const float dx=1.0f/xfrag;
+    const float dt=XM_2PI/xfrag;
     const float dy=1.0f/yfrag;
     vector<Vertex> vertices;
     vertices.reserve((xfrag+1)*(yfrag+1));
 
     for(float y=0.0f; y<=1.0f; y+=dy){
-        for(float x=0.0f; x<1.0f; x+=dx){
-            const Matrix transform=Matrix::CreateRotationY(XM_2PI*x);
+        for(float t=0.0f; t<XM_2PI; t+=dt){
+            const Matrix transform=Matrix::CreateRotationY(t);
+            const float uv_x=t/XM_PI;
 
             vertices.emplace_back(Vertex{
                 .position=scale*Vector3::Transform({1.0f, y-0.5f, 0.0f}, transform),
                 .normal=Vector3::TransformNormal({1.0f, 0.0f, 0.0f}, transform),
-                .uv{2*x>1.0f? 2*x-1.0f : 2*x, y}
+                .uv{uv_x>1.0f ? uv_x-1.0f : uv_x, y}
             });
         }
     }
