@@ -12,6 +12,7 @@
 #include "LevelLoader.hpp"
 #include "LightComponent.hpp"
 #include "RenderAdaptor.hpp"
+#include "SphereMeshComponent.hpp"
 #include "TriangleMeshComponent.hpp"
 #include "Window.hpp"
 
@@ -65,10 +66,15 @@ Core::Core(){
     //     5, 3,
     //     "assets/crate.png"
     // );
-    auto simpleMesh=make_shared<CylinderMeshComponent>(
+    // auto simpleMesh=make_shared<CylinderMeshComponent>(
+    //     *simpleObject, window->renderer->device,
+    //     20, 5,
+    //     "assets/crate.png"
+    // );
+    auto simpleMesh=make_shared<SphereMeshComponent>(
         *simpleObject, window->renderer->device,
-        20, 5,
-        "assets/crate.png"
+        40, 15,
+        "assets/ojwD8.jpg"
     );
     simpleObject->addComponent(simpleMesh);
 
