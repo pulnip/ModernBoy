@@ -8,6 +8,7 @@ namespace ModernBoy{
     class TextureAdaptor;
     class GUIAdaptor;
     class ActorManager;
+    class InputSystem;
 
     class Actor;
     class Component;
@@ -18,4 +19,5 @@ namespace ModernBoy{
 
     class MeshObject;
     struct Light;
+    struct InputState;
 }

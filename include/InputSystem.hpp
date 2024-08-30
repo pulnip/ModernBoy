@@ -1,39 +1,33 @@
 #pragma once
 
-#include <SDL2/SDL_scancode.h>
+#include <mutex>
+#include <vector>
+#include "InputState.hpp"
+#include "Subsystem.hpp"
 
 namespace ModernBoy{
-    enum class ButtonState{
-        NONE,
-        PRESSED,
-        RELEASED,
-        HELD
+    struct EventInput{
+        ButtonState btn;
     };
-
-    class KeyboardState{
-        const uint8_t* const current;
-        uint8_t previous[SDL_NUM_SCANCODES] = {0, };
-
-      public:
-        KeyboardState();
-
-        void update();
-
-        bool isPressed(SDL_Scancode key) const;
-        ButtonState getKey(SDL_Scancode key) const;
-    };
-
     struct InputState{
-        KeyboardState keyboard;
+        KeyboardState kbRef;
+        ButtonState btn;
     };
 
-    class InputSystem{
-        InputState input;
+    class InputSystem: public Subsystem<InputComponent, EventInput>{
+      protected:
+        std::vector<std::weak_ptr<InputComponent>> observers;
+
+        mutable std::mutex mtx;
 
       public:
-        // call after SDL_PollEvent
-        void update();
+        virtual ~InputSystem()=default;
 
-        const InputState& getInput() const noexcept;
+        virtual void prepare()=0;
+        virtual void notifyReleased(const EventInput&)=0;
+
+        void subscribe(std::weak_ptr<InputComponent> obs) override;
+        void unsubscribe(std::weak_ptr<InputComponent> obs) override;
+        void unsubscribeExpired() override;
     };
 }

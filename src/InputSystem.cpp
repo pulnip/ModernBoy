@@ -1,47 +1,36 @@
-#include <utility>
-#include <SDL2/SDL_keyboard.h>
 #include "InputSystem.hpp"
 
 using namespace std;
 using namespace ModernBoy;
 
-KeyboardState::KeyboardState()
-:current(SDL_GetKeyboardState(nullptr)){}
+void InputSystem::subscribe(std::weak_ptr<InputComponent> obs){
+    std::lock_guard lg(mtx);
 
-void KeyboardState::update(){
-    memcpy(previous, current, SDL_NUM_SCANCODES);
+    observers.emplace_back(std::move(obs));
 }
 
-bool KeyboardState::isPressed(SDL_Scancode key) const{
-    return current[key];
+void InputSystem::unsubscribe([[maybe_unused]] std::weak_ptr<InputComponent> obs){
+    std::lock_guard lg(mtx);
+
+    // observers.erase(
+    //     std::remove(
+    //         observers.begin(), observers.end(),
+    //         obs
+    //     ),
+    //     observers.end()
+    // );
 }
 
-ButtonState KeyboardState::getKey(SDL_Scancode key) const{
-    using enum ButtonState;
+void InputSystem::unsubscribeExpired(){
+    std::lock_guard lg(mtx);
 
-    const auto pressed = previous[key]!=0;
-    const auto pressing = current[key]!=0;
-
-    const auto press = (static_cast<int>(pressed)<<1) + static_cast<int>(pressing);
-
-    switch(press){
-    case 0b00:
-        return NONE;
-    case 0b01:
-        return PRESSED;
-    case 0b10:
-        return RELEASED;
-    case 0b11:
-        return HELD;
-    default:
-        unreachable();
-    }
-}
-
-void InputSystem::update(){
-    input.keyboard.update();
-}
-
-const InputState& InputSystem::getInput() const noexcept{
-    return input;
+    // observers.erase(
+    //     std::remove_if(
+    //         observers.begin(), observers.end(),
+    //         [](const std::weak_ptr<InputComponent>& wp){
+    //             return wp.expired();
+    //         }
+    //     ),
+    //     observers.end()
+    // );
 }
