@@ -73,6 +73,10 @@ find_package(directxtk CONFIG REQUIRED)
 if(directxtk_FOUND)
     message(STATUS "Using DirectX Tool Kit package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
+        d3d11.lib dxgi.lib dxguid.lib uuid.lib
+        kernel32.lib user32.lib
+        comdlg32.lib advapi32.lib shell32.lib
+        ole32.lib oleaut32.lib
         Microsoft::DirectXTK
     )
 endif()
