@@ -1,4 +1,5 @@
 #include <print>
+#include "Actor.hpp"
 #include "CameraComponent.hpp"
 
 using namespace std;
@@ -10,12 +11,10 @@ CameraComponent::CameraComponent(Actor& actor)
 : Component(actor){}
 
 Matrix CameraComponent::view() const noexcept{
-    std::lock_guard lg(mtx);
+    Vector3 fwdDir=XMVector3Rotate(Vector3::UnitZ, owner.transform.quaternion);
+    Vector3 upDir=XMVector3Rotate(Vector3::UnitY, owner.transform.quaternion);
 
-    [[unlikely]] if(!_view.has_value())
-        _view=XMMatrixLookToLH(eye.p0, eye.dir, upDir);
-
-    return _view.value();
+    return XMMatrixLookToLH(owner.transform.position, fwdDir, upDir);
 }
 
 Matrix CameraComponent::projection() const noexcept{
@@ -48,23 +47,20 @@ float CameraComponent::getAspectRatio() const noexcept{
 }
 
 void CameraComponent::setEyePos(const Vector3& pos) noexcept{
-    [[likely]] if(eye.p0!=pos){
-        eye.p0=pos;
-        _view.reset();
-    }
+    owner.transform.position=pos;
 }
-void CameraComponent::setEyeDir(const Vector3& dir) noexcept{
-    [[likely]] if(eye.dir!=dir){
-        eye.dir=dir;
-        _view.reset();
-    }
-}
-void CameraComponent::setUpDir(const Vector3& dir) noexcept{
-    [[likely]] if(upDir!=dir){
-        upDir=dir;
-        _view.reset();
-    }
-}
+// void CameraComponent::setEyeDir(const Vector3& dir) noexcept{
+//     [[likely]] if(eye.dir!=dir){
+//         eye.dir=dir;
+//         _view.reset();
+//     }
+// }
+// void CameraComponent::setUpDir(const Vector3& dir) noexcept{
+//     [[likely]] if(upDir!=dir){
+//         upDir=dir;
+//         _view.reset();
+//     }
+// }
 void CameraComponent::setScreenSize(int w, int h) noexcept{
     [[likely]] if(screenSize.x!=w){
         screenSize.x=w;
