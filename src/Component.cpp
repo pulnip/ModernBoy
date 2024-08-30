@@ -2,7 +2,7 @@
 
 using namespace ModernBoy;
 
-Component::Component(const Actor& actor)
+Component::Component(Actor& actor)
 : owner(actor){}
 
 Component::~Component()=default;

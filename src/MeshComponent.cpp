@@ -7,7 +7,7 @@ using namespace std;
 using namespace Microsoft::WRL;
 using namespace ModernBoy;
 
-MeshComponent::MeshComponent(const Actor& actor, const string& textureName,
+MeshComponent::MeshComponent(Actor& actor, const string& textureName,
     const ComPtr<ID3D11Device>& device)
 : Component(actor), texture(textureName, device){}
 

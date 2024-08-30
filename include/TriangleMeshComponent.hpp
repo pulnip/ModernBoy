@@ -7,7 +7,7 @@
 namespace ModernBoy{
     class TriangleMeshComponent final: public MeshComponent{
       public:
-        TriangleMeshComponent(const Actor& actor,
+        TriangleMeshComponent(Actor& actor,
             const Microsoft::WRL::ComPtr<ID3D11Device>& device,
             const std::string& textureName="assets/crate.png"
         );

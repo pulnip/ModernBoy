@@ -2,5 +2,5 @@
 
 using namespace ModernBoy;
 
-LightComponent::LightComponent(const Actor& actor)
+LightComponent::LightComponent(Actor& actor)
 : Component(actor){}

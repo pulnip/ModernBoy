@@ -26,7 +26,7 @@ namespace ModernBoy{
         mutable std::optional<DirectX::SimpleMath::Matrix> _projection;
 
       public:
-        CameraComponent(const Actor& actor);
+        CameraComponent(Actor& actor);
 
         DirectX::SimpleMath::Matrix view() const noexcept;
         DirectX::SimpleMath::Matrix projection() const noexcept;

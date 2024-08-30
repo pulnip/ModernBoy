@@ -10,6 +10,6 @@ namespace ModernBoy{
       public:
         Light light;
 
-        LightComponent(const Actor& actor);
+        LightComponent(Actor& actor);
     };
 }

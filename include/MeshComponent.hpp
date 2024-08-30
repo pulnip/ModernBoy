@@ -20,7 +20,7 @@ namespace ModernBoy{
         Mesh<Vertex> mesh;
 
       public:
-        MeshComponent(const Actor& actor, const std::string& textureName,
+        MeshComponent(Actor& actor, const std::string& textureName,
             const Microsoft::WRL::ComPtr<ID3D11Device>& device
         );
         virtual ~MeshComponent();

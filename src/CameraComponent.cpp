@@ -6,7 +6,7 @@ using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using namespace ModernBoy;
 
-CameraComponent::CameraComponent(const Actor& actor)
+CameraComponent::CameraComponent(Actor& actor)
 : Component(actor){}
 
 Matrix CameraComponent::view() const noexcept{

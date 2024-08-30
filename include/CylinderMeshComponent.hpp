@@ -7,7 +7,7 @@
 namespace ModernBoy{
     class CylinderMeshComponent final: public MeshComponent{
       public:
-        CylinderMeshComponent(const Actor& actor,
+        CylinderMeshComponent(Actor& actor,
             const Microsoft::WRL::ComPtr<ID3D11Device>& device,
             const size_t xfrag, const size_t yfrag,
             const std::string& textureName="assets/crate.png"

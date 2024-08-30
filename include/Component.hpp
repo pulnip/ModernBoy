@@ -6,10 +6,10 @@
 namespace ModernBoy{
     class Component{
       protected:
-        const Actor& owner;
+        Actor& owner;
 
       public:
-        Component(const Actor& actor);
+        Component(Actor& actor);
         virtual ~Component();
         virtual void update(float dt);
     };

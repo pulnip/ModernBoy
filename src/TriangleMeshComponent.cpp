@@ -6,7 +6,7 @@ using namespace DirectX::SimpleMath;
 using namespace DirectX::Colors;
 using namespace ModernBoy;
 
-TriangleMeshComponent::TriangleMeshComponent(const Actor& actor,
+TriangleMeshComponent::TriangleMeshComponent(Actor& actor,
     const ComPtr<ID3D11Device>& device,
     const string& texName)
 : MeshComponent(actor, texName, device){

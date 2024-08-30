@@ -6,7 +6,7 @@ using namespace DirectX::SimpleMath;
 using namespace DirectX::Colors;
 using namespace ModernBoy;
 
-CubeMeshComponent::CubeMeshComponent(const Actor& actor,
+CubeMeshComponent::CubeMeshComponent(Actor& actor,
     const ComPtr<ID3D11Device>& device,
     const string& texName)
 : MeshComponent(actor, texName, device){

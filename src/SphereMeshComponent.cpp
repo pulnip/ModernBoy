@@ -8,7 +8,7 @@ using namespace DirectX::SimpleMath;
 using namespace DirectX::Colors;
 using namespace ModernBoy;
 
-SphereMeshComponent::SphereMeshComponent(const Actor& actor,
+SphereMeshComponent::SphereMeshComponent(Actor& actor,
     const ComPtr<ID3D11Device>& device,
     const size_t xfrag, const size_t yfrag,
     const string& texName)

@@ -7,7 +7,7 @@
 namespace ModernBoy{
     class CubeMeshComponent final: public MeshComponent{
       public:
-        CubeMeshComponent(const Actor& actor,
+        CubeMeshComponent(Actor& actor,
             const Microsoft::WRL::ComPtr<ID3D11Device>& device,
             const std::string& textureName="assets/crate.png"
         );
