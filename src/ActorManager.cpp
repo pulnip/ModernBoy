@@ -10,8 +10,11 @@ ActorManager::ActorManager(){
 
 }
 
-void ActorManager::update([[maybe_unused]] float dt){
-
+void ActorManager::update(float dt){
+    for(auto& actor: actors){
+        actor->updateComponent(dt);
+        actor->update(dt);
+    }
 }
 
 void ActorManager::addActor(shared_ptr<Actor> actor){

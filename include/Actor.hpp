@@ -14,6 +14,7 @@ namespace ModernBoy{
 
       public:
         Actor(const Core& core);
+        void updateComponent(float dt);
         virtual ~Actor();
         virtual void update(float dt);
 
