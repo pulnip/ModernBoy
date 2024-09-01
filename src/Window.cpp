@@ -66,7 +66,7 @@ Window::Window([[maybe_unused]] const Core& core,
     renderer=make_unique<RenderAdaptor>(hwnd, wd.size);
     texturer=make_unique<TextureAdaptor>(renderer->device);
     shader=make_unique<ShaderAdaptor>(renderer->device,
-        L"src/VS.hlsl", L"src/PS.hlsl"
+        L"src/VS.hlsl", L"src/RimPS.hlsl"
     );
 
     gui=make_unique<GUIAdaptor>(window,

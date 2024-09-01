@@ -100,6 +100,8 @@ void ShaderAdaptor::draw(const Matrix& transform,
     vsc.view=mainCamera->view();
     vsc.projection=mainCamera->projection();
 
+    psc.eyePos=vsc.view.Translation();;
+
     vsc.model=vsc.model.Transpose();
     vsc.view=vsc.view.Transpose();
     vsc.projection=vsc.projection.Transpose();
@@ -112,7 +114,6 @@ void ShaderAdaptor::draw(const Matrix& transform,
         oldNormalScale=normalScale;
     }
 
-    psc.eyePos=Vector3::Transform(Vector3::Zero, vsc.view.Transpose());
     psc.material=material;
     for(size_t i=0; i<MAX_LIGHTS; ++i){
         if(i!=lightType){
