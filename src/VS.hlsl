@@ -10,17 +10,16 @@ cbuffer VSConstants: register(b0){
 PSInput main(VSInput input){
     PSInput output;
 
-    float4 pos=mul(float4(input.pos, 1.0f), model);
+    float4 pos=mul(float4(input.pos, 1.0), model);
     output.pos=pos.xyz;
 
     pos=mul(pos, view);
     pos=mul(pos, projection);
     output.projected=pos;
 
-    output.normal=normalize(
-        mul(float4(input.normal, 0.0), invTranspose).xyz
-    );
-    // output.color=input.color;
+    float4 nml=mul(float4(input.normal, 0.0), invTranspose);
+    output.normal=normalize(nml.xyz);
+    output.color=float4(0.0, 0.0, 0.0, 1.0);
     output.uv=input.uv;
 
     return output;
