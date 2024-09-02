@@ -32,7 +32,8 @@ float4 main(PSInput input): SV_TARGET{
         color += spotLight(lights[i], material, input.pos, input.normal, toEye);
     }
 
-    float rim=pow(1.0-dot(toEye, input.normal), rimPower);
+    float rimFactor=smoothstep(0.0, 1.0, 1.0-dot(toEye, input.normal));
+    float rim=pow(rimFactor, rimPower);
     color += rimStrength*rim*rimColor;
 
     return useTexture ?
