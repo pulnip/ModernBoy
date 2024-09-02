@@ -21,6 +21,11 @@ namespace ModernBoy{
         bool useTexture;
         Material material;
         Light lights[MAX_LIGHTS];
+        // Rim Lighting
+        Vector3 rimColor=DirectX::Colors::White.v;
+        float rimStrength;
+        float rimPower;
+        float dummy[3];
     };
     // check 16-byte aligned
     static_assert((sizeof(PSConstants) & 0xf) == 0);

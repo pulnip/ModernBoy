@@ -66,6 +66,10 @@ void GUIAdaptor::update(){
     if(ImGui::RadioButton("SpotLight", lightType==2))
         lightType=2;
 
+    ImGui::SliderFloat("Rim Strength", &rimStrength, 0.0f, 5.0f);
+    ImGui::SliderFloat("Rim Power", &rimPower, 0.0f, 10.0f);
+
+
     ImGui::End();
 
     deltaTime=ImGui::GetIO().DeltaTime;

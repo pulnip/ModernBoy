@@ -16,6 +16,8 @@ namespace ModernBoy{
         float fov=70.0f;
         float normalScale=0.0f;
         size_t lightType=0;
+        float rimStrength=0.0f;
+        float rimPower=1.0f;
 
       public:
         GUIAdaptor(SDL_Window* window,

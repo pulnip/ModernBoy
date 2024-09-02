@@ -51,6 +51,8 @@ namespace ModernBoy{
         std::vector<std::shared_ptr<LightComponent>> lights;
         size_t lightType=0;
         float normalScale=1.0f;
+        float rimStrength=0.0f;
+        float rimPower=1.0f;
 
       public:
         ShaderAdaptor(const ComPtr<Device>& device,

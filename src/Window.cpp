@@ -103,6 +103,8 @@ void Window::update(){
 
     shader->lights=lights;
     shader->lightType=gui->lightType;
+    shader->rimStrength=gui->rimStrength;
+    shader->rimPower=gui->rimPower;
     if(gui->normalScale != 0.0f){
         shader->normalScale=gui->normalScale;
     }

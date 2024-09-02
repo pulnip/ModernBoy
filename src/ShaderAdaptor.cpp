@@ -100,7 +100,9 @@ void ShaderAdaptor::draw(const Matrix& transform,
     vsc.view=mainCamera->view();
     vsc.projection=mainCamera->projection();
 
-    psc.eyePos=vsc.view.Translation();;
+    psc.eyePos=vsc.view.Translation();
+    // right handed
+    psc.eyePos.z = -psc.eyePos.z;
 
     vsc.model=vsc.model.Transpose();
     vsc.view=vsc.view.Transpose();
@@ -122,6 +124,9 @@ void ShaderAdaptor::draw(const Matrix& transform,
             psc.lights[i]=lights[i]->light;
         }
     }
+
+    psc.rimStrength=rimStrength;
+    psc.rimPower=rimPower;
 
     updateBuffer(pscBuffer, psc, context);
 }
