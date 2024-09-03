@@ -21,6 +21,11 @@ namespace ModernBoy{
     static constexpr UINT CREATE_DEVICE_FLAGS=IS_DEBUG ?
         D3D11_CREATE_DEVICE_DEBUG : 0;
 
+    /**
+     * @brief create DirectX 11 default device and context
+     * 
+     * @return smart pointer for device and context
+    **/
     [[nodiscard]] inline tuple<ComPtr<ID3D11Device>,
         ComPtr<ID3D11DeviceContext>
     > createDevice(){
@@ -45,6 +50,12 @@ namespace ModernBoy{
         return {device, context};
     }
 
+    /**
+     * @brief check MSAA support and get Quality Level
+     * 
+     * @param device DirectX 11 device
+     * @return 0 for not support
+    **/
     [[nodiscard]] inline UINT getQualityLevel(
         const ComPtr<ID3D11Device>& device
     ){
@@ -58,6 +69,15 @@ namespace ModernBoy{
         return numQualityLevels;
     }
 
+    /**
+     * @brief create default swap chain for DirectX device
+     * 
+     * @param hwnd window handle
+     * @param device DirectX device
+     * @param screenSize use for resolution
+     * @param numQualityLevels MSAA param
+     * @return smart pointer for swap chain
+    **/
     [[nodiscard]] inline ComPtr<IDXGISwapChain> createSwapChain(
         HWND hwnd, const ComPtr<ID3D11Device>& device,
         const ipoint2& screenSize, UINT numQualityLevels
@@ -104,6 +124,7 @@ namespace ModernBoy{
         return swapChain;
     }
 
+    // create DirectX 11 render target view
     [[nodiscard]] inline ComPtr<ID3D11RenderTargetView> createRTV(
         const ComPtr<ID3D11Device>& device,
         const ComPtr<IDXGISwapChain>& swapChain
