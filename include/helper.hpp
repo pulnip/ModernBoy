@@ -13,38 +13,49 @@
 #endif
 
 namespace ModernBoy{
-    struct Exception{
+    class Exception: public std::exception{
         std::string msg;
-        std::string fileName;
-        unsigned int lineNumber;
+
+      public:
+        Exception(const std::string& msg="Default Exception",
+            const std::source_location& sl=std::source_location::current())
+        : msg(std::format("{} ({} {}:{})", msg, 
+            sl.file_name(), sl.line(), sl.column()
+        )){}
+
+        const char* what() const noexcept override{
+            return msg.c_str();
+        }
     };
 
     template<typename T> constexpr bool is_neg(T t){ return t<0; }
 
+    constexpr void throwIfTrue(bool pred,
+        const std::string& msg="Default Exception",
+        const std::source_location& sl=std::source_location::current()
+    ){
+        if(pred) throw Exception(msg, sl);
+    }
     template<typename T>
     constexpr void throwIfFailed(T code, std::function<bool(T)> pred,
+        const std::string& msg="Default Exception",
         const std::source_location& sl=std::source_location::current()
     ){
-        if(pred(code)){
-            throw Exception{std::to_string(code), sl.file_name(), sl.line()};
-        }
-    }
-    constexpr void throwIfTrue(bool pred, const std::string& msg,
-        const std::source_location& sl=std::source_location::current()
-    ){
-        if(pred){
-            throw Exception{msg, sl.file_name(), sl.line()};
-        }
+        throwIfTrue(pred(code), msg, sl);
     }
     inline void DX_throwIf(HRESULT hr,
         const std::source_location& sl=std::source_location::current()
     ){
-        throwIfFailed<HRESULT>(hr, is_neg<HRESULT>, sl);
+        throwIfFailed<HRESULT>(hr, is_neg<HRESULT>,
+            "DirectX Exception", sl
+        );
     }
     inline void SDL_throwIf(int code,
         const std::source_location& sl=std::source_location::current()
     ){
-        throwIfFailed<int>(code, is_neg<int>, sl);
+        throwIfFailed<int>(code, is_neg<int>,
+            "SDL Exception", sl
+        );
     }
     inline void SC_throwIf(HRESULT hr, ID3DBlob* errorBlob,
         const std::source_location& sl=std::source_location::current()
