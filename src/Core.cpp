@@ -1,6 +1,7 @@
 #include <print>
 #include <SDL2/SDL.h>
 #include <imgui_impl_sdl2.h>
+#include "ActorFactory.hpp"
 #include "Actor.hpp"
 #include "ActorManager.hpp"
 #include "CameraComponent.hpp"
@@ -22,7 +23,11 @@ using namespace std;
 using namespace ModernBoy;
 
 Core::Core(){
+    using enum ActorType;
     println("start core ctor...");
+
+    auto nil=ActorFactory::make(UNDEFINED, *this);
+
     // SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
     constexpr auto SDL_FLAGS = SDL_INIT_VIDEO|SDL_INIT_EVENTS;
     SDL_throwIf(SDL_Init(SDL_FLAGS));
