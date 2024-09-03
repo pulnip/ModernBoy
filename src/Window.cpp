@@ -50,8 +50,8 @@ namespace ModernBoy{
 }
 
 Window::Window([[maybe_unused]] const Core& core,
-    const WindowDesc& wd
-){
+    const WindowDesc& wd)
+: screenSize(wd.size){
     constexpr auto IMG_FLAGS = IMG_INIT_JPG|IMG_INIT_PNG;
         throwIfTrue(IMG_Init(IMG_FLAGS) != IMG_FLAGS, IMG_GetError());
 #ifdef SDL_HINT_IME_SHOW_UI
@@ -88,7 +88,7 @@ void Window::process(const SDL_WindowEvent& e){
     case SDL_WINDOWEVENT_SIZE_CHANGED:
         const auto width=e.data1;
         const auto height=e.data2;
-        shader->mainCamera->setScreenSize(width, height);
+        shader->mainCamera->setScreenSize({width, height});
         // break;
         renderer->recreateRenderTarget(width, height);
         break;
@@ -122,6 +122,10 @@ void Window::update(){
     gui->render();
 
     renderer->swap();
+}
+
+ipoint2 Window::getSize() const noexcept{
+    return screenSize;
 }
 
 bool Window::isMinimized(){
