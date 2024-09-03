@@ -57,6 +57,7 @@ namespace ModernBoy{
             "SDL Exception", sl
         );
     }
+    // throwIf function for shader compiler
     inline void SC_throwIf(HRESULT hr, ID3DBlob* errorBlob,
         const std::source_location& sl=std::source_location::current()
     ){
