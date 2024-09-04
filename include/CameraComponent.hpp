@@ -32,7 +32,7 @@ namespace ModernBoy{
         void setEyePos(const DirectX::SimpleMath::Vector3& pos) noexcept;
         // void setEyeDir(const DirectX::SimpleMath::Vector3& dir) noexcept;
         // void setUpDir(const DirectX::SimpleMath::Vector3& dir) noexcept;
-        void setScreenSize(int width, int height) noexcept;
+        void setScreenSize(const ipoint2& size) noexcept;
         void setZ(float _near, float _far) noexcept;
         void setPerspective(float fov) noexcept;
         void setOrthographic() noexcept;

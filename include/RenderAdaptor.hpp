@@ -1,7 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <windef.h>
+#include <wrl/client.h>
+#include <d3d11.h>
 #include <SDL2/SDL_events.h>
 #include "Attributes.hpp"
 #include "Info.hpp"

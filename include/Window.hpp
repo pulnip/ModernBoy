@@ -9,6 +9,7 @@
 namespace ModernBoy{
     class Window{
         SDL_Window* window=nullptr;
+        ipoint2 screenSize;
 
         std::unique_ptr<ShaderAdaptor> shader;
         std::unique_ptr<TextureAdaptor> texturer;
@@ -29,6 +30,7 @@ namespace ModernBoy{
         void process(const SDL_WindowEvent& event);
         void update();
 
+        ipoint2 getSize() const noexcept;
         bool isMinimized();
         void setMainCamera(std::shared_ptr<CameraComponent> camera);
         void addLight(std::shared_ptr<LightComponent> light);

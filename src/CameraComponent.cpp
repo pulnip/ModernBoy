@@ -61,13 +61,13 @@ void CameraComponent::setEyePos(const Vector3& pos) noexcept{
 //         _view.reset();
 //     }
 // }
-void CameraComponent::setScreenSize(int w, int h) noexcept{
-    [[likely]] if(screenSize.x!=w){
-        screenSize.x=w;
+void CameraComponent::setScreenSize(const ipoint2& size) noexcept{
+    [[likely]] if(screenSize.x!=size.x){
+        screenSize.x=size.x;
         _projection.reset();
     }
-    [[likely]] if(screenSize.y!=h){
-        screenSize.y=h;
+    [[likely]] if(screenSize.y!=size.y){
+        screenSize.y=size.y;
         _projection.reset();
     }
 }

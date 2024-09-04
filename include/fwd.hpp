@@ -11,6 +11,7 @@ namespace ModernBoy{
     class InputSystem;
 
     class Actor;
+    class ActorFactory;
     class Component;
     class CameraComponent;
     class InputComponent;
@@ -21,4 +22,6 @@ namespace ModernBoy{
     class MeshObject;
     struct Light;
     struct InputState;
+
+    struct WindowDesc;
 }
