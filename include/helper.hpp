@@ -39,8 +39,8 @@ namespace ModernBoy{
     ){
         if(pred) throw Exception(msg, sl);
     }
-    template<typename T>
-    constexpr void throwIfFailed(T code, std::function<bool(T)> pred,
+    template<typename T> constexpr void throwIfFailed(
+        const T& code, std::function<bool(const T&)> pred,
         const std::string& msg="Default Exception",
         const std::source_location& sl=std::source_location::current()
     ){
