@@ -10,6 +10,8 @@ namespace std{
     concept pointer=std::is_pointer_v<P>;
     template<typename T>
     concept arithmetic=std::is_arithmetic_v<T>;
+    template<typename T>
+    concept signed_number=std::floating_point<T>||std::signed_integral<T>;
 }
 
 namespace ModernBoy{

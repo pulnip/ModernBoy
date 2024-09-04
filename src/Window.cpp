@@ -53,12 +53,12 @@ Window::Window([[maybe_unused]] const Core& core,
     const WindowDesc& wd
 ){
     constexpr auto IMG_FLAGS = IMG_INIT_JPG|IMG_INIT_PNG;
-        throwIfTrue(IMG_Init(IMG_FLAGS) != IMG_FLAGS, IMG_GetError());
+        throwIf(IMG_Init(IMG_FLAGS) != IMG_FLAGS, IMG_GetError());
 #ifdef SDL_HINT_IME_SHOW_UI
         SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif
 
-    throwIfTrue((window=createWindow(wd))==nullptr,
+    throwIf(is_null(window=createWindow(wd)),
         "SDL_CreateWindow() Failed."
     );
 

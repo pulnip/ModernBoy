@@ -25,10 +25,10 @@ GUIAdaptor::GUIAdaptor(SDL_Window* window,
     ImGui::StyleColorsLight();
 
     // Setup Platform/Renderer backends
-    throwIfTrue(!ImGui_ImplSDL2_InitForD3D(window),
+    throwIf(!ImGui_ImplSDL2_InitForD3D(window),
         "ImGui_SDL2 Init Failed."
     );
-    throwIfTrue(!ImGui_ImplDX11_Init(device.Get(), context.Get()),
+    throwIf(!ImGui_ImplDX11_Init(device.Get(), context.Get()),
         "ImGui_DX11 Init Failed."
     );
 }

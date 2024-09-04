@@ -7,6 +7,7 @@
 #include <string>
 #include <d3dcommon.h>
 #include <winnt.h>
+#include "Concepts.hpp"
 
 #ifndef nameof
 #define nameof(x) (#x)
@@ -28,9 +29,11 @@ namespace ModernBoy{
         }
     };
 
-    template<typename T> constexpr bool is_neg(T t){ return t<0; }
+    constexpr bool is_neg(std::signed_number auto n){ return n < 0; }
+    constexpr bool is_non0(std::integral auto i){ return i != 0; }
+    constexpr bool is_null(std::pointer auto p){ return p == nullptr; }
 
-    constexpr void throwIfTrue(bool pred,
+    constexpr void throwIf(bool pred,
         const std::string& msg="Default Exception",
         const std::source_location& sl=std::source_location::current()
     ){
@@ -41,31 +44,27 @@ namespace ModernBoy{
         const std::string& msg="Default Exception",
         const std::source_location& sl=std::source_location::current()
     ){
-        throwIfTrue(pred(code), msg, sl);
+        throwIf(pred(code), msg, sl);
     }
     inline void DX_throwIf(HRESULT hr,
         const std::source_location& sl=std::source_location::current()
     ){
-        throwIfFailed<HRESULT>(hr, is_neg<HRESULT>,
-            "DirectX Exception", sl
-        );
+        throwIf(is_neg(hr), "DirectX Exception", sl);
     }
     inline void SDL_throwIf(int code,
         const std::source_location& sl=std::source_location::current()
     ){
-        throwIfFailed<int>(code, is_neg<int>,
-            "SDL Exception", sl
-        );
+        throwIf(is_neg(code), "SDL Exception", sl);
     }
     // throwIf function for shader compiler
     inline void SC_throwIf(HRESULT hr, ID3DBlob* errorBlob,
         const std::source_location& sl=std::source_location::current()
     ){
         if(is_neg(hr)){
-            throwIfTrue((hr&D3D11_ERROR_FILE_NOT_FOUND) != 0,
+            throwIf(is_non0(hr&D3D11_ERROR_FILE_NOT_FOUND),
                 nameof(D3D11_ERROR_FILE_NOT_FOUND), sl
             );
-            throwIfTrue(errorBlob != nullptr,
+            throwIf(not is_null(errorBlob),
                 (char*)errorBlob->GetBufferPointer(), sl
             );
         }

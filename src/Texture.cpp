@@ -14,14 +14,14 @@ struct SDL_RAII_Surface{
 
     SDL_RAII_Surface(const string& fileName)
     : surface(IMG_Load(fileName.c_str())){
-        throwIfTrue(surface==nullptr, IMG_GetError());
+        throwIf(is_null(surface), IMG_GetError());
     }
     SDL_RAII_Surface(const string& fileName,
         const SDL_PixelFormatEnum format
     ){
         SDL_RAII_Surface raw(fileName);
         surface=SDL_ConvertSurfaceFormat(raw.surface, format, 0);
-        throwIfTrue(surface==nullptr, IMG_GetError());
+        throwIf(is_null(surface), IMG_GetError());
     }
     ~SDL_RAII_Surface(){
         SDL_FreeSurface(surface);

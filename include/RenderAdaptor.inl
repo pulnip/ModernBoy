@@ -131,7 +131,7 @@ namespace ModernBoy{
     ){
         ID3D11Texture2D* pBackBuffer;
         DX_throwIf(swapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer)));
-        throwIfTrue(pBackBuffer==nullptr, "CreateRenderTargetView() error");
+        throwIf(is_null(pBackBuffer), "CreateRenderTargetView() error");
 
         ComPtr<ID3D11RenderTargetView> rtv;
         DX_throwIf(device->CreateRenderTargetView(pBackBuffer, nullptr, &rtv));
