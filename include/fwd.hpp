@@ -13,6 +13,7 @@ namespace ModernBoy{
     class Actor;
     class ActorFactory;
     class Component;
+    class ComponentFactory;
     class CameraComponent;
     class InputComponent;
     class LightComponent;

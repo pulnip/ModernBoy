@@ -28,9 +28,11 @@ Core::Core(){
     actors=make_unique<ActorManager>();
     inputSystem=make_unique<SDL_InputSystem>();
 
-    auto cameraMan=ActorFactory::make(CAMERA, *this);
-    auto lightSource=ActorFactory::make(LIGHT, *this);
-    auto meshObject=ActorFactory::make(TEXTURE_SPHERE, *this);
+    ActorFactory actorMaker(*this);
+
+    auto cameraMan=actorMaker.make(CAMERA);
+    auto lightSource=actorMaker.make(LIGHT);
+    auto meshObject=actorMaker.make(TEXTURE_SPHERE);
 
     actors->addActor(cameraMan);
     actors->addActor(lightSource);

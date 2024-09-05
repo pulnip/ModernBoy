@@ -26,11 +26,10 @@ namespace ModernBoy{
     };
 
     class ActorFactory{
-        static std::string textureFileName;
+        Core& core;
 
       public:
-        static std::shared_ptr<Actor> make(
-            ActorType actorType, Core& core
-        );
+        ActorFactory(Core& core):core(core){}
+        std::shared_ptr<Actor> make(ActorType actorType);
     };
 }

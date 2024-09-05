@@ -15,6 +15,8 @@ namespace ModernBoy{
         TRIANGLE_MESH,
       // light component
         DEFAULT_LIGHT,
+      // camera component
+        MAIN_CAMERA,
       // move component
         CAMERA_MOVE,
       // enum for fail test

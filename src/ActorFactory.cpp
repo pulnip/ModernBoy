@@ -5,6 +5,7 @@
 #include "CameraComponent.hpp"
 #include "CameraMoveComponent.hpp"
 #include "Core.hpp"
+#include "ComponentFactory.hpp"
 #include "CubeMeshComponent.hpp"
 #include "CylinderMeshComponent.hpp"
 #include "GridMeshComponent.hpp"
@@ -25,10 +26,11 @@ class NotImplemented: public Exception{
     : Exception("Not Implemented", sl){}
 };
 
-shared_ptr<Actor> ActorFactory::make(ActorType actorType, Core& core){
+shared_ptr<Actor> ActorFactory::make(ActorType actorType){
     using enum ActorType;
 
     auto actor=make_shared<Actor>(core);
+    ComponentFactory componentMaker(core);
 
     switch(actorType){
         case NIL:
