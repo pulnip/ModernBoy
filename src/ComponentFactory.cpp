@@ -7,12 +7,13 @@
 #include "CubeMeshComponent.hpp"
 #include "CylinderMeshComponent.hpp"
 #include "GridMeshComponent.hpp"
+#include "InputSystem.hpp"
 #include "LightComponent.hpp"
 #include "MyException.hpp"
+#include "RenderAdaptor.hpp"
 #include "SphereMeshComponent.hpp"
 #include "TriangleMeshComponent.hpp"
 #include "Window.hpp"
-#include "RenderAdaptor.hpp"
 
 using namespace std;
 using namespace ModernBoy;
@@ -54,10 +55,21 @@ shared_ptr<Component> ComponentFactory::make(
             "assets/ojwD8.jpg"
         );
     } break;
-    case TRIANGLE_MESH:
-    case DEFAULT_LIGHT:
-    case MAIN_CAMERA:
-    case CAMERA_MOVE:
+    case TRIANGLE_MESH: {
+        component=make_shared<TriangleMeshComponent>(
+            actor, core.window->renderer->device,
+            "assets/crate.jpg"
+        );
+    } break;
+    case DEFAULT_LIGHT: {
+        component=make_shared<LightComponent>(actor);
+    } break;
+    case MAIN_CAMERA: {
+        component=make_shared<CameraComponent>(actor);
+    } break;
+    case CAMERA_MOVE: {
+        component=make_shared<CameraMoveComponent>(actor);
+    } break;
     case UNDEFINED_COMPONENT:
         [[fallthrough]];
     default:
@@ -76,6 +88,22 @@ shared_ptr<Component> ComponentFactory::make(
     case TRIANGLE_MESH: {
         core.window->addMesh(dynamic_pointer_cast<MeshComponent>(component));
     } break;
+    case DEFAULT_LIGHT: {
+        core.window->addLight(dynamic_pointer_cast<LightComponent>(component));
+    } break;
+    case MAIN_CAMERA: {
+        auto cam_comp=dynamic_pointer_cast<CameraComponent>(component);
+        cam_comp->setScreenSize(core.window->getSize());
+        actor.transform.position=-5.0f*Vector3::UnitZ;
+        core.window->setMainCamera(cam_comp);
+    } break;
+    case CAMERA_MOVE: {
+        core.inputSystem->subscribe(
+            dynamic_pointer_cast<InputComponent>(component)
+        );
+    } break;
+    case UNDEFINED_COMPONENT:
+        [[fallthrough]];
     default:
         throw NotImplemented();
     }
