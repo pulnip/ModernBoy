@@ -3,32 +3,16 @@
 #include <chrono>
 #include <functional>
 #include <print>
-#include <source_location>
-#include <string>
 #include <d3dcommon.h>
 #include <winnt.h>
 #include "Concepts.hpp"
+#include "MyException.hpp"
 
 #ifndef nameof
 #define nameof(x) (#x)
 #endif
 
 namespace ModernBoy{
-    class Exception: public std::exception{
-        std::string msg;
-
-      public:
-        Exception(const std::string& msg="Default Exception",
-            const std::source_location& sl=std::source_location::current())
-        : msg(std::format("{} ({} {}:{})", msg, 
-            sl.file_name(), sl.line(), sl.column()
-        )){}
-
-        const char* what() const noexcept override{
-            return msg.c_str();
-        }
-    };
-
     constexpr bool is_neg(std::signed_number auto n){ return n < 0; }
     constexpr bool is_non0(std::integral auto i){ return i != 0; }
     constexpr bool is_null(std::pointer auto p){ return p == nullptr; }

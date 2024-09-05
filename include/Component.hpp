@@ -9,8 +9,9 @@ namespace ModernBoy{
         Actor& owner;
 
       public:
-        Component(Actor& actor);
-        virtual ~Component();
-        virtual void update(float dt);
+        Component(Actor& actor):owner(actor){}
+
+        virtual ~Component()=default;
+        virtual void update([[maybe_unused]] float dt){};
     };
 }

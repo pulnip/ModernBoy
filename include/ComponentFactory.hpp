@@ -12,13 +12,22 @@ namespace ModernBoy{
         GRID_MESH,
         CYLINDER_MESH,
         SPHERE_MESH,
+        TRIANGLE_MESH,
+      // light component
+        DEFAULT_LIGHT,
+      // move component
+        CAMERA_MOVE,
       // enum for fail test
         UNDEFINED_COMPONENT
     };
 
     class ComponentFactory{
+        Core& core;
+
       public:
-        static std::shared_ptr<Component> make(
+        ComponentFactory(Core& core):core(core){}
+
+        std::shared_ptr<Component> make(
             ComponentType componentType, Actor& actor
         );
     };

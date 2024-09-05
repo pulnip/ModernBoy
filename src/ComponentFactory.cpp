@@ -1,7 +1,16 @@
 #include "Actor.hpp"
+#include "CameraComponent.hpp"
+#include "CameraMoveComponent.hpp"
+#include "Core.hpp"
 #include "Component.hpp"
 #include "ComponentFactory.hpp"
-#include "helper.hpp"
+#include "CubeMeshComponent.hpp"
+#include "CylinderMeshComponent.hpp"
+#include "GridMeshComponent.hpp"
+#include "LightComponent.hpp"
+#include "MyException.hpp"
+#include "SphereMeshComponent.hpp"
+#include "TriangleMeshComponent.hpp"
 
 using namespace std;
 using namespace ModernBoy;
@@ -13,11 +22,11 @@ shared_ptr<Component> ComponentFactory::make(
 
     switch(componentType){
     case NIL_COMPONENT:
-        break;
+        return make_shared<Component>(actor);
     case UNDEFINED_COMPONENT:
         [[fallthrough]];
     default:
-        throw;
+        throw NotImplemented();
     }
 }
 
