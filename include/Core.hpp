@@ -5,7 +5,6 @@
 
 namespace ModernBoy{
     class Core{
-        friend class ActorFactory;
         friend class ComponentFactory;
 
         std::unique_ptr<Window> window;
