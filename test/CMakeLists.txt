@@ -8,8 +8,9 @@ add_executable(Test
 
 target_include_directories(Test PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
-    "$ENV{MSYS_ROOT}/mingw64/include/directxmath"
-    "$ENV{MSYS_ROOT}/mingw64/include/directxtk"
+    "${MINGW_INCLUDE}"
+    "${MINGW_INCLUDE}/directxmath"
+    "${MINGW_INCLUDE}/directxtk"
 )
 
 target_link_libraries(Test PRIVATE

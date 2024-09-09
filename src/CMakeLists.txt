@@ -15,11 +15,15 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     >
 )
 
-message(STATUS "msys path: ")
 target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
-    "$ENV{MSYS_ROOT}/mingw64/include"
-    "$ENV{MSYS_ROOT}/mingw64/include/directxtk"
+    "${MINGW_INCLUDE}"
+    "${MINGW_INCLUDE}/directxmath"
+    "${MINGW_INCLUDE}/directxtk"
+)
+
+target_compile_options(${PROJECT_NAME} PRIVATE
+    -Wall -Wextra
 )
 
 if(NOT ${DIRECTX_ARCH} MATCHES "^arm")
@@ -38,14 +42,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     algorithm_impl
 )
 
-find_package(directxmath CONFIG REQUIRED)
-if(directxmath_FOUND)
-    message(STATUS "Using DirectXMath package")
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        Microsoft::DirectXMath
-    )
-endif()
-
 find_package(gsl-lite CONFIG REQUIRED)
 if(gsl-lite_FOUND)
     message(STATUS "Using gsl-lite package")
@@ -59,11 +55,42 @@ if(RapidJSON_FOUND)
     message(STATUS "Using RapidJSON package")
 endif()
 
-find_package(imgui CONFIG REQUIRED)
-if(imgui_FOUND)
-    message(STATUS "Using ImGUI package")
+find_package(SDL2 CONFIG REQUIRED)
+if(SDL2_FOUND)
+    message(STATUS "Using SDL2 package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
-        imgui::imgui
+        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,
+            SDL2::SDL2,
+            SDL2::SDL2-static
+        >
+    )
+endif()
+
+# find_package(Stb REQUIRED)
+# if(Stb_FOUND)
+#     message(STATUS "Using Stb package")
+#     target_include_directories(${PROJECT_NAME} PRIVATE
+#         ${Stb_INCLUDE_DIR}
+#     )
+# endif()
+
+find_package(SDL2_image CONFIG REQUIRED)
+if(SDL2_FOUND)
+    message(STATUS "Using SDL2_image package")
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,
+            SDL2_image::SDL2_image,
+            SDL2_image::SDL2_image-static
+        >
+    )
+endif()
+
+find_package(directxmath CONFIG REQUIRED)
+if(directxmath_FOUND)
+    message(STATUS "Using DirectXMath package")
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        Microsoft::DirectXMath
     )
 endif()
 
@@ -79,44 +106,17 @@ if(directxtk_FOUND)
     )
 endif()
 
-# find_package(Stb REQUIRED)
-# if(Stb_FOUND)
-#     message(STATUS "Using Stb package")
-#     target_include_directories(${PROJECT_NAME} PRIVATE
-#         ${Stb_INCLUDE_DIR}
-#     )
-# endif()
-
-find_package(SDL2 CONFIG REQUIRED)
-if(SDL2_FOUND)
-    message(STATUS "Using SDL2 package")
+find_package(imgui CONFIG REQUIRED)
+if(imgui_FOUND)
+    message(STATUS "Using ImGUI package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
-        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,
-            SDL2::SDL2,
-            SDL2::SDL2-static
-        >
-    )
-endif()
-
-find_package(SDL2_image CONFIG REQUIRED)
-if(SDL2_FOUND)
-    message(STATUS "Using SDL2_image package")
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,
-            SDL2_image::SDL2_image,
-            SDL2_image::SDL2_image-static
-        >
+        imgui::imgui
     )
 endif()
 
 # Uncomment if using XAudio2Redist (required for MINGW)
 # find_package(xaudio2redist CONFIG REQUIRED)
 # target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::XAudio2Redist)
-
-target_compile_options(${PROJECT_NAME} PRIVATE
-    -Wall -Wextra
-)
 
 if(WIN32)
     target_compile_definitions(${PROJECT_NAME} PRIVATE

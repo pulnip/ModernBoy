@@ -1,11 +1,20 @@
 {
+    "env": {
+        "MINGW_ROOT": "${MSYS_ROOT}/mingw64",
+        "MINGW_INCLUDE": "${MINGW_ROOT}/include",
+        "MINGW_BIN": "${MINGW_ROOT}/bin",
+        "VCPKG_INSTALLED": "${workspaceFolder}/build/vcpkg_installed",
+        "VCPKG_TRPILET": "x64-mingw-dynamic"
+    },
     "configurations": [
         {
             "name": "Win32",
             "includePath": [
                 "${default}",
-                "${MSYS_ROOT}/mingw64/include/**",
-                "${workspaceFolder}/build/vcpkg_installed/x64-mingw-dynamic/include/**",
+                "${MINGW_INCLUDE}",
+                "${MINGW_INCLUDE}/directxmath",
+                "${MINGW_INCLUDE}/directxtk",
+                "${VCPKG_INSTALLED}/${VCPKG_TRPILET}/include",
                 "${workspaceFolder}/include"
             ],
             "defines": [
@@ -17,7 +26,7 @@
             "cStandard": "c23",
             "cppStandard": "c++23",
             "intelliSenseMode": "windows-clang-x64",
-            "compilerPath": "${MSYS_ROOT}/mingw64/bin/clang++.exe",
+            "compilerPath": "${MINGW_BIN}/clang++.exe",
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],

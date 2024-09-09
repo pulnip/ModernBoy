@@ -6,22 +6,35 @@
     },
     "configurePresets": [
         {
+            "name": "MinGW-w64",
+            "hidden": true,
+            "environment": {
+                "MINGW_ROOT": "$env{MSYS_ROOT}/mingw64"
+            },
+            "cacheVariables": {
+                "MINGW_INCLUDE": "$env{MINGW_ROOT}/include"
+            }
+        },
+        {
             "name": "Ninja",
             "hidden": true,
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_MAKE_PROGRAM": "$env{MSYS_ROOT}/mingw64/bin/ninja.exe"
+                "CMAKE_MAKE_PROGRAM": "$env{MINGW_ROOT}/bin/ninja.exe"
             }
         },
         {
             "name": "VCPKG",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE":{
+                "CMAKE_TOOLCHAIN_FILE": {
                     "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
                     "type": "FILEPATH"
                 },
-                "VCPKG_INSTALLED_DIR": "${sourceDir}/build/vcpkg_installed",
+                "VCPKG_INSTALLED_DIR": {
+                    "value": "${sourceDir}/build/vcpkg_installed",
+                    "type": "FILEPATH"
+                },
                 "VCPKG_TARGET_TRIPLET": "x64-mingw-dynamic",
                 "VCPKG_HOST_TRIPLET": "x64-mingw-dynamic"
             }
@@ -60,15 +73,8 @@
             "name": "Clang",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_CXX_COMPILER": "$env{MSYS_ROOT}/mingw64/bin/clang++.exe",
+                "CMAKE_CXX_COMPILER": "clang++.exe",
                 "CMAKE_CXX_FLAGS": "-fuse-ld=lld"
-            }
-        },
-        {
-            "name": "MinGW-w64",
-            "hidden": true,
-            "environment": {
-                "PATH": "$penv{PATH}"
             }
         },
         {
@@ -123,9 +129,9 @@
     ],
     "testPresets": [
         {
-            "name": "x64-Release-Test",
-            "displayName": "gTest for Release",
-            "description": "Google Test (Release)",
+            "name": "Google Test",
+            "displayName": "gTest (x64-MinGW)",
+            "description": "Google Test",
             "configurePreset": "x64-Release-MinGW",
             "output": {
                 "outputOnFailure": true

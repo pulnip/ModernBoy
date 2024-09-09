@@ -6,8 +6,9 @@ add_library(algorithm_impl
 
 target_include_directories(algorithm_impl PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
-    "$ENV{MSYS_ROOT}/mingw64/include/directxmath"
-    "$ENV{MSYS_ROOT}/mingw64/include/directxtk"
+    "${MINGW_INCLUDE}"
+    "${MINGW_INCLUDE}/directxmath"
+    "${MINGW_INCLUDE}/directxtk"
 )
 
 find_package(gsl-lite CONFIG REQUIRED)
