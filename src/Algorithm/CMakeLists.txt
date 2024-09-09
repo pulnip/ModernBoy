@@ -6,8 +6,8 @@ add_library(algorithm_impl
 
 target_include_directories(algorithm_impl PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
-    "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxtk"
-    "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxmath"
+    "$ENV{MSYS_ROOT}/mingw64/include/directxmath"
+    "$ENV{MSYS_ROOT}/mingw64/include/directxtk"
 )
 
 find_package(gsl-lite CONFIG REQUIRED)

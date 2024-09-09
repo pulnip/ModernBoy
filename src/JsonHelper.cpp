@@ -102,8 +102,7 @@ optional<JsonHelper> JsonHelper::subset(const string& propertyName){
             std::format("{} NOT object", propertyName)
         );
     }
-
-    return JsonHelper(property.GetObj());
+    return JsonHelper(property);
 }
 
 optional<point2<>> JsonHelper::getPoint2(const string& propertyName){

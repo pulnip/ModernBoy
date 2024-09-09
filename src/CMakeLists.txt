@@ -15,10 +15,11 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     >
 )
 
+message(STATUS "msys path: ")
 target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
-    "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxtk"
-    "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxmath"
+    "$ENV{MSYS_ROOT}/mingw64/include"
+    "$ENV{MSYS_ROOT}/mingw64/include/directxtk"
 )
 
 if(NOT ${DIRECTX_ARCH} MATCHES "^arm")
@@ -37,13 +38,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     algorithm_impl
 )
 
-# find_package(directxmath CONFIG REQUIRED)
-# if(directxmath_FOUND)
-#     message(STATUS "Using DirectXMath package")
-#     target_link_libraries(${PROJECT_NAME} PRIVATE
-#         Microsoft::DirectXMath
-#     )
-# endif()
+find_package(directxmath CONFIG REQUIRED)
+if(directxmath_FOUND)
+    message(STATUS "Using DirectXMath package")
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        Microsoft::DirectXMath
+    )
+endif()
 
 find_package(gsl-lite CONFIG REQUIRED)
 if(gsl-lite_FOUND)
@@ -56,9 +57,6 @@ endif()
 find_package(RapidJSON CONFIG REQUIRED)
 if(RapidJSON_FOUND)
     message(STATUS "Using RapidJSON package")
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        rapidjson
-    )
 endif()
 
 find_package(imgui CONFIG REQUIRED)

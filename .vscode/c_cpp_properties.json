@@ -4,8 +4,9 @@
             "name": "Win32",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/include",
-                "${workspaceFolder}/build/vcpkg_installed/x64-mingw-dynamic/include/**"
+                "${MSYS_ROOT}/mingw64/include/**",
+                "${workspaceFolder}/build/vcpkg_installed/x64-mingw-dynamic/include/**",
+                "${workspaceFolder}/include"
             ],
             "defines": [
                 "_DEBUG",
@@ -16,7 +17,7 @@
             "cStandard": "c23",
             "cppStandard": "c++23",
             "intelliSenseMode": "windows-clang-x64",
-            "compilerPath": "C:/msys64/mingw64/bin/clang++.exe",
+            "compilerPath": "${MSYS_ROOT}/mingw64/bin/clang++.exe",
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],

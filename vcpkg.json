@@ -10,31 +10,13 @@
             "host" : true
         },
         {
-            "name": "directxtk"
-        },
-        {
             "name": "gsl-lite"
-        },
-        {
-            "name": "gtest"
         },
         {
             "name": "imgui",
             "features": [
                 "dx11-binding",
                 "sdl2-binding"
-            ]
-        },
-        {
-            "name": "rapidjson"
-        },
-        {
-            "name": "sdl2"
-        },
-        {
-            "name": "sdl2-image",
-            "features": [
-                "libjpeg-turbo"
             ]
         }
     ]

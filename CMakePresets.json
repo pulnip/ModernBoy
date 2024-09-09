@@ -8,18 +8,24 @@
         {
             "name": "Ninja",
             "hidden": true,
-            "generator": "Ninja"
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_MAKE_PROGRAM": "$env{MSYS_ROOT}/mingw64/bin/ninja.exe"
+            }
         },
         {
             "name": "VCPKG",
             "hidden": true,
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE":{
-                    "value": "$penv{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                    "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
                     "type": "FILEPATH"
                 },
-                "VCPKG_INSTALLED_DIR": "${sourceDir}/build/vcpkg_installed"
+                "VCPKG_INSTALLED_DIR": "${sourceDir}/build/vcpkg_installed",
+                "VCPKG_TARGET_TRIPLET": "x64-mingw-dynamic",
+                "VCPKG_HOST_TRIPLET": "x64-mingw-dynamic"
             }
+
         },
         {
             "name": "x64",
@@ -54,7 +60,7 @@
             "name": "Clang",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_CXX_COMPILER": "clang++.exe",
+                "CMAKE_CXX_COMPILER": "$env{MSYS_ROOT}/mingw64/bin/clang++.exe",
                 "CMAKE_CXX_FLAGS": "-fuse-ld=lld"
             }
         },
@@ -63,10 +69,6 @@
             "hidden": true,
             "environment": {
                 "PATH": "$penv{PATH}"
-            },
-            "cacheVariables": {
-                "VCPKG_TARGET_TRIPLET": "x64-mingw-dynamic",
-                "VCPKG_HOST_TRIPLET": "x64-mingw-dynamic"
             }
         },
         {
