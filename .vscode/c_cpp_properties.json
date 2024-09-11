@@ -4,17 +4,16 @@
         "MINGW_INCLUDE": "${MINGW_ROOT}/include",
         "MINGW_BIN": "${MINGW_ROOT}/bin",
         "VCPKG_INSTALLED": "${workspaceFolder}/build/vcpkg_installed",
-        "VCPKG_TRPILET": "x64-mingw-dynamic"
+        "VCPKG_TRIPLET": "x64-mingw-dynamic",
+        "VCPKG_TRIPLET_ROOT": "${VCPKG_INSTALLED}/${VCPKG_TRIPLET}"
     },
     "configurations": [
         {
             "name": "Win32",
             "includePath": [
-                "${default}",
-                "${MINGW_INCLUDE}",
                 "${MINGW_INCLUDE}/directxmath",
                 "${MINGW_INCLUDE}/directxtk",
-                "${VCPKG_INSTALLED}/${VCPKG_TRPILET}/include",
+                "${VCPKG_TRIPLET_ROOT}/include",
                 "${workspaceFolder}/include"
             ],
             "defines": [
