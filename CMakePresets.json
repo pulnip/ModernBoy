@@ -59,6 +59,7 @@
             "name": "MSVC",
             "hidden": true,
             "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe"
             }
         },
@@ -66,6 +67,7 @@
             "name": "GNUC",
             "hidden": true,
             "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc.exe",
                 "CMAKE_CXX_COMPILER": "g++.exe"
             }
         },
@@ -73,6 +75,7 @@
             "name": "Clang",
             "hidden": true,
             "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang.exe",
                 "CMAKE_CXX_COMPILER": "clang++.exe",
                 "CMAKE_CXX_FLAGS": "-fuse-ld=lld"
             }
@@ -93,7 +96,8 @@
         },
         {
             "name": "Debug",
-            "hidden": true,
+            "inherits": "base",
+            "description": "x64-MinGW-Debug",
             "binaryDir": "${sourceDir}/build/Debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
@@ -101,38 +105,29 @@
         },
         {
             "name": "Release",
-            "hidden": true,
+            "inherits": "base",
+            "description": "x64-MinGW-Debug",
             "binaryDir": "${sourceDir}/build/Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
             }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Release Build",
+            "configurePreset": "Release"
         },
         {
-            "name": "x64-Debug-MinGW",
-            "displayName": "Debug build",
-            "description": "MinGW-w64 (Debug)",
-            "inherits": [
-                "base",
-                "Debug"
-            ]
-        },
-        {
-            "name": "x64-Release-MinGW",
-            "displayName": "Release build",
-            "description": "MinGW-w64 (Release)",
-            "inherits": [
-                "base",
-                "Release"
-            ]
+            "name": "Debug Build",
+            "configurePreset": "Debug"
         }
     ],
     "testPresets": [
         {
-            "name": "Google Test",
-            "displayName": "gTest (x64-MinGW)",
-            "description": "Google Test",
-            "configurePreset": "x64-Release-MinGW",
+            "name": "base",
+            "hidden": true,
             "output": {
                 "outputOnFailure": true
             },
@@ -140,6 +135,17 @@
                 "timeout": 10,
                 "stopOnFailure": true
             }
+        },
+        {
+            "name": "Release Test",
+            "inherits": "base",
+            "configurePreset": "Release"
+        },
+        {
+            "name": "Debug Test",
+            "inherits": "base",
+            "configurePreset": "Debug"
         }
+
     ]
 }

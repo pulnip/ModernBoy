@@ -1,5 +1,3 @@
-enable_testing()
-
 file(GLOB TEST_SRC "*.cpp")
 
 add_executable(Test
@@ -28,7 +26,7 @@ if(GTest_FOUND)
     )
 
     include(GoogleTest)
-    gtest_discover_tests(Test)
+    add_test(NAME GoogleTest COMMAND Test)
 endif()
 
 find_package(gsl-lite CONFIG REQUIRED)
