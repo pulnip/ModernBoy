@@ -32,7 +32,7 @@
                     "type": "FILEPATH"
                 },
                 "VCPKG_INSTALLED_DIR": {
-                    "value": "${sourceDir}/build/vcpkg_installed",
+                    "value": "${sourceDir}/generated/vcpkg_installed",
                     "type": "FILEPATH"
                 },
                 "VCPKG_TARGET_TRIPLET": "x64-mingw-dynamic",
@@ -98,7 +98,7 @@
             "name": "Debug",
             "inherits": "base",
             "description": "x64-MinGW-Debug",
-            "binaryDir": "${sourceDir}/build/Debug",
+            "binaryDir": "${sourceDir}/generated/Debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
@@ -107,7 +107,7 @@
             "name": "Release",
             "inherits": "base",
             "description": "x64-MinGW-Debug",
-            "binaryDir": "${sourceDir}/build/Release",
+            "binaryDir": "${sourceDir}/generated/Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true

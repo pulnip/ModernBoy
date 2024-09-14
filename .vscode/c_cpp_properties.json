@@ -3,7 +3,7 @@
         "MINGW_ROOT": "${MSYS_ROOT}/mingw64",
         "MINGW_INCLUDE": "${MINGW_ROOT}/include",
         "MINGW_BIN": "${MINGW_ROOT}/bin",
-        "VCPKG_INSTALLED": "${workspaceFolder}/build/vcpkg_installed",
+        "VCPKG_INSTALLED": "${workspaceFolder}/generated/vcpkg_installed",
         "VCPKG_TRIPLET": "x64-mingw-dynamic",
         "VCPKG_TRIPLET_ROOT": "${VCPKG_INSTALLED}/${VCPKG_TRIPLET}"
     },
