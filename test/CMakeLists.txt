@@ -1,3 +1,5 @@
+include(CTest)
+
 file(GLOB TEST_SRC "*.cpp")
 
 add_executable(Test
@@ -26,7 +28,7 @@ if(GTest_FOUND)
     )
 
     include(GoogleTest)
-    add_test(NAME GoogleTest COMMAND Test)
+    add_test(NAME ${PROJECT_NAME}-Test COMMAND Test)
 endif()
 
 find_package(gsl-lite CONFIG REQUIRED)
