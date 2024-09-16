@@ -3,7 +3,7 @@
         {
             "type": "process",
             "label": "Run Executable - Release",
-            "command": "build/Release/bin/ModernBoy.exe",
+            "command": "generated/Release/bin/ModernBoy.exe",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
