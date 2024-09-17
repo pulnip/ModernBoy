@@ -108,3 +108,6 @@ old
 
 # imgui settings
 imgui.ini
+
+# DirectDraw Surface (Too Big)
+*.dds
