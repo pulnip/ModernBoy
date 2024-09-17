@@ -7,7 +7,10 @@
 #include "ShaderAdaptor.hpp"
 #include "Vertex.hpp"
 
+#include <directxtk/DDSTextureLoader.h>
+
 using namespace std;
+using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using namespace ModernBoy;
 
@@ -64,6 +67,78 @@ ShaderAdaptor::ShaderAdaptor(const ComPtr<ID3D11Device>& device,
 
     tie(nvs, nil)=createVSAndIL(L"src/NormalVS.hlsl", device, inputElements);
     nps=createPS(L"src/NormalPS.hlsl", device);
+
+    cvcBuffer=createCB(cmc, device);
+
+    constexpr D3D11_INPUT_ELEMENT_DESC cubeMappingIEs[]={
+        {
+            .SemanticName="POSITION",
+            .SemanticIndex=0,
+            .Format=DXGI_FORMAT_R32G32B32_FLOAT,
+            .InputSlot=0,
+            .AlignedByteOffset=0,
+            .InputSlotClass=D3D11_INPUT_PER_VERTEX_DATA,
+            .InstanceDataStepRate=0
+        }
+    };
+
+    tie(cvs, cil)=createVSAndIL(L"src/CubeMappingVS.hlsl", device, cubeMappingIEs);
+    cps=createPS(L"src/CubeMappingPS.hlsl", device);
+
+    ComPtr<ID3D11Texture2D> texture;
+    DX_throwIf(CreateDDSTextureFromFileEx(
+        device.Get(), L"assets/skybox.dds", 0,
+        D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0,
+        D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FLAGS(false),
+        (ID3D11Resource**)texture.GetAddressOf(), crv.GetAddressOf(),
+        nullptr
+    ));
+
+    // duplicate from CubeMeshComponent
+    constexpr float cubeScale=20.0f;
+
+    auto leftBottomBack=cubeScale*Vector3(-1.0f, -1.0f, -1.0f);
+    auto leftBottomFront=cubeScale*Vector3(-1.0f, -1.0f, 1.0f);
+    auto leftTopBack=cubeScale*Vector3(-1.0f, 1.0f, -1.0f);
+    auto leftTopFront=cubeScale*Vector3(-1.0f, 1.0f, 1.0f);
+    auto rightBottomBack=cubeScale*Vector3(1.0f, -1.0f, -1.0f);
+    auto rightBottomFront=cubeScale*Vector3(1.0f, -1.0f, 1.0f);
+    auto rightTopBack=cubeScale*Vector3(1.0f, 1.0f, -1.0f);
+    auto rightTopFront=cubeScale*Vector3(1.0f, 1.0f, 1.0f);
+
+    std::vector cubeVertices{
+        leftTopBack,
+        leftTopFront,
+        rightTopFront,
+        rightTopBack,
+        leftBottomBack,
+        leftBottomFront,
+        rightBottomFront,
+        rightBottomBack
+    };
+    std::vector<Polygon> cubePolygons{
+        {0, 1, 2}, {0, 2, 3},
+        {0, 4, 5}, {0, 5, 1},
+        {0, 3, 7}, {0, 7, 4},
+        {3, 2, 7}, {2, 6, 7},
+        {1, 5, 6}, {1, 6, 2},
+        {4, 6, 5}, {4, 7, 6}
+    };
+
+    // duplicate from Mesh::extract
+    std::vector<uint16_t> cubeIndices;
+    cubeIndices.reserve(3*cubePolygons.size());
+    for(const auto& polygon: cubePolygons){
+        cubeIndices.emplace_back(polygon.index[0]);
+        cubeIndices.emplace_back(polygon.index[1]);
+        cubeIndices.emplace_back(polygon.index[2]);
+    }
+    reverse(cubeIndices.begin(), cubeIndices.end());
+
+    // duplicate from ShaderAdaptor::loadMesh
+    cvb=createVB<Vector3>(cubeVertices, device);
+    cic=static_cast<UINT>(cubeIndices.size());
+    cib=createIB(cubeIndices, device);
 }
 
 void ShaderAdaptor::loadMesh(const Mesh<Vertex>& mesh,
@@ -129,6 +204,11 @@ void ShaderAdaptor::draw(const Matrix& transform,
     psc.rimPower=rimPower;
 
     updateBuffer(pscBuffer, psc, context);
+
+    cmc.view=vsc.view;
+    cmc.projection=vsc.projection;
+
+    updateBuffer(cvcBuffer, cmc, context); 
 }
 
 void ShaderAdaptor::setWireFrame(bool enable, const ComPtr<Context>& context){
@@ -165,6 +245,29 @@ void ShaderAdaptor::render(const ComPtr<Context>& context){
         D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
     );
     context->DrawIndexed(indexCount, 0, 0);
+
+    // render cube map
+    context->VSSetConstantBuffers(0, 1, cvcBuffer.GetAddressOf());
+    context->VSSetShader(cvs.Get(), 0, 0);
+    context->PSSetShader(cps.Get(), 0, 0);
+
+    stride=sizeof(Vector3);
+    offset=0;
+    context->IASetInputLayout(cil.Get());
+    context->IASetVertexBuffers(0, 1, cvb.GetAddressOf(),
+        &stride, &offset
+    );
+    context->IASetIndexBuffer(cib.Get(), DXGI_FORMAT_R16_UINT, 0);
+
+    context->IASetPrimitiveTopology(
+        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
+    );
+
+    // move to texturer?
+    ID3D11ShaderResourceView* views[]={ crv.Get() };
+    context->PSSetShaderResources(0, 1, views);
+
+    context->DrawIndexed(cic, 0, 0);
 }
 
 void ShaderAdaptor::renderNormal(const ComPtr<Context>& context){

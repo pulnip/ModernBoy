@@ -46,6 +46,22 @@ namespace ModernBoy{
 
         NormalConstants nvc;
 
+        // Cube Mapping
+        ComPtr<ID3D11InputLayout> cil;
+        ComPtr<ID3D11VertexShader> cvs;
+        ComPtr<ID3D11PixelShader> cps;
+
+        ComPtr<ID3D11ShaderResourceView> crv;
+
+        ComPtr<ID3D11Buffer> cvb;
+        ComPtr<ID3D11Buffer> cib;
+        ComPtr<ID3D11Buffer> cvcBuffer;
+
+        UINT cic=0;
+
+        CubeMappingConstants cmc;
+        //
+
       public:
         std::shared_ptr<CameraComponent> mainCamera;
         std::vector<std::shared_ptr<LightComponent>> lights;

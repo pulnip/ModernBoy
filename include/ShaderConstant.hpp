@@ -5,11 +5,13 @@
 #define MAX_LIGHTS 3
 
 namespace ModernBoy{
+    using Matrix=DirectX::SimpleMath::Matrix;
+
     struct VSConstants{
-        DirectX::SimpleMath::Matrix model{};
-        DirectX::SimpleMath::Matrix invTranspose{};
-        DirectX::SimpleMath::Matrix view{};
-        DirectX::SimpleMath::Matrix projection{};
+        Matrix model{};
+        Matrix invTranspose{};
+        Matrix view{};
+        Matrix projection{};
     };
     // check 16-byte aligned
     static_assert((sizeof(VSConstants) & 0xf) == 0);
@@ -36,4 +38,11 @@ namespace ModernBoy{
     };
     // check 16-byte aligned
     static_assert((sizeof(NormalConstants) & 0xf) == 0);
+
+    struct CubeMappingConstants{
+        Matrix view{};
+        Matrix projection{};
+    };
+    // check 16-byte aligned
+    static_assert((sizeof(CubeMappingConstants) & 0xf) == 0);
 }

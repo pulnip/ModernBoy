@@ -87,6 +87,12 @@
         "text_encoding": "cpp",
         "source_location": "cpp",
         "*.def": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "strstream": "cpp",
+        "cfenv": "cpp",
+        "complex": "cpp",
+        "forward_list": "cpp",
+        "stdfloat": "cpp",
+        "valarray": "cpp"
     }
 }
