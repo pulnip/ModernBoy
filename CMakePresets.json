@@ -105,9 +105,9 @@
             "name": "MinGW-Clang",
             "inherits": [
                 "x64-base",
-                "MinGW",
+                "MinGW-w64",
                 "Clang"
-            ],
+            ]
         },
         {
             "name": "Linux-Clang",
@@ -115,7 +115,7 @@
                 "x64-base",
                 "Linux",
                 "Clang"
-            ],
+            ]
         }
     ],
     "buildPresets": [
