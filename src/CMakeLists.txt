@@ -17,9 +17,9 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
-    "${MINGW_INCLUDE}"
-    "${MINGW_INCLUDE}/directxmath"
-    "${MINGW_INCLUDE}/directxtk"
+    "${DEV_SYS_INCLUDE}"
+    "${DEV_SYS_INCLUDE}/directxmath"
+    "${DEV_SYS_INCLUDE}/directxtk"
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
