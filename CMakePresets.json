@@ -6,13 +6,34 @@
     },
     "configurePresets": [
         {
+            "name": "x64",
+            "hidden": true,
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "host=x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "DIRECTX_ARCH": "x64"
+            }
+        },
+        {
             "name": "MinGW-w64",
             "hidden": true,
             "environment": {
-                "MINGW_ROOT": "$env{MSYS_ROOT}/mingw64"
-            },
-            "cacheVariables": {
-                "MINGW_INCLUDE": "$env{MINGW_ROOT}/include"
+                "DEV_SYS_ROOT": "$env{MSYS_ROOT}/mingw64",
+                "EXE_EXTENSION": ".exe"
+            }
+        },
+        {
+            "name": "Linux",
+            "hidden": true,
+            "environment": {
+                "DEV_SYS_ROOT": "/usr",
+                "EXE_EXTENSION": ""
             }
         },
         {
@@ -20,7 +41,7 @@
             "hidden": true,
             "generator": "Ninja Multi-Config",
             "cacheVariables": {
-                "CMAKE_MAKE_PROGRAM": "$env{MINGW_ROOT}/bin/ninja.exe"
+                "CMAKE_MAKE_PROGRAM": "$env{DEV_SYS_ROOT}/bin/ninja$env{EXE_EXTENSION}"
             }
         },
         {
@@ -41,82 +62,99 @@
 
         },
         {
-            "name": "x64",
-            "hidden": true,
-            "architecture": {
-                "value": "x64",
-                "strategy": "external"
-            },
-            "toolset": {
-                "value": "host=x64",
-                "strategy": "external"
-            },
-            "cacheVariables": {
-                "DIRECTX_ARCH": "x64"
-            }
-        },
-        {
             "name": "MSVC",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "cl.exe",
-                "CMAKE_CXX_COMPILER": "cl.exe"
+                "CMAKE_C_COMPILER": "cl$env{EXE_EXTENSION}",
+                "CMAKE_CXX_COMPILER": "cl$env{EXE_EXTENSION}"
             }
         },
         {
             "name": "GNUC",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "gcc.exe",
-                "CMAKE_CXX_COMPILER": "g++.exe"
+                "CMAKE_C_COMPILER": "gcc$env{EXE_EXTENSION}",
+                "CMAKE_CXX_COMPILER": "g++$env{EXE_EXTENSION}"
             }
         },
         {
             "name": "Clang",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang.exe",
-                "CMAKE_CXX_COMPILER": "clang++.exe",
+                "CMAKE_C_COMPILER": "clang$env{EXE_EXTENSION}",
+                "CMAKE_CXX_COMPILER": "clang++$env{EXE_EXTENSION}",
                 "CMAKE_CXX_FLAGS": "-fuse-ld=lld"
             }
         },
         {
-            "name": "x64-MinGW",
+            "name": "x64-base",
+            "hidden": true,
             "inherits": [
-                "Ninja",
                 "x64",
-                "Clang",
+                "Ninja",
                 "VCPKG",
-                "MinGW-w64"
+                "Clang"
             ],
             "binaryDir": "${sourceDir}/generated/build",
             "cacheVariables": {
+                "DEV_SYS_INCLUDE": "$env{DEV_SYS_ROOT}/include",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}"
             }
+        },
+        {
+            "name": "MinGW-Clang",
+            "inherits": [
+                "x64-base",
+                "MinGW",
+                "Clang"
+            ],
+        },
+        {
+            "name": "Linux-Clang",
+            "inherits": [
+                "x64-base",
+                "Linux",
+                "Clang"
+            ],
         }
     ],
     "buildPresets": [
         {
-            "name": "base",
+            "name": "MinGW-base",
             "hidden": true,
-            "configurePreset": "x64-MinGW"
+            "configurePreset": "MinGW-Clang"
         },
         {
-            "name": "Debug",
-            "inherits": "base",
+            "name": "MinGW-Debug",
+            "inherits": "MinGW-base",
             "configuration": "Debug"
         },
         {
-            "name": "Release",
-            "inherits": "base",
+            "name": "MinGW-Release",
+            "inherits": "MinGW-base",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "Linux-base",
+            "hidden": true,
+            "configurePreset": "Linux-Clang"
+        },
+        {
+            "name": "Linux-Debug",
+            "inherits": "Linux-base",
+            "configuration": "Debug"
+        },
+        {
+            "name": "Linux-Release",
+            "inherits": "Linux-base",
             "configuration": "RelWithDebInfo"
         }
     ],
     "testPresets": [
         {
-            "name": "base",
+            "name": "MinGW-base",
             "hidden": true,
-            "configurePreset": "x64-MinGW",
+            "configurePreset": "MinGW-Clang",
             "output": {
                 "outputOnFailure": true
             },
@@ -126,13 +164,35 @@
             }
         },
         {
-            "name": "Debug",
-            "inherits": "base",
+            "name": "MinGW-Debug",
+            "inherits": "MinGW-base",
             "configuration": "Debug"
         },
         {
-            "name": "Release",
-            "inherits": "base",
+            "name": "MinGW-Release",
+            "inherits": "MinGW-base",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "Linux-base",
+            "hidden": true,
+            "configurePreset": "Linux-Clang",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "timeout": 10,
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "Linux-Debug",
+            "inherits": "Linux-base",
+            "configuration": "Debug"
+        },
+        {
+            "name": "Linux-Release",
+            "inherits": "Linux-base",
             "configuration": "RelWithDebInfo"
         }
     ]

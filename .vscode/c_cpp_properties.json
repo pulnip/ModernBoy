@@ -1,8 +1,8 @@
 {
     "env": {
-        "MINGW_ROOT": "${MSYS_ROOT}/mingw64",
-        "MINGW_INCLUDE": "${MINGW_ROOT}/include",
-        "MINGW_BIN": "${MINGW_ROOT}/bin",
+        "DEV_SYS_ROOT": "${MSYS_ROOT}/mingw64",
+        "DEV_SYS_INCLUDE": "${DEV_SYS_ROOT}/include",
+        "DEV_SYS_BIN": "${DEV_SYS_ROOT}/bin",
         "VCPKG_INSTALLED": "${workspaceFolder}/generated/vcpkg_installed",
         "VCPKG_TRIPLET": "x64-mingw-dynamic",
         "VCPKG_TRIPLET_ROOT": "${VCPKG_INSTALLED}/${VCPKG_TRIPLET}"
@@ -11,8 +11,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${MINGW_INCLUDE}/directxmath",
-                "${MINGW_INCLUDE}/directxtk",
+                "${DEV_SYS_INCLUDE}/directxmath",
+                "${DEV_SYS_INCLUDE}/directxtk",
                 "${VCPKG_TRIPLET_ROOT}/include",
                 "${workspaceFolder}/include"
             ],
@@ -25,7 +25,26 @@
             "cStandard": "c23",
             "cppStandard": "c++23",
             "intelliSenseMode": "windows-clang-x64",
-            "compilerPath": "${MINGW_BIN}/clang++.exe",
+            "compilerPath": "${DEV_SYS_BIN}/clang++.exe",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "/usr/include/directxmath",
+                "/usr/include/directxtk",
+                "${VCPKG_TRIPLET_ROOT}/include",
+                "${workspaceFolder}/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cStandard": "c23",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "linux-clang-x64",
+            "compilerPath": "/usr/bin/clang++",
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],

@@ -8,9 +8,9 @@ add_executable(Test
 
 target_include_directories(Test PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
-    "${MINGW_INCLUDE}"
-    "${MINGW_INCLUDE}/directxmath"
-    "${MINGW_INCLUDE}/directxtk"
+    "${DEV_SYS_INCLUDE}"
+    "${DEV_SYS_INCLUDE}/directxmath"
+    "${DEV_SYS_INCLUDE}/directxtk"
 )
 
 target_link_libraries(Test PRIVATE
