@@ -27,6 +27,25 @@
             "intelliSenseMode": "windows-clang-x64",
             "compilerPath": "${DEV_SYS_BIN}/clang++.exe",
             "configurationProvider": "ms-vscode.cmake-tools"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "/usr/include/directxmath",
+                "/usr/include/directxtk",
+                "${VCPKG_TRIPLET_ROOT}/include",
+                "${workspaceFolder}/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cStandard": "c23",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "linux-clang-x64",
+            "compilerPath": "/usr/bin/clang++",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4
