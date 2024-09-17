@@ -107,7 +107,12 @@
                 "x64-base",
                 "MinGW-w64",
                 "Clang"
-            ]
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
         },
         {
             "name": "Linux-Clang",
@@ -115,7 +120,12 @@
                 "x64-base",
                 "Linux",
                 "Clang"
-            ]
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
         }
     ],
     "buildPresets": [
