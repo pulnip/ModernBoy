@@ -18,7 +18,7 @@
         {
             "name": "Ninja",
             "hidden": true,
-            "generator": "Ninja",
+            "generator": "Ninja Multi-Config",
             "cacheVariables": {
                 "CMAKE_MAKE_PROGRAM": "$env{MINGW_ROOT}/bin/ninja.exe"
             }
@@ -81,8 +81,7 @@
             }
         },
         {
-            "name": "base",
-            "hidden": true,
+            "name": "x64-MinGW",
             "inherits": [
                 "Ninja",
                 "x64",
@@ -90,44 +89,34 @@
                 "VCPKG",
                 "MinGW-w64"
             ],
+            "binaryDir": "${sourceDir}/generated/build",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}"
-            }
-        },
-        {
-            "name": "Debug",
-            "inherits": "base",
-            "description": "x64-MinGW-Debug",
-            "binaryDir": "${sourceDir}/generated/Debug",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        },
-        {
-            "name": "Release",
-            "inherits": "base",
-            "description": "x64-MinGW-Debug",
-            "binaryDir": "${sourceDir}/generated/Release",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
             }
         }
     ],
     "buildPresets": [
         {
-            "name": "Release Build",
-            "configurePreset": "Release"
+            "name": "base",
+            "hidden": true,
+            "configurePreset": "x64-MinGW"
         },
         {
-            "name": "Debug Build",
-            "configurePreset": "Debug"
+            "name": "Debug",
+            "inherits": "base",
+            "configuration": "Debug"
+        },
+        {
+            "name": "Release",
+            "inherits": "base",
+            "configuration": "RelWithDebInfo"
         }
     ],
     "testPresets": [
         {
             "name": "base",
             "hidden": true,
+            "configurePreset": "x64-MinGW",
             "output": {
                 "outputOnFailure": true
             },
@@ -137,15 +126,14 @@
             }
         },
         {
-            "name": "Release Test",
+            "name": "Debug",
             "inherits": "base",
-            "configurePreset": "Release"
+            "configuration": "Debug"
         },
         {
-            "name": "Debug Test",
+            "name": "Release",
             "inherits": "base",
-            "configurePreset": "Debug"
+            "configuration": "RelWithDebInfo"
         }
-
     ]
 }

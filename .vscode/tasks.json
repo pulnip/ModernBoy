@@ -2,8 +2,8 @@
     "tasks": [
         {
             "type": "process",
-            "label": "Run Executable - Release",
-            "command": "generated/Release/bin/ModernBoy.exe",
+            "label": "Run Executable - RelWithDebInfo",
+            "command": "generated/build/bin/RelWithDebInfo/ModernBoy.exe",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
