@@ -1,18 +1,12 @@
 #pragma once
 
 #include <memory>
-#include <wrl/client.h>
-#include <d3d11.h>
 #include <SDL2/SDL_events.h>
 #include "Attributes.hpp"
 #include "Info.hpp"
 
 namespace ModernBoy{
     class RenderAdaptor{
-        template<typename T> using ComPtr=Microsoft::WRL::ComPtr<T>;
-        using Device=ID3D11Device;
-        using Context=ID3D11DeviceContext;
-
       public:
         ComPtr<Device> device;
         ComPtr<Context> context;

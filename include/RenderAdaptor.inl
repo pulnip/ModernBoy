@@ -1,17 +1,14 @@
 #pragma once
 
 #include <tuple>
-#include <wrl/client.h>
-#include <d3d11.h>
 #include <dxgi.h>
 #include <dxgi1_4.h>
+#include "fwd.hpp"
 #include "Info.hpp"
 #include "helper.hpp"
 
 namespace ModernBoy{
     using namespace std;
-    using Microsoft::WRL::ComPtr;
-
 #if defined(DEBUG) || defined(_DEBUG)
     static constexpr bool IS_DEBUG=true;
 #else
@@ -26,8 +23,8 @@ namespace ModernBoy{
      * 
      * @return smart pointer for device and context
     **/
-    [[nodiscard]] inline tuple<ComPtr<ID3D11Device>,
-        ComPtr<ID3D11DeviceContext>
+    [[nodiscard]] inline tuple<ComPtr<Device>,
+        ComPtr<Context>
     > createDevice(){
         // constexpr auto DRIVER_TYPE=D3D_DRIVER_TYPE_WARP;
         constexpr auto DRIVER_TYPE=D3D_DRIVER_TYPE_HARDWARE;
@@ -35,8 +32,8 @@ namespace ModernBoy{
             D3D_FEATURE_LEVEL_11_0,
             D3D_FEATURE_LEVEL_9_3
         };
-        ComPtr<ID3D11Device> device;
-        ComPtr<ID3D11DeviceContext> context;
+        ComPtr<Device> device;
+        ComPtr<Context> context;
 
         D3D_FEATURE_LEVEL featureLevel;
         DX_throwIf(D3D11CreateDevice(
@@ -57,7 +54,7 @@ namespace ModernBoy{
      * @return 0 for not support
     **/
     [[nodiscard]] inline UINT getQualityLevel(
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         UINT numQualityLevels;
         DX_throwIf(device->CheckMultisampleQualityLevels(
@@ -79,7 +76,7 @@ namespace ModernBoy{
      * @return smart pointer for swap chain
     **/
     [[nodiscard]] inline ComPtr<IDXGISwapChain> createSwapChain(
-        HWND hwnd, const ComPtr<ID3D11Device>& device,
+        HWND hwnd, const ComPtr<Device>& device,
         const ipoint2& screenSize, UINT numQualityLevels
     ){
         const bool MSAA_4X=numQualityLevels > 0;
@@ -126,7 +123,7 @@ namespace ModernBoy{
 
     // create DirectX 11 render target view
     [[nodiscard]] inline ComPtr<ID3D11RenderTargetView> createRTV(
-        const ComPtr<ID3D11Device>& device,
+        const ComPtr<Device>& device,
         const ComPtr<IDXGISwapChain>& swapChain
     ){
         ID3D11Texture2D* pBackBuffer;
@@ -142,7 +139,7 @@ namespace ModernBoy{
 
     [[nodiscard]] inline D3D11_VIEWPORT setScreenViewPort(
         const ipoint2& screenSize,
-        const ComPtr<ID3D11DeviceContext>& context
+        const ComPtr<Context>& context
     ){
         D3D11_VIEWPORT screenViewport{};
         // ZeroMemory(&screenViewport, sizeof(D3D11_VIEWPORT));
@@ -163,7 +160,7 @@ namespace ModernBoy{
         ComPtr<ID3D11DepthStencilView>
     > createDepthStencil(
         const ipoint2& screenSize, UINT numQualityLevels,
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         const bool MSAA_4X=numQualityLevels > 0;
 
@@ -194,7 +191,7 @@ namespace ModernBoy{
     }
 
     [[nodiscard]] inline ComPtr<ID3D11DepthStencilState> createDSS(
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         D3D11_DEPTH_STENCIL_DESC dsd{};
         // ZeroMemory(&dsd, sizeof(D3D11_DEPTH_STENCIL_DESC));

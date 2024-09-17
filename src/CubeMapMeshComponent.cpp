@@ -8,7 +8,7 @@ using namespace DirectX;
 using namespace ModernBoy;
 
 CubeMapMeshComponent::CubeMapMeshComponent(Actor& actor,
-    const ComPtr<ID3D11Device>& device,
+    const ComPtr<Device>& device,
     const string& texName)
 : MeshComponent(actor, texName, device){
     ComPtr<ID3D11Texture2D> texture;

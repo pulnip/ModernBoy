@@ -9,7 +9,7 @@ using namespace ModernBoy;
 
 namespace ModernBoy{
     [[nodiscard]] inline ComPtr<ID3D11SamplerState> createSS(
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         D3D11_SAMPLER_DESC sd{};
         // ZeroMemory(&sd, sizeof(D3D11_SAMPLER_DESC));
@@ -30,11 +30,11 @@ namespace ModernBoy{
     }
 }
 
-TextureAdaptor::TextureAdaptor(const ComPtr<ID3D11Device>& device)
+TextureAdaptor::TextureAdaptor(const ComPtr<Device>& device)
 : sampler(createSS(device)){}
 
 void TextureAdaptor::set(const ComPtr<ID3D11ShaderResourceView>& texView,
-    const ComPtr<ID3D11DeviceContext>& context
+    const ComPtr<Context>& context
 ){
     vector<ID3D11ShaderResourceView*> resources;
     resources.emplace_back(texView.Get());

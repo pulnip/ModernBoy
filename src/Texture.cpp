@@ -28,7 +28,7 @@ struct SDL_RAII_Surface{
     }
 };
 
-Texture::Texture(const string& fileName, const ComPtr<ID3D11Device>& device){
+Texture::Texture(const string& fileName, const ComPtr<Device>& device){
     D3D11_TEXTURE2D_DESC td{};
     td.MipLevels=td.ArraySize=1;
     td.Format=DXGI_FORMAT_R8G8B8A8_UNORM;

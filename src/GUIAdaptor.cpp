@@ -9,8 +9,8 @@ using namespace std;
 using namespace ModernBoy;
 
 GUIAdaptor::GUIAdaptor(SDL_Window* window,
-    const ComPtr<ID3D11Device>& device,
-    const ComPtr<ID3D11DeviceContext>& context,
+    const ComPtr<Device>& device,
+    const ComPtr<Context>& context,
     const ipoint2& screenSize
 ){
     IMGUI_CHECKVERSION();

@@ -17,21 +17,21 @@ namespace ModernBoy{
         std::optional<float> fieldOfView;
 
         mutable std::mutex mtx;
-        mutable std::optional<DirectX::SimpleMath::Matrix> _projection;
+        mutable std::optional<Matrix> _projection;
 
       public:
         CameraComponent(Actor& actor);
 
-        DirectX::SimpleMath::Matrix view() const noexcept;
-        DirectX::SimpleMath::Matrix projection() const noexcept;
+        Matrix view() const noexcept;
+        Matrix projection() const noexcept;
 
         bool isPerspective() const noexcept;
 
         float getAspectRatio() const noexcept;
 
-        void setEyePos(const DirectX::SimpleMath::Vector3& pos) noexcept;
-        // void setEyeDir(const DirectX::SimpleMath::Vector3& dir) noexcept;
-        // void setUpDir(const DirectX::SimpleMath::Vector3& dir) noexcept;
+        void setEyePos(const Vector3& pos) noexcept;
+        // void setEyeDir(const Vector3& dir) noexcept;
+        // void setUpDir(const Vector3& dir) noexcept;
         void setScreenSize(const ipoint2& size) noexcept;
         void setZ(float _near, float _far) noexcept;
         void setPerspective(float fov) noexcept;

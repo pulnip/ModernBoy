@@ -1,15 +1,12 @@
 #pragma once
 
 #include <span>
-#include <wrl/client.h>
-#include <d3d11.h>
 #include <d3dcompiler.h>
+#include "fwd.hpp"
 #include "helper.hpp"
 
 namespace ModernBoy{
     using namespace std;
-    using Microsoft::WRL::ComPtr;
-
 #if defined(DEBUG) || defined(_DEBUG)
     static constexpr bool IS_DEBUG=true;
 #else
@@ -36,7 +33,7 @@ namespace ModernBoy{
 
     [[nodiscard]] inline ComPtr<ID3D11VertexShader> createVS(
         const ComPtr<ID3DBlob>& shaderBlob,
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         ComPtr<ID3D11VertexShader> vs;
         DX_throwIf(device->CreateVertexShader(
@@ -50,7 +47,7 @@ namespace ModernBoy{
 
     [[nodiscard]] inline ComPtr<ID3D11InputLayout> createIL(
         const ComPtr<ID3DBlob>& shaderBlob,
-        const ComPtr<ID3D11Device>& device,
+        const ComPtr<Device>& device,
         std::span<const D3D11_INPUT_ELEMENT_DESC> iedesc
     ){
         ComPtr<ID3D11InputLayout> il;
@@ -67,7 +64,7 @@ namespace ModernBoy{
         ComPtr<ID3D11InputLayout>
     > createVSAndIL(
         const wstring& fileName,
-        const ComPtr<ID3D11Device>& device,
+        const ComPtr<Device>& device,
         std::span<const D3D11_INPUT_ELEMENT_DESC> iedesc
     ){
         auto shaderBlob=compileShader(fileName, "vs_5_0");
@@ -80,7 +77,7 @@ namespace ModernBoy{
 
     [[nodiscard]] inline ComPtr<ID3D11PixelShader> createPS(
         const wstring& fileName,
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         auto shaderBlob=compileShader(fileName, "ps_5_0");
 
@@ -95,7 +92,7 @@ namespace ModernBoy{
     }
 
     [[nodiscard]] inline ComPtr<ID3D11RasterizerState> createRS(
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         D3D11_RASTERIZER_DESC rd{};
         // ZeroMemory(&rd, sizeof(D3D11_RASTERIZER_DESC));
@@ -111,7 +108,7 @@ namespace ModernBoy{
     }
 
     [[nodiscard]] inline ComPtr<ID3D11RasterizerState> createWireState(
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         D3D11_RASTERIZER_DESC rd{};
         rd.FillMode=D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
@@ -128,7 +125,7 @@ namespace ModernBoy{
     template<typename V>
     [[nodiscard]] inline ComPtr<ID3D11Buffer> createVB(
         std::span<const V> vertices,
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         D3D11_BUFFER_DESC bufferDesc{};
         // ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -160,7 +157,7 @@ namespace ModernBoy{
 
     [[nodiscard]] inline ComPtr<ID3D11Buffer> createIB(
         std::span<const uint16_t> indices,
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         D3D11_BUFFER_DESC bufferDesc{};
         // write access access by CPU and GPU
@@ -192,7 +189,7 @@ namespace ModernBoy{
     template <typename T>
     [[nodiscard]] inline ComPtr<ID3D11Buffer> createCB(
         const T& constants,
-        const ComPtr<ID3D11Device>& device
+        const ComPtr<Device>& device
     ){
         D3D11_BUFFER_DESC cbDesc;
         cbDesc.ByteWidth=sizeof(T);
@@ -221,7 +218,7 @@ namespace ModernBoy{
     template <typename T>
     inline void updateBuffer(ComPtr<ID3D11Buffer>& buffer,
         const T& bufferData,
-        const ComPtr<ID3D11DeviceContext>& context
+        const ComPtr<Context>& context
     ){
         D3D11_MAPPED_SUBRESOURCE ms;
         context->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);

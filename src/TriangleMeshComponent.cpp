@@ -7,7 +7,7 @@ using namespace DirectX::Colors;
 using namespace ModernBoy;
 
 TriangleMeshComponent::TriangleMeshComponent(Actor& actor,
-    const ComPtr<ID3D11Device>& device,
+    const ComPtr<Device>& device,
     const string& texName)
 : MeshComponent(actor, texName, device){
     constexpr float sqrt3=1.7321f;

@@ -9,7 +9,7 @@ using namespace DirectX::Colors;
 using namespace ModernBoy;
 
 CylinderMeshComponent::CylinderMeshComponent(Actor& actor,
-    const ComPtr<ID3D11Device>& device,
+    const ComPtr<Device>& device,
     const size_t xfrag, const size_t yfrag,
     const string& texName)
 : MeshComponent(actor, texName, device){

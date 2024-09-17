@@ -8,13 +8,13 @@ using namespace Microsoft::WRL;
 using namespace ModernBoy;
 
 MeshComponent::MeshComponent(Actor& actor, const string& textureName,
-    const ComPtr<ID3D11Device>& device)
+    const ComPtr<Device>& device)
 : Component(actor), texture(textureName, device){}
 
 MeshComponent::~MeshComponent()=default;
 
 void MeshComponent::draw(ShaderAdaptor& shader, TextureAdaptor& texturer,
-    const ComPtr<ID3D11DeviceContext>& context
+    const ComPtr<Context>& context
 ){
     const auto transform=owner.transform.transform();
 
@@ -23,7 +23,7 @@ void MeshComponent::draw(ShaderAdaptor& shader, TextureAdaptor& texturer,
 }
 
 void MeshComponent::draw1(ShaderAdaptor& shader,
-    const ComPtr<ID3D11DeviceContext>& context
+    const ComPtr<Context>& context
 ){
     const auto transform=owner.transform.transform();
 
@@ -31,7 +31,7 @@ void MeshComponent::draw1(ShaderAdaptor& shader,
 }
 
 void MeshComponent::draw2(TextureAdaptor& texturer,
-    const ComPtr<ID3D11DeviceContext>& context
+    const ComPtr<Context>& context
 ){
     texturer.set(texture.texView, context);
 }

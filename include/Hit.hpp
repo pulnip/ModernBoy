@@ -8,9 +8,9 @@ namespace ModernBoy{
     class Hit{
       public:
         float distance;
-        DirectX::SimpleMath::Vector3 point;
-        DirectX::SimpleMath::Vector3 normal;
-        DirectX::SimpleMath::Vector2 uv{0, 0};
+        Vector3 point;
+        Vector3 normal;
+        Vector2 uv{0, 0};
 
         std::shared_ptr<class Object> object{};
     

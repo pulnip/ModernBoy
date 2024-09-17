@@ -11,11 +11,10 @@
 namespace ModernBoy{
     struct Transform{
         Vector3 position=Vector3::Zero;
-        DirectX::SimpleMath::Quaternion quaternion
-            =DirectX::SimpleMath::Quaternion::Identity;
+        Quaternion quaternion=Quaternion::Identity;
         Vector3 scale=Vector3::One;
 
-        DirectX::SimpleMath::Matrix transform() const;
+        Matrix transform() const;
 
       private:
         mutable std::mutex mtx;

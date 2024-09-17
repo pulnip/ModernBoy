@@ -5,7 +5,7 @@
 #define MAX_LIGHTS 3
 
 namespace ModernBoy{
-    using Matrix=DirectX::SimpleMath::Matrix;
+    using Matrix=Matrix;
 
     struct VSConstants{
         Matrix model{};

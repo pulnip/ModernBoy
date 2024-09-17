@@ -1,14 +1,11 @@
 #pragma once
 
 #include <SDL2/SDL_video.h>
-#include <wrl/client.h>
-#include <d3d11.h>
 #include "Attributes.hpp"
+#include "fwd.hpp"
 
 namespace ModernBoy{
     class GUIAdaptor{
-        template<class T> using ComPtr=Microsoft::WRL::ComPtr<T>;
-
       public:
         float deltaTime=0.0f;
 
@@ -21,8 +18,8 @@ namespace ModernBoy{
 
       public:
         GUIAdaptor(SDL_Window* window,
-            const ComPtr<ID3D11Device>& device,
-            const ComPtr<ID3D11DeviceContext>& context,
+            const ComPtr<Device>& device,
+            const ComPtr<Context>& context,
             const ipoint2& screenSize
         );
         ~GUIAdaptor();

@@ -16,9 +16,7 @@ namespace ModernBoy{
 
         void render(std::vector<RGBA>& pixels);
         Hit closest(const Ray& ray);
-        DirectX::SimpleMath::Color traceRay(const Ray& ray, const int level);
-        DirectX::SimpleMath::Vector3 toWorld(
-            const DirectX::SimpleMath::Vector2& screenPos
-        ) noexcept;
+        Color traceRay(const Ray& ray, const int level);
+        Vector3 toWorld(const Vector2& screenPos) noexcept;
     };
 }

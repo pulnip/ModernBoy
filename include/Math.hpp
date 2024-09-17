@@ -142,7 +142,7 @@ namespace ModernBoy{
         return {std::floor(val.x), std::floor(val.y)};
     }
 
-    using Color=DirectX::SimpleMath::Color;
+    using DirectX::SimpleMath::Color;
     constexpr Color DUNE{0.2f, 0.2f, 0.2f};
 
     using Channel = uint8_t;
@@ -156,8 +156,10 @@ namespace ModernBoy{
     RGBA rgbcvt(const Color& color) noexcept;
     Color rgbcvt(const RGBA& color) noexcept;
 
-    using Vector2=DirectX::SimpleMath::Vector2;
-    using Vector3=DirectX::SimpleMath::Vector3;
+    using DirectX::SimpleMath::Vector2;
+    using DirectX::SimpleMath::Vector3;
+    using DirectX::SimpleMath::Matrix;
+    using DirectX::SimpleMath::Quaternion;
 
     using WorldPos=Vector3;
     using UVPos=Vector2;

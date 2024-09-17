@@ -11,7 +11,7 @@ namespace ModernBoy{
 
         Sphere(
             const WorldPos& center, const float radius,
-            const DirectX::SimpleMath::Color& color=DirectX::Colors::Blue.v)
+            const Color& color=DirectX::Colors::Blue.v)
         : Object(DUNE, color, DirectX::Colors::White.v)
         , center(center), radius(radius){}
 

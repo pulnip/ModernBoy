@@ -14,7 +14,7 @@ using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using namespace ModernBoy;
 
-ShaderAdaptor::ShaderAdaptor(const ComPtr<ID3D11Device>& device,
+ShaderAdaptor::ShaderAdaptor(const ComPtr<Device>& device,
     const wstring& vsFileName, const wstring& psFileName)
 : rs(createRS(device)), wireState(createWireState(device)){
     // auto [vertices, indices]=MeshBuffer{}.extract();

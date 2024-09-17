@@ -4,9 +4,7 @@
 #include <span>
 #include <string>
 #include <vector>
-#include <d3d11.h>
 #include <directxtk/SimpleMath.h>
-#include <wrl/client.h>
 #include "fwd.hpp"
 #include "Attributes.hpp"
 #include "ShaderConstant.hpp"
@@ -14,10 +12,6 @@
 
 namespace ModernBoy{
     class ShaderAdaptor{
-        template<typename T> using ComPtr=Microsoft::WRL::ComPtr<T>;
-        using Device=ID3D11Device;
-        using Context=ID3D11DeviceContext;
-
         ComPtr<ID3D11VertexShader> vs;
         ComPtr<ID3D11PixelShader> ps;
         ComPtr<ID3D11InputLayout> il;
@@ -79,7 +73,7 @@ namespace ModernBoy{
         void loadNormal(const Mesh<Vertex>& mesh,
             const ComPtr<Device>& device
         );
-        void draw(const DirectX::SimpleMath::Matrix& transform,
+        void draw(const Matrix& transform,
             const Material& material, const ComPtr<Context>& context
         );
         void setWireFrame(bool enable, const ComPtr<Context>& context);
