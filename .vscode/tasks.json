@@ -3,9 +3,9 @@
         {
             "type": "process",
             "label": "Run Executable - RelWithDebInfo",
-            "command": "generated/build/bin/RelWithDebInfo/ModernBoy.exe",
+            "command": "${workspaceFolder}/generated/build/bin/RelWithDebInfo/ModernBoy.exe",
             "linux": {
-                "command": "generated/build/bin/RelWithDebInfo/ModernBoy"
+                "command": "${workspaceFolder}/generated/build/bin/RelWithDebInfo/ModernBoy"
             },
             "options": {
                 "cwd": "${workspaceFolder}"
