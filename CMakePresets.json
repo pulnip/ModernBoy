@@ -97,7 +97,12 @@
             "binaryDir": "${sourceDir}/generated/build",
             "cacheVariables": {
                 "DEV_SYS_INCLUDE": "$env{DEV_SYS_ROOT}/include",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}"
+                "CMAKE_CXX_STANDARD": "23",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_CXX_EXTENSIONS": "OFF",
+                "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "$env{PROJECT_BUILD_DIR}/lib",
+                "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "$env{PROJECT_BUILD_DIR}/lib",
+                "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "$env{PROJECT_BUILD_DIR}/bin","CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}"
             }
         },
         {
