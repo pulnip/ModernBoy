@@ -44,20 +44,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 find_package(gsl-lite CONFIG REQUIRED)
 if(gsl-lite_FOUND)
-    message(STATUS "Using gsl-lite package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         gsl::gsl-lite-v1
     )
 endif()
 
 find_package(RapidJSON CONFIG REQUIRED)
-if(RapidJSON_FOUND)
-    message(STATUS "Using RapidJSON package")
-endif()
 
 find_package(SDL2 CONFIG REQUIRED)
 if(SDL2_FOUND)
-    message(STATUS "Using SDL2 package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,
@@ -67,17 +62,8 @@ if(SDL2_FOUND)
     )
 endif()
 
-# find_package(Stb REQUIRED)
-# if(Stb_FOUND)
-#     message(STATUS "Using Stb package")
-#     target_include_directories(${PROJECT_NAME} PRIVATE
-#         ${Stb_INCLUDE_DIR}
-#     )
-# endif()
-
 find_package(SDL2_image CONFIG REQUIRED)
 if(SDL2_FOUND)
-    message(STATUS "Using SDL2_image package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,
             SDL2_image::SDL2_image,
@@ -88,7 +74,6 @@ endif()
 
 find_package(directxmath CONFIG REQUIRED)
 if(directxmath_FOUND)
-    message(STATUS "Using DirectXMath package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         Microsoft::DirectXMath
     )
@@ -96,7 +81,6 @@ endif()
 
 find_package(directxtk CONFIG REQUIRED)
 if(directxtk_FOUND)
-    message(STATUS "Using DirectX Tool Kit package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         d3d11.lib dxgi.lib dxguid.lib uuid.lib
         kernel32.lib user32.lib
@@ -108,15 +92,10 @@ endif()
 
 find_package(imgui CONFIG REQUIRED)
 if(imgui_FOUND)
-    message(STATUS "Using ImGUI package")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         imgui::imgui
     )
 endif()
-
-# Uncomment if using XAudio2Redist (required for MINGW)
-# find_package(xaudio2redist CONFIG REQUIRED)
-# target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::XAudio2Redist)
 
 if(WIN32)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
