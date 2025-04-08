@@ -52,6 +52,7 @@ else()
   message(FATAL_ERROR "Invalid RENDERER_BACKEND value.")
 endif()
 
+find_package(TBB REQUIRED CONFIG)
 find_package(RapidJSON REQUIRED CONFIG)
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 find_package(SDL3_image REQUIRED CONFIG)

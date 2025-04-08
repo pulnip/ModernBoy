@@ -1,6 +1,8 @@
 if(RENDERER_BACKEND STREQUAL "DirectX")
   list(APPEND TARGET_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/backends/dx11_adaptor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backends/dx11_context.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backends/dx11_mesh.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backends/dx11_shader.cpp
   )
   list(APPEND TARGET_COMPILE_DEFS
     $<IF:$<CONFIG:DEBUG>,
@@ -64,6 +66,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
   stdc++exp
+  TBB::tbb
   # SDL3
   SDL3::SDL3
   # SDL3_image

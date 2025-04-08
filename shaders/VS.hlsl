@@ -1,11 +1,12 @@
 struct VS_INPUT {
-    float2 pos : POSITION;
-    float4 color : COLOR;
+    float2 pos: POSITION;
+    float2 uv: TEXCOORD0;
+    float4 color: COLOR;
 };
 
 struct VS_OUTPUT {
-    float4 pos : SV_POSITION;
-    float4 color : COLOR;
+    float4 pos: SV_POSITION;
+    float4 color: COLOR;
 };
 
 VS_OUTPUT main(VS_INPUT input) {
