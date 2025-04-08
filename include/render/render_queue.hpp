@@ -27,7 +27,7 @@ namespace ModernBoy
 
     public:
         RenderQueue(const MeshSystem<Mesh>& ms)
-        :meshSystem(ms), genThread(&queueLoop, this){}
+        :meshSystem(ms), genThread(&RenderQueue::queueLoop, this){}
         ~RenderQueue(){
             running = false;
             if(genThread.joinable()) genThread.join();

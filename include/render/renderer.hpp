@@ -34,7 +34,7 @@ namespace ModernBoy
         Renderer(WindowType* window, ResourceManager<MeshType>& meshManager,
             MeshSystem<MeshType>& meshSystem)
         :context(window, meshManager), queue(meshSystem),
-        renderThread(std::thread(&renderLoop, this)){}
+        renderThread(std::thread(&Renderer::renderLoop, this)){}
         ~Renderer(){
             running = false;
             if(renderThread.joinable()) renderThread.join();
