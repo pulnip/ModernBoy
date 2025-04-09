@@ -20,10 +20,10 @@ namespace ModernBoy
         Ctx context;
 
     private:
-        using WindowType = typename Ctx::WindowType;
+        using Window = typename Ctx::WindowType;
         using Mesh = typename Ctx::MeshType;
 
-        LockFreeQueue<RenderCommand<Mesh>, 256> queue;
+        LockFreeQueue<RenderCommand<Mesh>> queue;
         const ResourceSystem<Mesh>& meshSystem;
 
         std::stop_source stsrc;
@@ -31,7 +31,7 @@ namespace ModernBoy
         std::jthread renderThread;
 
     public:
-        Renderer(WindowType* window, ResourceManager<Mesh>& meshManager,
+        Renderer(Window* window, ResourceManager<Mesh>& meshManager,
             ResourceSystem<Mesh>& meshSystem)
         :context(window, meshManager), meshSystem(meshSystem),
         commandThread([this](std::stop_token stoken){

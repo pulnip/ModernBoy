@@ -15,7 +15,7 @@
 
 namespace ModernBoy
 {
-    template<typename T, size_t Capacity>
+    template<typename T, size_t Capacity=256>
     class LockFreeQueue{
     private:
         static constexpr size_t MASK = Capacity - 1;
