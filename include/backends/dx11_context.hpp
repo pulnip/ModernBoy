@@ -2,6 +2,7 @@
 #define __INC_DX11_CONTEXT_HPP
 
 #include <SDL3/SDL_video.h>
+#include "render/render_command.hpp"
 #include "render/render_context.hpp"
 #include "resource_handle.hpp"
 #include "resource_manager.hpp"
@@ -38,9 +39,9 @@ namespace ModernBoy::DX11
         RenderContext(SDL_Window* in_window, MeshManager& in_meshManager);
         ~RenderContext();
 
-        void beginFrame();
-        void render(MeshHandle&);
-        void endFrame();
+        void operator()(const StartCommand&);
+        void operator()(const DrawCommand<MeshType>&);
+        void operator()(const ClearCommand&);
     };
     static_assert(ModernBoy::RenderContext<DX11::RenderContext>);
 }

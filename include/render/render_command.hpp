@@ -19,6 +19,8 @@ namespace ModernBoy
     template<typename Mesh>
     struct DrawCommand{
         ResourceHandle<Mesh> handle;
+
+        ResourceHandle<Mesh> getResource() const{ return handle; }
     };
 
     template<typename Mesh>

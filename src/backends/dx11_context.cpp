@@ -51,7 +51,7 @@ RenderContext::~RenderContext(){
     delete shader;
 }
 
-void RenderContext::beginFrame(){
+void RenderContext::operator()([[maybe_unused]] const StartCommand& cmd){
     float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.5f };
 
     // Start the Dear ImGui frame
@@ -72,15 +72,15 @@ void RenderContext::beginFrame(){
     shader->bind(*this);
 }
 
-void RenderContext::render(MeshHandle& handle){
-    auto pMesh = meshManager.get(handle);
+void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
+    auto pMesh = meshManager.get(cmd.getResource());
     if(pMesh != nullptr){
         pMesh->bind(*this);
         context->DrawIndexed(pMesh->numIndices, 0, 0);
     }
 }
 
-void RenderContext::endFrame(){
+void RenderContext::operator()([[maybe_unused]] const ClearCommand& cmd){
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
