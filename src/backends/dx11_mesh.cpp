@@ -85,7 +85,7 @@ bool ModernBoy::DX11::makeRect(DevicePtr& in_device, Mesh& out_mesh){
     SmolVertex vertices[] = {
         {{-0.5f,  0.5f}, {}, {1.0f, 0.0f, 0.0f, 0.00f}},
         {{ 0.5f,  0.5f}, {}, {0.0f, 1.0f, 0.0f, 0.33f}},
-        {{ 0.5f, -  0.5f}, {}, {0.0f, 0.0f, 1.0f, 0.66f}},
+        {{ 0.5f, -0.5f}, {}, {0.0f, 0.0f, 1.0f, 0.66f}},
         {{-0.5f, -0.5f}, {}, {1.0f, 1.0f, 1.0f, 1.00f}},
     };
     UINT indices[] = {
