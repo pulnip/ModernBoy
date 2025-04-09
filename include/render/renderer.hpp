@@ -3,11 +3,9 @@
 
 #include <thread>
 #include <mutex>
+#include "lock_free_queue.hpp"
 #include "render_context.hpp"
-#include "render_queue.hpp"
 #include "resource_manager.hpp"
-
-#include <print>
 
 namespace ModernBoy
 {
@@ -23,35 +21,51 @@ namespace ModernBoy
 
     private:
         using WindowType = typename Ctx::WindowType;
-        using MeshType = typename Ctx::MeshType;
+        using Mesh = typename Ctx::MeshType;
 
-        RenderQueue<MeshType> queue;
+        LockFreeQueue<RenderCommand<Mesh>, 256> queue;
+        const ResourceSystem<Mesh>& meshSystem;
 
-        std::thread renderThread;
-        bool running = true;
+        std::stop_source stsrc;
+        std::jthread commandThread;
+        std::jthread renderThread;
 
     public:
-        Renderer(WindowType* window, ResourceManager<MeshType>& meshManager,
-            MeshSystem<MeshType>& meshSystem)
-        :context(window, meshManager), queue(meshSystem),
-        renderThread(std::thread(&Renderer::renderLoop, this)){}
-        ~Renderer(){
-            running = false;
-            if(renderThread.joinable()) renderThread.join();
-        }
+        Renderer(WindowType* window, ResourceManager<Mesh>& meshManager,
+            ResourceSystem<Mesh>& meshSystem)
+        :context(window, meshManager), meshSystem(meshSystem),
+        commandThread([this](std::stop_token stoken){
+            produceCommand(stoken);
+        }, stsrc.get_token()),
+        renderThread([this](std::stop_token stoken){
+            consumeCommand(stoken);
+        }, stsrc.get_token()){}
+
+        ~Renderer(){ stsrc.request_stop(); }
 
     private:
-        void renderLoop(){
-            while(running){
-                auto& commands = queue.swapBuffer();
+        void produceCommand(std::stop_token stoken){
+            while(!stoken.stop_requested()){
+                auto components = meshSystem.getAllVisible();
 
-                for(auto& cmd: commands){
-                    std::visit(Overload{
-                        [&]([[maybe_unused]] const StartCommand&){ context.beginFrame(); },
-                        [&](DrawCommand<MeshType>& cmd){ context.render(cmd.handle); },
-                        [&]([[maybe_unused]] const ClearCommand& cmd){ context.endFrame();}
-                    }, cmd);
+                waitUntilPushed(queue, StartCommand{}, stoken);
+
+                for(const auto& comp: components){
+                    waitUntilPushed(queue, DrawCommand<Mesh>{
+                        .handle = comp.get().resourceHandle
+                    }, stoken);
                 }
+
+                waitUntilPushed(queue, ClearCommand{}, stoken);
+            }
+        }
+
+        void consumeCommand(std::stop_token stoken){
+            while(!stoken.stop_requested()){
+                RenderCommand<Mesh> cmd;
+                waitUntilPopped(queue, cmd);
+
+                std::visit(context, cmd);
             }
         }
     };
