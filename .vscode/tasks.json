@@ -2,8 +2,8 @@
   "tasks": [
     {
       "type": "process",
-      "label": "Run: RelWithDebInfo",
-      "command": "${workspaceFolder}/build/bin/RelWithDebInfo/ModernBoy.exe",
+      "label": "Run: Debug",
+      "command": "${workspaceFolder}/build/bin/Debug/ModernBoy.exe",
       "options": {
         "cwd": "${workspaceFolder}"
       },
