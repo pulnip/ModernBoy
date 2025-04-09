@@ -3,7 +3,7 @@
 #include <print>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-#include "app_state.hpp"
+#include "game/app_state.hpp"
 #ifdef USE_DIRECTX
 #include "backends/dx11_mesh.hpp"
 #elif defined(USE_OPENGL)
@@ -23,8 +23,6 @@ AppState::AppState(SDL_Window* window)
 renderer(window, meshManager, meshSystem){}
 
 constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
-
-MeshHandle rectHandle;
 
 static SDL_AppResult _handle_key_event(void* ctx, SDL_Scancode key_code);
 
@@ -61,7 +59,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     // Init Renderer
 #ifdef USE_DIRECTX
     AppState* as = new AppState(window);
-    *appState = as;
+    if(!as) return SDL_APP_FAILURE;
 
     DX11::Mesh rect;
     if(!DX11::makeRect(as->renderer.context.device, rect)){
@@ -69,12 +67,13 @@ SDL_AppResult SDL_AppInit(void** appState,
         return SDL_APP_FAILURE;
     }
 
-    rectHandle = as->meshManager.create(std::move(rect));
+    MeshHandle rectHandle = as->meshManager.create(std::move(rect));
+    as->meshSystem.create(rectHandle);
 
 #elif defined(USE_OPENGL)
 // TODO
 #endif
-    if(!as) return SDL_APP_FAILURE;
+    *appState = as;
 
     as->last_step = SDL_GetTicks();
     return SDL_APP_CONTINUE;  /* carry on with the program! */
@@ -136,9 +135,10 @@ SDL_AppResult SDL_AppIterate(void* appState){
 void SDL_AppQuit(void* appState, [[maybe_unused]] SDL_AppResult result){
     if(appState != NULL){
         AppState* as = (AppState*)appState;
-        /* SDL will clean up the window/renderer for us. */
-        SDL_DestroyWindow(as->window);
+        SDL_Window* window = as->window;
 
         delete as;
+        /* SDL will clean up the window/renderer for us. */
+        SDL_DestroyWindow(window);
     }
 }

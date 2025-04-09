@@ -4,8 +4,8 @@
 #include <SDL3/SDL_render.h>
 #include "game_context.hpp"
 #include "resource_manager.hpp"
+#include "resource_system.hpp"
 #include "render/renderer.hpp"
-#include "render/mesh_system.hpp"
 #ifdef USE_DIRECTX
 #include "backends/dx11_mesh.hpp"
 #include "backends/dx11_context.hpp"
@@ -17,14 +17,14 @@ namespace ModernBoy
 #ifdef USE_DIRECTX
     using MeshManager = ResourceManager<DX11::Mesh>;
     using MeshRenderer = Renderer<DX11::RenderContext>;
-    using _MeshSystem = MeshSystem<DX11::Mesh>;
+    using MeshSystem = ResourceSystem<DX11::Mesh>;
 #elif defined(USE_OPENGL)
 #endif
 
     struct AppState{
         SDL_Window* window;
         MeshManager meshManager;
-        _MeshSystem meshSystem;
+        MeshSystem meshSystem;
         MeshRenderer renderer;
         GameContext game_ctx;
         Uint64 last_step;
