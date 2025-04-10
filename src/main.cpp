@@ -19,8 +19,8 @@ using namespace ModernBoy::DX11;
 #endif
 
 AppState::AppState(SDL_Window* window)
-:window(window), meshManager(), meshSystem(),
-renderer(window, meshManager, meshSystem){}
+:window(window), meshManager(), meshComponentSystem(),
+renderer(window, meshManager, meshComponentSystem){}
 
 constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
 
@@ -68,7 +68,10 @@ SDL_AppResult SDL_AppInit(void** appState,
     }
 
     MeshHandle rectHandle = as->meshManager.create(std::move(rect));
-    as->meshSystem.create(rectHandle);
+    as->meshComponentSystem.create(MeshComponent{
+        .owner = 0,
+        .resourceHandle = rectHandle
+    });
 
 #elif defined(USE_OPENGL)
 // TODO

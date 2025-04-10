@@ -1,6 +1,4 @@
 {
-  "editor.tabSize": 4,
-  "editor.indentSize": "tabSize",
   "search.exclude": {
     "build/*": true,
     "vendor/*": true,
@@ -80,5 +78,5 @@
     "typeinfo": "cpp",
     "variant": "cpp",
     "cfenv": "cpp"
-}
+  }
 }

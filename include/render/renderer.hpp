@@ -20,11 +20,14 @@ namespace ModernBoy
         Ctx context;
 
     private:
-        using Window = typename Ctx::WindowType;
-        using Mesh = typename Ctx::MeshType;
+        using Window = typename Ctx::Window;
+        using Mesh = typename Ctx::Mesh;
+
+        using MeshComponent = ResourceComponent<Mesh>;
+        using MeshComponentSystem = ComponentSystem<MeshComponent>;
 
         LockFreeQueue<RenderCommand<Mesh>> queue;
-        const ResourceSystem<Mesh>& meshSystem;
+        const MeshComponentSystem& meshComponentSystem;
 
         std::stop_source stsrc;
         std::jthread commandThread;
@@ -32,8 +35,8 @@ namespace ModernBoy
 
     public:
         Renderer(Window* window, ResourceManager<Mesh>& meshManager,
-            ResourceSystem<Mesh>& meshSystem)
-        :context(window, meshManager), meshSystem(meshSystem),
+            const MeshComponentSystem& meshComponentSystem)
+        :context(window, meshManager), meshComponentSystem(meshComponentSystem),
         commandThread([this](std::stop_token stoken){
             produceCommand(stoken);
         }, stsrc.get_token()),
@@ -46,7 +49,7 @@ namespace ModernBoy
     private:
         void produceCommand(std::stop_token stoken){
             while(!stoken.stop_requested()){
-                auto components = meshSystem.getAllVisible();
+                auto components = meshComponentSystem.getAll();
 
                 waitUntilPushed(queue, StartCommand{}, stoken);
 

@@ -1,17 +1,11 @@
-#ifndef __INC_RENDER_QUEUE_HPP
-#define __INC_RENDER_QUEUE_HPP
+#ifndef __INC_LOCK_FREE_QUEUE_HPP
+#define __INC_LOCK_FREE_QUEUE_HPP
 
+#include <atomic>
 #include <array>
-#include <condition_variable>
 #include <cstdint>
 #include <iterator>
-#include <concepts>
-#include <mutex>
-#include <queue>
 #include <span>
-#include <thread>
-#include "render_command.hpp"
-#include "resource_system.hpp"
 
 namespace ModernBoy
 {
@@ -159,4 +153,4 @@ namespace ModernBoy
     }
 } // namespace ModernBoy
 
-#endif // __INC_RENDER_QUEUE_HPP
+#endif // __INC_LOCK_FREE_QUEUE_HPP

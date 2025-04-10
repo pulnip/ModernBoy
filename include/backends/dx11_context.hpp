@@ -17,8 +17,8 @@ namespace ModernBoy::DX11
     using MeshHandle = ResourceHandle<Mesh>;
 
     struct RenderContext{
-        using WindowType = SDL_Window;
-        using MeshType = Mesh;
+        using Window = SDL_Window;
+        using Mesh = Mesh;
 
         MeshManager& meshManager;
 
@@ -40,7 +40,7 @@ namespace ModernBoy::DX11
         ~RenderContext();
 
         void operator()(const StartCommand&);
-        void operator()(const DrawCommand<MeshType>&);
+        void operator()(const DrawCommand<Mesh>&);
         void operator()(const ClearCommand&);
     };
     static_assert(ModernBoy::RenderContext<DX11::RenderContext>);
