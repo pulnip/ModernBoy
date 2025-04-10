@@ -2,7 +2,7 @@
 #define __INC_DX11_SHADER_HPP
 
 #include <string>
-#include "dx11_type.hpp"
+#include "type.hpp"
 
 #define MAX_LIGHTS 3
 

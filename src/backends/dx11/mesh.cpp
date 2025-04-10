@@ -1,5 +1,5 @@
-#include "backends/dx11_context.hpp"
-#include "backends/dx11_mesh.hpp"
+#include "backends/dx11/context.hpp"
+#include "backends/dx11/mesh.hpp"
 
 using namespace ModernBoy::DX11;
 

@@ -20,14 +20,16 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 if(WIN32)
   set(DEFAULT_RENDERER "DirectX")
+elseif(APPLE)
+  set(DEFAULT_RENDERER "Metal")
 else()
   set(DEFAULT_RENDERER "OpenGL")
 endif()
 
 set(RENDERER_BACKEND "${DEFAULT_RENDERER}"
-  CACHE STRING "Choose rendering backend (OpenGL, DirectX)"
+  CACHE STRING "Choose rendering backend (DirectX, Metal, OpenGL)"
 )
-set_property(CACHE RENDERER_BACKEND PROPERTY STRINGS "OpenGL" "DirectX")
+set_property(CACHE RENDERER_BACKEND PROPERTY STRINGS "DirectX" "Metal" "OpenGL")
 
 if(RENDERER_BACKEND STREQUAL "DirectX")
   if(NOT WIN32)
@@ -37,11 +39,19 @@ if(RENDERER_BACKEND STREQUAL "DirectX")
     )
   endif()
 
-  message(STATUS "Using DirectX backend")
   add_definitions(-DUSE_DIRECTX)
   # DirectX related packages
   find_package(directxmath REQUIRED CONFIG)
   # find_package(directxtk REQUIRED CONFIG)
+elseif(RENDERER_BACKEND STREQUAL "Metal")
+  # if(NOT APPLE)
+  #   message(FATAL_ERROR
+  #     "Metal is only supported on macOS."
+  #     "Please other backend."
+  #   )
+  # endif()
+
+  add_definitions(-DUSE_METAL)
 elseif(RENDERER_BACKEND STREQUAL "OpenGL")
   message(STATUS "Using OpenGL backend")
   add_definitions(-DUSE_OPENGL)
@@ -51,6 +61,8 @@ elseif(RENDERER_BACKEND STREQUAL "OpenGL")
 else()
   message(FATAL_ERROR "Invalid RENDERER_BACKEND value.")
 endif()
+
+message(STATUS "Using ${RENDERER_BACKEND} backend")
 
 find_package(TBB REQUIRED CONFIG)
 find_package(RapidJSON REQUIRED CONFIG)

@@ -1,0 +1,7 @@
+if(RENDERER_BACKEND STREQUAL "DirectX")
+  add_subdirectory(dx11)
+elseif(RENDERER_BACKEND STREQUAL "Metal")
+  add_subdirectory(metal)
+elseif(RENDERER_BACKEND STREQUAL "OpenGL")
+  add_subdirectory(opengl)
+endif()

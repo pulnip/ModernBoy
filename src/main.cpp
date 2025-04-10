@@ -4,18 +4,22 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include "game/app_state.hpp"
-#ifdef USE_DIRECTX
-#include "backends/dx11_mesh.hpp"
+#if defined(USE_DIRECTX)
+#include "backends/dx11/mesh.hpp"
+#elif defined(USE_METAL)
+#include "backends/metal/mesh.hpp"
 #elif defined(USE_OPENGL)
 #include <glad/glad.h>
 #endif
 
 using namespace ModernBoy;
 
-#ifdef USE_DIRECTX
+#if defined(USE_DIRECTX)
 using namespace ModernBoy::DX11;
+#elif defined(USE_METAL)
+using namespace ModernBoy::Metal;
 #elif defined(USE_OPENGL)
-// TODO: OpenGL
+using namespace ModernBoy::OpenGL;
 #endif
 
 AppState::AppState(SDL_Window* window)
@@ -41,7 +45,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     // Init Window
     SDL_WindowFlags flags = SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS;
 
-#ifdef USE_OPENGL
+#if defined(USE_OPENGL)
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
@@ -56,11 +60,11 @@ SDL_AppResult SDL_AppInit(void** appState,
         return SDL_APP_FAILURE;
     }
 
-    // Init Renderer
-#ifdef USE_DIRECTX
     AppState* as = new AppState(window);
     if(!as) return SDL_APP_FAILURE;
 
+    // Init Renderer
+#if defined(USE_DIRECTX)
     DX11::Mesh rect;
     if(!DX11::makeRect(as->renderer.context.device, rect)){
         SDL_Log("Failed to create rect mesh");
@@ -72,9 +76,10 @@ SDL_AppResult SDL_AppInit(void** appState,
         .owner = 0,
         .resourceHandle = rectHandle
     });
-
+#elif defined(USE_METAL)
+    // TODO
 #elif defined(USE_OPENGL)
-// TODO
+    // TODO
 #endif
     *appState = as;
 

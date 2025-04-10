@@ -3,7 +3,7 @@
 
 namespace ModernBoy::DX11
 {
-    struct RenderState;
+    struct RenderContext;
 }
 
 #endif // __INC_DX11_FWD_HPP

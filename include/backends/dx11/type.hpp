@@ -1,9 +1,9 @@
-#ifndef __INC_DX11_TYPES_HPP
-#define __INC_DX11_TYPES_HPP
+#ifndef __INC_DX11_TYPE_HPP
+#define __INC_DX11_TYPE_HPP
 
 #include <wrl/client.h>
 #include <d3d11.h>
-#include <DirectXColors.h>
+#include <directxmath/DirectXColors.h>
 
 #define ALIGN16(x) static_assert((sizeof(x) & 0xf) == 0,  #x " must be 16-byte aligned")
 
@@ -36,4 +36,4 @@ namespace ModernBoy::DX11
     }; ALIGN16(Light);
 }
 
-#endif // __INC_DX11_TYPES_HPP
+#endif // __INC_DX11_TYPE_HPP

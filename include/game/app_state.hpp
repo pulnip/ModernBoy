@@ -7,20 +7,34 @@
 #include "resource_component.hpp"
 #include "resource_manager.hpp"
 #include "render/renderer.hpp"
-#ifdef USE_DIRECTX
-#include "backends/dx11_mesh.hpp"
-#include "backends/dx11_context.hpp"
+#if defined(USE_DIRECTX)
+#include "backends/dx11/mesh.hpp"
+#include "backends/dx11/context.hpp"
+#elif defined(USE_METAL)
+#include "backends/metal/mesh.hpp"
+#include "backends/metal/context.hpp"
 #elif defined(USE_OPENGL)
+#include "backends/opengl/mesh.hpp"
+#include "backends/opengl/context.hpp"
 #endif
 
 namespace ModernBoy
 {
-#ifdef USE_DIRECTX
+#if defined(USE_DIRECTX)
     using MeshManager = ResourceManager<DX11::Mesh>;
     using MeshRenderer = Renderer<DX11::RenderContext>;
     using MeshComponent = ResourceComponent<DX11::Mesh>;
     using MeshComponentSystem = ComponentSystem<MeshComponent>;
+#elif defined(USE_METAL)
+    using MeshManager = ResourceManager<Metal::Mesh>;
+    using MeshRenderer = Renderer<Metal::RenderContext>;
+    using MeshComponent = ResourceComponent<Metal::Mesh>;
+    using MeshComponentSystem = ComponentSystem<MeshComponent>;
 #elif defined(USE_OPENGL)
+    using MeshManager = ResourceManager<OpenGL::Mesh>;
+    using MeshRenderer = Renderer<OpenGL::RenderContext>;
+    using MeshComponent = ResourceComponent<OpenGL::Mesh>;
+    using MeshComponentSystem = ComponentSystem<MeshComponent>;
 #endif
 
     struct AppState{

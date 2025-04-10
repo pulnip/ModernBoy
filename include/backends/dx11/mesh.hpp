@@ -1,14 +1,12 @@
 #ifndef __INC_DX11_MESH_HPP
 #define __INC_DX11_MESH_HPP
 
-#include <SimpleMath.h>
-#include "dx11_type.hpp"
+#include "fwd.hpp"
+#include "type.hpp"
 #include "resource_data.hpp"
 
 namespace ModernBoy::DX11
 {
-    struct RenderContext;
-
     struct SmolVertex{
         DirectX::XMFLOAT2 position;
         DirectX::XMFLOAT2 texCoord;
@@ -62,6 +60,7 @@ namespace ModernBoy::DX11
 
         void bind(RenderContext& in_context) const;
     };
+    // static_assert(ResourceData<Mesh, RenderContext>);
 
     extern bool makeRect(DevicePtr& in_device, Mesh& out_mesh);
 }
