@@ -19,15 +19,11 @@ if(RENDERER_BACKEND STREQUAL "DirectX")
   )
   list(APPEND TARGET_LINK_LIBS
     # DirectX11
-    d3d11 d3dcompiler dxgi
+    d3d11.lib d3dcompiler.lib dxgi.lib dxguid.lib
     # DirectXMath
     Microsoft::DirectXMath
     # DirectXTK
-    d3d11.lib dxgi.lib dxguid.lib uuid.lib
-    kernel32.lib user32.lib
-    comdlg32.lib advapi32.lib shell32.lib
-    ole32.lib oleaut32.lib
-    Microsoft::DirectXTK
+    # Microsoft::DirectXTK
   )
 elseif(RENDERER_BACKEND STREQUAL "OpenGL")
   list(APPEND TARGET_INCLUDE_DIRS

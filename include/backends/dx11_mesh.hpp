@@ -10,9 +10,9 @@ namespace ModernBoy::DX11
     struct RenderContext;
 
     struct SmolVertex{
-        Vector2 position;
-        Vector2 texCoord;
-        Vector4 color;
+        DirectX::XMFLOAT2 position;
+        DirectX::XMFLOAT2 texCoord;
+        DirectX::XMFLOAT4 color;
     }; ALIGN16(SmolVertex);
 
     constexpr D3D11_INPUT_ELEMENT_DESC smolVertexDesc[] = {

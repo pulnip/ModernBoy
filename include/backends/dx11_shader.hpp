@@ -9,20 +9,20 @@
 namespace ModernBoy::DX11
 {
     struct VSConstants{
-        Matrix model{};
-        Matrix invTranspose{};
-        Matrix view{};
-        Matrix projection{};
+        DirectX::XMFLOAT4X4 model{};
+        DirectX::XMFLOAT4X4 invTranspose{};
+        DirectX::XMFLOAT4X4 view{};
+        DirectX::XMFLOAT4X4 projection{};
     }; ALIGN16(VSConstants);
     struct PSConstants{
         // float xSplit=0.0f;
         // float dummy[3]={0.0f, 0.0f, 0.0f};
-        Vector3 eyePos;
+        DirectX::XMFLOAT3 eyePos;
         bool useTexture;
         Material material;
         Light lights[MAX_LIGHTS];
         // Rim Lighting
-        Vector3 rimColor=DirectX::Colors::White.v;
+        DirectX::XMFLOAT3 rimColor{1.0f, 1.0f, 1.0f};
         float rimStrength;
         float rimPower;
         float dummy[3];

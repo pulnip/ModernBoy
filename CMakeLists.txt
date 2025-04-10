@@ -41,7 +41,7 @@ if(RENDERER_BACKEND STREQUAL "DirectX")
   add_definitions(-DUSE_DIRECTX)
   # DirectX related packages
   find_package(directxmath REQUIRED CONFIG)
-  find_package(directxtk REQUIRED CONFIG)
+  # find_package(directxtk REQUIRED CONFIG)
 elseif(RENDERER_BACKEND STREQUAL "OpenGL")
   message(STATUS "Using OpenGL backend")
   add_definitions(-DUSE_OPENGL)
