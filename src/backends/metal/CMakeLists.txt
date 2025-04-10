@@ -4,7 +4,7 @@ add_library(RenderBackend STATIC
   context.cpp
   mesh.cpp
 )
-add_library(MetalContextLib SHARED
+add_library(MetalContext SHARED
   bridge.swift
 )
 
@@ -23,7 +23,7 @@ target_include_directories(RenderBackend PRIVATE
   ${ImGui_INCLUDE_DIRS}
 )
 target_link_libraries(RenderBackend PRIVATE
-  MetalContextLib
+  MetalContext
   stdc++exp
   TBB::tbb
   # SDL3

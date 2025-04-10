@@ -7,18 +7,19 @@
 
 using namespace ModernBoy::Metal;
 
-RenderContext::RenderContext(SDL_Window* in_window, MeshManager& in_meshManager)
+RenderContext::RenderContext([[maybe_unused]] SDL_Window* in_window,
+    MeshManager& in_meshManager)
 :meshManager(in_meshManager){}
 RenderContext::~RenderContext(){}
 
 void RenderContext::operator()([[maybe_unused]] const StartCommand& cmd){
-
+    renderStart();
 }
 
-void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
-
+void RenderContext::operator()([[maybe_unused]] const DrawCommand<Mesh>& cmd){
+    draw();
 }
 
 void RenderContext::operator()([[maybe_unused]] const ClearCommand& cmd){
-
+    renderEnd();
 }
