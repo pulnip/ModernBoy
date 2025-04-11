@@ -66,6 +66,7 @@ Shader::~Shader(){
 void Shader::bind(RenderContext& in_context) const{
     auto& ctx = in_context.context;
 
+    ctx->IASetInputLayout(il.Get());
     // set the shader objects
     ctx->VSSetShader(vs.Get(), 0, 0);
     ctx->PSSetShader(ps.Get(), 0, 0);
