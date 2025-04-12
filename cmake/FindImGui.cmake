@@ -12,7 +12,7 @@ if(NOT ImGui_INCLUDE_DIR)
   message(FATAL_ERROR "ImGui header Not Found!")
 else()
   set(ImGui_FOUND TRUE)
-  message(STATUS "ImGui found. Headers: ${ImGui_INCLUDE_DIR}, Backends: ${ImGui_RENDERER_BACKEND}")
+  message(STATUS "ImGui found. Headers: ${ImGui_INCLUDE_DIR}")
 endif()
 
 set(ImGui_SRC_DIR ${CMAKE_SOURCE_DIR}/vendor/imgui)
