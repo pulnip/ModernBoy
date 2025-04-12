@@ -8,32 +8,23 @@
 namespace ModernBoy::DX11
 {
     struct SmolVertex{
-        DirectX::XMFLOAT2 position;
-        DirectX::XMFLOAT2 texCoord;
-        DirectX::XMFLOAT4 color;
+        DirectX::XMFLOAT3 position;
+        UINT32 color;
     }; ALIGN16(SmolVertex);
 
     constexpr D3D11_INPUT_ELEMENT_DESC smolVertexDesc[] = {
         {
             .SemanticName = "POSITION",
             .SemanticIndex = 0,
-            .Format = DXGI_FORMAT_R32G32_FLOAT,
+            .Format = DXGI_FORMAT_R32G32B32_FLOAT,
             .InputSlot = 0,
             .AlignedByteOffset = offsetof(SmolVertex, position),
             .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
             .InstanceDataStepRate = 0,
         }, {
-            .SemanticName = "TEXCOORD",
-            .SemanticIndex = 0,
-            .Format = DXGI_FORMAT_R32G32_FLOAT,
-            .InputSlot = 0,
-            .AlignedByteOffset = offsetof(SmolVertex, texCoord),
-            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-            .InstanceDataStepRate = 0,
-        }, {
             .SemanticName = "COLOR",
             .SemanticIndex = 0,
-            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+            .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .InputSlot = 0,
             .AlignedByteOffset = offsetof(SmolVertex, color),
             .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
@@ -69,6 +60,7 @@ namespace ModernBoy::DX11
     // static_assert(ResourceData<Mesh, RenderContext>);
 
     extern bool makeRect(DevicePtr& in_device, Mesh& out_mesh);
+    extern bool makeTetra(DevicePtr& in_device, Mesh& out_mesh);
 }
 
 #endif // __INC_DX11_MESH_HPP

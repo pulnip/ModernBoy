@@ -67,7 +67,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     // Temporal codes...
 #if defined(USE_DIRECTX)
     DX11::Mesh rect;
-    if(!DX11::makeRect(as->renderer.context.device, rect)){
+    if(!DX11::makeTetra(as->renderer.context.device, rect)){
         SDL_Log("Failed to create rect mesh");
         return SDL_APP_FAILURE;
     }

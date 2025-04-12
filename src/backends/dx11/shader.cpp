@@ -121,4 +121,6 @@ void detail::Shader<VSC, PSC>::bind(RenderContext& in_context) const{
     // set the shader objects
     ctx->VSSetShader(vs.Get(), 0, 0);
     ctx->PSSetShader(ps.Get(), 0, 0);
+
+    ctx->RSSetState(rs.Get());
 }

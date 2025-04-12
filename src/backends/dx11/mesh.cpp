@@ -1,6 +1,7 @@
 #include "backends/dx11/context.hpp"
 #include "backends/dx11/mesh.hpp"
 
+using namespace DirectX;
 using namespace ModernBoy::DX11;
 
 Mesh::Mesh(Mesh&& other){ moveFrom(std::move(other)); }
@@ -78,14 +79,43 @@ static bool InitIndexBuffer(DevicePtr& in_device,
 
 bool ModernBoy::DX11::makeRect(DevicePtr& in_device, Mesh& out_mesh){
     SmolVertex vertices[] = {
-        {{-0.5f,  0.5f}, {}, {1.0f, 0.0f, 0.0f, 0.00f}},
-        {{ 0.5f,  0.5f}, {}, {0.0f, 1.0f, 0.0f, 0.33f}},
-        {{ 0.5f, -0.5f}, {}, {0.0f, 0.0f, 1.0f, 0.66f}},
-        {{-0.5f, -0.5f}, {}, {1.0f, 1.0f, 1.0f, 1.00f}},
+        {{-0.5f,  0.5f, 0.0f}, 0xFF000000},
+        {{ 0.5f,  0.5f, 0.0f}, 0x00FF0055},
+        {{ 0.5f, -0.5f, 0.0f}, 0x0000FFAA},
+        {{-0.5f, -0.5f, 0.0f}, 0xFFFFFFFF},
     };
     UINT indices[] = {
         0, 1, 2,
         0, 2, 3
+    };
+
+    out_mesh.numVertices = sizeof(vertices) / sizeof(vertices[0]);
+    out_mesh.numIndices = sizeof(indices) / sizeof(indices[0]);
+    if(!InitVertexBuffer(in_device, vertices,
+        out_mesh.vertexBuffer)) return false;
+    if(!InitIndexBuffer(in_device, indices,
+        out_mesh.indexBuffer)) return false;
+
+    return true;
+}
+static XMFLOAT3 NormalizeInit(float x, float y, float z){
+    XMVECTOR v = XMVectorSet(x, y, z, 0.0f);
+    XMFLOAT3 out;
+    DirectX::XMStoreFloat3(&out, DirectX::XMVector3Normalize(v));
+    return out;
+}
+bool ModernBoy::DX11::makeTetra(DevicePtr& in_device, Mesh& out_mesh){
+    SmolVertex vertices[] = {
+        {NormalizeInit( 1.0f,  1.0f,  1.0f), 0xFFFFFFFF},
+        {NormalizeInit(-1.0f, -1.0f,  1.0f), 0xFF0000AA},
+        {NormalizeInit(-1.0f,  1.0f, -1.0f), 0x00FF0055},
+        {NormalizeInit( 1.0f, -1.0f, -1.0f), 0x0000FF00},
+    };
+    UINT indices[] = {
+        0, 1, 2,
+        0, 3, 1,
+        0, 2, 3,
+        1, 3, 2
     };
 
     out_mesh.numVertices = sizeof(vertices) / sizeof(vertices[0]);
