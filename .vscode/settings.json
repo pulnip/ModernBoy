@@ -77,6 +77,12 @@
     "thread": "cpp",
     "typeinfo": "cpp",
     "variant": "cpp",
-    "cfenv": "cpp"
-  }
+    "cfenv": "cpp",
+    "any": "cpp",
+    "codecvt": "cpp",
+    "coroutine": "cpp",
+    "forward_list": "cpp",
+    "fstream": "cpp",
+    "future": "cpp"
+}
 }

@@ -3,21 +3,16 @@
 
 using namespace ModernBoy::DX11;
 
-Mesh::Mesh(Mesh&& other)
-:numVertices(other.numVertices), numIndices(other.numIndices)
-{
-    vertexBuffer.Swap(other.vertexBuffer);
-    indexBuffer.Swap(other.indexBuffer);
+Mesh::Mesh(Mesh&& other){ moveFrom(std::move(other)); }
+Mesh& Mesh::operator=(Mesh&& other){
+    moveFrom(std::move(other));
+    return *this;
 }
-
-Mesh& Mesh::operator=(Mesh&& other)
-{
+void Mesh::moveFrom(Mesh&& other){
     vertexBuffer.Swap(other.vertexBuffer);
     numVertices = other.numVertices;
     indexBuffer.Swap(other.indexBuffer);
     numIndices = other.numIndices;
-
-    return *this;
 }
 
 void Mesh::bind(RenderContext& in_context) const{
@@ -32,7 +27,7 @@ void Mesh::bind(RenderContext& in_context) const{
 }
 
 template<typename T>
-static bool _VertexBuffer_Init(DevicePtr& in_device,
+static bool InitVertexBuffer(DevicePtr& in_device,
     const T& in_vertices, BufferPtr& out_buffer)
 {
     D3D11_BUFFER_DESC vbDesc;
@@ -57,7 +52,7 @@ static bool _VertexBuffer_Init(DevicePtr& in_device,
 }
 
 template<typename T>
-static bool _IndexBuffer_Init(DevicePtr& in_device,
+static bool InitIndexBuffer(DevicePtr& in_device,
     const T& in_indices, BufferPtr& out_buffer)
 {
     D3D11_BUFFER_DESC ibDesc;
@@ -95,9 +90,9 @@ bool ModernBoy::DX11::makeRect(DevicePtr& in_device, Mesh& out_mesh){
 
     out_mesh.numVertices = sizeof(vertices) / sizeof(vertices[0]);
     out_mesh.numIndices = sizeof(indices) / sizeof(indices[0]);
-    if(!_VertexBuffer_Init(in_device, vertices,
+    if(!InitVertexBuffer(in_device, vertices,
         out_mesh.vertexBuffer)) return false;
-    if(!_IndexBuffer_Init(in_device, indices,
+    if(!InitIndexBuffer(in_device, indices,
         out_mesh.indexBuffer)) return false;
 
     return true;

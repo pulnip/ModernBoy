@@ -23,8 +23,9 @@ using namespace ModernBoy::OpenGL;
 #endif
 
 AppState::AppState(SDL_Window* window)
-:window(window), meshManager(), meshComponentSystem(),
-renderer(window, meshManager, meshComponentSystem){}
+:meshManager(), shaderManager(), meshComponentSystem(),
+window(window),
+renderer(window, meshManager, shaderManager, meshComponentSystem){}
 
 constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
 
@@ -63,7 +64,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     AppState* as = new AppState(window);
     if(!as) return SDL_APP_FAILURE;
 
-    // Init Renderer
+    // Temporal codes...
 #if defined(USE_DIRECTX)
     DX11::Mesh rect;
     if(!DX11::makeRect(as->renderer.context.device, rect)){
@@ -76,6 +77,11 @@ SDL_AppResult SDL_AppInit(void** appState,
         .owner = 0,
         .resourceHandle = rectHandle
     });
+
+    DX11::DefaultShader shader(as->renderer.context.device);
+    as->shaderManager.create(std::move(shader));
+
+
 #elif defined(USE_METAL)
     // TODO
 #elif defined(USE_OPENGL)

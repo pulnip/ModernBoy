@@ -8,19 +8,22 @@
 #include "resource_manager.hpp"
 #include "type.hpp"
 #include "mesh.hpp"
-
 #include "shader.hpp"
 
 namespace ModernBoy::DX11
 {
-    using MeshManager = ResourceManager<Mesh>;
-    using MeshHandle = ResourceHandle<Mesh>;
+    using MeshManager = ResourceManager<DX11::Mesh>;
+    using MeshHandle = ResourceHandle<DX11::Mesh>;
+    using ShaderManager = ResourceManager<DX11::DefaultShader>;
+    using ShaderHandle = ResourceHandle<DX11::DefaultShader>;
 
     struct RenderContext{
         using Window = SDL_Window;
-        using Mesh = Mesh;
+        using Mesh = DX11::Mesh;
+        using Shader = DX11::DefaultShader;
 
         MeshManager& meshManager;
+        ShaderManager& shaderManager;
 
         DevicePtr device;
         ContextPtr context;
@@ -34,14 +37,24 @@ namespace ModernBoy::DX11
         Microsoft::WRL::ComPtr<ID3D11DepthStencilView> dsv;
         Microsoft::WRL::ComPtr<ID3D11DepthStencilState> dss;
 
-        Shader* shader;
-
-        RenderContext(SDL_Window* in_window, MeshManager& in_meshManager);
+    public:
+        RenderContext()=delete;
         ~RenderContext();
+        RenderContext(const RenderContext&)=delete;
+        RenderContext(RenderContext&&);
+        RenderContext& operator=(const RenderContext&)=delete;
+        RenderContext& operator=(RenderContext&&)=delete;
 
-        void operator()(const StartCommand&);
+        RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
+            ShaderManager& in_shaderManager);
+
+        void operator()(const FrameStartCommand<Shader>&);
         void operator()(const DrawCommand<Mesh>&);
-        void operator()(const ClearCommand&);
+        void operator()(const FrameEndCommand&);
+
+    private:
+        // Move semantics
+        void moveFrom(RenderContext&& other);
     };
     static_assert(ModernBoy::RenderContext<DX11::RenderContext>);
 }

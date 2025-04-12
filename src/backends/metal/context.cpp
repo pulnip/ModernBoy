@@ -12,7 +12,7 @@ RenderContext::RenderContext([[maybe_unused]] SDL_Window* in_window,
 :meshManager(in_meshManager){}
 RenderContext::~RenderContext(){}
 
-void RenderContext::operator()([[maybe_unused]] const StartCommand& cmd){
+void RenderContext::operator()([[maybe_unused]] const FrameStartCommand& cmd){
     renderStart();
 }
 
@@ -20,6 +20,6 @@ void RenderContext::operator()([[maybe_unused]] const DrawCommand<Mesh>& cmd){
     draw();
 }
 
-void RenderContext::operator()([[maybe_unused]] const ClearCommand& cmd){
+void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){
     renderEnd();
 }

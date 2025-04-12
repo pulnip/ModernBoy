@@ -10,50 +10,64 @@
 using namespace Microsoft::WRL;
 using namespace ModernBoy::DX11;
 
-static bool _Device_Init(DevicePtr& out_device, ContextPtr& out_context,
+static bool InitDevice(DevicePtr& out_device, ContextPtr& out_context,
     UINT& out_qualityLevels);
-static bool _RenderTarget_Init(HWND in_hwnd, UINT in_qualityLevels,
+static bool InitRenderTarget(HWND in_hwnd, UINT in_qualityLevels,
     DevicePtr& in_device, ContextPtr& in_context,
     ComPtr<IDXGISwapChain>& out_swapChain,
     ComPtr<ID3D11RenderTargetView>& out_rtv, D3D11_VIEWPORT& out_viewport);
-static bool _DepthStencil_Init(HWND in_hwnd, UINT in_qualityLevels,
+static bool InitDepthStencil(HWND in_hwnd, UINT in_qualityLevels,
     DevicePtr& in_device, ComPtr<ID3D11Texture2D>& out_dsb,
     ComPtr<ID3D11DepthStencilView>& out_dsv,
     ComPtr<ID3D11DepthStencilState>& out_dss);
-static bool _ImGui_Init(SDL_Window* window,
+static bool InitGUI(SDL_Window* window,
     DevicePtr& in_device, ContextPtr& in_context);
 
-RenderContext::RenderContext(SDL_Window* in_window, MeshManager& in_meshManager)
-:meshManager(in_meshManager){
-    HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(in_window),
-        SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
-
-    if(!_Device_Init(device, context, qualityLevels))
-        throw std::runtime_error("Failed to create device and context.");
-    if(!_RenderTarget_Init(hwnd, qualityLevels, device, context,
-        swapChain, rtv, viewport))
-        throw std::runtime_error("Failed to create render target.");
-    if(!_DepthStencil_Init(hwnd, qualityLevels, device,
-        dsb, dsv, dss))
-        throw std::runtime_error("Failed to create depth stencil.");
-
-    shader = new Shader(device);
-
-    // Init ImGui
-    if(!_ImGui_Init(in_window, device, context))
-        throw std::runtime_error("Failed to initialize ImGui.");
-}
 RenderContext::~RenderContext(){
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
+}
+RenderContext::RenderContext(RenderContext&& other)
+:meshManager(other.meshManager), shaderManager(other.shaderManager){
+    moveFrom(std::move(other));
+}
+void RenderContext::moveFrom(RenderContext&& other){
+    device.Swap(other.device);
+    context.Swap(other.context);
+    qualityLevels=other.qualityLevels;
 
-    delete shader;
+    swapChain.Swap(other.swapChain);
+    rtv.Swap(other.rtv);
+    viewport=other.viewport;
+
+    dsb.Swap(other.dsb);
+    dsv.Swap(other.dsv);
+    dss.Swap(other.dss);
 }
 
-void RenderContext::operator()([[maybe_unused]] const StartCommand& cmd){
-    float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.5f };
 
+RenderContext::RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
+    ShaderManager& in_shaderManager)
+:meshManager(in_meshManager), shaderManager(in_shaderManager){
+    HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(in_window),
+        SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+
+    if(!InitDevice(device, context, qualityLevels))
+        throw std::runtime_error("Failed to create device and context.");
+    if(!InitRenderTarget(hwnd, qualityLevels, device, context,
+        swapChain, rtv, viewport))
+        throw std::runtime_error("Failed to create render target.");
+    if(!InitDepthStencil(hwnd, qualityLevels, device,
+        dsb, dsv, dss))
+        throw std::runtime_error("Failed to create depth stencil.");
+
+    // Init ImGui
+    if(!InitGUI(in_window, device, context))
+        throw std::runtime_error("Failed to initialize ImGui.");
+}
+
+void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
     // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplSDL3_NewFrame();
@@ -63,31 +77,33 @@ void RenderContext::operator()([[maybe_unused]] const StartCommand& cmd){
 
     context->RSSetViewports(1, &viewport);
     context->OMSetRenderTargets(1, rtv.GetAddressOf(), dsv.Get());
-    context->ClearRenderTargetView(rtv.Get(), clearColor);
+    [[unlikely]] if(cmd.clearColor){
+        auto clearColor = cmd.color.value_or(std::array{0.0f, 0.0f, 0.0f, 0.5f});
+        context->ClearRenderTargetView(rtv.Get(), clearColor.data());
+    }
     context->OMSetDepthStencilState(dss.Get(), 0);
     context->ClearDepthStencilView(dsv.Get(),
         D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
     );
 
-    shader->bind(*this);
+    shaderManager.get(cmd.getHandle())->bind(*this);
 }
 
 void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
-    auto pMesh = meshManager.get(cmd.getResource());
+    auto pMesh = meshManager.get(cmd.getHandle());
     if(pMesh != nullptr){
         pMesh->bind(*this);
         context->DrawIndexed(pMesh->numIndices, 0, 0);
     }
 }
-
-void RenderContext::operator()([[maybe_unused]] const ClearCommand& cmd){
+void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     swapChain->Present(1, 0);
 }
 
-static bool _Device_Init(DevicePtr& out_device,
+static bool InitDevice(DevicePtr& out_device,
     ContextPtr& out_context, UINT& out_qualityLevels)
 {
     D3D_FEATURE_LEVEL FEATURE_LEVELS[]={
@@ -112,7 +128,7 @@ static bool _Device_Init(DevicePtr& out_device,
     return true;
 }
 
-static bool _RenderTarget_Init(HWND in_hwnd, UINT in_qualityLevels,
+static bool InitRenderTarget(HWND in_hwnd, UINT in_qualityLevels,
     DevicePtr& in_device, ContextPtr& in_context,
     ComPtr<IDXGISwapChain>& out_swapChain,
     ComPtr<ID3D11RenderTargetView>& out_rtv, D3D11_VIEWPORT& out_viewport)
@@ -187,7 +203,7 @@ static bool _RenderTarget_Init(HWND in_hwnd, UINT in_qualityLevels,
     return true;
 }
 
-static bool _DepthStencil_Init(HWND in_hwnd, UINT in_qualityLevels,
+static bool InitDepthStencil(HWND in_hwnd, UINT in_qualityLevels,
     DevicePtr& in_device, ComPtr<ID3D11Texture2D>& out_dsb,
     ComPtr<ID3D11DepthStencilView>& out_dsv,
     ComPtr<ID3D11DepthStencilState>& out_dss)
@@ -230,7 +246,7 @@ static bool _DepthStencil_Init(HWND in_hwnd, UINT in_qualityLevels,
     return true;
 }
 
-static bool _ImGui_Init(SDL_Window* in_window,
+static bool InitGUI(SDL_Window* in_window,
     DevicePtr& in_device, ContextPtr& in_context)
 {
     // Setup Dear ImGui context

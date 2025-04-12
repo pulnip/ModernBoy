@@ -8,26 +8,29 @@
 
 namespace ModernBoy
 {
-    struct StartCommand{};
-
-    struct ClearCommand{
+    template<typename Shader>
+    struct FrameStartCommand{
         std::optional<std::array<float, 4>> color = std::nullopt;
         bool clearColor = true;
         bool clearDepth = true;
-    };
+        ResourceHandle<Shader> shaderHandle;
 
+        ResourceHandle<Shader> getHandle() const{ return shaderHandle; }
+    };
     template<typename Mesh>
     struct DrawCommand{
-        ResourceHandle<Mesh> handle;
+        ResourceHandle<Mesh> meshHandle;
 
-        ResourceHandle<Mesh> getResource() const{ return handle; }
+        ResourceHandle<Mesh> getHandle() const{ return meshHandle; }
+    };
+    struct FrameEndCommand{
     };
 
-    template<typename Mesh>
+    template<typename Mesh, typename Shader>
     using RenderCommand = std::variant<
-        StartCommand,
+        FrameStartCommand<Shader>,
         DrawCommand<Mesh>,
-        ClearCommand
+        FrameEndCommand
     >;
 } // namespace ModernBoy
 

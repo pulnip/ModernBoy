@@ -23,9 +23,9 @@ namespace ModernBoy::Metal
         RenderContext(SDL_Window* in_window, MeshManager& in_meshManager);
         ~RenderContext();
 
-        void operator()(const StartCommand&);
+        void operator()(const FrameStartCommand&);
         void operator()(const DrawCommand<Mesh>&);
-        void operator()(const ClearCommand&);
+        void operator()(const FrameEndCommand&);
     };
     static_assert(ModernBoy::RenderContext<Metal::RenderContext>);
 }

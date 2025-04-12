@@ -22,11 +22,12 @@ namespace ModernBoy
     private:
         using Window = typename Ctx::Window;
         using Mesh = typename Ctx::Mesh;
+        using Shader = typename Ctx::Shader;
 
         using MeshComponent = ResourceComponent<Mesh>;
         using MeshComponentSystem = ComponentSystem<MeshComponent>;
 
-        LockFreeQueue<RenderCommand<Mesh>> queue;
+        LockFreeQueue<RenderCommand<Mesh, Shader>> queue;
         const MeshComponentSystem& meshComponentSystem;
 
         std::stop_source stsrc;
@@ -35,8 +36,10 @@ namespace ModernBoy
 
     public:
         Renderer(Window* window, ResourceManager<Mesh>& meshManager,
+            ResourceManager<Shader>& shaderManager,
             const MeshComponentSystem& meshComponentSystem)
-        :context(window, meshManager), meshComponentSystem(meshComponentSystem),
+        :context(window, meshManager, shaderManager),
+        meshComponentSystem(meshComponentSystem),
         commandThread([this](std::stop_token stoken){
             produceCommand(stoken);
         }, stsrc.get_token()),
@@ -51,22 +54,25 @@ namespace ModernBoy
             while(!stoken.stop_requested()){
                 auto components = meshComponentSystem.getAll();
 
-                waitUntilPushed(queue, StartCommand{}, stoken);
+                waitUntilPushed(queue, FrameStartCommand<Shader>{
+                    // TODO
+                    .shaderHandle = { .index=0, .generation=1 }
+                }, stoken);
 
                 for(const auto& comp: components){
                     waitUntilPushed(queue, DrawCommand<Mesh>{
-                        .handle = comp.get().resourceHandle
+                        .meshHandle = comp.get().resourceHandle
                     }, stoken);
                 }
 
-                waitUntilPushed(queue, ClearCommand{}, stoken);
+                waitUntilPushed(queue, FrameEndCommand{}, stoken);
             }
         }
 
         void consumeCommand(std::stop_token stoken){
             while(!stoken.stop_requested()){
-                RenderCommand<Mesh> cmd;
-                waitUntilPopped(queue, cmd);
+                RenderCommand<Mesh, Shader> cmd;
+                waitUntilPopped(queue, cmd, stoken);
 
                 std::visit(context, cmd);
             }

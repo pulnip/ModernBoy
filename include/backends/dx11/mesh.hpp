@@ -53,12 +53,18 @@ namespace ModernBoy::DX11
         ID3D11ShaderResourceView* texture = nullptr;
 
     public:
-        Mesh() = default;
+        Mesh()=default;
+        ~Mesh()=default;
+        Mesh(const Mesh&)=delete;
         Mesh(Mesh&& mesh);
-
-        Mesh& operator=(Mesh&& mesh);
+        Mesh& operator=(const Mesh&)=delete;
+        Mesh& operator=(Mesh&&);
 
         void bind(RenderContext& in_context) const;
+
+    private:
+        // Move semantics
+        void moveFrom(Mesh&&);
     };
     // static_assert(ResourceData<Mesh, RenderContext>);
 

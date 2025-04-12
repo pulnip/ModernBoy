@@ -22,9 +22,10 @@ namespace ModernBoy
 {
 #if defined(USE_DIRECTX)
     using MeshManager = ResourceManager<DX11::Mesh>;
-    using MeshRenderer = Renderer<DX11::RenderContext>;
+    using ShaderManager = ResourceManager<DX11::DefaultShader>;
     using MeshComponent = ResourceComponent<DX11::Mesh>;
     using MeshComponentSystem = ComponentSystem<MeshComponent>;
+    using MeshRenderer = Renderer<DX11::RenderContext>;
 #elif defined(USE_METAL)
     using MeshManager = ResourceManager<Metal::Mesh>;
     using MeshRenderer = Renderer<Metal::RenderContext>;
@@ -38,9 +39,10 @@ namespace ModernBoy
 #endif
 
     struct AppState{
-        SDL_Window* window;
         MeshManager meshManager;
+        ShaderManager shaderManager;
         MeshComponentSystem meshComponentSystem;
+        SDL_Window* window;
         MeshRenderer renderer;
         GameContext game_ctx;
         Uint64 last_step;
