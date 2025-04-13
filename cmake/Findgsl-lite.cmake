@@ -1,6 +1,6 @@
 find_path(gsl-lite_INCLUDE_DIR
   NAMES gsl-lite/gsl-lite.hpp
-  PATHS ${CMAKE_SOURCE_DIR}/vendor/gsl-lite/include
+  PATHS ${CMAKE_SOURCE_DIR}/external/gsl-lite/include
 )
 if(NOT gsl-lite_INCLUDE_DIR)
   message(FATAL_ERROR "gsl-lite header Not Found!")

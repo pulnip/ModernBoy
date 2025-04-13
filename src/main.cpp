@@ -25,7 +25,12 @@ using namespace ModernBoy::OpenGL;
 AppState::AppState(SDL_Window* window)
 :meshManager(), shaderManager(), meshComponentSystem(),
 window(window),
-renderer(window, meshManager, shaderManager, meshComponentSystem){}
+renderer(window, meshManager, shaderManager, meshComponentSystem),
+scriptEngine(asCreateScriptEngine()), scriptContext(scriptEngine->CreateContext()){}
+AppState::~AppState(){
+    scriptContext->Release();
+    scriptEngine->ShutDownAndRelease();
+}
 
 constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
 

@@ -1,6 +1,6 @@
 find_path(glad_INCLUDE_DIR
   NAMES glad/glad.h
-  PATHS ${CMAKE_SOURCE_DIR}/vendor/glad/include
+  PATHS ${CMAKE_SOURCE_DIR}/external/glad/include
 )
 if(NOT glad_INCLUDE_DIR)
   message(FATAL_ERROR "glad header Not Found!")
@@ -9,7 +9,7 @@ else()
   message(STATUS "glad found. Headers: ${glad_INCLUDE_DIR}")
 endif()
 
-set(glad_SRC_DIR ${CMAKE_SOURCE_DIR}/vendor/glad/src)
+set(glad_SRC_DIR ${CMAKE_SOURCE_DIR}/external/glad/src)
 set(glad_SOURCES
   ${glad_SRC_DIR}/glad.c
 )

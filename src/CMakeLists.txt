@@ -19,6 +19,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   ${gsl-lite_INCLUDE_DIRS}
   # ImGui
   ${ImGui_INCLUDE_DIRS}
+  # angelscript
+  ${CMAKE_SOURCE_DIR}/external/angelscript/include
+  # toml++
+  ${CMAKE_SOURCE_DIR}/external/tomlplusplus/include
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
   RenderBackend
@@ -30,4 +34,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   SDL3_image::SDL3_image
   # ImGui
   ${ImGui_LIBS}
+  # angelscript
+  angelscript
 )

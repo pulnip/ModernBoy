@@ -1,7 +1,7 @@
 {
   "search.exclude": {
     "build/*": true,
-    "vendor/*": true,
+    "external/*": true,
   },
   "files.associations": {
     "string": "cpp",

@@ -6,8 +6,10 @@
         "${workspaceFolder}/include",
         "C:/tools/msys64/mingw64/include/directxmath",
         "C:/tools/msys64/mingw64/include/directxtk",
-        "${workspaceFolder}/vendor/gsl-lite/include",
-        "${workspaceFolder}/vendor/imgui"
+        "${workspaceFolder}/external/gsl-lite/include",
+        "${workspaceFolder}/external/imgui",
+        "${workspaceFolder}/external/tomlplusplus/include",
+        "${workspaceFolder}/external/angelscript/sdk/angelscript/include"
       ],
       "defines": [
         "_DEBUG",
@@ -25,9 +27,11 @@
       "name": "Linux",
       "includePath": [
         "${workspaceFolder}/include",
-        "${workspaceFolder}/vendor/gsl-lite/include",
-        "${workspaceFolder}/vendor/imgui",
-        "${workspaceFolder}/vendor/glad/include"
+        "${workspaceFolder}/external/gsl-lite/include",
+        "${workspaceFolder}/external/imgui",
+        "${workspaceFolder}/external/glad/include",
+        "${workspaceFolder}/external/tomlplusplus/include",
+        "${workspaceFolder}/external/angelscript/sdk/angelscript/include"
       ],
       "defines": [
         "_DEBUG"

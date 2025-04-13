@@ -1,6 +1,12 @@
-[submodule "vendor/imgui"]
-	path = vendor/imgui
-	url = https://github.com/ocornut/imgui.git
-[submodule "vendor/gsl-lite"]
-	path = vendor/gsl-lite
+[submodule "external/gsl-lite"]
+	path = external/gsl-lite
 	url = https://github.com/gsl-lite/gsl-lite.git
+[submodule "external/imgui"]
+	path = external/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "external/angelscript"]
+	path = external/angelscript
+	url = https://github.com/codecat/angelscript-mirror.git
+[submodule "external/tomlplusplus"]
+	path = external/tomlplusplus
+	url = https://github.com/marzer/tomlplusplus.git

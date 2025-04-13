@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.28)
+cmake_minimum_required(VERSION 3.28)
 
 project(ModernBoy LANGUAGES C CXX)
 
@@ -71,5 +71,14 @@ find_package(SDL3_image REQUIRED CONFIG)
 set(ImGui_RENDERER_BACKEND ${RENDERER_BACKEND})
 find_package(ImGui REQUIRED)
 find_package(gsl-lite REQUIRED)
+set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS OFF
+  CACHE INTERNAL "Suppress dev warnings for external projects")
+add_subdirectory(external/angelscript/sdk/angelscript/projects/cmake)
+target_compile_options(angelscript PRIVATE
+  $<$<CXX_COMPILER_ID:GNU,Clang>:-w>
+  $<$<CXX_COMPILER_ID:MSVC>:/w>
+)
+set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON
+  CACHE INTERNAL "Restore dev warnings")
 
 add_subdirectory(src)
