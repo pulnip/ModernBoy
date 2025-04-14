@@ -1,5 +1,5 @@
-#ifndef __INC_RENDER_CONTEXT_HPP
-#define __INC_RENDER_CONTEXT_HPP
+#ifndef MODERNBOY_RENDER_CONTEXT_HPP
+#define MODERNBOY_RENDER_CONTEXT_HPP
 
 #include <concepts>
 #include "render_command.hpp"
@@ -15,4 +15,4 @@ namespace ModernBoy
     };
 }
 
-#endif // __INC_RENDER_CONTEXT_HPP
+#endif // MODERNBOY_RENDER_CONTEXT_HPP

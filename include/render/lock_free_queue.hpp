@@ -1,5 +1,5 @@
-#ifndef __INC_LOCK_FREE_QUEUE_HPP
-#define __INC_LOCK_FREE_QUEUE_HPP
+#ifndef MODERNBOY_LOCK_FREE_QUEUE_HPP
+#define MODERNBOY_LOCK_FREE_QUEUE_HPP
 
 #include <atomic>
 #include <array>
@@ -153,4 +153,4 @@ namespace ModernBoy
     }
 } // namespace ModernBoy
 
-#endif // __INC_LOCK_FREE_QUEUE_HPP
+#endif // MODERNBOY_LOCK_FREE_QUEUE_HPP

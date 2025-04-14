@@ -1,5 +1,5 @@
-#ifndef __INC_METAL_MESH_HPP
-#define __INC_METAL_MESH_HPP
+#ifndef MODERNBOY_METAL_MESH_HPP
+#define MODERNBOY_METAL_MESH_HPP
 
 #include "fwd.hpp"
 #include "type.hpp"
@@ -13,4 +13,4 @@ namespace ModernBoy::Metal
     // static_assert(ResourceData<Mesh, RenderContext>);
 }
 
-#endif // __INC_METAL_MESH_HPP
+#endif // MODERNBOY_METAL_MESH_HPP

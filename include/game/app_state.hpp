@@ -1,5 +1,5 @@
-#ifndef __INC_APP_STATE_HPP
-#define __INC_APP_STATE_HPP
+#ifndef MODERNBOY_APP_STATE_HPP
+#define MODERNBOY_APP_STATE_HPP
 
 #include <SDL3/SDL_render.h>
 #include "component_system.hpp"
@@ -55,4 +55,4 @@ namespace ModernBoy
     };
 }
 
-#endif // __INC_APP_STATE_HPP
+#endif // MODERNBOY_APP_STATE_HPP

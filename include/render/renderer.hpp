@@ -1,5 +1,5 @@
-#ifndef __INC_RENDERER_HPP
-#define __INC_RENDERER_HPP
+#ifndef MODERNBOY_RENDERER_HPP
+#define MODERNBOY_RENDERER_HPP
 
 #include <thread>
 #include <mutex>
@@ -80,4 +80,4 @@ namespace ModernBoy
     };
 } // namespace ModernBoy
 
-#endif // __INC_RENDERER_HPP
+#endif // MODERNBOY_RENDERER_HPP

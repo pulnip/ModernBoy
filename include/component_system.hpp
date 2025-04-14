@@ -1,5 +1,5 @@
-#ifndef __INC_COMPONENT_SYSTEM_HPP
-#define __INC_COMPONENT_SYSTEM_HPP
+#ifndef MODERNBOY_COMPONENT_SYSTEM_HPP
+#define MODERNBOY_COMPONENT_SYSTEM_HPP
 
 #include <algorithm>
 #include <execution>
@@ -33,4 +33,4 @@ namespace ModernBoy
     };
 } // namespace ModernBoy
 
-#endif // __INC_COMPONENT_SYSTEM_HPP
+#endif // MODERNBOY_COMPONENT_SYSTEM_HPP

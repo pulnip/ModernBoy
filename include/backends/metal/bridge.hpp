@@ -1,5 +1,5 @@
-#ifndef __INC_METAL_BRIDGE_HPP
-#define __INC_METAL_BRIDGE_HPP
+#ifndef MODERNBOY_METAL_BRIDGE_HPP
+#define MODERNBOY_METAL_BRIDGE_HPP
 
 namespace ModernBoy::Metal
 {
@@ -16,4 +16,4 @@ extern "C"{
 #endif
 }
 
-#endif // __INC_METAL_BRIDGE_HPP
+#endif // MODERNBOY_METAL_BRIDGE_HPP

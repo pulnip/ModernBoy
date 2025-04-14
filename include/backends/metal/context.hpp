@@ -1,5 +1,5 @@
-#ifndef __INC_DX11_CONTEXT_HPP
-#define __INC_DX11_CONTEXT_HPP
+#ifndef MODERNBOY_DX11_CONTEXT_HPP
+#define MODERNBOY_DX11_CONTEXT_HPP
 
 #include <SDL3/SDL_video.h>
 #include "render/render_command.hpp"
@@ -30,4 +30,4 @@ namespace ModernBoy::Metal
     static_assert(ModernBoy::RenderContext<Metal::RenderContext>);
 }
 
-#endif // __INC_DX11_CONTEXT_HPP
+#endif // MODERNBOY_DX11_CONTEXT_HPP

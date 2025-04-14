@@ -1,5 +1,5 @@
-#ifndef __INC_DX11_SHADER_HPP
-#define __INC_DX11_SHADER_HPP
+#ifndef MODERNBOY_DX11_SHADER_HPP
+#define MODERNBOY_DX11_SHADER_HPP
 
 #include <span>
 #include <stdexcept>
@@ -121,4 +121,4 @@ namespace ModernBoy::DX11
     // static_assert(ResourceData<NormalShader>);
 }
 
-#endif // __INC_DX11_SHADER_HPP
+#endif // MODERNBOY_DX11_SHADER_HPP

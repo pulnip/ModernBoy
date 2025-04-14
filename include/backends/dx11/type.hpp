@@ -1,5 +1,5 @@
-#ifndef __INC_DX11_TYPE_HPP
-#define __INC_DX11_TYPE_HPP
+#ifndef MODERNBOY_DX11_TYPE_HPP
+#define MODERNBOY_DX11_TYPE_HPP
 
 #include <wrl/client.h>
 #include <d3d11.h>
@@ -36,4 +36,4 @@ namespace ModernBoy::DX11
     }; ALIGN16(Light);
 }
 
-#endif // __INC_DX11_TYPE_HPP
+#endif // MODERNBOY_DX11_TYPE_HPP

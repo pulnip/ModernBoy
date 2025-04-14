@@ -1,5 +1,5 @@
-#ifndef __INC_RESOURCE_MANAGER_HPP
-#define __INC_RESOURCE_MANAGER_HPP
+#ifndef MODERNBOY_RESOURCE_MANAGER_HPP
+#define MODERNBOY_RESOURCE_MANAGER_HPP
 
 #include <cstdint>
 #include <functional>
@@ -97,4 +97,4 @@ namespace ModernBoy{
     };
 } // namespace ModernBoy
 
-#endif // __INC_RESOURCE_MANAGER_HPP
+#endif // MODERNBOY_RESOURCE_MANAGER_HPP

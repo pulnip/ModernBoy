@@ -1,5 +1,5 @@
-#ifndef __INC_RENDER_COMMAND_HPP
-#define __INC_RENDER_COMMAND_HPP
+#ifndef MODERNBOY_RENDER_COMMAND_HPP
+#define MODERNBOY_RENDER_COMMAND_HPP
 
 #include <array>
 #include <optional>
@@ -34,4 +34,4 @@ namespace ModernBoy
     >;
 } // namespace ModernBoy
 
-#endif // __INC_RENDER_COMMAND_HPP
+#endif // MODERNBOY_RENDER_COMMAND_HPP

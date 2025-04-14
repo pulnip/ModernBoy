@@ -1,5 +1,5 @@
-#ifndef __INC_RESOURCE_HANDLE_HPP
-#define __INC_RESOURCE_HANDLE_HPP
+#ifndef MODERNBOY_RESOURCE_HANDLE_HPP
+#define MODERNBOY_RESOURCE_HANDLE_HPP
 
 #include <cstdint>
 
@@ -21,4 +21,4 @@ namespace ModernBoy
     };
 } // namespace ModernBoy
 
-#endif // __INC_RESOURCE_HANDLE_HPP
+#endif // MODERNBOY_RESOURCE_HANDLE_HPP

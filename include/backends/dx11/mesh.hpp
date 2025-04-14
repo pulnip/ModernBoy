@@ -1,5 +1,5 @@
-#ifndef __INC_DX11_MESH_HPP
-#define __INC_DX11_MESH_HPP
+#ifndef MODERNBOY_DX11_MESH_HPP
+#define MODERNBOY_DX11_MESH_HPP
 
 #include "fwd.hpp"
 #include "type.hpp"
@@ -63,4 +63,4 @@ namespace ModernBoy::DX11
     extern bool makeTetra(DevicePtr& in_device, Mesh& out_mesh);
 }
 
-#endif // __INC_DX11_MESH_HPP
+#endif // MODERNBOY_DX11_MESH_HPP

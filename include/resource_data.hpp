@@ -1,5 +1,5 @@
-#ifndef __INC_RESOURCE_DATA_HPP
-#define __INC_RESOURCE_DATA_HPP
+#ifndef MODERNBOY_RESOURCE_DATA_HPP
+#define MODERNBOY_RESOURCE_DATA_HPP
 
 #include <concepts>
 
@@ -10,4 +10,4 @@ concept ResourceData = requires(T t, Context ctx) {
     { t.destroy(ctx) } -> std::same_as<void>;
 };
 
-#endif // __INC_RESOURCE_DATA_HPP
+#endif // MODERNBOY_RESOURCE_DATA_HPP

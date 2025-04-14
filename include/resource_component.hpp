@@ -1,5 +1,5 @@
-#ifndef __INC_RESOURCE_COMPONENT_HPP
-#define __INC_RESOURCE_COMPONENT_HPP
+#ifndef MODERNBOY_RESOURCE_COMPONENT_HPP
+#define MODERNBOY_RESOURCE_COMPONENT_HPP
 
 #include "resource_handle.hpp"
 
@@ -14,4 +14,4 @@ namespace ModernBoy
     };
 } // namespace ModernBoy
 
-#endif // __INC_RESOURCE_COMPONENT_HPP
+#endif // MODERNBOY_RESOURCE_COMPONENT_HPP
