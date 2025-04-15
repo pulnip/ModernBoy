@@ -43,8 +43,7 @@
       "inherits": "x64-base",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
-        "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_CXX_FLAGS": "-fuse-ld=lld"
+        "CMAKE_CXX_COMPILER": "clang++"
       }
     }
   ],

@@ -2,7 +2,6 @@
 #define MODERNBOY_COMPONENT_SYSTEM_HPP
 
 #include <algorithm>
-#include <execution>
 #include <functional>
 #include <vector>
 
@@ -21,8 +20,7 @@ namespace ModernBoy
         auto getAll() const{
             std::vector<std::reference_wrapper<const Component>> wrapped;
 
-            std::for_each(std::execution::par,
-                components.cbegin(), components.cend(),
+            std::for_each(components.cbegin(), components.cend(),
                 [&wrapped](const auto& comp){
                     wrapped.emplace_back(std::cref(comp));
                 }

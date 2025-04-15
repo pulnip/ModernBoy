@@ -15,6 +15,11 @@ else()
   message(STATUS "ImGui found. Headers: ${ImGui_INCLUDE_DIR}")
 endif()
 
+set(ImGui_INCLUDE_DIRS
+  ${ImGui_INCLUDE_DIR}
+  ${ImGui_INCLUDE_DIR}/backends
+)
+
 set(ImGui_SRC_DIR ${CMAKE_SOURCE_DIR}/external/imgui)
 set(ImGui_SOURCES
   ${ImGui_SRC_DIR}/imgui.cpp
@@ -35,12 +40,15 @@ elseif(ImGui_RENDERER_BACKEND STREQUAL "OpenGL")
     ${ImGui_SOURCES}
     ${ImGui_SRC_DIR}/backends/imgui_impl_opengl3.cpp
   )
+elseif(ImGui_RENDERER_BACKEND STREQUAL "Metal")
+  list(APPEND ImGui_SOURCES
+    ${ImGui_SOURCES}
+    ${ImGui_SRC_DIR}/backends/imgui_impl_metal.mm
+  )
+  list(APPEND ImGui_INCLUDE_DIRS
+    /opt/homebrew/include
+  )
 endif()
-
-set(ImGui_INCLUDE_DIRS
-  ${ImGui_INCLUDE_DIR}
-  ${ImGui_INCLUDE_DIR}/backends
-)
 
 add_library(ImGui STATIC
   ${ImGui_SOURCES}
@@ -51,6 +59,12 @@ target_compile_definitions(ImGui PRIVATE
 target_include_directories(ImGui PRIVATE
   ${ImGui_INCLUDE_DIRS}
 )
+
+if(ImGui_RENDERER_BACKEND STREQUAL "Metal")
+  target_link_libraries(ImGui PRIVATE
+    ${METAL_FRAMEWORK}
+  )
+endif()
 
 set(ImGui_LIBS ImGui)
 

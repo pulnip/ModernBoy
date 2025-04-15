@@ -24,8 +24,6 @@ target_include_directories(RenderBackend PRIVATE
 )
 target_link_libraries(RenderBackend PRIVATE
   MetalContext
-  stdc++exp
-  TBB::tbb
   # SDL3
   SDL3::SDL3
   # SDL3_image

@@ -29,6 +29,7 @@ namespace ModernBoy
     using MeshRenderer = Renderer<DX11::RenderContext>;
 #elif defined(USE_METAL)
     using MeshManager = ResourceManager<Metal::Mesh>;
+    using ShaderManager = ResourceManager<Metal::DefaultShader>;
     using MeshRenderer = Renderer<Metal::RenderContext>;
     using MeshComponent = ResourceComponent<Metal::Mesh>;
     using MeshComponentSystem = ComponentSystem<MeshComponent>;

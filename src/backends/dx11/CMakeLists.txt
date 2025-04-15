@@ -27,7 +27,6 @@ target_include_directories(RenderBackend PRIVATE
 )
 target_link_libraries(RenderBackend PRIVATE
   stdc++exp
-  TBB::tbb
   # SDL3
   SDL3::SDL3
   # SDL3_image

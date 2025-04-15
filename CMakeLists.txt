@@ -44,14 +44,16 @@ if(RENDERER_BACKEND STREQUAL "DirectX")
   find_package(directxmath REQUIRED CONFIG)
   # find_package(directxtk REQUIRED CONFIG)
 elseif(RENDERER_BACKEND STREQUAL "Metal")
-  # if(NOT APPLE)
-  #   message(FATAL_ERROR
-  #     "Metal is only supported on macOS."
-  #     "Please other backend."
-  #   )
-  # endif()
+  if(NOT APPLE)
+    message(FATAL_ERROR
+      "Metal is only supported on macOS."
+      "Please other backend."
+    )
+  endif()
 
   add_definitions(-DUSE_METAL)
+  find_library(METAL_FRAMEWORK Metal)
+  set(CMAKE_OSX_SYSROOT /Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk)
 elseif(RENDERER_BACKEND STREQUAL "OpenGL")
   message(STATUS "Using OpenGL backend")
   add_definitions(-DUSE_OPENGL)
@@ -64,7 +66,6 @@ endif()
 
 message(STATUS "Using ${RENDERER_BACKEND} backend")
 
-find_package(TBB REQUIRED CONFIG)
 find_package(RapidJSON REQUIRED CONFIG)
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 find_package(SDL3_image REQUIRED CONFIG)

@@ -7,12 +7,12 @@
 
 using namespace ModernBoy::Metal;
 
-RenderContext::RenderContext([[maybe_unused]] SDL_Window* in_window,
-    MeshManager& in_meshManager)
-:meshManager(in_meshManager){}
+RenderContext::RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
+    ShaderManager& in_shaderManager)
+:meshManager(in_meshManager), shaderManager(in_shaderManager){}
 RenderContext::~RenderContext(){}
 
-void RenderContext::operator()([[maybe_unused]] const FrameStartCommand& cmd){
+void RenderContext::operator()([[maybe_unused]] const FrameStartCommand<Shader>& cmd){
     renderStart();
 }
 
