@@ -1,7 +1,7 @@
-#ifndef MODERNBOY_DX11_CONTEXT_HPP
-#define MODERNBOY_DX11_CONTEXT_HPP
+#ifndef MODERNBOY_METAL_CONTEXT_HPP
+#define MODERNBOY_METAL_CONTEXT_HPP
 
-#include <SDL3/SDL_video.h>
+#include <SDL3/SDL_metal.h>
 #include "render/render_command.hpp"
 #include "render/render_context.hpp"
 #include "resource_handle.hpp"
@@ -19,9 +19,11 @@ namespace ModernBoy::Metal
 
     struct RenderContext{
         using Window = SDL_Window;
-        using Mesh = Mesh;
+        using Mesh = ::ModernBoy::Metal::Mesh;
         using Shader = Metal::DefaultShader;
 
+        SDL_MetalView view;
+        void* metalLayer;
         MeshManager& meshManager;
         ShaderManager& shaderManager;
 

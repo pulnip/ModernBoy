@@ -27,6 +27,21 @@
         "cwd": "${workspaceFolder}/shaders"
       },
       "group": "build"
+    },
+    {
+      "type": "process",
+      "label": "Build active file",
+      "command": "clang++",
+      "args": [
+        "${file}",
+        "-I/opt/homebrew/include",
+        "-L/opt/homebrew/lib",
+        "-lassimp"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+      },
+      "group": "build"
     }
   ],
   "version": "2.0.0"

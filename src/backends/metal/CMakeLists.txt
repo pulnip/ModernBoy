@@ -15,7 +15,7 @@ target_compile_definitions(RenderBackend PRIVATE
   $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )
 
-target_include_directories(RenderBackend PRIVATE
+target_include_directories(RenderBackend PUBLIC
   ${CMAKE_SOURCE_DIR}/include
   # gsl-lite
   ${gsl-lite_INCLUDE_DIRS}
@@ -32,4 +32,6 @@ target_link_libraries(RenderBackend PRIVATE
   SDL3_image::SDL3_image
   # ImGui
   ${ImGui_LIBS}
+  "-framework Metal"
+  "-framework Foundation"
 )

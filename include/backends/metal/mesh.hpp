@@ -8,7 +8,7 @@
 namespace ModernBoy::Metal
 {
     struct Mesh{
-
+        BufferPtr vertexBuffer;
     };
     // static_assert(ResourceData<Mesh, RenderContext>);
 }

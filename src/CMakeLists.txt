@@ -36,4 +36,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   ${ImGui_LIBS}
   # angelscript
   angelscript
+  assimp::assimp
 )
