@@ -9,7 +9,8 @@
         "${workspaceFolder}/external/gsl-lite/include",
         "${workspaceFolder}/external/imgui",
         "${workspaceFolder}/external/tomlplusplus/include",
-        "${workspaceFolder}/external/angelscript/sdk/angelscript/include"
+        "${workspaceFolder}/external/angelscript/sdk/angelscript/include",
+        "${workspaceFolder}/external/stb"
       ],
       "defines": [
         "_DEBUG",
@@ -50,7 +51,8 @@
         "${workspaceFolder}/external/gsl-lite/include",
         "${workspaceFolder}/external/imgui",
         "${workspaceFolder}/external/tomlplusplus/include",
-        "${workspaceFolder}/external/angelscript/sdk/angelscript/include"
+        "${workspaceFolder}/external/angelscript/sdk/angelscript/include",
+        "${workspaceFolder}/external/metal-cpp"
       ],
       "defines": [
         "_DEBUG",

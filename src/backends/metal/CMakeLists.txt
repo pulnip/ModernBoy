@@ -21,6 +21,8 @@ target_include_directories(RenderBackend PRIVATE
   ${gsl-lite_INCLUDE_DIRS}
   # ImGui
   ${ImGui_INCLUDE_DIRS}
+  # metal-cpp
+  ${CMAKE_SOURCE_DIR}/external/metal-cpp
 )
 target_link_libraries(RenderBackend PRIVATE
   MetalContext

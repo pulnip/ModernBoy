@@ -113,3 +113,6 @@ imgui.ini
 
 # Compiled Shader Object
 *.cso
+
+*.png
+*.fbx
