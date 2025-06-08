@@ -20,9 +20,9 @@ public func setupMetal(_ layerPtr: UnsafeRawPointer?) {
     metalLayer.pixelFormat = .bgra8Unorm
 
     // load shader
-    let shaderPath = Bundle.main.path(forResource: "default", ofType: "metallib") ??
-        Bundle.main.resourcePath.flatMap{ "\($0)/default.metallib" } ??
-        "./default.metallib"
+    let shaderPath = Bundle.main.path(forResource: "VS", ofType: "metallib") ??
+        Bundle.main.resourcePath.flatMap{ "\($0)/VS.metallib" } ??
+        "./VS.metallib"
     let url = URL(fileURLWithPath: shaderPath)
     let library = try! device.makeLibrary(URL: url)
     let vertexFunc = library.makeFunction(name: "vertex_main")

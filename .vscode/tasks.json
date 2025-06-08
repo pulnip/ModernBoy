@@ -34,7 +34,7 @@
       "command": "sh",
       "args": [
         "-c",
-        "xcrun -sdk macosx metal -c ${file} -o ${fileDirname}/${fileBasenameNoExtension}.air && xcrun -sdk macosx metallib ${fileDirname}/${fileBasenameNoExtension}.air -o ${workspaceFolder}/default.metallib"
+        "CONFIG=$(basename $(dirname ${command:cmake.launchTargetPath})); xcrun -sdk macosx metal -c ${file} -o ${fileDirname}/${fileBasenameNoExtension}.air && xcrun -sdk macosx metallib ${fileDirname}/${fileBasenameNoExtension}.air -o ${workspaceFolder}/build/bin/$CONFIG/${fileBasenameNoExtension}.metallib"
       ],
       "group": "build",
       "problemMatcher": [],
