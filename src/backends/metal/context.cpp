@@ -13,11 +13,25 @@
 
 using namespace ModernBoy::Metal;
 
+float verts[] = {
+    // x, y, z, r, g, b
+     0.0f,  1.0f, 0.0f,  1,0,0,
+    -1.0f, -1.0f, 0.0f,  0,1,0,
+     1.0f, -1.0f, 0.0f,  0,0,1,
+};
+
+
 RenderContext::RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
     ShaderManager& in_shaderManager)
 :view(SDL_Metal_CreateView(in_window)),
 metalLayer(SDL_Metal_GetLayer(view)),
-meshManager(in_meshManager), shaderManager(in_shaderManager){}
+meshManager(in_meshManager), shaderManager(in_shaderManager)
+{
+    void* layer = SDL_Metal_GetLayer(view);
+    setupMetal(layer);
+
+    uploadVertices(verts, 3);
+}
 RenderContext::~RenderContext(){}
 
 void RenderContext::operator()([[maybe_unused]] const FrameStartCommand<Shader>& cmd){

@@ -29,6 +29,20 @@
       "group": "build"
     },
     {
+      "label": "Metal: build .metal to .metallib",
+      "type": "shell",
+      "command": "sh",
+      "args": [
+        "-c",
+        "xcrun -sdk macosx metal -c ${file} -o ${fileDirname}/${fileBasenameNoExtension}.air && xcrun -sdk macosx metallib ${fileDirname}/${fileBasenameNoExtension}.air -o ${workspaceFolder}/default.metallib"
+      ],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
       "type": "process",
       "label": "Build active file",
       "command": "clang++",

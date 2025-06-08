@@ -88,7 +88,12 @@ SDL_AppResult SDL_AppInit(void** appState,
 
 
 #elif defined(USE_METAL)
-    // TODO
+    Metal::Mesh rect;
+    MeshHandle rectHandle = as->meshManager.create(std::move(rect));
+    as->meshComponentSystem.create(MeshComponent{
+        .owner=0,
+        .resourceHandle = rectHandle
+    });
 #elif defined(USE_OPENGL)
     // TODO
 #endif

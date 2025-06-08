@@ -4,6 +4,7 @@
     "external/*": true,
   },
   "files.associations": {
+    "*.metal": "metal",
     "string": "cpp",
     "span": "cpp",
     "stdexcept": "cpp",

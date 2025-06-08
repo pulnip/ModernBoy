@@ -113,6 +113,8 @@ imgui.ini
 
 # Compiled Shader Object
 *.cso
+*.air
+*.metallib
 
 *.png
 *.fbx
