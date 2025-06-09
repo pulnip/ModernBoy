@@ -12,6 +12,7 @@
 #include "backends/dx11/context.hpp"
 #elif defined(USE_METAL)
 #include "backends/metal/mesh.hpp"
+#include "backends/metal/shader.hpp"
 #include "backends/metal/context.hpp"
 #elif defined(USE_OPENGL)
 #include "backends/opengl/mesh.hpp"
@@ -29,10 +30,10 @@ namespace ModernBoy
     using MeshRenderer = Renderer<DX11::RenderContext>;
 #elif defined(USE_METAL)
     using MeshManager = ResourceManager<Metal::Mesh>;
-    using ShaderManager = ResourceManager<Metal::DefaultShader>;
-    using MeshRenderer = Renderer<Metal::RenderContext>;
+    using ShaderManager = ResourceManager<Metal::Shader>;
     using MeshComponent = ResourceComponent<Metal::Mesh>;
     using MeshComponentSystem = ComponentSystem<MeshComponent>;
+    using MeshRenderer = Renderer<Metal::RenderContext>;
 #elif defined(USE_OPENGL)
     using MeshManager = ResourceManager<OpenGL::Mesh>;
     using MeshRenderer = Renderer<OpenGL::RenderContext>;

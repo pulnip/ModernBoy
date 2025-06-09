@@ -11,48 +11,50 @@ class RenderContext {
     var drawable: CAMetalDrawable?
 
     init(_ layerPtr: UnsafeRawPointer?) {
-        guard let ptr = layerPtr else {
+        guard let layerPtr = layerPtr else {
             fatalError("Cannot initialize RenderContext")
         }
-        layer = Unmanaged<CAMetalLayer>.fromOpaque(ptr).takeUnretainedValue()
+        layer = Unmanaged<CAMetalLayer>
+            .fromOpaque(layerPtr).takeUnretainedValue()
         layer.device = MTLCreateSystemDefaultDevice()!
         layer.pixelFormat = .bgra8Unorm
         commandQueue = layer.device!.makeCommandQueue()!
     }
-
-    func handle(_ cmd: RenderCommand) {
-        switch cmd {
-        case .frameStart(let c):
-            handleFrameStart(c)
-        case .draw(let c):
-            handleDraw(c)
-        case .frameEnd(let c):
-            handleFrameEnd(c)
+    deinit {
+        if let encoder = self.renderEncoder {
+            encoder.endEncoding()
         }
     }
 
-    func handleFrameStart(_ cmd: FrameStartCommand) {
-        guard let drawable = cmd.layer.nextDrawable() else { return }
+    func frameStart(
+        _ r: Double, _ g: Double, _ b: Double, _ a: Double,
+        _ shader: Shader
+    ) {
+        guard let drawable
+            = layer.nextDrawable() else { return }
         self.drawable = drawable
         let rpd = MTLRenderPassDescriptor()
         rpd.colorAttachments[0].texture = drawable.texture
         rpd.colorAttachments[0].loadAction = .clear
-        rpd.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
+        rpd.colorAttachments[0].clearColor = MTLClearColor(
+            red: r, green: g, blue: b, alpha: a)
         rpd.colorAttachments[0].storeAction = .store
         rpd.colorAttachments[0].texture = drawable.texture
 
         commandBuffer = commandQueue.makeCommandBuffer()
-        renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: rpd)
+        renderEncoder = commandBuffer?
+            .makeRenderCommandEncoder(descriptor: rpd)
 
-        cmd.shader.bind(encoder: renderEncoder!)
+        shader.bind(encoder: renderEncoder!)
     }
-    func handleDraw(_ cmd: DrawCommand) {
-        guard let encoder = self.renderEncoder else {return }
-        encoder.setVertexBuffer(cmd.mesh.vertexBuffer, offset: 0, index: 0)
+    func draw(_ mesh: Mesh) {
+        guard let encoder
+            = self.renderEncoder else {return }
+        encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0,
-            vertexCount: cmd.mesh.numVertices)
+            vertexCount: mesh.numVertices)
     }
-    func handleFrameEnd(_ cmd: FrameEndCommand) {
+    func frameEnd() {
         guard let encoder = self.renderEncoder,
               let commandBuffer = self.commandBuffer,
               let drawable = self.drawable else {return }
@@ -66,4 +68,50 @@ class RenderContext {
     }
 }
 
+@_cdecl("createRenderContext")
+public func createRenderContext(_ layerPtr: UnsafeRawPointer?
+) -> UnsafeRawPointer? {
+    let context = RenderContext(layerPtr)
+    return UnsafeRawPointer(Unmanaged.passRetained(context).toOpaque())
+}
+@_cdecl("destroyRenderContext")
+public func destroyRenderContext(_ ptr: UnsafeRawPointer?) {
+    if let ptr = ptr {
+        Unmanaged<RenderContext>.fromOpaque(ptr).release()
+    }
+}
 
+@_cdecl("RenderContext_frameStart")
+public func RenderContext_frameStart(_ rctxPtr: UnsafeRawPointer?,
+    _ r: Double, _ g: Double, _ b: Double, _ a: Double,
+    _ shaderPtr: UnsafeRawPointer?
+) {
+    guard let rctxPtr = rctxPtr,
+          let shaderPtr = shaderPtr else { return }      
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    let shader = Unmanaged<Shader>
+        .fromOpaque(shaderPtr).takeUnretainedValue()
+
+    rctx.frameStart(r, g, b, a, shader)
+}
+@_cdecl("RenderContext_draw")
+public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,
+    _ meshPtr: UnsafeRawPointer?,
+) {
+    guard let rctxPtr = rctxPtr,
+          let meshPtr = meshPtr else { return }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    let mesh = Unmanaged<Mesh>
+        .fromOpaque(meshPtr).takeUnretainedValue()
+
+    rctx.draw(mesh)
+}
+@_cdecl("RenderContext_frameEnd")
+public func RenderContext_frameEnd(_ rctxPtr: UnsafeRawPointer?) {
+    guard let rctxPtr = rctxPtr else { return }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    rctx.frameEnd()
+}

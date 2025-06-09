@@ -3,13 +3,12 @@ enable_language(Swift)
 add_library(RenderBackend STATIC
   context.cpp
   mesh.cpp
+  shader.cpp
 )
 add_library(MetalContext SHARED
   context.swift
   mesh.swift
-  render_command.swift
   shader.swift
-  type.swift
 )
 
 target_compile_options(RenderBackend PRIVATE

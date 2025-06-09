@@ -16,7 +16,6 @@ float verts[] = {
      1.0f, -1.0f, 0.0f,  0,0,1,
 };
 
-
 RenderContext::RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
     ShaderManager& in_shaderManager)
 :view(SDL_Metal_CreateView(in_window)),
@@ -24,20 +23,25 @@ metalLayer(SDL_Metal_GetLayer(view)),
 meshManager(in_meshManager), shaderManager(in_shaderManager)
 {
     void* layer = SDL_Metal_GetLayer(view);
-    setupMetal(layer);
-
-    uploadVertices(verts, 3);
+    _renderContext = createRenderContext(layer);
 }
-RenderContext::~RenderContext(){}
+RenderContext::~RenderContext(){
+    destroyRenderContext(_renderContext);
+}
 
 void RenderContext::operator()([[maybe_unused]] const FrameStartCommand<Shader>& cmd){
-    renderStart();
+    ShaderPtr shaderPtr = shaderManager.get(cmd.getHandle())->shaderPtr;
+
+    RenderContext_frameStart(_renderContext,
+        0.0, 0.0, 0.0, 0.5, shaderPtr);
 }
 
 void RenderContext::operator()([[maybe_unused]] const DrawCommand<Mesh>& cmd){
-    draw();
+    MeshPtr meshPtr = meshManager.get(cmd.getHandle())->meshPtr;
+
+    RenderContext_draw(_renderContext, meshPtr);
 }
 
 void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){
-    renderEnd();
+    RenderContext_frameEnd(_renderContext);
 }

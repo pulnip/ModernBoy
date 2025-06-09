@@ -3,7 +3,7 @@
 
 namespace ModernBoy::Metal
 {
-    using BufferPtr = void*;
+    using NativePtr = void*;
 }
 
 #endif // MODERNBOY_METAL_TYPE_HPP

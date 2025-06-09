@@ -8,6 +8,7 @@
 #include "backends/dx11/mesh.hpp"
 #elif defined(USE_METAL)
 #include "backends/metal/mesh.hpp"
+#include "backends/metal/shader.hpp"
 #elif defined(USE_OPENGL)
 #include <glad/glad.h>
 #endif
@@ -85,19 +86,23 @@ SDL_AppResult SDL_AppInit(void** appState,
 
     DX11::DefaultShader shader(as->renderer.context.device);
     as->shaderManager.create(std::move(shader));
-
-
 #elif defined(USE_METAL)
-    Metal::Mesh rect;
-    MeshHandle rectHandle = as->meshManager.create(std::move(rect));
+    NativePtr layerPtr = as->renderer.context.metalLayer;
+    Mesh mesh = Mesh(makeTriangle(layerPtr));
+    MeshHandle triangleHandle = as->meshManager.create(std::move(mesh));
     as->meshComponentSystem.create(MeshComponent{
         .owner=0,
-        .resourceHandle = rectHandle
+        .resourceHandle = triangleHandle
     });
+    auto shader = Shader(createShader(layerPtr));
+    as->shaderManager.create(std::move(shader));
+
 #elif defined(USE_OPENGL)
     // TODO
 #endif
     *appState = as;
+
+    as->renderer.renderStart();
 
     as->last_step = SDL_GetTicks();
     return SDL_APP_CONTINUE;  /* carry on with the program! */

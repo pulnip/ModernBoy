@@ -6,24 +6,24 @@
 #include "render/render_context.hpp"
 #include "resource_handle.hpp"
 #include "resource_manager.hpp"
-#include "type.hpp"
 #include "mesh.hpp"
 #include "shader.hpp"
 
 namespace ModernBoy::Metal
 {
-    using MeshManager = ResourceManager<Mesh>;
-    using MeshHandle = ResourceHandle<Mesh>;
-    using ShaderManager = ResourceManager<Metal::DefaultShader>;
-    using ShaderHandle = ResourceHandle<Metal::DefaultShader>;
+    using MeshManager = ResourceManager<Metal::Mesh>;
+    using MeshHandle = ResourceHandle<Metal::Mesh>;
+    using ShaderManager = ResourceManager<Metal::Shader>;
+    using ShaderHandle = ResourceHandle<Metal::Shader>;
 
     struct RenderContext{
         using Window = SDL_Window;
-        using Mesh = ::ModernBoy::Metal::Mesh;
-        using Shader = Metal::DefaultShader;
+        using Mesh = Metal::Mesh;
+        using Shader = Metal::Shader;
 
         SDL_MetalView view;
         void* metalLayer;
+        NativePtr _renderContext;
         MeshManager& meshManager;
         ShaderManager& shaderManager;
 
@@ -35,7 +35,32 @@ namespace ModernBoy::Metal
         void operator()(const DrawCommand<Mesh>&);
         void operator()(const FrameEndCommand&);
     };
-    static_assert(ModernBoy::RenderContext<Metal::RenderContext>);
+    // static_assert(ModernBoy::RenderContext<Metal::RenderContext>);
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+    extern void* createRenderContext(const void* layerPtr);
+    extern void destroyRenderContext(void* ctx);
+
+    extern void RenderContext_frameStart(
+        void* _nativeContext,
+        double r, double g, double b, double a,
+        void* shaderPtr
+    );
+    extern void RenderContext_draw(
+        void* _nativeContext,
+        void* meshPtr
+    );
+    extern void RenderContext_frameEnd(
+        void* _nativeContext
+    );
+
+#ifdef __cplusplus
+}
+#endif
+
 }
 
 #endif // MODERNBOY_DX11_CONTEXT_HPP

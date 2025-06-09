@@ -3,17 +3,19 @@ import QuartzCore
 import simd
 
 struct SmolVertex{
-    var position: simd_float3
-    var color: UInt32
+    var position: simd_float4
+    var color: simd_float4
 }
 
-struct Mesh{
+class Mesh{
     var vertexBuffer: MTLBuffer
     var numVertices: Int
     var indexBuffer: MTLBuffer?
     var numIndices: Int?
 
-    init(device: MTLDevice, vertices: [SmolVertex], indices: [UInt16]?) {
+    init(device: MTLDevice, vertices: [SmolVertex],
+        indices: [UInt16]? = nil
+    ) {
         vertexBuffer = device.makeBuffer(
             bytes: vertices,
             length: vertices.count*MemoryLayout<SmolVertex>.stride)!
@@ -31,21 +33,26 @@ struct Mesh{
 @_cdecl("makeTriangle")
 public func makeTriangle(layerPtr: UnsafeRawPointer?)
 -> UnsafeRawPointer? {
-    let verts: [Float] = [
-         0.0,  1.0, 0.0,  1,0,0,
-        -1.0, -1.0, 0.0,  0,1,0,
-         1.0, -1.0, 0.0,  0,0,1,
+    let vertices = [
+        SmolVertex(
+            position: simd_float4(0, 1, 0, 1),
+            color: simd_float4(1, 0, 0, 1)),
+        SmolVertex(position: simd_float4(-1, -1, 0, 1),
+            color: simd_float4(0, 1, 0, 1)),
+        SmolVertex(position: simd_float4(1, -1, 0, 1),
+            color: simd_float4(0, 0, 1, 1)),
     ]
+    guard let layerPtr = layerPtr
+        else { return nil }
+    let device = Unmanaged<CAMetalLayer>
+        .fromOpaque(layerPtr).takeUnretainedValue().device!
 
-    guard let ptr = layerPtr else { return nil }
-    let device = Unmanaged<CAMetalLayer>.fromOpaque(ptr).takeUnretainedValue().device!
-
-    // (float: x,y,z,r,g,b) per vertex
-    let byteCount = 3*6*MemoryLayout<Float>.size
-    let vertexBuffer = device.makeBuffer(
-        bytes: verts, length: byteCount)
-    if let buf = vertexBuffer {
-        return UnsafeRawPointer(Unmanaged.passUnretained(buf).toOpaque())
+    let mesh = Mesh(device: device, vertices: vertices)
+    return UnsafeRawPointer(Unmanaged.passRetained(mesh).toOpaque())
+}
+@_cdecl("destroyMesh")
+public func destroyMesh(_ ptr: UnsafeRawPointer?) {
+    if let ptr = ptr {
+        Unmanaged<Mesh>.fromOpaque(ptr).release()
     }
-    return nil
 }

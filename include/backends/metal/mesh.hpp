@@ -8,36 +8,34 @@
 
 namespace ModernBoy::Metal
 {
-    struct Mesh{
-        BufferPtr vertexBuffer;
-        uint16_t numVertices;
-        BufferPtr indexBuffer;
-        uint16_t numIndices;
+#ifdef __cplusplus
+extern "C"{
+#endif
 
-    public:
+    extern void* makeTriangle(const void* layerPtr);
+    extern void destroyMesh(const void* meshPtr);
+
+#ifdef __cplusplus
+}
+#endif
+    using MeshPtr = NativePtr;
+
+    struct Mesh{
+        MeshPtr meshPtr;
+
         Mesh()=default;
-        ~Mesh()=default;
         Mesh(const Mesh&)=delete;
         Mesh(Mesh&& mesh);
         Mesh& operator=(const Mesh&)=delete;
         Mesh& operator=(Mesh&&);
-
-        void bind(RenderContext& in_context) const;
+        
+        Mesh(MeshPtr meshPtr):meshPtr(meshPtr){}
+        ~Mesh(){ destroyMesh(meshPtr); }
 
     private:
         // Move semantics
         void moveFrom(Mesh&&);
     };
-    // static_assert(ResourceData<Mesh, RenderContext>);
-#ifdef __cplusplus
-extern "C"{
-#endif
-
-    extern void* makeTriangle(const float* vertices, int count);
-
-#ifdef __cplusplus
-}
-#endif
 }
 
 #endif // MODERNBOY_METAL_MESH_HPP

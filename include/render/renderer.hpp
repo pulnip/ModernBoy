@@ -39,15 +39,22 @@ namespace ModernBoy
             ResourceManager<Shader>& shaderManager,
             const MeshComponentSystem& meshComponentSystem)
         :context(window, meshManager, shaderManager),
-        meshComponentSystem(meshComponentSystem),
-        commandThread([this](std::stop_token stoken){
-            produceCommand(stoken);
-        }, stsrc.get_token()),
-        renderThread([this](std::stop_token stoken){
-            consumeCommand(stoken);
-        }, stsrc.get_token()){}
+        meshComponentSystem(meshComponentSystem){}
 
         ~Renderer(){ stsrc.request_stop(); }
+
+        void renderStart(){
+            commandThread = std::jthread(
+                [this](std::stop_token stoken){
+                    produceCommand(stoken);
+                }, stsrc.get_token()
+            );
+            renderThread= std::jthread(
+                [this](std::stop_token stoken){
+                    consumeCommand(stoken);
+                }, stsrc.get_token()
+            );
+        }
 
     private:
         void produceCommand(std::stop_token stoken){
