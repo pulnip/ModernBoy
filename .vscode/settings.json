@@ -1,7 +1,8 @@
 {
   "search.exclude": {
-    "build/*": true,
-    "external/*": true,
+    "build": true,
+    "external": true,
+    ".build": true,
   },
   "files.associations": {
     "*.metal": "metal",

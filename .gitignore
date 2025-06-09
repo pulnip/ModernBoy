@@ -101,6 +101,7 @@ generated/vcpkg_installed/
 
 # Build Result
 build/
+.build/
 
 # Old Files
 old
