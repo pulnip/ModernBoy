@@ -5,7 +5,11 @@ add_library(RenderBackend STATIC
   mesh.cpp
 )
 add_library(MetalContext SHARED
-  bridge.swift
+  context.swift
+  mesh.swift
+  render_command.swift
+  shader.swift
+  type.swift
 )
 
 target_compile_options(RenderBackend PRIVATE

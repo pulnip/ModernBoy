@@ -3,10 +3,6 @@
 #define NS_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
-#include <Foundation/Foundation.hpp>
-#include <Metal/Metal.hpp>
-#include <QuartzCore/QuartzCore.hpp>
-#include "backends/metal/bridge.hpp"
 #include "backends/metal/context.hpp"
 #include <imgui.h>
 // #include <imgui_impl_sdl3.h>
