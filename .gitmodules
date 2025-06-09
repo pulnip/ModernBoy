@@ -13,6 +13,3 @@
 [submodule "external/stb"]
 	path = external/stb
 	url = https://github.com/nothings/stb.git
-[submodule "external/metal-cpp"]
-	path = external/metal-cpp
-	url = https://github.com/bkaradzic/metal-cpp.git
