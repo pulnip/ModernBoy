@@ -15,16 +15,18 @@ struct VS_Output{
     float4 uv;
 };
 
-vertex VS_Output vertex_main(Vertex input [[stage_in]]){
+vertex VS_Output vertex_main(uint vid [[vertex_id]],
+    constant Vertex* vertices [[buffer(0)]]
+){
     VS_Output output;
-    output.position = input.position;
-    output.uv = input.uv;
+    output.position = vertices[vid].position;
+    output.uv = vertices[vid].uv;
     return output;
 }
 fragment float4 fragment_main(
-    VS_Output input  [[stage_in]],
+    VS_Output input [[stage_in]],
     texture2d<float> tex [[texture(0)]],
-    sampler samp     [[sampler(0)]]
+    sampler samp [[sampler(0)]]
 ){
     float2 uv = input.uv.xy;
     float4 color = tex.sample(samp, uv);

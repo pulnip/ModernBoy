@@ -20,7 +20,9 @@ class Shader{
         vertexDesc.attributes[2].format = .float4
         vertexDesc.attributes[2].offset = 32
         vertexDesc.attributes[2].bufferIndex = 0
-        vertexDesc.layouts[0].stride = 48
+        vertexDesc.layouts[0].stride = MemoryLayout<Vertex>.stride
+        vertexDesc.layouts[0].stepRate = 1
+        vertexDesc.layouts[0].stepFunction = .perVertex
 
         let pipelineDesc = MTLRenderPipelineDescriptor()
         pipelineDesc.vertexFunction = vertexFunc

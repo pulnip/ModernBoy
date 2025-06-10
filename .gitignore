@@ -119,3 +119,6 @@ imgui.ini
 
 *.png
 *.fbx
+*.bmp
+
+.DS_Store

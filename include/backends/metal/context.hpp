@@ -22,7 +22,7 @@ namespace ModernBoy::Metal
         using Shader = Metal::Shader;
 
         SDL_MetalView view;
-        void* metalLayer;
+        NativePtr metalLayer;
         NativePtr _renderContext;
         MeshManager& meshManager;
         ShaderManager& shaderManager;

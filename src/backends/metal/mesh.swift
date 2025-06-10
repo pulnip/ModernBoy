@@ -26,7 +26,8 @@ class Mesh{
     ) {
         vertexBuffer = device.makeBuffer(
             bytes: vertices,
-            length: vertices.count*MemoryLayout<Vertex>.stride)!
+            length: vertices.count*MemoryLayout<Vertex>.stride,
+            options: .storageModeShared)!
         numVertices = vertices.count
         if let indices = indices {
             indexBuffer = device.makeBuffer(

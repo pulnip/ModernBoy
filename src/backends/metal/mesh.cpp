@@ -20,24 +20,102 @@ void Mesh::moveFrom(Mesh&& other){
 
 Mesh ModernBoy::Metal::makeTriangle(NativePtr layerPtr){
     float vertices[] = {
-         0, 1,0, 1,0,0, 0,0,
-        -1,-1,0, 0,1,0, 0,0,
-         1,-1,0, 0,0,1, 0,0,
+         0.0f, 1.0f,0.0f, 0.0f,0.0f,-1.0f, 0.0f,0.0f,
+        -1.0f,-1.0f,0.0f, 0.0f,0.0f,-1.0f, 0.0f,0.0f,
+         1.0f,-1.0f,0.0f, 0.0f,0.0f,-1.0f, 0.0f,0.0f,
     };
     int numVertices = sizeof(vertices) / (8*sizeof(float));
-    // uint32_t indices[3] = { 0, 1, 2 };
-    // int numIndices = sizeof(indices)/sizeof(uint32_t);
 
     MeshPtr meshPtr = createMesh(layerPtr,
         vertices, numVertices, nullptr, 0, nullptr);
+    return Mesh(meshPtr);
+}
+Mesh ModernBoy::Metal::makeRectangle(NativePtr layerPtr){
+    float vertices[] = {
+        -0.5f,-0.5f,0.0f, 0.0f,0.0f,-1.0f, 0.0f,1.0f,
+         0.5f,-0.5f,0.0f, 0.0f,0.0f,-1.0f, 1.0f,1.0f,
+         0.5f, 0.5f,0.0f, 0.0f,0.0f,-1.0f, 1.0f,0.0f,
+        -0.5f, 0.5f,0.0f, 0.0f,0.0f,-1.0f, 0.0f,0.0f,
+    };
+    int numVertices = sizeof(vertices) / (8*sizeof(float));
+    uint32_t indices[] = {
+        0, 1, 2,
+        0, 2, 3
+    };
+    int numIndices = sizeof(indices)/sizeof(uint32_t);
+
+    MeshPtr meshPtr = createMesh(layerPtr,
+        vertices, numVertices, indices, numIndices,
+        "metal_logo.png"
+    );
+    return Mesh(meshPtr);
+}
+Mesh ModernBoy::Metal::makeCube(NativePtr layerPtr){
+    float vertices[] = {
+        // front
+        -0.5f,-0.5f,-0.5f, 0.0f,0.0f,0.0f, 0.0f,1.0f,
+         0.5f,-0.5f,-0.5f, 0.0f,0.0f,0.0f, 1.0f,1.0f,
+         0.5f, 0.5f,-0.5f, 0.0f,0.0f,0.0f, 1.0f,0.0f,
+        -0.5f, 0.5f,-0.5f, 0.0f,0.0f,0.0f, 0.0f,0.0f,
+        // back
+        -0.5f,-0.5f, 0.5f, 0.0f,0.0f,0.0f, 0.0f,1.0f,
+         0.5f,-0.5f, 0.5f, 0.0f,0.0f,0.0f, 1.0f,1.0f,
+         0.5f, 0.5f, 0.5f, 0.0f,0.0f,0.0f, 1.0f,0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f,0.0f,0.0f, 0.0f,0.0f,
+        // Left
+        -0.5f, 0.5f,-0.5f, 0.0f,0.0f,0.0f, 0.0f,1.0f,
+        -0.5f,-0.5f,-0.5f, 0.0f,0.0f,0.0f, 1.0f,1.0f,
+        -0.5f,-0.5f, 0.5f, 0.0f,0.0f,0.0f, 1.0f,0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f,0.0f,0.0f, 0.0f,0.0f,
+        // right
+         0.5f, 0.5f,-0.5f, 0.0f,0.0f,0.0f, 0.0f, 1.0f,
+         0.5f,-0.5f,-0.5f, 0.0f,0.0f,0.0f, 1.0f, 1.0f,
+         0.5f,-0.5f, 0.5f, 0.0f,0.0f,0.0f, 1.0f, 0.0f,
+         0.5f, 0.5f, 0.5f, 0.0f,0.0f,0.0f, 0.0f, 0.0f,
+        // bottom
+        -0.5f,-0.5f,-0.5f, 0.0f,0.0f,0.0f, 0.0f, 1.0f,
+         0.5f,-0.5f,-0.5f, 0.0f,0.0f,0.0f, 1.0f, 1.0f,
+         0.5f,-0.5f, 0.5f, 0.0f,0.0f,0.0f, 1.0f, 0.0f,
+        -0.5f,-0.5f, 0.5f, 0.0f,0.0f,0.0f, 0.0f, 0.0f,
+        // top
+        -0.5f, 0.5f,-0.5f, 0.0f,0.0f,0.0f, 0.0f, 1.0f,
+         0.5f, 0.5f,-0.5f, 0.0f,0.0f,0.0f, 1.0f, 1.0f,
+         0.5f, 0.5f, 0.5f, 0.0f,0.0f,0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f,0.0f,0.0f, 0.0f, 0.0f
+    };
+    int numVertices = sizeof(vertices) / (8*sizeof(float));
+    uint32_t indices[] = {
+        // front
+         0,  3,  2,
+         2,  1,  0,
+        // back
+         4,  5,  6,
+         6,  7,  4,
+        // left
+        11,  8,  9,
+         9, 10, 11,
+        // right
+        12, 13, 14,
+        14, 15, 12,
+        // bottom
+        16, 17, 18,
+        18, 19, 16,
+        // top
+        20, 21, 22,
+        22, 23, 20
+    };
+    int numIndices = sizeof(indices) / sizeof(uint32_t);
+
+    MeshPtr meshPtr = createMesh(layerPtr,
+        vertices, numVertices, indices, numIndices, nullptr);
     return Mesh(meshPtr);
 }
 
 Mesh ModernBoy::Metal::makeSomething(NativePtr layerPtr){
     Assimp::Importer importer;
 
-    const aiScene* scene = importer.ReadFile("assets/furina/source/Furina2.fbx",
-        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene* scene = importer.ReadFile("Hu tao.fbx",
+        aiProcess_ConvertToLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 
     if (!scene || !scene->mRootNode || scene->mNumMeshes == 0) {
         return Mesh(nullptr);
@@ -50,8 +128,8 @@ Mesh ModernBoy::Metal::makeSomething(NativePtr layerPtr){
         size_t base = 8*i;
         // position
         vertices[base+0] = mesh->mVertices[i].x;
-        vertices[base+1] = mesh->mVertices[i].y;
-        vertices[base+2] = mesh->mVertices[i].z;
+        vertices[base+1] = mesh->mVertices[i].y-17;
+        vertices[base+2] = mesh->mVertices[i].z+2;
         // normal
         if (mesh->HasNormals()) {
             vertices[base+3] = mesh->mNormals[i].x;
@@ -83,12 +161,12 @@ Mesh ModernBoy::Metal::makeSomething(NativePtr layerPtr){
     if(material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS) {
         printf("Diffuse texture: %s\n", texPath.C_Str());
     }
-    std::string manPath = "/Users/choiw/repository/ModernBoy/assets/furina/textures/颜.png";
+    std::string manPath = "面.png";
 
     MeshPtr meshPtr = createMesh(layerPtr,
         vertices.data(), vertices.size() / 8,
-        nullptr, 0, manPath.c_str()
-        // indices.data(), indices.size(), manPath.c_str()
+        // nullptr, 0, texPath.C_Str()
+        indices.data(), indices.size(), manPath.c_str()
     );
     return Mesh(meshPtr);
 }

@@ -42,6 +42,8 @@ extern "C"{
     };
 
     extern Mesh makeTriangle(NativePtr layerPtr);
+    extern Mesh makeRectangle(NativePtr layerPtr);
+    extern Mesh makeCube(NativePtr layerPtr);
     extern Mesh makeSomething(NativePtr layerPtr);
 }
 
