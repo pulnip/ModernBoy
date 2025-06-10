@@ -1,19 +1,24 @@
 #include <metal_stdlib>
 using namespace metal;
 
-struct VS_Input{
+struct SmolVertex{
     float4 position [[attribute(0)]];
     float4 color    [[attribute(1)]];
+};
+struct Vertex{
+    float4 position [[attribute(0)]];
+    float4 normal   [[attribute(1)]];
+    float4 color    [[attribute(2)]];
 };
 struct VS_Output{
     float4 position [[position]];
     float4 color;
 };
 
-vertex VS_Output vertex_main(VS_Input input [[stage_in]]){
+vertex VS_Output vertex_main(Vertex input [[stage_in]]){
     VS_Output output;
     output.position = input.position;
-    output.color = input.color;
+    output.color = input.normal;
     return output;
 }
 fragment float4 fragment_main(VS_Output input [[stage_in]]){

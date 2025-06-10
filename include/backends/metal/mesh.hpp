@@ -12,8 +12,11 @@ namespace ModernBoy::Metal
 extern "C"{
 #endif
 
-    extern void* makeTriangle(const void* layerPtr);
+    extern void* createMesh(const void* layerPtr,
+        const float* vertices, int numVertices,
+        const float* indices, int numIndices);
     extern void destroyMesh(const void* meshPtr);
+    extern void* makeTriangle(const void* layerPtr);
 
 #ifdef __cplusplus
 }
@@ -36,6 +39,8 @@ extern "C"{
         // Move semantics
         void moveFrom(Mesh&&);
     };
+
+    extern Mesh makeTriangle(NativePtr layerPtr);
 }
 
 #endif // MODERNBOY_METAL_MESH_HPP

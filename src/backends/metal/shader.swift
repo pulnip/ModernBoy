@@ -17,7 +17,10 @@ class Shader{
         vertexDesc.attributes[1].format = .float4
         vertexDesc.attributes[1].offset = 16
         vertexDesc.attributes[1].bufferIndex = 0
-        vertexDesc.layouts[0].stride = 32
+        vertexDesc.attributes[2].format = .float4
+        vertexDesc.attributes[2].offset = 32
+        vertexDesc.attributes[2].bufferIndex = 0
+        vertexDesc.layouts[0].stride = 48
 
         let pipelineDesc = MTLRenderPipelineDescriptor()
         pipelineDesc.vertexFunction = vertexFunc

@@ -6,6 +6,11 @@ struct SmolVertex{
     var position: simd_float4
     var color: simd_float4
 }
+struct Vertex{
+    var position: simd_float4
+    var normal: simd_float4
+    var uv: simd_float4
+}
 
 class Mesh{
     var vertexBuffer: MTLBuffer
@@ -13,41 +18,56 @@ class Mesh{
     var indexBuffer: MTLBuffer?
     var numIndices: Int?
 
-    init(device: MTLDevice, vertices: [SmolVertex],
-        indices: [UInt16]? = nil
+    init(_ device: MTLDevice, _ vertices: [Vertex],
+        _ indices: [UInt]? = nil
     ) {
         vertexBuffer = device.makeBuffer(
             bytes: vertices,
-            length: vertices.count*MemoryLayout<SmolVertex>.stride)!
+            length: vertices.count*MemoryLayout<Vertex>.stride)!
         numVertices = vertices.count
         if let indices = indices {
             indexBuffer = device.makeBuffer(
                 bytes: indices,
-                length: indices.count*MemoryLayout<UInt16>.stride,
+                length: indices.count*MemoryLayout<UInt>.stride,
             )
             numIndices = indices.count
         }
     }
 }
 
-@_cdecl("makeTriangle")
-public func makeTriangle(layerPtr: UnsafeRawPointer?)
--> UnsafeRawPointer? {
-    let vertices = [
-        SmolVertex(
-            position: simd_float4(0, 1, 0, 1),
-            color: simd_float4(1, 0, 0, 1)),
-        SmolVertex(position: simd_float4(-1, -1, 0, 1),
-            color: simd_float4(0, 1, 0, 1)),
-        SmolVertex(position: simd_float4(1, -1, 0, 1),
-            color: simd_float4(0, 0, 1, 1)),
-    ]
-    guard let layerPtr = layerPtr
-        else { return nil }
+@_cdecl("createMesh")
+public func createMesh(layerPtr: UnsafeRawPointer?,
+    packedVertices: UnsafePointer<Float>, numVertices: Int,
+    indicesPtr: UnsafePointer<UInt>?, numIndices: Int
+) -> UnsafeRawPointer? {
+    guard let layerPtr = layerPtr else {
+        fatalError("Invalid Metel Layer Pointer")
+    }
     let device = Unmanaged<CAMetalLayer>
         .fromOpaque(layerPtr).takeUnretainedValue().device!
 
-    let mesh = Mesh(device: device, vertices: vertices)
+    var vertices: [Vertex] = []
+    for i in 0...numVertices{
+        let base = i * 8
+        let position = simd_float4(
+            packedVertices[base+0], packedVertices[base+1],
+            packedVertices[base+2],                      1)
+        let normal = simd_float4(
+            packedVertices[base+3], packedVertices[base+4],
+            packedVertices[base+5],                      1)
+        let uv = simd_float4(
+            packedVertices[base+6], packedVertices[base+7],
+                                 0,                      0)
+        vertices.append(Vertex(
+            position: position, normal: normal, uv: uv))
+    }
+    var indices: [UInt]? = nil
+    if let indicesPtr = indicesPtr, numIndices > 0 {
+        let buffer = UnsafeBufferPointer(start: indicesPtr, count: numIndices)
+        indices = Array(buffer)
+    }
+
+    let mesh = Mesh(device, vertices, indices)
     return UnsafeRawPointer(Unmanaged.passRetained(mesh).toOpaque())
 }
 @_cdecl("destroyMesh")
