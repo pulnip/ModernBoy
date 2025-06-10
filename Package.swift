@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "ModernBoy",
+    platforms: [
+        .macOS(.v15)
+    ],
     targets: [
         .target(
             name: "ModernBoy",
@@ -14,6 +17,6 @@ let package = Package(
                 "mesh.cpp",
                 "shader.cpp",
             ]
-        )
-    ]
+        ),
+    ],
 )

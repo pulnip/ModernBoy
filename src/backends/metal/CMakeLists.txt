@@ -1,3 +1,4 @@
+set(CMAKE_OSX_DEPLOYMENT_TARGET "15.0")
 enable_language(Swift)
 
 add_library(RenderBackend STATIC
@@ -7,6 +8,7 @@ add_library(RenderBackend STATIC
 )
 add_library(MetalContext SHARED
   context.swift
+  math.swift
   mesh.swift
   shader.swift
 )

@@ -1,10 +1,16 @@
 import Metal
+import MetalKit
 import QuartzCore
+import simd
 
 class RenderContext {
     let layer: CAMetalLayer
     let commandQueue: MTLCommandQueue
     let sampler: MTLSamplerState
+
+    var aspectRatio: Float = 1.0
+
+    var viewPosition = simd_float3(4.5, 5.0, 0.0)
 
     // material per frame
     var commandBuffer: MTLCommandBuffer?
@@ -55,10 +61,27 @@ class RenderContext {
             .makeRenderCommandEncoder(descriptor: rpd)
 
         shader.bind(encoder: renderEncoder!)
+
+        var projMat = perspectiveMatrix(
+            fov: toRadians(from: 45.0), aspectRatio: aspectRatio, nearPlane: 0.1, farPlane: 100.0)
+        renderEncoder!.setVertexBytes(&projMat,
+            length: MemoryLayout<simd_float4x4>.stride, index: 1)
+
+        var viewMat = viewMatrix(
+            eyePos: viewPosition,
+            tgtPos: simd_float3(0.0, 0.0, 0.0),
+            upDir: simd_float3(0.0, 1.0, 0.0))
+        renderEncoder!.setVertexBytes(&viewMat,
+            length: MemoryLayout<simd_float4x4>.stride, index: 2)
     }
     func draw(_ mesh: Mesh) {
         guard let encoder
             = self.renderEncoder else {return }
+        var modelMat = matrix_identity_float4x4
+        rotate(&modelMat, 0.0, toRadians(from: 60.0), 0.0)
+        encoder.setVertexBytes(&modelMat,
+            length: MemoryLayout<simd_float4x4>.stride, index: 3)
+
         encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
         if let texture = mesh.texture {
             encoder.setFragmentTexture(texture, index: 0)

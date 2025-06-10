@@ -107,7 +107,9 @@ Mesh ModernBoy::Metal::makeCube(NativePtr layerPtr){
     int numIndices = sizeof(indices) / sizeof(uint32_t);
 
     MeshPtr meshPtr = createMesh(layerPtr,
-        vertices, numVertices, indices, numIndices, nullptr);
+        vertices, numVertices, indices, numIndices,
+        "metal_logo.png"
+    );
     return Mesh(meshPtr);
 }
 

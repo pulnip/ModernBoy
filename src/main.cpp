@@ -88,7 +88,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     as->shaderManager.create(std::move(shader));
 #elif defined(USE_METAL)
     NativePtr layerPtr = as->renderer.context.metalLayer;
-    Mesh mesh = makeRectangle(layerPtr);
+    Mesh mesh = makeCube(layerPtr);
     MeshHandle triangleHandle = as->meshManager.create(std::move(mesh));
     as->meshComponentSystem.create(MeshComponent{
         .owner=0,
