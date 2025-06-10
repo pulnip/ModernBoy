@@ -11,7 +11,8 @@ let package = Package(
             path: "src/backends/metal",
             exclude: [
                 "context.cpp",
-                "mesh.cpp"
+                "mesh.cpp",
+                "shader.cpp",
             ]
         )
     ]
