@@ -1,4 +1,5 @@
 import Metal
+import MetalKit
 import QuartzCore
 import simd
 
@@ -18,8 +19,10 @@ class Mesh{
     var indexBuffer: MTLBuffer?
     var numIndices: Int?
 
+    var texture: MTLTexture?
+
     init(_ device: MTLDevice, _ vertices: [Vertex],
-        _ indices: [UInt]? = nil
+        _ indices: [UInt32]? = nil, _ texturePath: String?
     ) {
         vertexBuffer = device.makeBuffer(
             bytes: vertices,
@@ -28,9 +31,19 @@ class Mesh{
         if let indices = indices {
             indexBuffer = device.makeBuffer(
                 bytes: indices,
-                length: indices.count*MemoryLayout<UInt>.stride,
+                length: indices.count*MemoryLayout<UInt32>.stride,
             )
             numIndices = indices.count
+        }
+
+        if let path = texturePath{
+            let url = URL(fileURLWithPath: path)
+            let loader: MTKTextureLoader = MTKTextureLoader(
+                device: device)
+
+            let options: [MTKTextureLoader.Option: Any] = [.SRGB: false]
+            texture = try? loader.newTexture(URL: url,
+                options: options)
         }
     }
 }
@@ -38,7 +51,8 @@ class Mesh{
 @_cdecl("createMesh")
 public func createMesh(layerPtr: UnsafeRawPointer?,
     packedVertices: UnsafePointer<Float>, numVertices: Int,
-    indicesPtr: UnsafePointer<UInt>?, numIndices: Int
+    indicesPtr: UnsafePointer<UInt32>?, numIndices: Int,
+    texturePath: UnsafePointer<CChar>?
 ) -> UnsafeRawPointer? {
     guard let layerPtr = layerPtr else {
         fatalError("Invalid Metel Layer Pointer")
@@ -47,7 +61,7 @@ public func createMesh(layerPtr: UnsafeRawPointer?,
         .fromOpaque(layerPtr).takeUnretainedValue().device!
 
     var vertices: [Vertex] = []
-    for i in 0...numVertices{
+    for i in 0..<numVertices{
         let base = i * 8
         let position = simd_float4(
             packedVertices[base+0], packedVertices[base+1],
@@ -61,13 +75,17 @@ public func createMesh(layerPtr: UnsafeRawPointer?,
         vertices.append(Vertex(
             position: position, normal: normal, uv: uv))
     }
-    var indices: [UInt]? = nil
+    var indices: [UInt32]? = nil
     if let indicesPtr = indicesPtr, numIndices > 0 {
-        let buffer = UnsafeBufferPointer(start: indicesPtr, count: numIndices)
+        let buffer = UnsafeBufferPointer(
+            start: indicesPtr, count: numIndices)
         indices = Array(buffer)
     }
-
-    let mesh = Mesh(device, vertices, indices)
+    var texPath: String? = nil
+    if let texturePath = texturePath {
+        texPath = String(cString: texturePath)
+    }
+    let mesh = Mesh(device, vertices, indices, texPath)
     return UnsafeRawPointer(Unmanaged.passRetained(mesh).toOpaque())
 }
 @_cdecl("destroyMesh")

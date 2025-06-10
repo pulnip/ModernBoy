@@ -4,6 +4,7 @@ import QuartzCore
 class RenderContext {
     let layer: CAMetalLayer
     let commandQueue: MTLCommandQueue
+    let sampler: MTLSamplerState
 
     // material per frame
     var commandBuffer: MTLCommandBuffer?
@@ -19,6 +20,14 @@ class RenderContext {
         layer.device = MTLCreateSystemDefaultDevice()!
         layer.pixelFormat = .bgra8Unorm
         commandQueue = layer.device!.makeCommandQueue()!
+
+        let desc = MTLSamplerDescriptor()
+            desc.minFilter = .linear
+            desc.magFilter = .linear
+            desc.sAddressMode = .repeat
+            desc.tAddressMode = .repeat
+        sampler = layer.device!.makeSamplerState(
+            descriptor: desc)!
     }
     deinit {
         if let encoder = self.renderEncoder {
@@ -51,8 +60,20 @@ class RenderContext {
         guard let encoder
             = self.renderEncoder else {return }
         encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
-        encoder.drawPrimitives(type: .triangle, vertexStart: 0,
-            vertexCount: mesh.numVertices)
+        if let texture = mesh.texture {
+            encoder.setFragmentTexture(texture, index: 0)
+            encoder.setFragmentSamplerState(sampler, index: 0)
+        }
+        if let indexBuffer = mesh.indexBuffer,
+           let numIndices = mesh.numIndices, numIndices > 0 {
+            encoder.drawIndexedPrimitives(type: .triangle,
+                indexCount: numIndices, indexType: .uint32,
+                indexBuffer: indexBuffer, indexBufferOffset: 0
+            )
+        } else{
+            encoder.drawPrimitives(type: .triangle, vertexStart: 0,
+                vertexCount: mesh.numVertices)
+        }
     }
     func frameEnd() {
         guard let encoder = self.renderEncoder,

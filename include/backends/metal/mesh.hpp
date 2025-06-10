@@ -14,7 +14,8 @@ extern "C"{
 
     extern void* createMesh(const void* layerPtr,
         const float* vertices, int numVertices,
-        const float* indices, int numIndices);
+        const uint32_t* indices, int numIndices,
+        const char* texturePath);
     extern void destroyMesh(const void* meshPtr);
     extern void* makeTriangle(const void* layerPtr);
 
@@ -41,6 +42,7 @@ extern "C"{
     };
 
     extern Mesh makeTriangle(NativePtr layerPtr);
+    extern Mesh makeSomething(NativePtr layerPtr);
 }
 
 #endif // MODERNBOY_METAL_MESH_HPP
