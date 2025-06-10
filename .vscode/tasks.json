@@ -2,48 +2,6 @@
   "tasks": [
     {
       "type": "process",
-      "label": "DirectX: fxc.exe build active file (vertex shader)",
-      "command": "C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64/fxc.exe",
-      "args": [
-        "/T", "vs_5_0",
-        "/Fo", "${workspaceFolder}/shaders/${fileBasenameNoExtension}.cso",
-        "${file}"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}/shaders"
-      },
-      "group": "build"
-    },
-    {
-      "type": "process",
-      "label": "DirectX: fxc.exe build active file (pixel shader)",
-      "command": "C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64/fxc.exe",
-      "args": [
-        "/T", "ps_5_0",
-        "/Fo", "${fileBasenameNoExtension}.cso",
-        "${file}"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}/shaders"
-      },
-      "group": "build"
-    },
-    {
-      "label": "Metal: build .metal to .metallib",
-      "type": "shell",
-      "command": "sh",
-      "args": [
-        "-c",
-        "CONFIG=$(basename $(dirname ${command:cmake.launchTargetPath})); xcrun -sdk macosx metal -c ${file} -o ${fileDirname}/${fileBasenameNoExtension}.air && xcrun -sdk macosx metallib ${fileDirname}/${fileBasenameNoExtension}.air -o ${workspaceFolder}/build/bin/$CONFIG/${fileBasenameNoExtension}.metallib"
-      ],
-      "group": "build",
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always"
-      }
-    },
-    {
-      "type": "process",
       "label": "Build active file",
       "command": "clang++",
       "args": [

@@ -5,6 +5,7 @@ file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME}
   ${ALL_SOURCES}
 )
+add_dependencies(${PROJECT_NAME} Shaders)
 
 target_compile_options(${PROJECT_NAME} PRIVATE
   -Wall -Wextra
