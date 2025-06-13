@@ -1,16 +1,14 @@
 set(CMAKE_OSX_DEPLOYMENT_TARGET "15.0")
 enable_language(Swift)
 
+file(GLOB CPP_SOURCES "*.cpp")
+file(GLOB SWIFT_SOURCES "*.swift")
+
 add_library(RenderBackend STATIC
-  context.cpp
-  mesh.cpp
-  shader.cpp
+  ${CPP_SOURCES}
 )
 add_library(MetalContext SHARED
-  context.swift
-  math.swift
-  mesh.swift
-  shader.swift
+  ${SWIFT_SOURCES}
 )
 
 target_compile_options(RenderBackend PRIVATE
@@ -35,6 +33,4 @@ target_link_libraries(RenderBackend PRIVATE
   SDL3_image::SDL3_image
   # ImGui
   ${ImGui_LIBS}
-  "-framework Metal"
-  "-framework Foundation"
 )

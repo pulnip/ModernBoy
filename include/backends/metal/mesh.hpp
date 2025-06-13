@@ -2,6 +2,7 @@
 #define MODERNBOY_METAL_MESH_HPP
 
 #include <cstdint>
+#include "raw_resource.hpp"
 #include "fwd.hpp"
 #include "type.hpp"
 #include "resource_data.hpp"
@@ -32,7 +33,8 @@ extern "C"{
         Mesh(Mesh&& mesh);
         Mesh& operator=(const Mesh&)=delete;
         Mesh& operator=(Mesh&&);
-        
+
+        Mesh(RawMesh& rawMesh, NativePtr layerPtr);
         Mesh(MeshPtr meshPtr):meshPtr(meshPtr){}
         ~Mesh(){ destroyMesh(meshPtr); }
 
@@ -40,11 +42,6 @@ extern "C"{
         // Move semantics
         void moveFrom(Mesh&&);
     };
-
-    extern Mesh makeTriangle(NativePtr layerPtr);
-    extern Mesh makeRectangle(NativePtr layerPtr);
-    extern Mesh makeCube(NativePtr layerPtr);
-    extern Mesh makeSomething(NativePtr layerPtr);
 }
 
 #endif // MODERNBOY_METAL_MESH_HPP

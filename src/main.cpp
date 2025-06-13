@@ -4,6 +4,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include "game/app_state.hpp"
+
+#include "mesh_importer.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
 #elif defined(USE_METAL)
@@ -88,7 +90,10 @@ SDL_AppResult SDL_AppInit(void** appState,
     as->shaderManager.create(std::move(shader));
 #elif defined(USE_METAL)
     NativePtr layerPtr = as->renderer.context.metalLayer;
-    Mesh mesh = makeCube(layerPtr);
+
+    auto rawMeshes = createCube();
+    auto mesh = Metal::Mesh(rawMeshes[0], layerPtr);
+
     MeshHandle triangleHandle = as->meshManager.create(std::move(mesh));
     as->meshComponentSystem.create(MeshComponent{
         .owner=0,

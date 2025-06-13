@@ -32,6 +32,7 @@ fragment float4 fragment_main(
     texture2d<float> tex [[texture(0)]],
     sampler samp [[sampler(0)]]
 ){
+    return float4(input.uv.xy, 0.0, 0.5);
     float2 uv = input.uv.xy;
     float4 color = tex.sample(samp, uv);
     return color;
