@@ -56,6 +56,18 @@ extern "C"{
     extern void RenderContext_frameEnd(
         void* _nativeContext
     );
+    extern void* RenderContext_getDevice(
+        void* _nativeContext
+    );
+    extern void* RenderContext_getRenderPassDesc(
+        void* _nativeContext
+    );
+    extern void* RenderContext_getCommandBuffer(
+        void* _nativeContext
+    );
+    extern void* RenderContext_getRenderEncoder(
+        void* _nativeContext
+    );
 
 #ifdef __cplusplus
 }

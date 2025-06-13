@@ -61,8 +61,11 @@ target_include_directories(ImGui PRIVATE
 )
 
 if(ImGui_RENDERER_BACKEND STREQUAL "Metal")
-  target_link_libraries(ImGui PRIVATE
-    ${METAL_FRAMEWORK}
+  target_compile_definitions(ImGui PRIVATE
+    IMGUI_IMPL_METAL_CPP
+  )
+  target_include_directories(ImGui PRIVATE
+    ${CMAKE_SOURCE_DIR}/external/metal-cpp
   )
 endif()
 

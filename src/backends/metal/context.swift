@@ -13,6 +13,7 @@ class RenderContext {
     var viewPosition = simd_float3(4.5, 5.0, 0.0)
 
     // material per frame
+    var renderPassDesc: MTLRenderPassDescriptor?
     var commandBuffer: MTLCommandBuffer?
     var renderEncoder: MTLRenderCommandEncoder?
     var drawable: CAMetalDrawable?
@@ -56,6 +57,7 @@ class RenderContext {
         rpd.colorAttachments[0].storeAction = .store
         rpd.colorAttachments[0].texture = drawable.texture
 
+        renderPassDesc = rpd
         commandBuffer = commandQueue.makeCommandBuffer()
         renderEncoder = commandBuffer?
             .makeRenderCommandEncoder(descriptor: rpd)
@@ -158,4 +160,49 @@ public func RenderContext_frameEnd(_ rctxPtr: UnsafeRawPointer?) {
     let rctx = Unmanaged<RenderContext>
         .fromOpaque(rctxPtr).takeUnretainedValue()
     rctx.frameEnd()
+}
+
+@_cdecl("RenderContext_getDevice")
+public func RenderContext_getDevice(_ rctxPtr: UnsafeRawPointer?
+) -> UnsafeRawPointer? {
+    guard let rctxPtr = rctxPtr else {return nil }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    if let desc = rctx.layer.device {
+        return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+    }
+    return nil
+}
+@_cdecl("RenderContext_getRenderPassDesc")
+public func RenderContext_getRenderPassDesc(_ rctxPtr: UnsafeRawPointer?
+) -> UnsafeRawPointer? {
+    guard let rctxPtr = rctxPtr else {return nil }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    if let desc = rctx.renderPassDesc {
+        return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+    }
+    return nil
+}
+@_cdecl("RenderContext_getCommandBuffer")
+public func RenderContext_getCommandBuffer(_ rctxPtr: UnsafeRawPointer?
+) -> UnsafeRawPointer? {
+    guard let rctxPtr = rctxPtr else {return nil }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    if let desc = rctx.commandBuffer {
+        return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+    }
+    return nil
+}
+@_cdecl("RenderContext_getRenderEncoder")
+public func RenderContext_getRenderEncoder(_ rctxPtr: UnsafeRawPointer?
+) -> UnsafeRawPointer? {
+    guard let rctxPtr = rctxPtr else {return nil }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    if let desc = rctx.renderEncoder {
+        return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+    }
+    return nil
 }

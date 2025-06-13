@@ -24,6 +24,8 @@ target_include_directories(RenderBackend PUBLIC
   ${gsl-lite_INCLUDE_DIRS}
   # ImGui
   ${ImGui_INCLUDE_DIRS}
+  # metal-cpp
+  ${CMAKE_SOURCE_DIR}/external/metal-cpp
 )
 target_link_libraries(RenderBackend PRIVATE
   MetalContext
@@ -33,4 +35,9 @@ target_link_libraries(RenderBackend PRIVATE
   SDL3_image::SDL3_image
   # ImGui
   ${ImGui_LIBS}
+  # metal-cpp
+  "-framework Metal"
+  "-framework MetalKit"
+  "-framework Foundation"
+  "-framework QuartzCore"
 )

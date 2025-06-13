@@ -122,3 +122,4 @@ imgui.ini
 *.bmp
 
 .DS_Store
+external/metal-cpp/
