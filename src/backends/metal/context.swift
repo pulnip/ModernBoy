@@ -81,10 +81,19 @@ class RenderContext {
             length: MemoryLayout<simd_float4x4>.stride, index: 2)
     }
     func draw(_ mesh: Mesh) {
+        viewPosition.x = Float(5.0 * sin(Date().timeIntervalSince1970))
+        viewPosition.z = Float(5.0 * cos(Date().timeIntervalSince1970))
+
         guard let encoder
             = self.renderEncoder else {return }
+        var viewMat = viewMatrix(eyePos: viewPosition,
+            tgtPos: simd_float3(0.0, 0.0, 0.0),
+            upDir: simd_float3(0.0, 1.0, 0.0))
         var modelMat = matrix_identity_float4x4
         rotate(&modelMat, 0.0, toRadians(from: 60.0), 0.0)
+
+        encoder.setVertexBytes(&viewMat,
+            length: MemoryLayout<simd_float4x4>.stride, index: 2)
         encoder.setVertexBytes(&modelMat,
             length: MemoryLayout<simd_float4x4>.stride, index: 3)
 
@@ -93,6 +102,9 @@ class RenderContext {
             encoder.setFragmentTexture(texture, index: 0)
             encoder.setFragmentSamplerState(sampler, index: 0)
         }
+        encoder.setFragmentBytes(&viewPosition,
+            length: MemoryLayout<simd_float3>.stride, index: 0)
+
         if let indexBuffer = mesh.indexBuffer,
            let numIndices = mesh.numIndices, numIndices > 0 {
             encoder.drawIndexedPrimitives(type: .triangle,
