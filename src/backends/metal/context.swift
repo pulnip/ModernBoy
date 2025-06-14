@@ -10,7 +10,8 @@ class RenderContext {
 
     var aspectRatio: Float = 1.0
 
-    var viewPosition = simd_float3(4.5, 5.0, 0.0)
+    var viewPosition = simd_float3(repeating: 0)
+    var viewMat = matrix_identity_float4x4
 
     // material per frame
     var renderPassDesc: MTLRenderPassDescriptor?
@@ -73,20 +74,12 @@ class RenderContext {
             length: MemoryLayout<simd_float4x4>.stride, index: 1)
         renderEncoder?.setDepthStencilState(shader.depthStencilState)
 
-        var viewMat = viewMatrix(
-            eyePos: viewPosition,
-            tgtPos: simd_float3(0.0, 0.0, 0.0),
-            upDir: simd_float3(0.0, 1.0, 0.0))
         renderEncoder!.setVertexBytes(&viewMat,
             length: MemoryLayout<simd_float4x4>.stride, index: 2)
     }
     func draw(_ modelMat: simd_float4x4, _ mesh: Mesh) {
         guard let encoder
             = self.renderEncoder else {return }
-        var viewMat = viewMatrix(
-            eyePos: viewPosition,
-            tgtPos: simd_float3(0.0, 0.0, 0.0),
-            upDir: simd_float3(0.0, 1.0, 0.0))
         var modelMat_ = modelMat
         var normalMat = normal(modelMat)
 
@@ -250,4 +243,18 @@ public func RenderContext_getRenderEncoder(_ rctxPtr: UnsafeRawPointer?
         return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
     }
     return nil
+}
+
+@_cdecl("RenderContext_setView")
+public func RenderContext_setView(_ rctxPtr: UnsafeRawPointer?,
+    _ px: Float, _ py: Float, _ pz: Float,
+    _ rx: Float, _ ry: Float, _ rz: Float, _ w: Float
+) {
+    guard let rctxPtr = rctxPtr else { return }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    let viewPos = simd_float3(px, py, pz)
+    let viewQuat = simd_float4(rx, ry, rz, w)
+    rctx.viewPosition = viewPos
+    rctx.viewMat = viewMatrix(viewPos, viewQuat)
 }

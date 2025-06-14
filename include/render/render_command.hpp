@@ -14,6 +14,9 @@ namespace ModernBoy
         bool clearColor = true;
         bool clearDepth = true;
         ResourceHandle<Shader> shaderHandle;
+
+        TransformHandle cameraTransformHandle;
+        CameraHandle cameraHandle;
     };
     template<typename Mesh>
     struct DrawCommand{

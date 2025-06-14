@@ -13,11 +13,12 @@ using namespace std::chrono;
 using namespace ModernBoy::Metal;
 
 RenderContext::RenderContext(SDL_Window* in_window, TransformManager& transformManager,
-    MeshManager& in_meshManager, ShaderManager& in_shaderManager)
+    MeshManager& in_meshManager, ShaderManager& in_shaderManager,
+    CameraManager& cameraManager)
 :view(SDL_Metal_CreateView(in_window)),
 metalLayer(SDL_Metal_GetLayer(view)), transformManager(transformManager),
-meshManager(in_meshManager), shaderManager(in_shaderManager)
-{
+meshManager(in_meshManager), shaderManager(in_shaderManager),
+cameraManager(cameraManager){
     NativePtr layer = SDL_Metal_GetLayer(view);
     _renderContext = createRenderContext(layer);
 
@@ -48,6 +49,15 @@ RenderContext::~RenderContext(){
 
 void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
     ShaderPtr shaderPtr = shaderManager.get(cmd.shaderHandle)->shaderPtr;
+    const auto& cameraTransform = *transformManager.get(cmd.cameraTransformHandle);
+    const auto& viewPos = cameraTransform.position;
+    const auto& viewQuat = cameraTransform.rotation;
+    const auto& camera = *cameraManager.get(cmd.cameraHandle);
+
+    RenderContext_setView(_renderContext,
+        viewPos[0], viewPos[1], viewPos[2],
+        viewQuat[0], viewQuat[1], viewQuat[2], viewQuat[3]
+    );
 
     RenderContext_frameStart(_renderContext,
         0.0, 0.0, 0.0, 0.5, shaderPtr);
@@ -76,7 +86,7 @@ void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
         r[0], ry, r[2], s[0], s[1], s[2], meshPtr);
 }
 
-void RenderContext::operator()(const FrameEndCommand& cmd){
+void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){
     auto commandBuffer = static_cast<MTL::CommandBuffer*>(
         RenderContext_getCommandBuffer(_renderContext));
     auto renderEncoder = static_cast<MTL::RenderCommandEncoder*>(

@@ -30,7 +30,8 @@ AppState::AppState(SDL_Window* window)
 shaderManager(), renderTaskManager(),
 cameraManager(), viewTaskManager(),
 window(window), renderer(window, transformManager, meshManager,
-    shaderManager, renderTaskManager),
+    shaderManager, renderTaskManager, cameraManager,
+    viewTaskManager),
 meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
 actorLoader(transformManager, meshLoader, renderTaskManager,
     cameraManager, viewTaskManager),
@@ -97,6 +98,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     NativePtr layerPtr = as->renderer.context.metalLayer;
 
     as->actorLoader.loadActor("assets/actor.toml");
+    as->actorLoader.loadCamera("assets/camera.toml");
 
     auto shader = Shader(createShader(layerPtr));
     as->shaderManager.create(std::move(shader));

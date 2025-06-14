@@ -25,10 +25,11 @@ namespace ModernBoy
         using Shader = typename Ctx::Shader;
 
         using MeshComponent = ResourceComponent<Mesh>;
-        using TaskManager_ = TaskManager<RenderTask<Mesh>>;
+        using RenderTaskManager = TaskManager<RenderTask<Mesh>>;
 
         LockFreeQueue<RenderCommand<Mesh, Shader>> queue;
-        const TaskManager_& taskManager;
+        const RenderTaskManager& renderTaskManager;
+        const ViewTaskManager& viewTaskManager;
 
         std::stop_source stsrc;
         std::jthread commandThread;
@@ -38,9 +39,12 @@ namespace ModernBoy
         Renderer(Window* window, TransformManager& transformManager,
             ResourceManager<Mesh>& meshManager,
             ResourceManager<Shader>& shaderManager,
-            const TaskManager_& taskManager)
-        :context(window, transformManager, meshManager, shaderManager),
-        taskManager(taskManager){}
+            RenderTaskManager& renderTaskManager,
+            CameraManager& cameraManager,
+            ViewTaskManager& viewTaskManager)
+        :context(window, transformManager, meshManager, shaderManager,
+            cameraManager), renderTaskManager(renderTaskManager),
+            viewTaskManager(viewTaskManager){}
 
         ~Renderer(){ stsrc.request_stop(); }
 
@@ -50,7 +54,7 @@ namespace ModernBoy
                     produceCommand(stoken);
                 }, stsrc.get_token()
             );
-            renderThread= std::jthread(
+            renderThread = std::jthread(
                 [this](std::stop_token stoken){
                     consumeCommand(stoken);
                 }, stsrc.get_token()
@@ -60,12 +64,18 @@ namespace ModernBoy
     private:
         void produceCommand(std::stop_token stoken){
             while(!stoken.stop_requested()){
-                auto renderTasks = taskManager.getAll();
+                auto viewTasks = viewTaskManager.getAll();
+                auto renderTasks = renderTaskManager.getAll();
 
-                waitUntilPushed(queue, FrameStartCommand<Shader>{
-                    // TODO
-                    .shaderHandle = { .index=0, .generation=1 }
-                }, stoken);
+                for(auto& task: viewTasks){
+                    if(!task.get().enabled) continue;
+                    waitUntilPushed(queue, FrameStartCommand<Shader>{
+                        // TODO: for multiple scene viewport
+                        .shaderHandle = { .index=0, .generation=1 },
+                        .cameraTransformHandle = task.get().getTransformHandle(),
+                        .cameraHandle = task.get().getCameraHandle()
+                    }, stoken);
+                }
 
                 for(auto& task: renderTasks){
                     waitUntilPushed(queue, DrawCommand<Mesh>{

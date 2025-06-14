@@ -27,9 +27,11 @@ namespace ModernBoy::Metal
         TransformManager& transformManager;
         MeshManager& meshManager;
         ShaderManager& shaderManager;
+        CameraManager& cameraManager;
 
         RenderContext(SDL_Window* in_window, TransformManager& transformManager,
-            MeshManager& in_meshManager, ShaderManager& in_shaderManager);
+            MeshManager& in_meshManager, ShaderManager& in_shaderManager,
+            CameraManager& cameraManager);
         ~RenderContext();
 
         void operator()(const FrameStartCommand<Shader>&);
@@ -78,6 +80,12 @@ extern "C"{
     );
     extern void* RenderContext_getRenderEncoder(
         void* _nativeContext
+    );
+
+    extern void RenderContext_setView(
+        void* _nativeContext,
+        float px, float py, float pz,
+        float rx, float ry, float rz, float w
     );
 
 #ifdef __cplusplus
