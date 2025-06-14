@@ -90,10 +90,9 @@ func scale(_ matrix: inout simd_float4x4,
     matrix[2] *= z
 }
 
-func viewMatrix(eyePos: simd_float3, tgtPos: simd_float3,
+func viewMatrix(eyePos: simd_float3, fwdDir: simd_float3,
     upDir: simd_float3
 ) -> simd_float4x4 {
-    let fwdDir = normalize(tgtPos - eyePos)
     let rightDir = normalize(simd_cross(upDir, fwdDir))
     let upDir = simd_cross(fwdDir, rightDir)
 
@@ -112,6 +111,13 @@ func viewMatrix(eyePos: simd_float3, tgtPos: simd_float3,
     matrix[3][2] = -dot(fwdDir, eyePos)
 
     return matrix
+}
+func viewMatrix(eyePos: simd_float3, tgtPos: simd_float3,
+    upDir: simd_float3
+) -> simd_float4x4 {
+    let fwdDir = normalize(tgtPos - eyePos)
+    return viewMatrix(eyePos: eyePos, fwdDir: fwdDir,
+        upDir: upDir)
 }
 
 func perspectiveMatrix(fov: Float, aspectRatio: Float,
