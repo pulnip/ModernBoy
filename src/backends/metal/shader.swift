@@ -3,6 +3,7 @@ import QuartzCore
 
 class Shader{
     var pipelineState: MTLRenderPipelineState
+    var depthStencilState: MTLDepthStencilState?
 
     init(device: MTLDevice, shaderPath: String) {
         let url = URL(fileURLWithPath: shaderPath)
@@ -23,6 +24,11 @@ class Shader{
         vertexDesc.layouts[0].stride = MemoryLayout<Vertex>.stride
         vertexDesc.layouts[0].stepRate = 1
         vertexDesc.layouts[0].stepFunction = .perVertex
+
+        let dsd = MTLDepthStencilDescriptor()
+        dsd.depthCompareFunction = .less
+        dsd.isDepthWriteEnabled = true
+        depthStencilState = device.makeDepthStencilState(descriptor: dsd)
 
         let pipelineDesc = MTLRenderPipelineDescriptor()
         pipelineDesc.vertexFunction = vertexFunc

@@ -49,6 +49,7 @@ class RenderContext {
         guard let drawable
             = layer.nextDrawable() else { return }
         self.drawable = drawable
+
         let rpd = MTLRenderPassDescriptor()
         rpd.colorAttachments[0].texture = drawable.texture
         rpd.colorAttachments[0].loadAction = .clear
@@ -56,6 +57,7 @@ class RenderContext {
             red: r, green: g, blue: b, alpha: a)
         rpd.colorAttachments[0].storeAction = .store
         rpd.colorAttachments[0].texture = drawable.texture
+        rpd.depthAttachment.clearDepth = 1.0
 
         renderPassDesc = rpd
         commandBuffer = commandQueue.makeCommandBuffer()
@@ -63,11 +65,13 @@ class RenderContext {
             .makeRenderCommandEncoder(descriptor: rpd)
 
         shader.bind(encoder: renderEncoder!)
+        aspectRatio = Float(layer.bounds.width / layer.bounds.height)
 
         var projMat = perspectiveMatrix(
             fov: toRadians(from: 45.0), aspectRatio: aspectRatio, nearPlane: 0.1, farPlane: 100.0)
         renderEncoder!.setVertexBytes(&projMat,
             length: MemoryLayout<simd_float4x4>.stride, index: 1)
+        renderEncoder?.setDepthStencilState(shader.depthStencilState)
 
         var viewMat = viewMatrix(
             eyePos: viewPosition,
