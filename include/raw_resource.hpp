@@ -45,6 +45,12 @@ namespace ModernBoy
         std::vector<uint8_t> pixels;
     };
     using RawTextures = std::vector<RawTexture>;
+
+    struct Transform{
+        float position[3] = {0.0f, 0.0f, 0.0f};
+        float rotation[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+        float scale[3] = {1.0f, 1.0f, 1.0f};
+    };
 }
 
 #endif // MODERNBOY_RAW_RESOURCE_HPP

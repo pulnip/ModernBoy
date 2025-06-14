@@ -6,12 +6,16 @@
 #define IMGUI_IMPL_METAL_CPP
 #include <imgui_impl_metal.h>
 
+#include <cmath>
+#include <chrono>
+using namespace std::chrono;
+
 using namespace ModernBoy::Metal;
 
-RenderContext::RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
-    ShaderManager& in_shaderManager)
+RenderContext::RenderContext(SDL_Window* in_window, TransformManager& transformManager,
+    MeshManager& in_meshManager, ShaderManager& in_shaderManager)
 :view(SDL_Metal_CreateView(in_window)),
-metalLayer(SDL_Metal_GetLayer(view)),
+metalLayer(SDL_Metal_GetLayer(view)), transformManager(transformManager),
 meshManager(in_meshManager), shaderManager(in_shaderManager)
 {
     NativePtr layer = SDL_Metal_GetLayer(view);
@@ -42,8 +46,8 @@ RenderContext::~RenderContext(){
     destroyRenderContext(_renderContext);
 }
 
-void RenderContext::operator()([[maybe_unused]] const FrameStartCommand<Shader>& cmd){
-    ShaderPtr shaderPtr = shaderManager.get(cmd.getHandle())->shaderPtr;
+void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
+    ShaderPtr shaderPtr = shaderManager.get(cmd.shaderHandle)->shaderPtr;
 
     RenderContext_frameStart(_renderContext,
         0.0, 0.0, 0.0, 0.5, shaderPtr);
@@ -58,13 +62,21 @@ void RenderContext::operator()([[maybe_unused]] const FrameStartCommand<Shader>&
     ImGui::ShowDemoWindow(); // Show demo window! :)
 }
 
-void RenderContext::operator()([[maybe_unused]] const DrawCommand<Mesh>& cmd){
-    MeshPtr meshPtr = meshManager.get(cmd.getHandle())->meshPtr;
+void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
+    Transform transform = *transformManager.get(cmd.transformHandle);
+    float *p=transform.position, *r=transform.rotation, *s=transform.scale;
+    
+    MeshPtr meshPtr = meshManager.get(cmd.meshHandle)->meshPtr;
 
-    RenderContext_draw(_renderContext, meshPtr);
+    auto now = steady_clock::now().time_since_epoch();
+    float seconds = duration<float>(now).count();
+    float ry = fmodf(seconds * (float)(M_PI/2.0), (float)(M_PI * 2.0));
+
+    RenderContext_draw_(_renderContext, p[0], p[1], p[2],
+        r[0], ry, r[2], s[0], s[1], s[2], meshPtr);
 }
 
-void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){
+void RenderContext::operator()(const FrameEndCommand& cmd){
     auto commandBuffer = static_cast<MTL::CommandBuffer*>(
         RenderContext_getCommandBuffer(_renderContext));
     auto renderEncoder = static_cast<MTL::RenderCommandEncoder*>(

@@ -86,11 +86,11 @@ void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
         D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
     );
 
-    shaderManager.get(cmd.getHandle())->bind(*this);
+    shaderManager.get(cmd.shaderHandle)->bind(*this);
 }
 
 void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
-    auto pMesh = meshManager.get(cmd.getHandle());
+    auto pMesh = meshManager.get(cmd.meshHandle);
     if(pMesh != nullptr){
         pMesh->bind(*this);
         context->DrawIndexed(pMesh->numIndices, 0, 0);

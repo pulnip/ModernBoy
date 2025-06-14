@@ -9,14 +9,15 @@ namespace ModernBoy
     struct ResourceComponent{
         using Handle = ResourceHandle<T>;
 
-        EntityID owner;
+        EntityID actor;
         Handle resourceHandle;
 
         bool enable = true;
 
         ResourceComponent(EntityID id, Handle handle)
-        :owner(id), resourceHandle(handle){}
+        :actor(id), resourceHandle(handle){}
     };
+    using TransformComponent = ResourceComponent<Transform>;
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_COMPONENT_HPP

@@ -14,19 +14,17 @@ namespace ModernBoy
         bool clearColor = true;
         bool clearDepth = true;
         ResourceHandle<Shader> shaderHandle;
-
-        ResourceHandle<Shader> getHandle() const{ return shaderHandle; }
     };
     template<typename Mesh>
     struct DrawCommand{
+        ResourceHandle<Transform> transformHandle;
         ResourceHandle<Mesh> meshHandle;
-
-        ResourceHandle<Mesh> getHandle() const{ return meshHandle; }
     };
     struct FrameEndCommand{
     };
 
-    template<typename Mesh, typename Shader>
+    template<typename Mesh,
+        typename Shader>
     using RenderCommand = std::variant<
         FrameStartCommand<Shader>,
         DrawCommand<Mesh>,

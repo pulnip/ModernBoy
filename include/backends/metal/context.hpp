@@ -24,11 +24,12 @@ namespace ModernBoy::Metal
         SDL_MetalView view;
         NativePtr metalLayer;
         NativePtr _renderContext;
+        TransformManager& transformManager;
         MeshManager& meshManager;
         ShaderManager& shaderManager;
 
-        RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
-            ShaderManager& in_shaderManager);
+        RenderContext(SDL_Window* in_window, TransformManager& transformManager,
+            MeshManager& in_meshManager, ShaderManager& in_shaderManager);
         ~RenderContext();
 
         void operator()(const FrameStartCommand<Shader>&);
@@ -51,6 +52,16 @@ extern "C"{
     );
     extern void RenderContext_draw(
         void* _nativeContext,
+        float px, float py, float pz,
+        float rx, float ry, float rz, float w,
+        float sx, float sy, float sz,
+        void* meshPtr
+    );
+    extern void RenderContext_draw_(
+        void* _nativeContext,
+        float px, float py, float pz,
+        float rx, float ry, float rz,
+        float sx, float sy, float sz,
         void* meshPtr
     );
     extern void RenderContext_frameEnd(

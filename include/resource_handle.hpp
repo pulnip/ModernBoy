@@ -2,6 +2,7 @@
 #define MODERNBOY_RESOURCE_HANDLE_HPP
 
 #include <cstdint>
+#include "raw_resource.hpp"
 
 namespace ModernBoy
 {
@@ -18,6 +19,16 @@ namespace ModernBoy
     
         bool isValid() const{ return index != UINT32_MAX; }
         bool operator==(const ResourceHandle&) const = default;
+    };
+
+    template<typename Mesh>
+    struct RenderTask{
+        EntityID actor;
+        ResourceHandle<Transform> transformHandle;
+        ResourceHandle<Mesh> meshHandle;
+
+        ResourceHandle<Transform> getTransformHandle() const{ return transformHandle; }
+        ResourceHandle<Mesh> getMeshHandle() const{ return meshHandle; }
     };
 } // namespace ModernBoy
 

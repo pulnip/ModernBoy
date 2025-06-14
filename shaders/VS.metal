@@ -1,12 +1,13 @@
 #include <metal_stdlib>
 using namespace metal;
 
-constant float3 lightDirection = float3(0.4, -0.8, 0.2);
+constant float3 lightDirection = float3(0.436436, -0.872872, 0.218218);
 
 constant float3 lightDiffuse = float3(1.0);
 constant float3 lightSpecular = float3(0.5);
 constant float3 lightAmbient = float3(0.2);
-inline float3 phongLighting(float3 diffuseColor, float3 normal,
+inline float3 phongLighting(
+    float3 diffuseColor, float3 normal,
     float3 worldPosition, float3 viewPosition
 ){
     float3 diff = max(dot(normal, -lightDirection), 0.0);
@@ -14,12 +15,12 @@ inline float3 phongLighting(float3 diffuseColor, float3 normal,
 
     float3 viewDir = normalize(viewPosition - worldPosition);
     float3 reflectDir = reflect(lightDirection, normal);
-    float3 spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float3 spec = pow(max(dot(viewDir, reflectDir), 0.0), 1);
     float3 specular = spec * lightSpecular;
 
     float3 ambient = lightAmbient * diffuseColor;
 
-    return diffuse + ambient;
+    return diffuse + specular + ambient;
 }
 
 struct SmolVertex{
@@ -40,22 +41,23 @@ struct VS_Output{
 
 vertex VS_Output vertex_main(uint vid [[vertex_id]],
     constant Vertex* vertices [[buffer(0)]],
-    constant float4x4& proj [[buffer(1)]],
-    constant float4x4& view [[buffer(2)]],
-    constant float4x4& model [[buffer(3)]]
+    constant float4x4& proj   [[buffer(1)]],
+    constant float4x4& view   [[buffer(2)]],
+    constant float4x4& model  [[buffer(3)]],
+    constant float3x3& normal [[buffer(4)]]
 ){
     VS_Output output;
     output.worldPosition = (model*vertices[vid].position).xyz;
     output.position = proj * view * float4(output.worldPosition, 1.0);
-    output.normal = vertices[vid].normal.xyz;
+    output.normal = normal * vertices[vid].normal.xyz;
     output.uv = vertices[vid].uv.xy;
     return output;
 }
 fragment float4 fragment_main(
-    VS_Output input [[stage_in]],
+    VS_Output input               [[stage_in]],
     constant float3& viewPosition [[buffer(0)]],
-    texture2d<float> tex [[texture(0)]],
-    sampler samp [[sampler(0)]]
+    texture2d<float> tex          [[texture(0)]],
+    sampler samp                  [[sampler(0)]]
 ){
     float4 color = float4(input.uv, 0.0, 0.5);
     // float2 uv = input.uv.xy;

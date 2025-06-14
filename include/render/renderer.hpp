@@ -25,21 +25,22 @@ namespace ModernBoy
         using Shader = typename Ctx::Shader;
 
         using MeshComponent = ResourceComponent<Mesh>;
-        using MeshComponentSystem = ComponentSystem<MeshComponent>;
+        using TaskManager_ = TaskManager<RenderTask<Mesh>>;
 
         LockFreeQueue<RenderCommand<Mesh, Shader>> queue;
-        const MeshComponentSystem& meshComponentSystem;
+        const TaskManager_& taskManager;
 
         std::stop_source stsrc;
         std::jthread commandThread;
         std::jthread renderThread;
 
     public:
-        Renderer(Window* window, ResourceManager<Mesh>& meshManager,
+        Renderer(Window* window, TransformManager& transformManager,
+            ResourceManager<Mesh>& meshManager,
             ResourceManager<Shader>& shaderManager,
-            const MeshComponentSystem& meshComponentSystem)
-        :context(window, meshManager, shaderManager),
-        meshComponentSystem(meshComponentSystem){}
+            const TaskManager_& taskManager)
+        :context(window, transformManager, meshManager, shaderManager),
+        taskManager(taskManager){}
 
         ~Renderer(){ stsrc.request_stop(); }
 
@@ -59,16 +60,17 @@ namespace ModernBoy
     private:
         void produceCommand(std::stop_token stoken){
             while(!stoken.stop_requested()){
-                auto components = meshComponentSystem.getAll();
+                auto renderTasks = taskManager.getAll();
 
                 waitUntilPushed(queue, FrameStartCommand<Shader>{
                     // TODO
                     .shaderHandle = { .index=0, .generation=1 }
                 }, stoken);
 
-                for(const auto& comp: components){
+                for(auto& task: renderTasks){
                     waitUntilPushed(queue, DrawCommand<Mesh>{
-                        .meshHandle = comp.get().resourceHandle
+                        .transformHandle = task.get().getTransformHandle(),
+                        .meshHandle = task.get().getMeshHandle()
                     }, stoken);
                 }
 

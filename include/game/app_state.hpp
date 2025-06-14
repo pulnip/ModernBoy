@@ -2,7 +2,7 @@
 #define MODERNBOY_APP_STATE_HPP
 
 #include <SDL3/SDL_render.h>
-#include "component_system.hpp"
+#include "task_manager.hpp"
 #include "game_context.hpp"
 #include "resource_component.hpp"
 #include "resource_manager.hpp"
@@ -29,13 +29,14 @@ namespace ModernBoy
     using MeshManager = ResourceManager<DX11::Mesh>;
     using ShaderManager = ResourceManager<DX11::DefaultShader>;
     using MeshComponent = ResourceComponent<DX11::Mesh>;
-    using MeshComponentSystem = ComponentSystem<MeshComponent>;
+    using TaskManager = TaskManager<MeshComponent>;
     using MeshRenderer = Renderer<DX11::RenderContext>;
 #elif defined(USE_METAL)
     using MeshManager = ResourceManager<Metal::Mesh>;
     using ShaderManager = ResourceManager<Metal::Shader>;
     using MeshComponent = ResourceComponent<Metal::Mesh>;
-    using MeshComponentSystem = ComponentSystem<MeshComponent>;
+    using RenderTask_ = RenderTask<Metal::Mesh>;
+    using RenderTaskManager = TaskManager<RenderTask_>;
     using MeshRenderer = Renderer<Metal::RenderContext>;
     using MeshLoader = ResourceLoader<Metal::Mesh,
         MeshImporter, Metal::NativePtr>;
@@ -43,15 +44,17 @@ namespace ModernBoy
     using MeshManager = ResourceManager<OpenGL::Mesh>;
     using MeshRenderer = Renderer<OpenGL::RenderContext>;
     using MeshComponent = ResourceComponent<OpenGL::Mesh>;
-    using MeshComponentSystem = ComponentSystem<MeshComponent>;
+    using TaskManager = TaskManager<MeshComponent>;
 #endif
-    using ActorLoader = AssetLoader<MeshLoader, MeshComponentSystem>;
+    using ActorLoader = AssetLoader<
+        MeshLoader, RenderTaskManager>;
 
     struct AppState{
+        TransformManager transformManager;
+        MeshImporter meshImporter;
         MeshManager meshManager;
         ShaderManager shaderManager;
-        MeshComponentSystem meshComponentSystem;
-        MeshImporter meshImporter;
+        RenderTaskManager renderTaskManager;
         SDL_Window* window;
         MeshRenderer renderer;
         MeshLoader meshLoader;

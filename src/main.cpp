@@ -26,11 +26,11 @@ using namespace ModernBoy::OpenGL;
 #endif
 
 AppState::AppState(SDL_Window* window)
-:meshManager(), shaderManager(), meshComponentSystem(), meshImporter(),
-window(window),
-renderer(window, meshManager, shaderManager, meshComponentSystem),
+:transformManager(), meshImporter(), meshManager(),
+shaderManager(), renderTaskManager(), window(window),
+renderer(window, transformManager, meshManager, shaderManager, renderTaskManager),
 meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
-actorLoader(meshLoader, meshComponentSystem),
+actorLoader(transformManager, meshLoader, renderTaskManager),
 scriptEngine(asCreateScriptEngine()), scriptContext(scriptEngine->CreateContext()){}
 AppState::~AppState(){
     scriptContext->Release();
@@ -83,7 +83,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     }
 
     MeshHandle rectHandle = as->meshManager.create(std::move(rect));
-    as->meshComponentSystem.create(MeshComponent{
+    as->taskManager.create(MeshComponent{
         .owner = 0,
         .resourceHandle = rectHandle
     });

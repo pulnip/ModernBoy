@@ -80,22 +80,22 @@ class RenderContext {
         renderEncoder!.setVertexBytes(&viewMat,
             length: MemoryLayout<simd_float4x4>.stride, index: 2)
     }
-    func draw(_ mesh: Mesh) {
-        viewPosition.x = Float(5.0 * sin(Date().timeIntervalSince1970))
-        viewPosition.z = Float(5.0 * cos(Date().timeIntervalSince1970))
-
+    func draw(_ modelMat: simd_float4x4, _ mesh: Mesh) {
         guard let encoder
             = self.renderEncoder else {return }
-        var viewMat = viewMatrix(eyePos: viewPosition,
+        var viewMat = viewMatrix(
+            eyePos: viewPosition,
             tgtPos: simd_float3(0.0, 0.0, 0.0),
             upDir: simd_float3(0.0, 1.0, 0.0))
-        var modelMat = matrix_identity_float4x4
-        rotate(&modelMat, 0.0, toRadians(from: 60.0), 0.0)
+        var modelMat_ = modelMat
+        var normalMat = normal(modelMat)
 
         encoder.setVertexBytes(&viewMat,
             length: MemoryLayout<simd_float4x4>.stride, index: 2)
-        encoder.setVertexBytes(&modelMat,
+        encoder.setVertexBytes(&modelMat_,
             length: MemoryLayout<simd_float4x4>.stride, index: 3)
+        encoder.setVertexBytes(&normalMat,
+            length: MemoryLayout<simd_float3x3>.stride, index: 4)
 
         encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
         if let texture = mesh.texture {
@@ -159,6 +159,9 @@ public func RenderContext_frameStart(_ rctxPtr: UnsafeRawPointer?,
 }
 @_cdecl("RenderContext_draw")
 public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,
+    _ px: Float, _ py: Float, _ pz: Float,
+    _ rx: Float, _ ry: Float, _ rz: Float, _ w: Float,
+    _ sx: Float, _ sy: Float, _ sz: Float,
     _ meshPtr: UnsafeRawPointer?,
 ) {
     guard let rctxPtr = rctxPtr,
@@ -168,7 +171,33 @@ public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,
     let mesh = Unmanaged<Mesh>
         .fromOpaque(meshPtr).takeUnretainedValue()
 
-    rctx.draw(mesh)
+    var modelMat = matrix_identity_float4x4
+        translate(&modelMat, px, py, pz)
+        rotate(&modelMat, rx, ry, rz, w)
+        scale(&modelMat, sx, sy, sz)
+
+    rctx.draw(modelMat, mesh)
+}
+@_cdecl("RenderContext_draw_")
+public func RenderContext_draw_(_ rctxPtr: UnsafeRawPointer?,
+    _ px: Float, _ py: Float, _ pz: Float,
+    _ rx: Float, _ ry: Float, _ rz: Float,
+    _ sx: Float, _ sy: Float, _ sz: Float,
+    _ meshPtr: UnsafeRawPointer?,
+) {
+    guard let rctxPtr = rctxPtr,
+          let meshPtr = meshPtr else { return }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    let mesh = Unmanaged<Mesh>
+        .fromOpaque(meshPtr).takeUnretainedValue()
+
+    var modelMat = matrix_identity_float4x4
+        translate(&modelMat, px, py, pz)
+        rotate(&modelMat, rx, ry, rz)
+        scale(&modelMat, sx, sy, sz)
+
+    rctx.draw(modelMat, mesh)
 }
 @_cdecl("RenderContext_frameEnd")
 public func RenderContext_frameEnd(_ rctxPtr: UnsafeRawPointer?) {

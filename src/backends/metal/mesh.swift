@@ -51,8 +51,8 @@ class Mesh{
 
 @_cdecl("createMesh")
 public func createMesh(layerPtr: UnsafeRawPointer?,
-    packedVertices: UnsafePointer<Float>, numVertices: Int,
-    indicesPtr: UnsafePointer<UInt32>?, numIndices: Int,
+    packedVertices: UnsafePointer<Float>, numVertices: Int32,
+    indicesPtr: UnsafePointer<UInt32>?, numIndices: Int32,
     texturePath: UnsafePointer<CChar>?
 ) -> UnsafeRawPointer? {
     guard let layerPtr = layerPtr else {
@@ -63,7 +63,7 @@ public func createMesh(layerPtr: UnsafeRawPointer?,
 
     var vertices: [Vertex] = []
     for i in 0..<numVertices{
-        let base = i * 8
+        let base = Int(i * 8)
         let position = simd_float4(
             packedVertices[base+0], packedVertices[base+1],
             packedVertices[base+2],                      1)
@@ -79,7 +79,7 @@ public func createMesh(layerPtr: UnsafeRawPointer?,
     var indices: [UInt32]? = nil
     if let indicesPtr = indicesPtr, numIndices > 0 {
         let buffer = UnsafeBufferPointer(
-            start: indicesPtr, count: numIndices)
+            start: indicesPtr, count: Int(numIndices))
         indices = Array(buffer)
     }
     var texPath: String? = nil
