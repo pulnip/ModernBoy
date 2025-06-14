@@ -4,49 +4,10 @@ import simd
 func toRadians(from degree: Float) -> Float {
     return degree * .pi / 180.0
 }
-
-func translate(_ matrix: inout simd_float4x4,
-    _ x: Float, _ y: Float, _ z: Float
-) {
-    matrix[3] = matrix[0]*x + matrix[1]*y + matrix[2]*z + matrix[3]
-}
-
-func rotate(_ matrix: inout simd_float4x4,
-    _ x: Float, _ y: Float, _ z: Float, _ w: Float
-) {
-    var rotationMat = matrix_identity_float4x4
-    let qxx = x * x
-    let qyy = y * y
-    let qzz = z * z
-    let qxz = x * z
-    let qxy = x * y
-    let qyz = y * z
-    let qwx = w * x
-    let qwy = w * y
-    let qwz = w * z
-
-    rotationMat[0][0] = 1.0 - 2.0 * (qyy + qzz)
-    rotationMat[0][1] = 2.0 * (qxy + qwz)
-    rotationMat[0][2] = 2.0 * (qxz - qwy)
-
-    rotationMat[1][0] = 2.0 * (qxy - qwz)
-    rotationMat[1][1] = 1.0 - 2.0 * (qxx + qzz)
-    rotationMat[1][2] = 2.0 * (qyz + qwx)
-
-    rotationMat[2][0] = 2.0 * (qxz + qwy)
-    rotationMat[2][1] = 2.0 * (qyz - qwx)
-    rotationMat[2][2] = 1.0 - 2.0 * (qxx + qyy)
-
-    matrix *= rotationMat
-}
-
-func rotate(_ matrix: inout simd_float4x4,
-    _ x: Float, _ y: Float, _ z:Float
-) {
-    let rotation = simd_float3(x, y, z)
-    //Create quaternion
-    let c = cos(rotation * 0.5)
-    let s = sin(rotation * 0.5)
+func toQuat(euler: simd_float3
+) -> simd_float4 {
+    let c = cos(euler * 0.5)
+    let s = sin(euler * 0.5)
 
     var quat = simd_float4(repeating: 1.0)
 
@@ -55,62 +16,67 @@ func rotate(_ matrix: inout simd_float4x4,
     quat.y = c.x * s.y * c.z + s.x * c.y * s.z
     quat.z = c.x * c.y * s.z - s.x * s.y * c.z
 
-    //Create matrix
-    var rotationMat = matrix_identity_float4x4
-    let qxx = quat.x * quat.x
-    let qyy = quat.y * quat.y
-    let qzz = quat.z * quat.z
-    let qxz = quat.x * quat.z
-    let qxy = quat.x * quat.y
-    let qyz = quat.y * quat.z
-    let qwx = quat.w * quat.x
-    let qwy = quat.w * quat.y
-    let qwz = quat.w * quat.z
-
-    rotationMat[0][0] = 1.0 - 2.0 * (qyy + qzz)
-    rotationMat[0][1] = 2.0 * (qxy + qwz)
-    rotationMat[0][2] = 2.0 * (qxz - qwy)
-
-    rotationMat[1][0] = 2.0 * (qxy - qwz)
-    rotationMat[1][1] = 1.0 - 2.0 * (qxx + qzz)
-    rotationMat[1][2] = 2.0 * (qyz + qwx)
-
-    rotationMat[2][0] = 2.0 * (qxz + qwy)
-    rotationMat[2][1] = 2.0 * (qyz - qwx)
-    rotationMat[2][2] = 1.0 - 2.0 * (qxx + qyy)
-
-    matrix *= rotationMat
+    return quat
 }
+
+func translate(_ matrix: inout simd_float4x4,
+    _ position: simd_float3
+) {
+    matrix[3] = matrix[0]*position.x + matrix[1]*position.y
+        + matrix[2]*position.z + matrix[3]
+}
+func translate(_ matrix: inout simd_float4x4,
+    _ x: Float, _ y: Float, _ z: Float
+) { translate(&matrix, simd_float3(x, y, z)) }
+
+func rotate(_ matrix: inout simd_float4x4,
+    _ quaternion: simd_float4
+) {
+    let q = simd_quatf(vector: quaternion)
+    let rotMat = simd_float4x4(q)
+    matrix *= rotMat
+}
+func rotate(_ matrix: inout simd_float4x4,
+    _ x: Float, _ y: Float, _ z: Float, _ w: Float
+) { rotate(&matrix, simd_float4(x, y, z, w)); }
+func rotate(_ matrix: inout simd_float4x4,
+    _ euler: simd_float3
+) { rotate(&matrix, toQuat(euler: euler)) }
+func rotate(_ matrix: inout simd_float4x4,
+    _ x: Float, _ y: Float, _ z:Float
+) { rotate(&matrix, simd_float3(x, y, z)) }
 
 func scale(_ matrix: inout simd_float4x4,
-    _ x: Float, _ y: Float, _ z: Float
+    _ xyz: simd_float3
 ) {
-    matrix[0] *= x
-    matrix[1] *= y
-    matrix[2] *= z
+    matrix *= simd_float4x4(diagonal: simd_float4(xyz, 1.0))
 }
+func scale(_ matrix: inout simd_float4x4,
+    _ x: Float, _ y: Float, _ z: Float
+) { scale(&matrix, simd_float3(x, y, z)) }
 
+func viewMatrix(_ eyePos: simd_float3, _ quaternion: simd_float4
+) -> simd_float4x4 {
+    // rotation matrix first,
+    var mat = simd_float4x4(
+        simd_quatf(vector: quaternion).inverse)
+    translate(&mat, -eyePos)
+    return mat
+}
+func viewMatrix(eyePos: simd_float3, euler: simd_float3
+) -> simd_float4x4 {
+    return viewMatrix(eyePos, toQuat(euler: euler)) }
 func viewMatrix(eyePos: simd_float3, fwdDir: simd_float3,
     upDir: simd_float3
 ) -> simd_float4x4 {
-    let rightDir = normalize(simd_cross(upDir, fwdDir))
-    let upDir = simd_cross(fwdDir, rightDir)
-
-    var matrix = matrix_identity_float4x4
-    matrix[0][0] = rightDir.x
-    matrix[1][0] = rightDir.y
-    matrix[2][0] = rightDir.z
-    matrix[0][1] = upDir.x
-    matrix[1][1] = upDir.y
-    matrix[2][1] = upDir.z
-    matrix[0][2] = fwdDir.x
-    matrix[1][2] = fwdDir.y
-    matrix[2][2] = fwdDir.z
-    matrix[3][0] = -dot(rightDir, eyePos)
-    matrix[3][1] = -dot(upDir, eyePos)
-    matrix[3][2] = -dot(fwdDir, eyePos)
-
-    return matrix
+    let xDir = normalize(simd_cross(upDir, fwdDir))
+    let yDir = simd_cross(fwdDir, xDir)
+    return matrix_from_rows(
+        simd_float4(xDir, -dot(xDir, eyePos)),
+        simd_float4(yDir, -dot(yDir, eyePos)),
+        simd_float4(fwdDir, -dot(fwdDir, eyePos)),
+        simd_float4(0, 0, 0, 1)
+    )
 }
 func viewMatrix(eyePos: simd_float3, tgtPos: simd_float3,
     upDir: simd_float3
