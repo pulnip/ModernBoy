@@ -21,14 +21,40 @@ namespace ModernBoy
         bool operator==(const ResourceHandle&) const = default;
     };
 
+    using TransformHandle = ResourceHandle<Transform>;
+    using CameraHandle = ResourceHandle<Camera>;
+
     template<typename Mesh>
     struct RenderTask{
-        EntityID actor;
-        ResourceHandle<Transform> transformHandle;
-        ResourceHandle<Mesh> meshHandle;
+        using MeshHandle = ResourceHandle<Mesh>;
 
-        ResourceHandle<Transform> getTransformHandle() const{ return transformHandle; }
-        ResourceHandle<Mesh> getMeshHandle() const{ return meshHandle; }
+        EntityID actor;
+        bool enabled = true;
+        TransformHandle transformHandle;
+        MeshHandle meshHandle;
+
+        RenderTask(EntityID actor, const TransformHandle& th,
+            const MeshHandle& mh)
+        :actor(actor), transformHandle(th), meshHandle(mh){}
+
+        TransformHandle getTransformHandle() const{ return transformHandle; }
+        MeshHandle getMeshHandle() const{ return meshHandle; }
+    };
+
+    struct ViewTask{
+        EntityID actor;
+        bool enabled = true;
+        TransformHandle transformHandle;
+        CameraHandle cameraHandle;
+        // TODO: how to get viewport of this camera?
+
+        ViewTask(EntityID actor, bool enabled,
+            const TransformHandle& th, const CameraHandle& ch)
+        :actor(actor), enabled(enabled), transformHandle(th),
+        cameraHandle(ch){}
+
+        TransformHandle getTransformHandle() const{ return transformHandle; }
+        CameraHandle getCameraHandle() const{ return cameraHandle; }
     };
 } // namespace ModernBoy
 

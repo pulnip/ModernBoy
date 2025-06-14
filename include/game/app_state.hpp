@@ -55,6 +55,8 @@ namespace ModernBoy
         MeshManager meshManager;
         ShaderManager shaderManager;
         RenderTaskManager renderTaskManager;
+        CameraManager cameraManager;
+        ViewTaskManager viewTaskManager;
         SDL_Window* window;
         MeshRenderer renderer;
         MeshLoader meshLoader;

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
+#include "resource_handle.hpp"
 
 namespace ModernBoy
 {
@@ -30,6 +31,7 @@ namespace ModernBoy
             return wrapped;
         }
     };
+    using ViewTaskManager = TaskManager<ViewTask>;
 } // namespace ModernBoy
 
 #endif // MODERNBOY_TASK_MANAGER_HPP

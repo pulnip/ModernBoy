@@ -97,6 +97,7 @@ namespace ModernBoy{
     };
 
     using TransformManager = ResourceManager<Transform>;
+    using CameraManager = ResourceManager<Camera>;
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_MANAGER_HPP

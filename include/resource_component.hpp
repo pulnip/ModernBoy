@@ -18,6 +18,7 @@ namespace ModernBoy
         :actor(id), resourceHandle(handle){}
     };
     using TransformComponent = ResourceComponent<Transform>;
+    using CameraComponent = ResourceComponent<Camera>;
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_COMPONENT_HPP

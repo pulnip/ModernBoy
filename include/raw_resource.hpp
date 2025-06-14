@@ -51,6 +51,17 @@ namespace ModernBoy
         float rotation[4] = {0.0f, 0.0f, 0.0f, 1.0f};
         float scale[3] = {1.0f, 1.0f, 1.0f};
     };
+
+    enum class Projection{
+        PERSPECTIVE,
+        ORTHOGRAPHIC
+    };
+    struct Camera{
+        float fov = 100.0f;
+        float nearPlane = 0.1f;
+        float farPlane = 100.0f;
+        Projection projection = Projection::PERSPECTIVE;
+    };
 }
 
 #endif // MODERNBOY_RAW_RESOURCE_HPP

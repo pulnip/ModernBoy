@@ -27,10 +27,13 @@ using namespace ModernBoy::OpenGL;
 
 AppState::AppState(SDL_Window* window)
 :transformManager(), meshImporter(), meshManager(),
-shaderManager(), renderTaskManager(), window(window),
-renderer(window, transformManager, meshManager, shaderManager, renderTaskManager),
+shaderManager(), renderTaskManager(),
+cameraManager(), viewTaskManager(),
+window(window), renderer(window, transformManager, meshManager,
+    shaderManager, renderTaskManager),
 meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
-actorLoader(transformManager, meshLoader, renderTaskManager),
+actorLoader(transformManager, meshLoader, renderTaskManager,
+    cameraManager, viewTaskManager),
 scriptEngine(asCreateScriptEngine()), scriptContext(scriptEngine->CreateContext()){}
 AppState::~AppState(){
     scriptContext->Release();
