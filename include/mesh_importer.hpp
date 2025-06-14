@@ -3,14 +3,14 @@
 
 #include <string>
 #include <raw_resource.hpp>
+#include <resource_importer.hpp>
 
 namespace ModernBoy{
-    // RawMesh for shader test
-    RawMeshes createTriangle();
-    RawMeshes createRectangle();
-    RawMeshes createCube();
-
-    RawMeshes fromFbx(const std::string& fileName);
+    class MeshImporter{
+    public:
+        RawMeshes import(const std::string& fileName);
+    };
+    static_assert(ResourceImporter<MeshImporter, RawMeshes>);
 }
 
 #endif // MODERNBOY_MESH_IMPORTER_HPP

@@ -6,8 +6,25 @@
 using namespace ModernBoy;
 
 static RawMesh importMesh(const aiMesh* mesh, const aiScene* scene);
+RawMeshes fromFbx(const std::string& fileName);
+// RawMesh for shader test
+static RawMeshes createTriangle();
+static RawMeshes createRectangle();
+static RawMeshes createCube();
 
-RawMeshes ModernBoy::createTriangle(){
+RawMeshes MeshImporter::import(const std::string& fileName){
+    if(fileName.ends_with(".fbx"))
+        return fromFbx(fileName);
+    else if(fileName.compare("Triangle") == 0)
+        return createTriangle();
+    else if(fileName.compare("Rectangle") == 0)
+        return createRectangle();
+    else if(fileName.compare("Cube") == 0)
+        return createCube();
+    return {};
+}
+
+static RawMeshes createTriangle(){
     Vertices vertices = {
         {
             {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
@@ -25,7 +42,7 @@ RawMeshes ModernBoy::createTriangle(){
     return { RawMesh(vertices, indices, {}) };
 
 }
-RawMeshes ModernBoy::createRectangle(){
+static RawMeshes createRectangle(){
     Vertices vertices = {
         {
             {-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, -1.0f}, 
@@ -48,7 +65,7 @@ RawMeshes ModernBoy::createRectangle(){
 
     return { RawMesh(vertices, indices, {}) };
 }
-RawMeshes ModernBoy::createCube(){
+static RawMeshes createCube(){
     Vertices vertices = {
         // front
         {
@@ -159,7 +176,7 @@ RawMeshes ModernBoy::createCube(){
     return { RawMesh(vertices, indices, {}) };
 }
 
-RawMeshes ModernBoy::fromFbx(const std::string& fileName){
+RawMeshes fromFbx(const std::string& fileName){
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(fileName.c_str(),
         aiProcess_Triangulate | aiProcess_CalcTangentSpace

@@ -26,9 +26,10 @@ using namespace ModernBoy::OpenGL;
 #endif
 
 AppState::AppState(SDL_Window* window)
-:meshManager(), shaderManager(), meshComponentSystem(),
+:meshManager(), shaderManager(), meshComponentSystem(), meshImporter(),
 window(window),
 renderer(window, meshManager, shaderManager, meshComponentSystem),
+meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
 scriptEngine(asCreateScriptEngine()), scriptContext(scriptEngine->CreateContext()){}
 AppState::~AppState(){
     scriptContext->Release();
@@ -91,14 +92,13 @@ SDL_AppResult SDL_AppInit(void** appState,
 #elif defined(USE_METAL)
     NativePtr layerPtr = as->renderer.context.metalLayer;
 
-    auto rawMeshes = createCube();
-    auto mesh = Metal::Mesh(rawMeshes[0], layerPtr);
-
-    MeshHandle triangleHandle = as->meshManager.create(std::move(mesh));
-    as->meshComponentSystem.create(MeshComponent{
-        .owner=0,
-        .resourceHandle = triangleHandle
-    });
+    auto meshHandles = as->meshLoader.load("Cube");
+    for(size_t i=0; i<meshHandles.size(); ++i){
+        as->meshComponentSystem.create(MeshComponent{
+            .owner=0,
+            .resourceHandle = meshHandles[i]
+        });
+    }
     auto shader = Shader(createShader(layerPtr));
     as->shaderManager.create(std::move(shader));
 

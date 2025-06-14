@@ -6,6 +6,8 @@
 #include "game_context.hpp"
 #include "resource_component.hpp"
 #include "resource_manager.hpp"
+#include "mesh_importer.hpp"
+#include "resource_loader.hpp"
 #include "render/renderer.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
@@ -34,6 +36,8 @@ namespace ModernBoy
     using MeshComponent = ResourceComponent<Metal::Mesh>;
     using MeshComponentSystem = ComponentSystem<MeshComponent>;
     using MeshRenderer = Renderer<Metal::RenderContext>;
+    using MeshLoader = ResourceLoader<Metal::Mesh,
+        MeshImporter, Metal::NativePtr>;
 #elif defined(USE_OPENGL)
     using MeshManager = ResourceManager<OpenGL::Mesh>;
     using MeshRenderer = Renderer<OpenGL::RenderContext>;
@@ -45,8 +49,10 @@ namespace ModernBoy
         MeshManager meshManager;
         ShaderManager shaderManager;
         MeshComponentSystem meshComponentSystem;
+        MeshImporter meshImporter;
         SDL_Window* window;
         MeshRenderer renderer;
+        MeshLoader meshLoader;
         GameContext game_ctx;
         Uint64 last_step;
         asIScriptEngine* scriptEngine;
