@@ -30,6 +30,7 @@ AppState::AppState(SDL_Window* window)
 window(window),
 renderer(window, meshManager, shaderManager, meshComponentSystem),
 meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
+actorLoader(meshLoader, meshComponentSystem),
 scriptEngine(asCreateScriptEngine()), scriptContext(scriptEngine->CreateContext()){}
 AppState::~AppState(){
     scriptContext->Release();
@@ -92,13 +93,8 @@ SDL_AppResult SDL_AppInit(void** appState,
 #elif defined(USE_METAL)
     NativePtr layerPtr = as->renderer.context.metalLayer;
 
-    auto meshHandles = as->meshLoader.load("Cube");
-    for(size_t i=0; i<meshHandles.size(); ++i){
-        as->meshComponentSystem.create(MeshComponent{
-            .owner=0,
-            .resourceHandle = meshHandles[i]
-        });
-    }
+    as->actorLoader.loadActor("assets/actor.toml");
+
     auto shader = Shader(createShader(layerPtr));
     as->shaderManager.create(std::move(shader));
 

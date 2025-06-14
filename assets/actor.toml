@@ -1,0 +1,21 @@
+name = "Dummy"
+
+[transform]
+position = [0.0, 0.0, 0.0]
+rotation = [0.0, 0.0, 0.0]
+scale    = [1.0, 1.0, 1.0]
+
+[mesh]
+file = "Cube"
+
+[texture]
+diffuse = "cube_diffuse.png"
+normal  = "cube_normal.png"
+
+[components]
+    [components.health]
+    max = 100
+    regen = 2.0
+
+    [components.ai]
+    behavior = "dummy_ai.toml"

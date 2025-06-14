@@ -7,10 +7,15 @@ namespace ModernBoy
 {
     template<typename T>
     struct ResourceComponent{
+        using Handle = ResourceHandle<T>;
+
         EntityID owner;
-        ResourceHandle<T> resourceHandle;
+        Handle resourceHandle;
 
         bool enable = true;
+
+        ResourceComponent(EntityID id, Handle handle)
+        :owner(id), resourceHandle(handle){}
     };
 } // namespace ModernBoy
 

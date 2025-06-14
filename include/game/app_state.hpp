@@ -8,6 +8,7 @@
 #include "resource_manager.hpp"
 #include "mesh_importer.hpp"
 #include "resource_loader.hpp"
+#include "asset_loader.hpp"
 #include "render/renderer.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
@@ -44,6 +45,7 @@ namespace ModernBoy
     using MeshComponent = ResourceComponent<OpenGL::Mesh>;
     using MeshComponentSystem = ComponentSystem<MeshComponent>;
 #endif
+    using ActorLoader = AssetLoader<MeshLoader, MeshComponentSystem>;
 
     struct AppState{
         MeshManager meshManager;
@@ -53,6 +55,7 @@ namespace ModernBoy
         SDL_Window* window;
         MeshRenderer renderer;
         MeshLoader meshLoader;
+        ActorLoader actorLoader;
         GameContext game_ctx;
         Uint64 last_step;
         asIScriptEngine* scriptEngine;

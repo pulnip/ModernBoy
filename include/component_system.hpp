@@ -13,8 +13,9 @@ namespace ModernBoy
         std::vector<Component> components;
 
     public:
-        void create(const Component& component){
-            components.emplace_back(component);
+        template<typename... Args>
+        void create(Args... args){
+            components.emplace_back(Component(args...));
         }
 
         auto getAll() const{
