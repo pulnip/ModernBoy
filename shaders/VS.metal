@@ -59,11 +59,10 @@ fragment float4 fragment_main(
     texture2d<float> tex          [[texture(0)]],
     sampler samp                  [[sampler(0)]]
 ){
-    float4 color = float4(input.uv, 0.0, 0.5);
-    // float2 uv = input.uv.xy;
-    // float4 color = tex.sample(samp, uv);
+    float2 uv = input.uv.xy;
+    float4 color = tex.sample(samp, uv);
     return float4(phongLighting(color.rgb, input.normal,
         input.worldPosition, viewPosition
-    ), 1.0);
+    ), color.a);
     return color;
 }

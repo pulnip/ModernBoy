@@ -24,6 +24,8 @@ RawMeshes MeshImporter::import(const std::string& fileName){
     return {};
 }
 
+auto testTexs = Textures{"metal_logo.png"};
+
 static RawMeshes createTriangle(){
     Vertices vertices = {
         {
@@ -38,8 +40,8 @@ static RawMeshes createTriangle(){
         }
     };
     Indices indices = {0, 2, 1};
-    
-    return { RawMesh(vertices, indices, {}) };
+
+    return { RawMesh(vertices, indices, testTexs) };
 
 }
 static RawMeshes createRectangle(){
@@ -63,7 +65,7 @@ static RawMeshes createRectangle(){
         0, 2, 3
     };
 
-    return { RawMesh(vertices, indices, {}) };
+    return { RawMesh(vertices, indices, testTexs) };
 }
 static RawMeshes createCube(){
     Vertices vertices = {
@@ -173,7 +175,7 @@ static RawMeshes createCube(){
         22, 23, 20
     };
 
-    return { RawMesh(vertices, indices, {}) };
+    return { RawMesh(vertices, indices, testTexs) };
 }
 
 RawMeshes fromFbx(const std::string& fileName){
