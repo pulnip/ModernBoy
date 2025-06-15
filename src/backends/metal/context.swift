@@ -7,6 +7,7 @@ class RenderContext {
     let layer: CAMetalLayer
     let commandQueue: MTLCommandQueue
     let sampler: MTLSamplerState
+    var dsTexture: MTLTexture?
 
     var aspectRatio: Float = 1.0
 
@@ -36,6 +37,14 @@ class RenderContext {
             desc.tAddressMode = .repeat
         sampler = layer.device!.makeSamplerState(
             descriptor: desc)!
+                let dstd = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .depth32Float_stencil8,
+            width: Int(layer.drawableSize.width),
+            height: Int(layer.drawableSize.height),
+            mipmapped: false
+        )
+        dstd.usage = [.renderTarget, .shaderRead]
+        dsTexture = layer.device!.makeTexture(descriptor: dstd)
     }
     deinit {
         if let encoder = self.renderEncoder {
@@ -58,6 +67,9 @@ class RenderContext {
             red: r, green: g, blue: b, alpha: a)
         rpd.colorAttachments[0].storeAction = .store
         rpd.colorAttachments[0].texture = drawable.texture
+        rpd.depthAttachment.texture = dsTexture
+        rpd.depthAttachment.loadAction = .clear
+        rpd.depthAttachment.storeAction = .dontCare
         rpd.depthAttachment.clearDepth = 1.0
 
         renderPassDesc = rpd
@@ -83,8 +95,6 @@ class RenderContext {
         var modelMat_ = modelMat
         var normalMat = normal(modelMat)
 
-        encoder.setVertexBytes(&viewMat,
-            length: MemoryLayout<simd_float4x4>.stride, index: 2)
         encoder.setVertexBytes(&modelMat_,
             length: MemoryLayout<simd_float4x4>.stride, index: 3)
         encoder.setVertexBytes(&normalMat,

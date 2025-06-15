@@ -35,6 +35,7 @@ class Shader{
         pipelineDesc.fragmentFunction = fragFunc
         pipelineDesc.vertexDescriptor = vertexDesc
         pipelineDesc.colorAttachments[0].pixelFormat = .bgra8Unorm
+        pipelineDesc.depthAttachmentPixelFormat = .depth32Float_stencil8
 
         pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineDesc)
     }

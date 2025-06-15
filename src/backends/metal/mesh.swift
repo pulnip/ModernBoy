@@ -37,6 +37,7 @@ class Mesh{
             numIndices = indices.count
         }
 
+        // TODO: duplicate texture
         if let path = texturePath{
             let url = URL(fileURLWithPath: path)
             let loader: MTKTextureLoader = MTKTextureLoader(
