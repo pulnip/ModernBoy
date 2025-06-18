@@ -94,4 +94,4 @@ extern "C"{
 
 }
 
-#endif // MODERNBOY_DX11_CONTEXT_HPP
+#endif // MODERNBOY_METAL_CONTEXT_HPP

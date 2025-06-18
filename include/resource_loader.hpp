@@ -35,4 +35,4 @@ namespace ModernBoy
     };
 }
 
-#endif // MODERNBOY_RESOURCE_LOADER
+#endif // MODERNBOY_RESOURCE_LOADER_HPP
