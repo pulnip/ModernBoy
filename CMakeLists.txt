@@ -39,3 +39,4 @@ set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON
 
 add_subdirectory(shaders)
 add_subdirectory(src)
+add_subdirectory(src/network/posix)
