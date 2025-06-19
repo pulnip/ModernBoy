@@ -6,7 +6,7 @@
 #define IMGUI_IMPL_METAL_CPP
 #include <imgui_impl_metal.h>
 
-#include <cmath>
+#include <numbers>
 #include <chrono>
 using namespace std::chrono;
 
@@ -80,7 +80,7 @@ void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
 
     auto now = steady_clock::now().time_since_epoch();
     float seconds = duration<float>(now).count();
-    float ry = fmodf(seconds * (float)(M_PI/2.0), (float)(M_PI * 2.0));
+    float ry = fmodf(seconds * (float)(std::numbers::pi/2.0), (float)(std::numbers::pi * 2.0));
 
     RenderContext_draw_(_renderContext, p[0], p[1], p[2],
         r[0], ry, r[2], s[0], s[1], s[2], meshPtr);
