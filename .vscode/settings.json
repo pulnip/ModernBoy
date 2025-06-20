@@ -85,6 +85,15 @@
     "coroutine": "cpp",
     "forward_list": "cpp",
     "fstream": "cpp",
-    "future": "cpp"
+    "future": "cpp",
+    "__bit_reference": "cpp",
+    "__hash_table": "cpp",
+    "__node_handle": "cpp",
+    "__tree": "cpp",
+    "ios": "cpp",
+    "queue": "cpp",
+    "stack": "cpp",
+    "*.inc": "cpp",
+    "ranges": "cpp"
 }
 }

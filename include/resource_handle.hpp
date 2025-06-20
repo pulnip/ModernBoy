@@ -56,6 +56,14 @@ namespace ModernBoy
         TransformHandle getTransformHandle() const{ return transformHandle; }
         CameraHandle getCameraHandle() const{ return cameraHandle; }
     };
+
+    struct InputTask{
+        EntityID actor;
+        TransformHandle transformHandle;
+        std::string script;
+
+        TransformHandle getTransformHandle() const{ return transformHandle; }
+    };
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_HANDLE_HPP
