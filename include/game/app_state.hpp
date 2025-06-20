@@ -21,7 +21,6 @@
 #include "backends/opengl/mesh.hpp"
 #include "backends/opengl/context.hpp"
 #endif
-#include "angelscript.h"
 
 namespace ModernBoy
 {
@@ -63,8 +62,6 @@ namespace ModernBoy
         ActorLoader actorLoader;
         GameContext game_ctx;
         Uint64 last_step;
-        asIScriptEngine* scriptEngine;
-        asIScriptContext* scriptContext;
 
         AppState(SDL_Window* window);
         ~AppState();

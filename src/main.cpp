@@ -34,12 +34,8 @@ window(window), renderer(window, transformManager, meshManager,
     viewTaskManager),
 meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
 actorLoader(transformManager, meshLoader, renderTaskManager,
-    cameraManager, viewTaskManager),
-scriptEngine(asCreateScriptEngine()), scriptContext(scriptEngine->CreateContext()){}
-AppState::~AppState(){
-    scriptContext->Release();
-    scriptEngine->ShutDownAndRelease();
-}
+    cameraManager, viewTaskManager){}
+AppState::~AppState(){}
 
 constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
 
