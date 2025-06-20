@@ -1,5 +1,6 @@
 message(STATUS "Backend dir: ${BACKEND_SOURCE_DIR}")
 add_subdirectory(${BACKEND_SOURCE_DIR})
+add_subdirectory(input)
 
 file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME} ${ALL_SOURCES})
@@ -27,13 +28,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
     RenderBackend
+    InputModule
     # SDL3
     SDL3::SDL3
     # SDL3_image
     SDL3_image::SDL3_image
     # ImGui
     ${ImGui_LIBS}
-    # angelscript
-    angelscript
+    # Assimp
     assimp::assimp
 )
