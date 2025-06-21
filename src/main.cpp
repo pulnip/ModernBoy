@@ -3,6 +3,7 @@
 #include <print>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <imgui_impl_sdl3.h>
 #include "game/app_state.hpp"
 
 #include "mesh_importer.hpp"
@@ -115,6 +116,7 @@ SDL_AppResult SDL_AppInit(void** appState,
 SDL_AppResult SDL_AppEvent([[maybe_unused]] void* appState,
     SDL_Event* event)
 {
+    ImGui_ImplSDL3_ProcessEvent(event);
     switch(event->type){
     case SDL_EVENT_QUIT:
         SDL_Log("SDL_EVENT_QUIT");

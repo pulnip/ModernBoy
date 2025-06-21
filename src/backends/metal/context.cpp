@@ -9,6 +9,8 @@
 #include <numbers>
 #include <chrono>
 using namespace std::chrono;
+#include "render/gui.hpp"
+ModernBoy::UI ui{};
 
 using namespace ModernBoy::Metal;
 
@@ -33,8 +35,13 @@ cameraManager(cameraManager){
     }
 
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.DisplaySize = ImVec2(w, h);
+    // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    // Setup Dear ImGui style
+    // ImGui::StyleColorsLight();
+    ImGui::StyleColorsDark();
 
     // Setup Platform/Renderer backends
     ImGui_ImplSDL3_InitForMetal(in_window);
@@ -69,7 +76,8 @@ void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
     ImGui_ImplSDL3_NewFrame();
 
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow(); // Show demo window! :)
+    // ImGui::ShowDemoWindow(); // Show demo window! :)
+    ui.update();
 }
 
 void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
