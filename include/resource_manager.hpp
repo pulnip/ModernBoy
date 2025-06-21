@@ -30,7 +30,7 @@ namespace ModernBoy{
         std::unordered_map<std::string, Handle> pathToHandle;
 
     public:
-        Handle create(T&& in_data){
+        [[nodiscard]] Handle create(T&& in_data){
             [[unlikely]] if(!freeSlots.empty()){
                 uint32_t index = freeSlots.back();
                 freeSlots.pop_back();
@@ -48,7 +48,9 @@ namespace ModernBoy{
             slots.push_back(Slot{std::move(in_data), 1, true});
             return Handle{index, 1};
         }
-        Handle load(const std::string& in_fileName, std::function<T(const std::string&)> in_loader){
+        [[nodiscard]] Handle load(const std::string& in_fileName,
+            std::function<T(const std::string&)> in_loader
+        ){
             // check if Named Resource is already Loaded.
             if(auto it = pathToHandle.find(in_fileName); it != pathToHandle.end()){
                 return it->second;
