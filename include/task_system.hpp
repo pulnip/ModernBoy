@@ -23,7 +23,7 @@ namespace ModernBoy
             std::vector<Task> tasks;
 
             std::for_each(components.cbegin(), components.cend(),
-                [&wrapped](const auto& component){
+                [&tasks](const auto& component){
                     auto newTasks = component.getTasks();
                     tasks.append_range(newTasks);
                 }

@@ -2,14 +2,19 @@
 #define MODERNBOY_APP_STATE_HPP
 
 #include <SDL3/SDL_render.h>
-#include "task_manager.hpp"
+#include "task_system.hpp"
+#include "view_system.hpp"
 #include "game_context.hpp"
 #include "resource_component.hpp"
 #include "resource_manager.hpp"
 #include "mesh_importer.hpp"
 #include "resource_loader.hpp"
 #include "asset_loader.hpp"
+#include "input/controller.hpp"
+#include "input/device.hpp"
+#include "input/component.hpp"
 #include "render/renderer.hpp"
+#include "render/component.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
 #include "backends/dx11/context.hpp"
@@ -33,10 +38,10 @@ namespace ModernBoy
 #elif defined(USE_METAL)
     using MeshManager = ResourceManager<Metal::Mesh>;
     using ShaderManager = ResourceManager<Metal::Shader>;
-    using MeshComponent = ResourceComponent<Metal::Mesh>;
-    using RenderTask_ = RenderTask<Metal::Mesh>;
-    using RenderTaskManager = TaskManager<RenderTask_>;
-    using MeshRenderer = Renderer<Metal::RenderContext>;
+    using RenderComponent = Render::Component<Metal::Mesh>;
+    using RenderTask = Render::Task<Metal::Mesh>;
+    using RenderSystem = TaskSystem<RenderComponent, RenderTask>;
+    using MeshRenderer = Render::Renderer<Metal::RenderContext>;
     using MeshLoader = ResourceLoader<Metal::Mesh,
         MeshImporter, Metal::NativePtr>;
 #elif defined(USE_OPENGL)
@@ -45,20 +50,24 @@ namespace ModernBoy
     using MeshComponent = ResourceComponent<OpenGL::Mesh>;
     using TaskManager = TaskManager<MeshComponent>;
 #endif
+    using InputSystem = TaskSystem<Input::Component, Input::Task>;
     using ActorLoader = AssetLoader<
-        MeshLoader, RenderTaskManager>;
+        MeshLoader, RenderSystem, InputSystem>;
 
     struct AppState{
         TransformManager transformManager;
         MeshImporter meshImporter;
         MeshManager meshManager;
         ShaderManager shaderManager;
-        RenderTaskManager renderTaskManager;
+        RenderSystem renderSystem;
         CameraManager cameraManager;
-        ViewTaskManager viewTaskManager;
+        ViewSystem viewSystem;
         SDL_Window* window;
         MeshRenderer renderer;
         MeshLoader meshLoader;
+        Input::Device inputDevice;
+        InputSystem inputSystem;
+        Input::Controller controller;
         ActorLoader actorLoader;
         GameContext game_ctx;
         Uint64 last_step;

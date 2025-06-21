@@ -24,8 +24,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/external/tomlplusplus/include
     # stb
     ${CMAKE_SOURCE_DIR}/external/stb
+    # angelscript
+    ${CMAKE_SOURCE_DIR}/external/angelscript/sdk/angelscript/include
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    Util
     RenderBackend
     InputModule
     # SDL3

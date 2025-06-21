@@ -27,14 +27,17 @@ using namespace ModernBoy::OpenGL;
 
 AppState::AppState(SDL_Window* window)
 :transformManager(), meshImporter(), meshManager(),
-shaderManager(), renderTaskManager(),
-cameraManager(), viewTaskManager(),
+shaderManager(), renderSystem(),
+cameraManager(), viewSystem(),
 window(window), renderer(window, transformManager, meshManager,
-    shaderManager, renderTaskManager, cameraManager,
-    viewTaskManager),
+    shaderManager, renderSystem, cameraManager,
+    viewSystem),
 meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
-actorLoader(transformManager, meshLoader, renderTaskManager,
-    cameraManager, viewTaskManager){}
+inputDevice(), inputSystem(),
+controller(inputDevice, "assets/script/ModernBoy.asb",
+    inputSystem, transformManager),
+actorLoader(transformManager, meshLoader, renderSystem,
+    cameraManager, viewSystem, inputSystem){}
 AppState::~AppState(){}
 
 constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
@@ -150,7 +153,7 @@ static SDL_AppResult _handle_key_event([[maybe_unused]] void* ctx,
 }
 
 SDL_AppResult SDL_AppIterate(void* appState){
-    AppState& as = *(AppState*)appState;
+    AppState& as = *static_cast<AppState*>(appState);
     GameContext& ctx = as.game_ctx;
 
     const Uint64 now = SDL_GetTicks();
@@ -159,6 +162,8 @@ SDL_AppResult SDL_AppIterate(void* appState){
         ctx.shown = !ctx.shown;
         as.last_step += STEP_RATE_IN_MILLISECONDS;
     }
+
+    as.controller.update();
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }

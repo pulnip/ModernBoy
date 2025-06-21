@@ -6,9 +6,10 @@
 #include "lock_free_queue.hpp"
 #include "render_context.hpp"
 #include "resource_manager.hpp"
+#include "task_system.hpp"
+#include "render/component.hpp"
 
-namespace ModernBoy
-{
+namespace ModernBoy{ namespace Render{
     template<typename... Fs>
     struct Overload: Fs...{ using Fs::operator()...; };
     template<typename... Fs>
@@ -24,12 +25,12 @@ namespace ModernBoy
         using Mesh = typename Ctx::Mesh;
         using Shader = typename Ctx::Shader;
 
-        using MeshComponent = ResourceComponent<Mesh>;
-        using RenderTaskManager = TaskManager<RenderTask<Mesh>>;
+        using MeshComponent = Component<Mesh>;
+        using RenderSystem = TaskSystem<MeshComponent, Task<Mesh>>;
 
         LockFreeQueue<RenderCommand<Mesh, Shader>> queue;
-        const RenderTaskManager& renderTaskManager;
-        const ViewTaskManager& viewTaskManager;
+        const RenderSystem& renderTaskManager;
+        const ViewSystem& viewTaskManager;
 
         std::stop_source stsrc;
         std::jthread commandThread;
@@ -39,9 +40,9 @@ namespace ModernBoy
         Renderer(Window* window, TransformManager& transformManager,
             ResourceManager<Mesh>& meshManager,
             ResourceManager<Shader>& shaderManager,
-            RenderTaskManager& renderTaskManager,
+            RenderSystem& renderTaskManager,
             CameraManager& cameraManager,
-            ViewTaskManager& viewTaskManager)
+            ViewSystem& viewTaskManager)
         :context(window, transformManager, meshManager, shaderManager,
             cameraManager), renderTaskManager(renderTaskManager),
             viewTaskManager(viewTaskManager){}
@@ -68,19 +69,18 @@ namespace ModernBoy
                 auto renderTasks = renderTaskManager.getAll();
 
                 for(auto& task: viewTasks){
-                    if(!task.get().enabled) continue;
                     waitUntilPushed(queue, FrameStartCommand<Shader>{
                         // TODO: for multiple scene viewport
                         .shaderHandle = { .index=0, .generation=1 },
-                        .cameraTransformHandle = task.get().getTransformHandle(),
-                        .cameraHandle = task.get().getCameraHandle()
+                        .cameraTransformHandle = task.transformHandle,
+                        .cameraHandle = task.cameraHandle,
                     }, stoken);
                 }
 
                 for(auto& task: renderTasks){
                     waitUntilPushed(queue, DrawCommand<Mesh>{
-                        .transformHandle = task.get().getTransformHandle(),
-                        .meshHandle = task.get().getMeshHandle()
+                        .transformHandle = task.transformHandle,
+                        .meshHandle = task.meshHandle
                     }, stoken);
                 }
 
@@ -97,6 +97,6 @@ namespace ModernBoy
             }
         }
     };
-} // namespace ModernBoy
+}}
 
 #endif // MODERNBOY_RENDERER_HPP

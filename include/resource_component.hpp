@@ -5,20 +5,10 @@
 
 namespace ModernBoy
 {
-    template<typename T>
-    struct ResourceComponent{
-        using Handle = ResourceHandle<T>;
-
+    struct TransformComponent{
         EntityID actor;
-        Handle resourceHandle;
-
-        bool enable = true;
-
-        ResourceComponent(EntityID id, Handle handle)
-        :actor(id), resourceHandle(handle){}
+        TransformHandle transformHandle;
     };
-    using TransformComponent = ResourceComponent<Transform>;
-    using CameraComponent = ResourceComponent<Camera>;
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_COMPONENT_HPP

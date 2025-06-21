@@ -101,6 +101,7 @@
     "__split_buffer": "cpp",
     "__verbose_abort": "cpp",
     "execution": "cpp",
-    "locale": "cpp"
+    "locale": "cpp",
+    "executor": "cpp"
 }
 }
