@@ -1,6 +1,7 @@
 message(STATUS "Backend dir: ${BACKEND_SOURCE_DIR}")
 add_subdirectory(${BACKEND_SOURCE_DIR})
 add_subdirectory(input)
+add_subdirectory(util)
 
 file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME} ${ALL_SOURCES})
@@ -19,8 +20,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${gsl-lite_INCLUDE_DIRS}
     # ImGui
     ${ImGui_INCLUDE_DIRS}
-    # angelscript
-    ${CMAKE_SOURCE_DIR}/external/angelscript/include
     # toml++
     ${CMAKE_SOURCE_DIR}/external/tomlplusplus/include
     # stb

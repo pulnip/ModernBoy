@@ -1,49 +1,33 @@
 #include <fstream>
 #include <sstream>
 #include "input/controller.hpp"
+#include "util/as_helper.hpp"
+#include "util/as_stream.hpp"
+#include "util/as_typehelper.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Input;
 
 Controller::Controller(Device& device,
+    const std::string& moduleFileName,
     InputTaskManager& taskManager,
     TransformManager& transformManager)
 :device(device), taskManager(taskManager),
 transformManager(transformManager),
 scriptEngine(asCreateScriptEngine()),
 scriptContext(scriptEngine->CreateContext()){
-    scriptEngine->RegisterObjectType("Transform",
-        sizeof(Transform), asOBJ_VALUE | asOBJ_POD);
+    Util::registerTransform(scriptEngine);
+
+    Util::StreamWrapper stream(moduleFileName);
+    scriptModule->SaveByteCode(&stream);
 }
 Controller::~Controller(){
     scriptContext->Release();
     scriptEngine->ShutDownAndRelease();
 }
 
-static std::string load(const std::string& fileName);
-
-void Controller::loadModule(std::span<std::string> sourceFiles){
-    scriptModule = scriptEngine->GetModule(
-        "game", asGM_ALWAYS_CREATE);
-    for(const auto& fileName: sourceFiles){
-        auto sourceCode = load(fileName);
-        scriptModule->AddScriptSection(
-            fileName.c_str(), sourceCode.c_str());
-    }
-    scriptModule->Build();
-}
-
-static std::string load(const std::string& fileName){
-    std::ifstream file(fileName);
-    if(!file) return "";
-
-    std::stringstream stream;
-    stream << file.rdbuf();
-    return stream.str();
-}
-
 void Controller::update(){
-    inputState = device.fetch();
+    device.fetch(state);
 
     auto inputTasks = taskManager.getAll();
     for(const auto& task: inputTasks){
@@ -54,6 +38,7 @@ void Controller::update(){
             task.get().script.c_str());
         scriptContext->Prepare(func);
         scriptContext->SetArgObject(0, transform);
-        scriptContext->Execute();
+        if(auto ret = scriptContext->Execute() < 0)
+            Util::printExceptionInfo(scriptContext);
     }
 }

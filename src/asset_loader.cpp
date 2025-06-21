@@ -11,11 +11,11 @@ Transform ModernBoy::parseTransform(
     auto s = table["scale"].as_array();
 
     for(size_t i=0; i<3; ++i)
-        transform.position[i] = *((*p)[i]).value<double>();
+        transform.pos[i] = *((*p)[i]).value<double>();
     for(size_t i=0; i<4; ++i)
-        transform.rotation[i] = *((*r)[i]).value<double>();
+        transform.rot[i] = *((*r)[i]).value<double>();
     for(size_t i=0; i<3; ++i)
-        transform.scale[i] = *((*s)[i]).value<double>();
+        transform.scl[i] = *((*s)[i]).value<double>();
     return transform;
 }
 

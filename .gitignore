@@ -121,5 +121,7 @@ imgui.ini
 *.fbx
 *.bmp
 
+*.asb
+
 .DS_Store
 external/metal-cpp/

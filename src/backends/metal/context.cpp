@@ -55,8 +55,8 @@ void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
     const auto& camera = *cameraManager.get(cmd.cameraHandle);
 
     RenderContext_setView(_renderContext,
-        viewPos[0], viewPos[1], viewPos[2],
-        viewQuat[0], viewQuat[1], viewQuat[2], viewQuat[3]
+        viewPos.x, viewPos.y, viewPos.z,
+        viewQuat.x, viewQuat.y, viewQuat.z, viewQuat.w
     );
 
     RenderContext_frameStart(_renderContext,
@@ -74,7 +74,7 @@ void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
 
 void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
     Transform transform = *transformManager.get(cmd.transformHandle);
-    float *p=transform.position, *r=transform.rotation, *s=transform.scale;
+    float *p=transform.pos, *r=transform.rot, *s=transform.scl;
     
     MeshPtr meshPtr = meshManager.get(cmd.meshHandle)->meshPtr;
 

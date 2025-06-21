@@ -1,7 +1,7 @@
 #ifndef MODERNBOY_INPUT_CONTROLLER_HPP
 #define MODERNBOY_INPUT_CONTROLLER_HPP
 
-#include <span>
+#include <string>
 #include <angelscript.h>
 #include "resource_handle.hpp"
 #include "resource_manager.hpp"
@@ -16,6 +16,7 @@ namespace ModernBoy{ namespace Input{
     
     public:
         Controller(Device& device,
+            const std::string& moduleFileName,
             InputTaskManager& taskManager,
             TransformManager& transformManager);
         ~Controller();
@@ -24,11 +25,10 @@ namespace ModernBoy{ namespace Input{
         Controller& operator=(const Controller& other)=delete;
         Controller& operator=(Controller&&)=delete;
 
-        void loadModule(std::span<std::string> sourceFiles);
         void update();
-    
+
     private:
-        State inputState;
+        State state;
 
         Device& device;
         InputTaskManager& taskManager;

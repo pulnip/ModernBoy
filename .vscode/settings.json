@@ -94,6 +94,13 @@
     "queue": "cpp",
     "stack": "cpp",
     "*.inc": "cpp",
-    "ranges": "cpp"
+    "ranges": "cpp",
+    "expected": "cpp",
+    "__config": "cpp",
+    "__locale": "cpp",
+    "__split_buffer": "cpp",
+    "__verbose_abort": "cpp",
+    "execution": "cpp",
+    "locale": "cpp"
 }
 }
