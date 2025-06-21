@@ -34,24 +34,31 @@ if(RENDER_BACKEND STREQUAL "DirectX")
     unset(VERTEX_SHADERS)
     unset(PIXEL_SHADERS)
 elseif(RENDER_BACKEND STREQUAL "Metal")
-    set(METAL_SHADERS VS.metal)
+    set(AIR_DIR ${EXE_PATH}/../shaders)
+    set(METAL_SHADERS vs.metal fs.metal)
 
     foreach(SHADER_FILE IN LISTS METAL_SHADERS)
         get_filename_component(SHADER ${SHADER_FILE} NAME_WE)
         set(SHADER_SRC ${SHADER_DIR}/${SHADER_FILE})
+        set(AIR_FILE ${AIR_DIR}/${SHADER}.air)
         add_custom_command(
-            OUTPUT ${EXE_PATH}/$<CONFIG>/${SHADER}.metallib
-            COMMAND xcrun -sdk macosx metal -c ${SHADER_SRC} -o $<TARGET_FILE_DIR:${PROJECT_NAME}>/${SHADER}.air
-            COMMAND xcrun -sdk macosx metallib $<TARGET_FILE_DIR:${PROJECT_NAME}>/${SHADER}.air -o ${EXE_PATH}/$<CONFIG>/${SHADER}.metallib
-            COMMAND rm $<TARGET_FILE_DIR:${PROJECT_NAME}>/${SHADER}.air
+            OUTPUT ${AIR_FILE}
+            COMMAND xcrun -sdk macosx metal -c ${SHADER_SRC} -o ${AIR_FILE}
             DEPENDS ${SHADER_SRC}
-            COMMENT "Compiling Metal shader: ${SHADER_FILE}"
+            COMMENT "Compiling Metal shader to AIR: ${SHADER_FILE}"
         )
-        list(APPEND SHADER_OUTPUTS ${EXE_PATH}/$<CONFIG>/${SHADER}.metallib)
+        list(APPEND AIR_FILES ${AIR_FILE})
     endforeach()
-
-    add_custom_target(Shaders ALL DEPENDS ${SHADER_OUTPUTS})
-    unset(AIR_OUT)
+    add_custom_command(
+        OUTPUT ${EXE_PATH}/$<CONFIG>/${PROJECT_NAME}.metallib
+        COMMAND xcrun -sdk macosx metallib ${AIR_FILES} -o ${EXE_PATH}/$<CONFIG>/${PROJECT_NAME}.metallib
+        # COMMAND rm ${AIR_FILES}
+        DEPENDS ${AIR_FILES}
+        COMMENT "Linking all AIRs into METALLIB"
+    )
+    add_custom_target(Shaders ALL DEPENDS ${EXE_PATH}/$<CONFIG>/${PROJECT_NAME}.metallib)
+    unset(AIR_FILE)
+    unset(AIR_FILES)
     unset(METAL_SHADERS)
 elseif(RENDER_BACKEND STREQUAL "OpenGL")
     set(VERTEX_SHADERS VS.vert)

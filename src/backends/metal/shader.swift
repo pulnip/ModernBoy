@@ -1,5 +1,6 @@
 import Metal
 import QuartzCore
+import simd
 
 class Shader{
     var pipelineState: MTLRenderPipelineState
@@ -51,9 +52,10 @@ public func createShader(_ layerPtr: UnsafeRawPointer?
         else { return nil }
     let device = Unmanaged<CAMetalLayer>
         .fromOpaque(layerPtr).takeUnretainedValue().device!
-    let shaderPath = Bundle.main.path(forResource: "VS", ofType: "metallib") ??
-        Bundle.main.resourcePath.flatMap{ "\($0)/VS.metallib" } ??
-        "./VS.metallib"
+    
+    let shaderPath = Bundle.main.path(forResource: "ModernBoy", ofType: "metallib") ??
+        Bundle.main.resourcePath.flatMap{ "\($0)/ModernBoy.metallib" } ??
+        "./ModernBoy.metallib"
     let context = Shader(device: device,
         shaderPath: shaderPath)
     return UnsafeRawPointer(Unmanaged.passRetained(context).toOpaque())
