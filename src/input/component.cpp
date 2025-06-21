@@ -3,11 +3,11 @@
 using namespace ModernBoy::Input;
 
 Component::Component(EntityID actor,
-    const Tasks& tasks, TransformHandle transformHandle)
+    const Behaviours& behaviours, TransformHandle transformHandle)
 :actor(actor), map(), transformHandle(transformHandle){
-    for(const auto& task: tasks){
-        auto [b_it, _] = map.insert({task.button, ButtonMap{}});
-        b_it->second.insert({task.condition, task.behaviour});
+    for(const auto& behaviour: behaviours){
+        auto [b_it, _] = map.insert({behaviour.button, ButtonMap{}});
+        b_it->second.insert({behaviour.condition, behaviour.behaviour});
     } 
 }
 

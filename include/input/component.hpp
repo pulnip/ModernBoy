@@ -21,6 +21,13 @@ namespace ModernBoy{ namespace Input{
     using ButtonMap = std::unordered_map<ButtonState, std::string>;
     using InputMap = std::unordered_map<Button, ButtonMap>;
 
+    struct Behaviour{
+        Button button;
+        ButtonState condition;
+        std::string behaviour;
+    };
+    using Behaviours = std::vector<Behaviour>;
+
     struct Component{
         EntityID actor;
         InputMap map;
@@ -28,7 +35,7 @@ namespace ModernBoy{ namespace Input{
         TransformHandle transformHandle;
 
         Component(EntityID actor,
-            const std::vector<Task>& tasks,
+            const Behaviours& tasks,
             TransformHandle transformHandle);
         Tasks getTasks() const;
     };

@@ -23,7 +23,7 @@ void Device::moveFrom(Device&& other){
 void Device::fetch(State& state){
     SDL_PumpEvents();
 
-    for(int i=0; i<Button::NUM_MAX; ++i){
+    for(int i=0; i<Button::KEY_UNKNOWN; ++i){
         auto code = static_cast<Button>(i);
         auto sdl_code = convert(code);
         uint8_t active = sdl_keystate[sdl_code] ? ACTIVE_FLAG : 0;

@@ -17,7 +17,6 @@ namespace ModernBoy{ namespace Input{
     
     public:
         Controller(Device& device,
-            const std::string& moduleFileName,
             InputSystem& taskManager,
             TransformManager& transformManager);
         ~Controller();
@@ -26,6 +25,7 @@ namespace ModernBoy{ namespace Input{
         Controller& operator=(const Controller& other)=delete;
         Controller& operator=(Controller&&)=delete;
 
+        void loadScriptModule(const std::string& moduleFileName);
         void update();
 
     private:

@@ -2,8 +2,8 @@
 name = "Camera0"
 type = "MainCamera"
 [entities.transform]
-position = [4.5, 5.0, 0.0]
-rotation = [0.2705981, -0.6532815, 0.2705981, 0.6532815]
+position = [0.0, 5.0, -4.5]
+rotation = [0.3826834, 0.0, 0.0, 0.9238795]
 scale    = [1.0, 1.0, 1.0]
 [entities.camera]
 fov        = 100.0

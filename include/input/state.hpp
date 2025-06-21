@@ -12,11 +12,13 @@ namespace ModernBoy{ namespace Input{
     constexpr uint8_t CHANGED_FLAG = 0b10;
 
     enum ButtonState: uint8_t{
-        None = 0b00,
-        Held = ACTIVE_FLAG,
-        Released = CHANGED_FLAG,
-        Pressed = CHANGED_FLAG | ACTIVE_FLAG,
+        None        = 0b00,
+        Held        = ACTIVE_FLAG,
+        Released    = CHANGED_FLAG,
+        Pressed     = CHANGED_FLAG | ACTIVE_FLAG,
+        STATE_INVALID = 4,
     };
+    ButtonState toButtonState(const std::string& text);
 
     enum Button{
         KEY_0     =  0,
@@ -78,14 +80,16 @@ namespace ModernBoy{ namespace Input{
         KEY_RIGHT = 56,
         KEY_SPACE = 57,
         KEY_ENTER = 58,
-        NUM_MAX   = 59,
+        KEY_UNKNOWN = 59,
     };
     SDL_Scancode convert(Button code);
     Button convert(SDL_Scancode code);
+    Button convert(const std::string& text);
+
     ButtonState transit(ButtonState state,
         uint8_t current);
 
-    using KeyState = std::array<ButtonState, Button::NUM_MAX>;
+    using KeyState = std::array<ButtonState, KEY_UNKNOWN>;
 
     struct State{
         KeyState key;

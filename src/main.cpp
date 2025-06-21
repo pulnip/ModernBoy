@@ -34,10 +34,9 @@ window(window), renderer(window, transformManager, meshManager,
     viewSystem),
 meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
 inputDevice(), inputSystem(),
-controller(inputDevice, "assets/script/ModernBoy.asb",
-    inputSystem, transformManager),
+controller(inputDevice, inputSystem, transformManager),
 actorLoader(transformManager, meshLoader, renderSystem,
-    cameraManager, viewSystem, inputSystem){}
+    cameraManager, viewSystem, inputSystem, controller){}
 AppState::~AppState(){}
 
 constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
@@ -96,7 +95,7 @@ SDL_AppResult SDL_AppInit(void** appState,
 #elif defined(USE_METAL)
     NativePtr layerPtr = as->renderer.context.metalLayer;
 
-    as->actorLoader.loadActor("assets/actor.toml");
+    as->actorLoader.loadActors("assets/actor.toml");
     as->actorLoader.loadCamera("assets/camera.toml");
 
     auto shader = Shader(createShader(layerPtr));

@@ -22,6 +22,11 @@ namespace ModernBoy{ namespace Render{
         TransformHandle transformHandle;
         MeshHandle meshHandle;
 
+        Component(EntityID actor, TransformHandle transformHandle,
+            MeshHandle meshHandle)
+        :actor(actor), transformHandle(transformHandle),
+        meshHandle(meshHandle){}
+
         Tasks<Mesh> getTasks() const{
             Tasks<Mesh> tasks;
 

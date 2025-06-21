@@ -1,21 +1,31 @@
+[[entities]]
 name = "Dummy"
-
-[transform]
+[entities.health]
+max = 100
+regen = 2.0
+[entities.transform]
 position = [0.0, 0.0, 0.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [1.0, 1.0, 1.0]
-
-[mesh]
-file = "Cube"
-
-[texture]
+[[entities.model]]
+mesh = "Cube"
 diffuse = "cube_diffuse.png"
 normal  = "cube_normal.png"
-
-[components]
-    [components.health]
-    max = 100
-    regen = 2.0
-
-    [components.ai]
-    behavior = "dummy_ai.toml"
+[entities.script]
+file = "assets/script/ModernBoy.asb"
+[[entities.input]]
+key = "up"
+trigger = "pressed"
+behaviour = "MoveForward"
+[[entities.input]]
+key = "left"
+trigger = "pressed"
+behaviour = "MoveLeft"
+[[entities.input]]
+key = "down"
+trigger = "pressed"
+behaviour = "MoveBackward"
+[[entities.input]]
+key = "right"
+trigger = "pressed"
+behaviour = "MoveRight"

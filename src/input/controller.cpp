@@ -9,27 +9,30 @@ using namespace ModernBoy;
 using namespace ModernBoy::Input;
 
 Controller::Controller(Device& device,
-    const std::string& moduleFileName,
     InputSystem& inputSystem,
     TransformManager& transformManager)
 :device(device), inputSystem(inputSystem),
 transformManager(transformManager),
 scriptEngine(asCreateScriptEngine()),
-scriptContext(scriptEngine->CreateContext()),
-scriptModule(scriptModule = scriptEngine->GetModule(
-    "ModernBoy", asGM_ALWAYS_CREATE)
+scriptContext(scriptEngine->CreateContext()
 ){
     Util::registerTransform(scriptEngine);
-
-    Util::StreamWrapper stream(moduleFileName);
-    scriptModule->LoadByteCode(&stream);
 }
 Controller::~Controller(){
     scriptContext->Release();
     scriptEngine->ShutDownAndRelease();
 }
 
+void Controller::loadScriptModule(const std::string& moduleFileName){
+    scriptModule = scriptEngine->GetModule(
+        "ModernBoy", asGM_ALWAYS_CREATE);
+    Util::StreamWrapper stream(moduleFileName);
+    scriptModule->LoadByteCode(&stream);
+}
+
 void Controller::update(){
+    if(scriptModule == nullptr)
+        return;
     device.fetch(state);
     
     auto inputTasks = inputSystem.getAll();

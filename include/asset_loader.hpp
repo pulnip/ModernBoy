@@ -4,7 +4,11 @@
 #include <string>
 #include <toml++/toml.h>
 #include "resource_manager.hpp"
-#include "task_manager.hpp"
+#include "task_system.hpp"
+#include "view_system.hpp"
+#include "input/state.hpp"
+#include "input/component.hpp"
+#include "input/controller.hpp"
 
 #include <print>
 
@@ -13,42 +17,75 @@ namespace ModernBoy{
     Camera parseCamera(const toml::v3::table& table);
 
     template<typename MeshLoader,
-        typename RenderTaskManager>
+        typename RenderSystem,
+        typename InputSystem>
     class AssetLoader{
         uint32_t seed = 0;
         MeshLoader& meshLoader;
         TransformManager& transformManager;
-        RenderTaskManager& renderTaskManager;
+        RenderSystem& renderSystem;
         CameraManager& cameraManager;
-        ViewTaskManager& viewTaskManager;
+        ViewSystem& viewSystem;
+        InputSystem& inputSystem;
+        Input::Controller& controller;
 
         uint32_t issueID(){ return seed++; }
 
     public:
         AssetLoader(TransformManager& transformManager,
             MeshLoader& meshLoader,
-            RenderTaskManager& renderTaskManager,
+            RenderSystem& renderSystem,
             CameraManager& cameraManager,
-            ViewTaskManager& viewTaskManager
+            ViewSystem& viewSystem,
+            InputSystem& inputSystem,
+            Input::Controller& controller
         ):meshLoader(meshLoader), transformManager(transformManager),
-        renderTaskManager(renderTaskManager),
-        cameraManager(cameraManager),viewTaskManager(viewTaskManager){}
+        renderSystem(renderSystem), cameraManager(cameraManager),
+        viewSystem(viewSystem), inputSystem(inputSystem),
+        controller(controller){}
 
-        void loadActor(const std::string& fileName){
-            uint32_t id = issueID();
+        void loadActors(const std::string& fileName){
             toml::table tbl = toml::parse_file(fileName);
 
-            std::string name = *tbl["name"].value<std::string>();
+            auto actors = *tbl["entities"].as_array();
+            for(const auto& actor_node: actors){
+                const auto& actor = *actor_node.as_table();
+                uint32_t id = issueID();
 
-            auto t=tbl["transform"].as_table();
-            auto transform = parseTransform(*t);
-            auto transformHandle = transformManager.create(std::move(transform));
+                const auto& trans_tbl = *actor["transform"].as_table();
+                auto transform = parseTransform(trans_tbl);
+                auto transformHandle = transformManager.create(std::move(transform));
 
-            std::string meshFile = *tbl["mesh"]["file"].value<std::string>();
-            auto meshHandles = meshLoader.load(meshFile);
+                auto model_arr = *actor["model"].as_array();
+                for(const auto& parts_node: model_arr){
+                    const auto& parts = *parts_node.as_table();
 
-            for(size_t i=0; i<meshHandles.size(); ++i)
-                renderTaskManager.create(id, transformHandle, meshHandles[i]);
+                    const auto meshFile = *parts["mesh"].value<std::string>();
+                    auto meshHandles = meshLoader.load(meshFile);
+
+                    // const auto& texFile = *parts["diffuse"].value<std::string>();
+
+                    for(size_t i=0; i<meshHandles.size(); ++i)
+                        renderSystem.create(id, transformHandle, meshHandles[i]);
+                }
+                auto scriptModule = *actor["script"]["file"].value<std::string>();
+                controller.loadScriptModule(scriptModule);
+
+                auto input_arr = *actor["input"].as_array();
+                Input::Behaviours behaviours;
+                for(const auto& input_node: input_arr){
+                    const auto& input = *input_node.as_table();
+
+                    auto key_text = *input["key"].value<std::string>();
+                    auto trigger_text = *input["trigger"].value<std::string>();
+                    auto behaviour = *input["behaviour"].value<std::string>();
+
+                    auto key = Input::convert(key_text);
+                    auto trigger = Input::toButtonState(trigger_text);
+                    behaviours.emplace_back(key, trigger, behaviour);
+                }
+                inputSystem.create(id, behaviours, transformHandle);
+            }
         }
 
         void loadCamera(const std::string& fileName){
@@ -60,8 +97,8 @@ namespace ModernBoy{
                 uint32_t id = issueID();
                 const auto& cam = *cam_node.as_table();
 
-                std::string name = *cam["name"].value<std::string>();
-                std::string type = *cam["type"].value<std::string>();
+                auto name = *cam["name"].value<std::string>();
+                auto type = *cam["type"].value<std::string>();
                 bool enabled = type.compare("MainCamera")==0;
                 std::println("{} {}", name, type);
 
@@ -73,7 +110,7 @@ namespace ModernBoy{
                 auto camera = parseCamera(*c);
                 auto cameraHandle = cameraManager.create(std::move(camera));
 
-                viewTaskManager.create(id, enabled, transformHandle, cameraHandle);
+                viewSystem.create(id, enabled, transformHandle, cameraHandle);
             }
         }
     };

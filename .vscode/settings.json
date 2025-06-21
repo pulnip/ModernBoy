@@ -102,6 +102,12 @@
     "__verbose_abort": "cpp",
     "execution": "cpp",
     "locale": "cpp",
-    "executor": "cpp"
+    "executor": "cpp",
+    "valarray": "cpp",
+    "io_context": "cpp",
+    "flat_map": "cpp",
+    "flat_set": "cpp",
+    "generator": "cpp",
+    "stacktrace": "cpp"
 }
 }

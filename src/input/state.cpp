@@ -1,6 +1,27 @@
+#include <unordered_map>
 #include "input/state.hpp"
 
 using namespace ModernBoy::Input;
+
+static std::string toUpper(const std::string& text);
+
+static std::unordered_map<std::string, ButtonState>
+text2state = {
+    {"NONE", ButtonState::None},
+    {"HELD", ButtonState::Held},
+    {"RELEASED", ButtonState::Released},
+    {"PRESSED", ButtonState::Pressed},
+};
+ButtonState ModernBoy::Input::toButtonState(
+    const std::string& text
+){
+    auto upper = toUpper(text);
+    auto it = text2state.find(upper);
+    if (it == text2state.end()){
+        return ButtonState::STATE_INVALID;
+    }
+    return it->second;
+}
 
 SDL_Scancode ModernBoy::Input::convert(Button code){
     switch(code){
@@ -130,8 +151,80 @@ Button ModernBoy::Input::convert(SDL_Scancode code){
     case SDL_SCANCODE_RIGHT:    return KEY_RIGHT;
     case SDL_SCANCODE_SPACE:    return KEY_SPACE;
     case SDL_SCANCODE_RETURN:   return KEY_ENTER;
-    default:                    return NUM_MAX;
+    default:                    return KEY_UNKNOWN;
     }
+}
+static std::unordered_map<std::string, Button>
+text2button = {
+    {"0"        , Button::KEY_0},
+    {"1"        , Button::KEY_1},
+    {"2"        , Button::KEY_2},
+    {"3"        , Button::KEY_3},
+    {"4"        , Button::KEY_4},
+    {"5"        , Button::KEY_5},
+    {"6"        , Button::KEY_6},
+    {"7"        , Button::KEY_7},
+    {"8"        , Button::KEY_8},
+    {"9"        , Button::KEY_9},
+    {"TAB"      , Button::KEY_TAB},
+    {"Q"        , Button::KEY_Q},
+    {"W"        , Button::KEY_W},
+    {"E"        , Button::KEY_E},
+    {"R"        , Button::KEY_R},
+    {"T"        , Button::KEY_T},
+    {"Y"        , Button::KEY_Y},
+    {"U"        , Button::KEY_U},
+    {"I"        , Button::KEY_I},
+    {"O"        , Button::KEY_O},
+    {"P"        , Button::KEY_P},
+    {"A"        , Button::KEY_A},
+    {"S"        , Button::KEY_S},
+    {"D"        , Button::KEY_D},
+    {"F"        , Button::KEY_F},
+    {"G"        , Button::KEY_G},
+    {"H"        , Button::KEY_H},
+    {"J"        , Button::KEY_J},
+    {"K"        , Button::KEY_K},
+    {"L"        , Button::KEY_L},
+    {"Z"        , Button::KEY_Z},
+    {"X"        , Button::KEY_X},
+    {"C"        , Button::KEY_C},
+    {"V"        , Button::KEY_V},
+    {"B"        , Button::KEY_B},
+    {"N"        , Button::KEY_N},
+    {"M"        , Button::KEY_M},
+    {"SHIFT"    , Button::KEY_SHIFT},
+    {"CTRL"     , Button::KEY_CTRL},
+    {"ALT"      , Button::KEY_ALT},
+    {"ESC"      , Button::KEY_ESC},
+    {"F1"       , Button::KEY_F1},
+    {"F2"       , Button::KEY_F2},
+    {"F3"       , Button::KEY_F3},
+    {"F4"       , Button::KEY_F4},
+    {"F5"       , Button::KEY_F5},
+    {"F6"       , Button::KEY_F6},
+    {"F7"       , Button::KEY_F7},
+    {"F8"       , Button::KEY_F8},
+    {"F9"       , Button::KEY_F9},
+    {"F10"      , Button::KEY_F10},
+    {"F11"      , Button::KEY_F11},
+    {"F12"      , Button::KEY_F12},
+    {"UP"       , Button::KEY_UP},
+    {"LEFT"     , Button::KEY_LEFT},
+    {"DOWN"     , Button::KEY_DOWN},
+    {"RIGHT"    , Button::KEY_RIGHT},
+    {"SPACE"    , Button::KEY_SPACE},
+    {"ENTER"    , Button::KEY_ENTER}
+};
+Button ModernBoy::Input::convert(
+    const std::string& text
+){
+    auto upper = toUpper(text);
+    auto it = text2button.find(upper);
+    if (it == text2button.end()){
+        return Button::KEY_UNKNOWN;
+    }
+    return it->second;
 }
 
 ButtonState ModernBoy::Input::transit(
@@ -143,4 +236,12 @@ ButtonState ModernBoy::Input::transit(
 
 State::State(){
     key.fill(ButtonState::None);
+}
+
+static std::string toUpper(const std::string& text){
+    std::string upper = text;
+    std::transform(text.begin(), text.end(), upper.begin(),
+        [](unsigned char c){ return std::toupper(c); }
+    );
+    return upper;
 }
