@@ -66,3 +66,31 @@ public func destroyShader(_ ptr: UnsafeRawPointer?) {
         Unmanaged<Shader>.fromOpaque(ptr).release()
     }
 }
+
+// Fragment shader constant
+struct RimConstant{
+    var rimColor: simd_float4
+    var rimPower: Float
+    var rimStrength: Float
+}
+
+@_cdecl("setRimConstant")
+public func setRimConstant(_ rctxPtr: UnsafeRawPointer?,
+    _ r: Float, _ g: Float, _ b: Float, _ a: Float,
+    _ rimPower: Float, _ rimStrength: Float
+) {
+    guard let ptr = rctxPtr
+        else { return }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(ptr).takeUnretainedValue()
+    let encoder = rctx.renderEncoder
+    var rimConstant = RimConstant(
+        rimColor: simd_float4(r, g, b, a),
+        rimPower: rimPower,
+        rimStrength: rimStrength
+    )
+    encoder?.setVertexBytes(&rimConstant,
+        length: MemoryLayout<RimConstant>.stride,
+        index: 10
+    )
+}

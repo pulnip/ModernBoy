@@ -22,7 +22,11 @@ fragment float4 fragment_main(
         lightSpecular,
         lightAmbient
     };
-    return float4(phongLighting(color.rgb, input.normal,
-        input.worldPosition, viewPosition, light
-    ), color.a);
+
+    float3 phongColor = phongLighting(color.rgb, input.normal,
+        input.worldPosition, viewPosition, light);
+    float3 rimColor = rimLighting(color.rgb, input.normal,
+        input.worldPosition, viewPosition);
+
+    return float4(phongColor + rimColor, color.a);
 }

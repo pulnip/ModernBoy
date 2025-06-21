@@ -43,7 +43,8 @@ elseif(RENDER_BACKEND STREQUAL "Metal")
         set(AIR_FILE ${AIR_DIR}/${SHADER}.air)
         add_custom_command(
             OUTPUT ${AIR_FILE}
-            COMMAND xcrun -sdk macosx metal -c ${SHADER_SRC} -o ${AIR_FILE}
+            COMMAND xcrun -sdk macosx metal -MD -MF ${AIR_FILE}.d -c ${SHADER_SRC} -o ${AIR_FILE}
+            DEPFILE ${AIR_FILE}.d
             DEPENDS ${SHADER_SRC}
             COMMENT "Compiling Metal shader to AIR: ${SHADER_FILE}"
         )
@@ -52,7 +53,6 @@ elseif(RENDER_BACKEND STREQUAL "Metal")
     add_custom_command(
         OUTPUT ${EXE_PATH}/$<CONFIG>/${PROJECT_NAME}.metallib
         COMMAND xcrun -sdk macosx metallib ${AIR_FILES} -o ${EXE_PATH}/$<CONFIG>/${PROJECT_NAME}.metallib
-        # COMMAND rm ${AIR_FILES}
         DEPENDS ${AIR_FILES}
         COMMENT "Linking all AIRs into METALLIB"
     )
