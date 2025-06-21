@@ -95,8 +95,8 @@ SDL_AppResult SDL_AppInit(void** appState,
 #elif defined(USE_METAL)
     NativePtr layerPtr = as->renderer.context.metalLayer;
 
-    as->actorLoader.loadActors("assets/actor.toml");
-    as->actorLoader.loadCamera("assets/camera.toml");
+    as->actorLoader.loadActors("asset/actor.toml");
+    as->actorLoader.loadCamera("asset/camera.toml");
 
     auto shader = Shader(createShader(layerPtr));
     as->shaderManager.create(std::move(shader));

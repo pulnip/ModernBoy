@@ -29,4 +29,5 @@ fragment float4 fragment_main(
         input.worldPosition, viewPosition);
 
     return float4(phongColor + rimColor, color.a);
+    return float4(phongColor, color.a);
 }

@@ -117,7 +117,9 @@ imgui.ini
 *.air
 *.metallib
 
+*.jpg
 *.png
+*.ico
 *.fbx
 *.bmp
 

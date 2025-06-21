@@ -37,6 +37,5 @@ target_compile_options(angelscript PRIVATE
 set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON
     CACHE INTERNAL "Restore dev warnings")
 
-add_subdirectory(shaders)
 add_subdirectory(src)
 add_subdirectory(src/network/posix)

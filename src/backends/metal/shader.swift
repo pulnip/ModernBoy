@@ -54,8 +54,7 @@ public func createShader(_ layerPtr: UnsafeRawPointer?
         .fromOpaque(layerPtr).takeUnretainedValue().device!
     
     let shaderPath = Bundle.main.path(forResource: "ModernBoy", ofType: "metallib") ??
-        Bundle.main.resourcePath.flatMap{ "\($0)/ModernBoy.metallib" } ??
-        "./ModernBoy.metallib"
+        "./asset/shader/ModernBoy.metallib"
     let context = Shader(device: device,
         shaderPath: shaderPath)
     return UnsafeRawPointer(Unmanaged.passRetained(context).toOpaque())
