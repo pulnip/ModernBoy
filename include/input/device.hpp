@@ -13,10 +13,12 @@ namespace ModernBoy{ namespace Input{
         Device& operator=(const Device& other)=delete;
         Device& operator=(Device&&);
 
-        State fetch();
+        void fetch(State& state);
 
     private:
         void moveFrom(Device&& other);
+
+        const bool* sdl_keystate = nullptr;
     };
 }}
 

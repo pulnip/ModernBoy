@@ -10,16 +10,19 @@ using namespace ModernBoy::Input;
 
 Controller::Controller(Device& device,
     const std::string& moduleFileName,
-    InputTaskManager& taskManager,
+    InputSystem& inputSystem,
     TransformManager& transformManager)
-:device(device), taskManager(taskManager),
+:device(device), inputSystem(inputSystem),
 transformManager(transformManager),
 scriptEngine(asCreateScriptEngine()),
-scriptContext(scriptEngine->CreateContext()){
+scriptContext(scriptEngine->CreateContext()),
+scriptModule(scriptModule = scriptEngine->GetModule(
+    "ModernBoy", asGM_ALWAYS_CREATE)
+){
     Util::registerTransform(scriptEngine);
 
     Util::StreamWrapper stream(moduleFileName);
-    scriptModule->SaveByteCode(&stream);
+    scriptModule->LoadByteCode(&stream);
 }
 Controller::~Controller(){
     scriptContext->Release();
@@ -28,17 +31,22 @@ Controller::~Controller(){
 
 void Controller::update(){
     device.fetch(state);
-
-    auto inputTasks = taskManager.getAll();
+    
+    auto inputTasks = inputSystem.getAll();
+    std::erase_if(inputTasks,
+        [&state=(this->state)](const Task& task){
+            return task.condition != state.key[task.button];
+        }
+    );
     for(const auto& task: inputTasks){
         auto transform = transformManager.get(
-            task.get().getTransformHandle());
+            task.transformHandle);
 
         auto func = scriptModule->GetFunctionByName(
-            task.get().script.c_str());
+            task.behaviour.c_str());
         scriptContext->Prepare(func);
         scriptContext->SetArgObject(0, transform);
-        if(auto ret = scriptContext->Execute() < 0)
+        if(scriptContext->Execute() < 0)
             Util::printExceptionInfo(scriptContext);
     }
 }

@@ -5,19 +5,20 @@
 #include <angelscript.h>
 #include "resource_handle.hpp"
 #include "resource_manager.hpp"
-#include "task_manager.hpp"
+#include "task_system.hpp"
 #include "input/state.hpp"
 #include "input/device.hpp"
+#include "input/component.hpp"
 
 namespace ModernBoy{ namespace Input{
     class Controller{
     private:
-        using InputTaskManager = TaskManager<InputTask>;
+        using InputSystem = TaskSystem<Component, Task>;
     
     public:
         Controller(Device& device,
             const std::string& moduleFileName,
-            InputTaskManager& taskManager,
+            InputSystem& taskManager,
             TransformManager& transformManager);
         ~Controller();
         Controller(const Controller& other)=delete;
@@ -31,14 +32,13 @@ namespace ModernBoy{ namespace Input{
         State state;
 
         Device& device;
-        InputTaskManager& taskManager;
+        InputSystem& inputSystem;
         TransformManager& transformManager;
-
-        // TODO: add manager for multiple module?
-        asIScriptModule* scriptModule;
 
         asIScriptEngine* scriptEngine;
         asIScriptContext* scriptContext;
+        // TODO: add manager for multiple module?
+        asIScriptModule* scriptModule;
     };
 }}
 
