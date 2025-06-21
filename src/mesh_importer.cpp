@@ -1,3 +1,5 @@
+#include <cmath>
+#include <numbers>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -11,6 +13,8 @@ RawMeshes fromFbx(const std::string& fileName);
 static RawMeshes createTriangle();
 static RawMeshes createRectangle();
 static RawMeshes createCube();
+static RawMeshes createSphere(float radius=1.0f,
+    int numSlices=32, int numStacks=16);
 
 RawMeshes MeshImporter::import(const std::string& fileName){
     if(fileName.ends_with(".fbx"))
@@ -21,10 +25,13 @@ RawMeshes MeshImporter::import(const std::string& fileName){
         return createRectangle();
     else if(fileName.compare("Cube") == 0)
         return createCube();
+    else if(fileName.compare("Sphere") == 0)
+        return createSphere();
     return {};
 }
 
-auto testTexs = Textures{"metal_logo.png"};
+auto testTexs = Textures{"assets/metal_logo.png"};
+auto globeTexs = Textures{"assets/world_map.jpg"};
 
 static RawMeshes createTriangle(){
     Vertices vertices = {
@@ -176,6 +183,47 @@ static RawMeshes createCube(){
     };
 
     return { RawMesh(vertices, indices, testTexs) };
+}
+static RawMeshes createSphere(float radius,
+    int numSlices, int numStacks
+){
+    Vertices vertices;
+    Indices indices;
+
+    const float dTheta = 2 * std::numbers::pi / numSlices;
+    const float dPhi = std::numbers::pi / numStacks;
+
+    for(int i=0; i<=numStacks; ++i){
+        const auto y = radius * cos(dPhi * i);
+        const auto rad = radius * sin(dPhi * i);
+        const auto v = static_cast<float>(i) / numStacks;
+        for(int j=0; j<=numSlices; ++j){
+            const auto x = rad * cos(dTheta * j);
+            const auto z = rad * sin(dTheta * j);
+            const auto u = static_cast<float>(j)/numSlices;
+
+            vertices.emplace_back(RawVertex{
+                {x, y, z}, {x, y, z},
+                {u, v}, {}
+            });
+        }
+    }
+    for(int i=0; i<numStacks; ++i){
+        const auto base = (numSlices+1) * i;
+        for(int j=0; j<numSlices; ++j){
+            const uint32_t topLeft = base + (j+1);
+            const uint32_t topRight = base + j;
+            const uint32_t bottomLeft = base+(numSlices+1) + (j+1);
+            const uint32_t bottomRight = base+(numSlices+1) + j;
+            Indices rect{
+                topLeft, topRight, bottomRight,
+                topLeft, bottomRight, bottomLeft
+            };
+            indices.append_range(rect);
+        }
+    }
+
+    return { RawMesh(vertices, indices, globeTexs) };
 }
 
 RawMeshes fromFbx(const std::string& fileName){
