@@ -26,7 +26,7 @@ static void MessageCallback(
 
 int main(int argc, char* argv[]){
     if(argc < 2){
-        puts("No Module Name!");
+        puts("No Angelscript Module!");
         return -1;
     }
 
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
         }
     }
     if(auto ret = scriptModule->Build()){
-        puts("Build failed!");
+        puts("Angelscript Build failed!");
         return ret;
     }
 
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]){
         return ret;
     }
 
-    puts("Build Success!");
+    puts("Angelscript Build Success!");
     scriptEngine->ShutDownAndRelease();
     return 0;
 }
