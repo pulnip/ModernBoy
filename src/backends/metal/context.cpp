@@ -2,6 +2,8 @@
 #include <SDL3/SDL_log.h>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
+#include "game/app_state.hpp"
+#include "render/render_command.hpp"
 #include "backends/metal/context.hpp"
 #define IMGUI_IMPL_METAL_CPP
 #include <imgui_impl_metal.h>
@@ -12,13 +14,10 @@ using namespace std::chrono;
 
 using namespace ModernBoy::Metal;
 
-RenderContext::RenderContext(SDL_Window* in_window, TransformManager& transformManager,
-    MeshManager& in_meshManager, ShaderManager& in_shaderManager,
-    CameraManager& cameraManager, UI* gui)
+RenderContext::RenderContext(SDL_Window* in_window, AppState& app)
 :view(SDL_Metal_CreateView(in_window)),
-metalLayer(SDL_Metal_GetLayer(view)), transformManager(transformManager),
-meshManager(in_meshManager), shaderManager(in_shaderManager),
-cameraManager(cameraManager), gui(gui){
+metalLayer(SDL_Metal_GetLayer(view)),
+app(app){
     NativePtr layer = SDL_Metal_GetLayer(view);
     _renderContext = createRenderContext(layer);
 
@@ -47,27 +46,25 @@ cameraManager(cameraManager), gui(gui){
         RenderContext_getDevice(_renderContext));
     ImGui_ImplMetal_Init(device);
 
-    if(gui != nullptr){
-        fov_id = gui->subscribefieldOfView([rctx=_renderContext](float fov){
+    fov_id = app.gui.subscribefieldOfView(
+        [rctx=_renderContext](float fov){
             RenderContext_setfov(rctx, fov);
-        });
-    }
+        }
+    );
 }
 RenderContext::~RenderContext(){
-    if(gui != nullptr){
-        gui->unsubscribefieldOfView(fov_id);
-    }
+    app.gui.unsubscribefieldOfView(fov_id);
 
     SDL_Metal_DestroyView(view);
     destroyRenderContext(_renderContext);
 }
 
 void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
-    ShaderPtr shaderPtr = shaderManager.get(cmd.shaderHandle)->shaderPtr;
-    const auto& cameraTransform = *transformManager.get(cmd.cameraTransformHandle);
+    ShaderPtr shaderPtr = app.shaderManager.get(cmd.shaderHandle)->shaderPtr;
+    const auto& cameraTransform = *app.transformManager.get(cmd.cameraTransformHandle);
     const auto& viewPos = cameraTransform.position;
     const auto& viewQuat = cameraTransform.rotation;
-    const auto& camera = *cameraManager.get(cmd.cameraHandle);
+    const auto& camera = *app.cameraManager.get(cmd.cameraHandle);
 
     RenderContext_setView(_renderContext,
         viewPos.x, viewPos.y, viewPos.z,
@@ -85,14 +82,14 @@ void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
 
     ImGui::NewFrame();
     // ImGui::ShowDemoWindow(); // Show demo window! :)
-    gui->update();
+    app.gui.update();
 }
 
 void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
-    Transform transform = *transformManager.get(cmd.transformHandle);
+    Transform transform = *app.transformManager.get(cmd.transformHandle);
     float *p=transform.pos, *r=transform.rot, *s=transform.scl;
     
-    MeshPtr meshPtr = meshManager.get(cmd.meshHandle)->meshPtr;
+    MeshPtr meshPtr = app.meshManager.get(cmd.meshHandle)->meshPtr;
 
     auto now = steady_clock::now().time_since_epoch();
     float seconds = duration<float>(now).count();

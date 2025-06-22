@@ -42,7 +42,6 @@ namespace ModernBoy
     using RenderComponent = Render::Component<Metal::Mesh>;
     using RenderTask = Render::Task<Metal::Mesh>;
     using RenderSystem = TaskSystem<RenderComponent, RenderTask>;
-    using MeshRenderer = Render::Renderer<Metal::RenderContext>;
     using MeshLoader = ResourceLoader<Metal::Mesh,
         MeshImporter, Metal::NativePtr>;
 #elif defined(USE_OPENGL)
@@ -71,7 +70,7 @@ namespace ModernBoy
         InputSystem inputSystem;
         // Softwares
         Input::Controller controller;
-        MeshRenderer renderer;
+        Renderer renderer;
         MeshLoader meshLoader;
         ActorLoader actorLoader;
         // Game State

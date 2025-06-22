@@ -1,39 +1,19 @@
 #ifndef MODERNBOY_METAL_CONTEXT_HPP
 #define MODERNBOY_METAL_CONTEXT_HPP
 
+#include <SDL3/SDL_video.h>
 #include <SDL3/SDL_metal.h>
-#include "render/render_command.hpp"
-#include "render/render_context.hpp"
-#include "resource_handle.hpp"
-#include "resource_manager.hpp"
-#include "mesh.hpp"
-#include "shader.hpp"
 #include "fwd.hpp"
-#include "render/gui.hpp"
+#include "render/render_context.hpp"
 
 namespace ModernBoy::Metal
 {
-    using MeshManager = ResourceManager<Metal::Mesh>;
-    using MeshHandle = ResourceHandle<Metal::Mesh>;
-    using ShaderManager = ResourceManager<Metal::Shader>;
-    using ShaderHandle = ResourceHandle<Metal::Shader>;
-
     struct RenderContext{
-        using Window = SDL_Window;
-        using Mesh = Metal::Mesh;
-        using Shader = Metal::Shader;
-
         SDL_MetalView view;
         NativePtr metalLayer;
         NativePtr _renderContext;
-        TransformManager& transformManager;
-        MeshManager& meshManager;
-        ShaderManager& shaderManager;
-        CameraManager& cameraManager;
 
-        RenderContext(SDL_Window* in_window, TransformManager& transformManager,
-            MeshManager& in_meshManager, ShaderManager& in_shaderManager,
-            CameraManager& cameraManager, UI* gui=nullptr);
+        RenderContext(SDL_Window* in_window, AppState& app);
         ~RenderContext();
 
         void operator()(const FrameStartCommand<Shader>&);
@@ -41,7 +21,7 @@ namespace ModernBoy::Metal
         void operator()(const FrameEndCommand&);
 
     private:
-        UI* gui = nullptr;
+        AppState& app;
         ObserverID fov_id = -1;
     };
     // static_assert(ModernBoy::RenderContext<Metal::RenderContext>);

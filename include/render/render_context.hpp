@@ -8,7 +8,7 @@
 namespace ModernBoy
 {
     template<typename Ctx>
-    concept RenderContext = requires(Ctx context) {
+    concept RenderContextConcept = requires(Ctx context) {
         { context(FrameStartCommand<typename Ctx::Shader>()) } -> std::same_as<void>;
         { context(DrawCommand<typename Ctx::Mesh>()) } -> std::same_as<void>;
         { context(FrameEndCommand()) } -> std::same_as<void>;

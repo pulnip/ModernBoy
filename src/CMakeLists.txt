@@ -5,7 +5,10 @@ add_subdirectory(shader)
 add_subdirectory(util)
 
 file(GLOB ALL_SOURCES "*.cpp")
-add_executable(${PROJECT_NAME} ${ALL_SOURCES})
+add_executable(${PROJECT_NAME}
+    ${ALL_SOURCES}
+    render/renderer.cpp
+)
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall -Wextra
@@ -18,7 +21,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
+target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/include
     # gsl-lite
     ${gsl-lite_INCLUDE_DIRS}
