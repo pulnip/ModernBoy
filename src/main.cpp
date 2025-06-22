@@ -32,9 +32,7 @@ transformManager(), meshManager(), shaderManager(),
 cameraManager(),
 renderSystem(), viewSystem(), inputSystem(),
 controller(*this), renderer(window, *this),
-meshLoader(*this),
-actorLoader(transformManager, meshLoader, renderSystem,
-    cameraManager, viewSystem, inputSystem, controller){}
+meshLoader(*this), assetLoader(*this){}
 AppState::~AppState(){}
 
 constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
@@ -93,8 +91,8 @@ SDL_AppResult SDL_AppInit(void** appState,
 #elif defined(USE_METAL)
     NativePtr layerPtr = as->renderer.context.metalLayer;
 
-    as->actorLoader.loadActors("asset/actor.toml");
-    as->actorLoader.loadCamera("asset/camera.toml");
+    as->assetLoader.loadActors("asset/actor.toml");
+    as->assetLoader.loadCamera("asset/camera.toml");
 
     auto shader = Shader(createShader(layerPtr), &(as->gui));
     as->shaderManager.create(std::move(shader));

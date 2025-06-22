@@ -19,6 +19,7 @@ namespace ModernBoy
         Resource&& resource);
     template<typename RawResource, typename Resource>
     class ResourceLoader;
+    class AssetLoader;
     template<typename Comp, typename Task> class TaskSystem;
     struct ViewTask;
     struct CameraComponent;

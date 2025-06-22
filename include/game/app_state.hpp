@@ -49,8 +49,6 @@ namespace ModernBoy
     using TaskManager = TaskManager<MeshComponent>;
 #endif
     using InputSystem = TaskSystem<Input::Component, Input::Task>;
-    using ActorLoader = AssetLoader<
-        MeshLoader, RenderSystem, InputSystem>;
 
     struct AppState{
         // Hardwares
@@ -70,7 +68,7 @@ namespace ModernBoy
         Input::Controller controller;
         Renderer renderer;
         MeshLoader meshLoader;
-        ActorLoader actorLoader;
+        AssetLoader assetLoader;
         // Game State
         GameContext game_ctx;
         Uint64 last_step;
