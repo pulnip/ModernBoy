@@ -2,6 +2,7 @@
 #define MODERNBOY_FWD_HPP
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -98,6 +99,13 @@ namespace ModernBoy
         MeshComponent, RenderTask>;
 
     using ObserverID = uint32_t;
+
+    template<typename Component>
+    std::optional<Component> find(AppState& app,
+        EntityID actor);
+    template<typename Resource>
+    Resource& get(AppState& app,
+        ResourceHandle<Resource> handle);
 }
 
 #endif // MODERNBOY_FWD_HPP

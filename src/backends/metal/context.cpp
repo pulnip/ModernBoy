@@ -59,11 +59,11 @@ RenderContext::~RenderContext(){
 }
 
 void RenderContext::operator()(const FrameStartCommand_& cmd){
-    ShaderPtr shaderPtr = app.shaderManager.get(cmd.shaderHandle)->shaderPtr;
-    const auto& cameraTransform = *app.transformManager.get(cmd.cameraTransformHandle);
+    auto shaderPtr = app.get<Shader>(cmd.shaderHandle).shaderPtr;
+    const auto& cameraTransform = app.get<Transform>(cmd.cameraTransformHandle);
     const auto& viewPos = cameraTransform.position;
     const auto& viewQuat = cameraTransform.rotation;
-    const auto& camera = *app.cameraManager.get(cmd.cameraHandle);
+    const auto& camera = app.get<Camera>(cmd.cameraHandle);
 
     RenderContext_setView(_renderContext,
         viewPos.x, viewPos.y, viewPos.z,
@@ -85,10 +85,10 @@ void RenderContext::operator()(const FrameStartCommand_& cmd){
 }
 
 void RenderContext::operator()(const DrawCommand_& cmd){
-    Transform transform = *app.transformManager.get(cmd.transformHandle);
+    Transform transform = app.get<Transform>(cmd.transformHandle);
     float *p=transform.pos, *r=transform.rot, *s=transform.scl;
     
-    MeshPtr meshPtr = app.meshManager.get(cmd.meshHandle)->meshPtr;
+    MeshPtr meshPtr = app.get<Mesh>(cmd.meshHandle).meshPtr;
 
     auto now = steady_clock::now().time_since_epoch();
     float seconds = duration<float>(now).count();

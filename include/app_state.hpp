@@ -25,6 +25,7 @@
 namespace ModernBoy
 {
     struct AppState{
+        // Important!! Initialize Order
         // Hardwares
         UI gui;
         MeshImporter meshImporter;
@@ -52,6 +53,11 @@ namespace ModernBoy
 
         template<typename Resource>
         std::vector<Resource> import(const std::string&);
+
+        template<typename Resource>
+        Resource& get(ResourceHandle<Resource> handle);
+        template<typename Task>
+        std::vector<Task> get();
     };
 }
 

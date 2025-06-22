@@ -23,8 +23,8 @@ void Renderer::renderStart(){
 
 void Renderer::produceCommand(std::stop_token stoken){
     while(!stoken.stop_requested()){
-        auto viewTasks = app.viewSystem.getAll();
-        auto renderTasks = app.renderSystem.getAll();
+        auto viewTasks = app.get<ViewTask>();
+        auto renderTasks = app.get<RenderTask>();
 
         for(auto& task: viewTasks){
             waitUntilPushed(queue, FrameStartCommand<Shader>{

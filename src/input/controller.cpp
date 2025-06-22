@@ -34,20 +34,19 @@ void Controller::update(){
         return;
     app.inputDevice.fetch(state);
     
-    auto inputTasks = app.inputSystem.getAll();
+    auto inputTasks = app.get<InputTask>();
     std::erase_if(inputTasks,
         [&state=(this->state)](const Task& task){
             return task.condition != state.key[task.button];
         }
     );
     for(const auto& task: inputTasks){
-        auto transform = app.transformManager.get(
-            task.transformHandle);
+        auto transform = app.get<Transform>(task.transformHandle);
 
         auto func = scriptModule->GetFunctionByName(
             task.behaviour.c_str());
         scriptContext->Prepare(func);
-        scriptContext->SetArgObject(0, transform);
+        scriptContext->SetArgObject(0, &transform);
         if(scriptContext->Execute() < 0)
             Util::printExceptionInfo(scriptContext);
     }

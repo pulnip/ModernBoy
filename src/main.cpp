@@ -26,6 +26,7 @@ AppState::AppState(SDL_Window* window)
 transformManager(), meshManager(), shaderManager(),
 cameraManager(),
 renderSystem(), viewSystem(), inputSystem(),
+// Important!! Initialize Order
 controller(*this), renderer(window, *this),
 meshLoader(*this), assetLoader(*this){}
 AppState::~AppState(){}
