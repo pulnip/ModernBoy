@@ -2,17 +2,13 @@
 #define MODERNBOY_INPUT_CONTROLLER_HPP
 
 #include <string>
-#include <angelscript.h>
 #include "fwd.hpp"
-#include "task_system.hpp"
-#include "input/component.hpp"
+#include "input/state.hpp"
 
 namespace ModernBoy::Input
 {
     class Controller{
-    private:
-        using InputSystem = TaskSystem<Component, Task>;
-    
+
     public:
         Controller(AppState& app);
         ~Controller();
@@ -29,10 +25,10 @@ namespace ModernBoy::Input
 
         State state;
 
-        asIScriptEngine* scriptEngine;
-        asIScriptContext* scriptContext;
+        class asIScriptEngine* scriptEngine;
+        class asIScriptContext* scriptContext;
         // TODO: add manager for multiple module?
-        asIScriptModule* scriptModule;
+        class asIScriptModule* scriptModule;
     };
 } // namespace ModernBoy::Input
 

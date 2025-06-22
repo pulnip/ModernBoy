@@ -1,9 +1,10 @@
 #ifndef MODERNBOY_INPUT_DEVICE_HPP
 #define MODERNBOY_INPUT_DEVICE_HPP
 
-#include "input/state.hpp"
+#include "fwd.hpp"
 
-namespace ModernBoy{ namespace Input{
+namespace ModernBoy::Input
+{
     class Device{
     public:
         Device();
@@ -20,6 +21,6 @@ namespace ModernBoy{ namespace Input{
 
         const bool* sdl_keystate = nullptr;
     };
-}}
+}
 
 #endif // MODERNBOY_INPUT_DEVICE_HPP

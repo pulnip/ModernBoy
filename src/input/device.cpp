@@ -1,6 +1,7 @@
 #include <utility>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_keyboard.h>
+#include "input/state.hpp"
 #include "input/device.hpp"
 
 using namespace ModernBoy;

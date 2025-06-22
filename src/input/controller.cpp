@@ -1,7 +1,9 @@
 #include <fstream>
 #include <sstream>
+#include <angelscript.h>
 #include "game/app_state.hpp"
 #include "input/controller.hpp"
+#include "input/component.hpp"
 #include "util/as_helper.hpp"
 #include "util/as_stream.hpp"
 #include "util/as_typehelper.hpp"

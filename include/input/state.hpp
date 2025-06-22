@@ -3,11 +3,10 @@
 
 #include <array>
 #include <cstdint>
-#include <tuple>
-#include <vector>
 #include <SDL3/SDL_keycode.h>
 
-namespace ModernBoy{ namespace Input{
+namespace ModernBoy::Input
+{
     constexpr uint8_t ACTIVE_FLAG  = 0b01;
     constexpr uint8_t CHANGED_FLAG = 0b10;
 
@@ -96,6 +95,6 @@ namespace ModernBoy{ namespace Input{
 
         State();
     };
-}}
+}
 
 #endif // MODERNBOY_INPUT_STATE_HPP

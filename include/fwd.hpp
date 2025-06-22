@@ -27,6 +27,7 @@ namespace ModernBoy
 
     namespace Input
     {
+        struct State;
         class Controller;
         struct Task;
         struct Component;

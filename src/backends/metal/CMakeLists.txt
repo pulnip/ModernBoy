@@ -27,8 +27,6 @@ target_include_directories(RenderBackend PUBLIC
     ${ImGui_INCLUDE_DIRS}
     # metal-cpp
     ${CMAKE_SOURCE_DIR}/external/metal-cpp
-    # angelscript
-    ${CMAKE_SOURCE_DIR}/external/angelscript/sdk/angelscript/include
 )
 target_link_libraries(RenderBackend PRIVATE
     MetalContext

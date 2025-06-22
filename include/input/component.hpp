@@ -4,11 +4,11 @@
 #include <functional>
 #include <unordered_map>
 #include <vector>
-#include "raw_resource.hpp"
 #include "resource_handle.hpp"
 #include "input/state.hpp"
 
-namespace ModernBoy{ namespace Input{
+namespace ModernBoy::Input
+{
     struct Task{
         Button button;
         ButtonState condition;
@@ -39,7 +39,6 @@ namespace ModernBoy{ namespace Input{
             TransformHandle transformHandle);
         Tasks getTasks() const;
     };
-
-}}
+}
 
 #endif // MODERNBOY_INPUT_COMPONENT_HPP
