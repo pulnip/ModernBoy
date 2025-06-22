@@ -29,6 +29,6 @@ namespace ModernBoy
             return handles;
         }
     };
-}
+} // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_LOADER_HPP

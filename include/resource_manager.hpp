@@ -9,7 +9,8 @@
 #include <unordered_map>
 #include "resource_handle.hpp"
 
-namespace ModernBoy{
+namespace ModernBoy
+{
     template<typename T>
     struct ResourceSlot{
         T data;

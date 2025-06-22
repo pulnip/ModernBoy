@@ -81,6 +81,6 @@ namespace ModernBoy
         float farPlane = 100.0f;
         Projection projection = Projection::PERSPECTIVE;
     };
-}
+} // namespace ModernBoy
 
 #endif // MODERNBOY_RAW_RESOURCE_HPP
