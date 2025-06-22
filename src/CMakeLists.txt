@@ -9,6 +9,10 @@ add_executable(${PROJECT_NAME} ${ALL_SOURCES})
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall -Wextra
+    -fsanitize=address
+)
+target_link_options(${PROJECT_NAME} PRIVATE
+    -fsanitize=address
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>

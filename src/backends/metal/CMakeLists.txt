@@ -9,7 +9,12 @@ add_library(MetalContext SHARED ${SWIFT_SOURCES})
 
 target_compile_options(RenderBackend PRIVATE
     -Wall -Wextra
+    -fsanitize=address
 )
+target_link_options(RenderBackend PRIVATE
+    -fsanitize=address
+)
+
 target_compile_definitions(RenderBackend PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )

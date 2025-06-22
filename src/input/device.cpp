@@ -21,7 +21,7 @@ void Device::moveFrom(Device&& other){
 }
 
 void Device::fetch(State& state){
-    SDL_PumpEvents();
+    // SDL_PumpEvents();
 
     for(int i=0; i<Button::KEY_UNKNOWN; ++i){
         auto code = static_cast<Button>(i);

@@ -26,7 +26,7 @@ Mesh::Mesh(RawMesh& rawMesh, NativePtr layerPtr){
     }
 
     meshPtr = createMesh(layerPtr,
-        vertices.data(), vertices.size(),
+        vertices.data(), vertices.size() / 8,
         rawMesh.indices.data(), rawMesh.indices.size(),
         texPath
     );
