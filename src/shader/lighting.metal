@@ -27,23 +27,18 @@ inline float3 phongLighting(
 }
 
 struct RimConstant{
-    float3 rimColor;
+    float3 rimBase;
     float rimPower;
     float rimStrength;
 };
-
-constant float3 rimBase = float3(0.2);
-constant float rimPower = 10.0;
-constant float rimStrength = 0.5;
-
 inline float3 rimLighting(
     float3 baseColor, float3 normal,
-    float3 worldPosition, float3 viewPosition
-    // constant RimConstant& constants
+    float3 worldPosition, float3 viewPosition,
+    constant RimConstant& rimc
 ){
     float3 toView = normalize(viewPosition - worldPosition);
     float rimFactor = smoothstep(0.0, 1.0, 1.0 - dot(toView, normal));
-    float rim = pow(rimFactor, rimPower);
-    float3 rimColor = rimStrength * rim * rimBase;
+    float rim = pow(rimFactor, rimc.rimPower);
+    float3 rimColor = rimc.rimStrength * rim * rimc.rimBase;
     return baseColor + rimColor;
 }

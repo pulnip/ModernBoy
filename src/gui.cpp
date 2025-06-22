@@ -35,10 +35,9 @@ void UI::update(){
         notifylightType();
     }
 
-    if(ImGui::SliderFloat("Rim Power", &rimPower, 0.0f, 10.0f)){
+    if(ImGui::SliderFloat("Rim Power", &rimPower, 0.0f, 10.0f))
         notifyrimPower();
-    }
-    if(ImGui::SliderFloat("Rim Strength", &rimStrength, 0.0f, 5.0f))
+    if(ImGui::SliderFloat("Rim Strength", &rimStrength, 0.0f, 1.0f))
         notifyrimStrength();
 
     ImGui::End();

@@ -11,7 +11,8 @@ fragment float4 fragment_main(
     FS_Input input               [[stage_in]],
     constant float3& viewPosition [[buffer(0)]],
     texture2d<float> tex          [[texture(0)]],
-    sampler samp                  [[sampler(0)]]
+    sampler samp                  [[sampler(0)]],
+    constant RimConstant& rimc    [[buffer(1)]]
 ){
     float2 uv = input.uv.xy;
     float4 color = tex.sample(samp, uv);
@@ -26,8 +27,6 @@ fragment float4 fragment_main(
     float3 phongColor = phongLighting(color.rgb, input.normal,
         input.worldPosition, viewPosition, light);
     float3 rimColor = rimLighting(color.rgb, input.normal,
-        input.worldPosition, viewPosition);
-
+        input.worldPosition, viewPosition, rimc);
     return float4(phongColor + rimColor, color.a);
-    return float4(phongColor, color.a);
 }

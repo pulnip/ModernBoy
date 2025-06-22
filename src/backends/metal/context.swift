@@ -3,14 +3,23 @@ import MetalKit
 import QuartzCore
 import simd
 
+struct ViewConstant{
+    var viewMat: simd_float4x4
+    var projMat: simd_float4x4
+}
+struct ModelConstant{
+    let modelMat: simd_float4x4
+    let normalMat: simd_float3x3
+}
+
 class RenderContext {
     let layer: CAMetalLayer
     let commandQueue: MTLCommandQueue
     let sampler: MTLSamplerState
     var dsTexture: MTLTexture?
 
+    var fov: Float = toRadians(from: 45)
     var aspectRatio: Float = 1.0
-
     var viewPosition = simd_float3(repeating: 0)
     var viewMat = matrix_identity_float4x4
 
@@ -77,28 +86,24 @@ class RenderContext {
         renderEncoder = commandBuffer?
             .makeRenderCommandEncoder(descriptor: rpd)
 
-        shader.bind(encoder: renderEncoder!)
-        aspectRatio = Float(layer.bounds.width / layer.bounds.height)
-
-        var projMat = perspectiveMatrix(
-            fov: toRadians(from: 45.0), aspectRatio: aspectRatio, nearPlane: 0.1, farPlane: 100.0)
-        renderEncoder!.setVertexBytes(&projMat,
-            length: MemoryLayout<simd_float4x4>.stride, index: 1)
+        shader.bind(encoder: renderEncoder)
         renderEncoder?.setDepthStencilState(shader.depthStencilState)
 
-        renderEncoder!.setVertexBytes(&viewMat,
-            length: MemoryLayout<simd_float4x4>.stride, index: 2)
+        aspectRatio = Float(layer.bounds.width / layer.bounds.height)
+        let projMat = perspectiveMatrix(
+            fov: fov, aspectRatio: aspectRatio, nearPlane: 0.1, farPlane: 100.0)
+        var viewConstant = ViewConstant(
+            viewMat: viewMat, projMat: projMat)
+        renderEncoder!.setVertexBytes(&viewConstant,
+            length: MemoryLayout<ViewConstant>.stride, index: 1)
     }
     func draw(_ modelMat: simd_float4x4, _ mesh: Mesh) {
         guard let encoder
             = self.renderEncoder else {return }
-        var modelMat_ = modelMat
-        var normalMat = normal(modelMat)
-
-        encoder.setVertexBytes(&modelMat_,
-            length: MemoryLayout<simd_float4x4>.stride, index: 3)
-        encoder.setVertexBytes(&normalMat,
-            length: MemoryLayout<simd_float3x3>.stride, index: 4)
+        var modelConstant = ModelConstant(
+            modelMat: modelMat, normalMat: normal(modelMat))
+        encoder.setVertexBytes(&modelConstant,
+            length: MemoryLayout<ModelConstant>.stride, index: 2)
 
         encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
         if let texture = mesh.texture {
@@ -267,4 +272,14 @@ public func RenderContext_setView(_ rctxPtr: UnsafeRawPointer?,
     let viewQuat = simd_float4(rx, ry, rz, w)
     rctx.viewPosition = viewPos
     rctx.viewMat = viewMatrix(viewPos, viewQuat)
+}
+
+@_cdecl("RenderContext_setfov")
+public func RenderContext_setfov(_ rctxPtr: UnsafeRawPointer?,
+    _ fov: Float
+) {
+    guard let rctxPtr = rctxPtr else { return }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    rctx.fov = toRadians(from: fov)
 }
