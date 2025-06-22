@@ -15,6 +15,7 @@
 #include "input/component.hpp"
 #include "render/renderer.hpp"
 #include "render/component.hpp"
+#include "render/gui.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
 #include "backends/dx11/context.hpp"
@@ -55,6 +56,7 @@ namespace ModernBoy
         MeshLoader, RenderSystem, InputSystem>;
 
     struct AppState{
+        UI gui;
         TransformManager transformManager;
         MeshImporter meshImporter;
         MeshManager meshManager;

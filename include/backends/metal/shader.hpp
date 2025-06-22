@@ -2,22 +2,13 @@
 #define MODERNBOY_METAL_SHADER_HPP
 
 #include "type.hpp"
+#include "fwd.hpp"
 
 namespace ModernBoy::Metal
 {
-#ifdef __cplusplus
-extern "C"{
-#endif
-
-    extern void* createShader(const void* layerPtr);
-    extern void destroyShader(const void* shaderPtr);
-
-#ifdef __cplusplus
-}
-#endif
     using ShaderPtr = NativePtr;
 
-        struct Shader{
+    struct Shader{
         ShaderPtr shaderPtr;
 
         Shader()=default;
@@ -26,13 +17,36 @@ extern "C"{
         Shader& operator=(const Shader&)=delete;
         Shader& operator=(Shader&&);
 
-        Shader(ShaderPtr shaderPtr):shaderPtr(shaderPtr){}
-        ~Shader(){ destroyShader(shaderPtr); }
+        Shader(ShaderPtr shaderPtr, UI* gui=nullptr);
+        ~Shader();
 
     private:
         // Move semantics
         void moveFrom(Shader&&);
+
+        UI* gui = nullptr;
+        ObserverID rp_id = -1;
+        ObserverID rs_id = -1;
     };
+
+    #ifdef __cplusplus
+extern "C"{
+#endif
+
+    extern void* createShader(const void* layerPtr);
+    extern void destroyShader(const void* shaderPtr);
+
+    extern void Shader_setRimPower(
+        void* shaderPtr, float rimPower
+    );
+    extern void Shader_setRimStrength(
+        void* shaderPtr, float rimStrength
+    );
+
+
+#ifdef __cplusplus
+}
+#endif
 }
 
 #endif // MODERNBOY_METAL_SHADER_HPP

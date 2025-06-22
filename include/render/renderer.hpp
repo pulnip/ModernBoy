@@ -8,6 +8,7 @@
 #include "resource_manager.hpp"
 #include "task_system.hpp"
 #include "render/component.hpp"
+#include "fwd.hpp"
 
 namespace ModernBoy{ namespace Render{
     template<typename... Fs>
@@ -42,9 +43,9 @@ namespace ModernBoy{ namespace Render{
             ResourceManager<Shader>& shaderManager,
             RenderSystem& renderTaskManager,
             CameraManager& cameraManager,
-            ViewSystem& viewTaskManager)
+            ViewSystem& viewTaskManager, UI* gui)
         :context(window, transformManager, meshManager, shaderManager,
-            cameraManager), renderTaskManager(renderTaskManager),
+            cameraManager, gui), renderTaskManager(renderTaskManager),
             viewTaskManager(viewTaskManager){}
 
         ~Renderer(){ stsrc.request_stop(); }

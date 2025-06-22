@@ -8,6 +8,8 @@
 #include "resource_manager.hpp"
 #include "mesh.hpp"
 #include "shader.hpp"
+#include "fwd.hpp"
+#include "render/gui.hpp"
 
 namespace ModernBoy::Metal
 {
@@ -31,12 +33,16 @@ namespace ModernBoy::Metal
 
         RenderContext(SDL_Window* in_window, TransformManager& transformManager,
             MeshManager& in_meshManager, ShaderManager& in_shaderManager,
-            CameraManager& cameraManager);
+            CameraManager& cameraManager, UI* gui=nullptr);
         ~RenderContext();
 
         void operator()(const FrameStartCommand<Shader>&);
         void operator()(const DrawCommand<Mesh>&);
         void operator()(const FrameEndCommand&);
+
+    private:
+        UI* gui = nullptr;
+        ObserverID fov_id = -1;
     };
     // static_assert(ModernBoy::RenderContext<Metal::RenderContext>);
 
@@ -86,6 +92,10 @@ extern "C"{
         void* _nativeContext,
         float px, float py, float pz,
         float rx, float ry, float rz, float w
+    );
+
+    extern void RenderContext_setfov(
+        void* _nativeContext, float fov
     );
 
 #ifdef __cplusplus

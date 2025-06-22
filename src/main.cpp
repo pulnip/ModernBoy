@@ -27,12 +27,12 @@ using namespace ModernBoy::OpenGL;
 #endif
 
 AppState::AppState(SDL_Window* window)
-:transformManager(), meshImporter(), meshManager(),
+:gui(), transformManager(), meshImporter(), meshManager(),
 shaderManager(), renderSystem(),
 cameraManager(), viewSystem(),
 window(window), renderer(window, transformManager, meshManager,
     shaderManager, renderSystem, cameraManager,
-    viewSystem),
+    viewSystem, &gui),
 meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
 inputDevice(), inputSystem(),
 controller(inputDevice, inputSystem, transformManager),
@@ -99,7 +99,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     as->actorLoader.loadActors("asset/actor.toml");
     as->actorLoader.loadCamera("asset/camera.toml");
 
-    auto shader = Shader(createShader(layerPtr));
+    auto shader = Shader(createShader(layerPtr), &(as->gui));
     as->shaderManager.create(std::move(shader));
 
 #elif defined(USE_OPENGL)

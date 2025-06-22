@@ -1,26 +1,24 @@
 #include <stdexcept>
 #include <SDL3/SDL_log.h>
-#include "backends/metal/context.hpp"
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
+#include "backends/metal/context.hpp"
 #define IMGUI_IMPL_METAL_CPP
 #include <imgui_impl_metal.h>
 
 #include <numbers>
 #include <chrono>
 using namespace std::chrono;
-#include "render/gui.hpp"
-ModernBoy::UI ui{};
 
 using namespace ModernBoy::Metal;
 
 RenderContext::RenderContext(SDL_Window* in_window, TransformManager& transformManager,
     MeshManager& in_meshManager, ShaderManager& in_shaderManager,
-    CameraManager& cameraManager)
+    CameraManager& cameraManager, UI* gui)
 :view(SDL_Metal_CreateView(in_window)),
 metalLayer(SDL_Metal_GetLayer(view)), transformManager(transformManager),
 meshManager(in_meshManager), shaderManager(in_shaderManager),
-cameraManager(cameraManager){
+cameraManager(cameraManager), gui(gui){
     NativePtr layer = SDL_Metal_GetLayer(view);
     _renderContext = createRenderContext(layer);
 
@@ -48,8 +46,18 @@ cameraManager(cameraManager){
     auto device = static_cast<MTL::Device*>(
         RenderContext_getDevice(_renderContext));
     ImGui_ImplMetal_Init(device);
+
+    if(gui != nullptr){
+        fov_id = gui->subscribefieldOfView([rctx=_renderContext](float fov){
+            RenderContext_setfov(rctx, fov);
+        });
+    }
 }
 RenderContext::~RenderContext(){
+    if(gui != nullptr){
+        gui->unsubscribefieldOfView(fov_id);
+    }
+
     SDL_Metal_DestroyView(view);
     destroyRenderContext(_renderContext);
 }
@@ -77,7 +85,7 @@ void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
 
     ImGui::NewFrame();
     // ImGui::ShowDemoWindow(); // Show demo window! :)
-    ui.update();
+    gui->update();
 }
 
 void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
