@@ -2,6 +2,7 @@
 #include <utility>
 #include <vector>
 #include "backends/metal/mesh.hpp"
+#include "game/app_state.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Metal;
@@ -18,14 +19,14 @@ void Mesh::moveFrom(Mesh&& other){
     other.meshPtr = nullptr;
 }
 
-Mesh::Mesh(RawMesh& rawMesh, NativePtr layerPtr){
+Mesh::Mesh(RawMesh& rawMesh, AppState& app){
     auto vertices = toFloats(rawMesh.vertices);
     const char* texPath = nullptr;
     if(!rawMesh.textures.empty()){
         texPath = rawMesh.textures[0].c_str();
     }
 
-    meshPtr = createMesh(layerPtr,
+    meshPtr = createMesh(app.renderer.context.metalLayer,
         vertices.data(), vertices.size() / 8,
         rawMesh.indices.data(), rawMesh.indices.size(),
         texPath

@@ -42,8 +42,6 @@ namespace ModernBoy
     using RenderComponent = Render::Component<Metal::Mesh>;
     using RenderTask = Render::Task<Metal::Mesh>;
     using RenderSystem = TaskSystem<RenderComponent, RenderTask>;
-    using MeshLoader = ResourceLoader<Metal::Mesh,
-        MeshImporter, Metal::NativePtr>;
 #elif defined(USE_OPENGL)
     using MeshManager = ResourceManager<OpenGL::Mesh>;
     using MeshRenderer = Renderer<OpenGL::RenderContext>;
@@ -79,6 +77,9 @@ namespace ModernBoy
 
         AppState(SDL_Window* window);
         ~AppState();
+
+        template<typename Resource>
+        std::vector<Resource> import(const std::string&);
     };
 }
 

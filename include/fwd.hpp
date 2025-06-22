@@ -2,13 +2,23 @@
 #define MODERNBOY_FWD_HPP
 
 #include <cstdint>
+#include <vector>
 
 namespace ModernBoy
 {
     struct AppState;
     class UI;
     template<typename Resource> class ResourceManager;
-    template<typename T> struct ResourceHandle;
+    template<typename Resource> struct ResourceHandle;
+    struct RawMesh;
+    template<typename RawResource>
+    std::vector<RawResource> import(AppState& app,
+        const std::string& fileName);
+    template<typename Resource>
+    ResourceHandle<Resource> manage(AppState& app,
+        Resource&& resource);
+    template<typename RawResource, typename Resource>
+    class ResourceLoader;
     template<typename Comp, typename Task> class TaskSystem;
     struct ViewTask;
     struct CameraComponent;
@@ -45,6 +55,7 @@ namespace ModernBoy
 
     using MeshManager = ResourceManager<Mesh>;
     using MeshHandle = ResourceHandle<Mesh>;
+    using MeshLoader = ResourceLoader<RawMesh, Mesh>;
     using MeshComponent = Render::Component<Mesh>;
     using ShaderManager = ResourceManager<Shader>;
     using ShaderHandle = ResourceHandle<Shader>;

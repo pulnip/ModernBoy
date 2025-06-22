@@ -2,6 +2,7 @@
 #define MODERNBOY_METAL_MESH_HPP
 
 #include <cstdint>
+#include "fwd.hpp"
 #include "raw_resource.hpp"
 #include "metal_fwd.hpp"
 #include "type.hpp"
@@ -34,8 +35,8 @@ extern "C"{
         Mesh& operator=(const Mesh&)=delete;
         Mesh& operator=(Mesh&&);
 
-        Mesh(RawMesh& rawMesh, NativePtr layerPtr);
-        Mesh(MeshPtr meshPtr):meshPtr(meshPtr){}
+        Mesh(RawMesh& rawMesh, AppState& app);
+        Mesh(NativePtr meshPtr):meshPtr(meshPtr){}
         ~Mesh(){ destroyMesh(meshPtr); }
 
     private:

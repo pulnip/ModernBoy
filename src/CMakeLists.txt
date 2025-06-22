@@ -8,6 +8,7 @@ file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME}
     ${ALL_SOURCES}
     render/renderer.cpp
+    game/app_state.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE

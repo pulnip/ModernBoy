@@ -31,9 +31,8 @@ AppState::AppState(SDL_Window* window)
 transformManager(), meshManager(), shaderManager(),
 cameraManager(),
 renderSystem(), viewSystem(), inputSystem(),
-controller(*this),
-renderer(window, *this),
-meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
+controller(*this), renderer(window, *this),
+meshLoader(*this),
 actorLoader(transformManager, meshLoader, renderSystem,
     cameraManager, viewSystem, inputSystem, controller){}
 AppState::~AppState(){}

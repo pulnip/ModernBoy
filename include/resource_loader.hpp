@@ -2,33 +2,29 @@
 #define MODERNBOY_RESOURCE_LOADER_HPP
 
 #include <vector>
-#include "resource_manager.hpp"
+#include "fwd.hpp"
 
 namespace ModernBoy
 {
-    template<typename T, typename Importer, typename Dev>
+    template<typename RawResource, typename Resource>
     class ResourceLoader{
     public:
-        using Handle = ResourceHandle<T>;
+        using Handle = ResourceHandle<Resource>;
         using Handles = std::vector<Handle>;
 
     private:
-        Importer& importer;
-        ResourceManager<T>& manager;
-        Dev& dev;
+        AppState& app;
 
     public:
-        ResourceLoader(Importer& importer,
-            ResourceManager<T>& manager, Dev& dev)
-        :importer(importer), manager(manager), dev(dev){}
+        ResourceLoader(AppState& app):app(app){}
 
         Handles load(const std::string& fileName){
-            auto resources = importer.import(fileName);
+            auto resources = ModernBoy::import<RawResource>(app, fileName);
 
             Handles handles(resources.size());
             for(size_t i=0; i<handles.size(); ++i){
-                auto resource = T(resources[i], dev);
-                handles[i] = manager.create(std::move(resource));
+                auto resource = Resource(resources[i], app);
+                handles[i] = manage<Resource>(app, std::move(resource));
             }
             return handles;
         }
