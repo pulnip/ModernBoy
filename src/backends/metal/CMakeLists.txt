@@ -27,8 +27,6 @@ target_include_directories(RenderBackend PUBLIC
     ${ImGui_INCLUDE_DIRS}
     # metal-cpp
     ${CMAKE_SOURCE_DIR}/external/metal-cpp
-    # toml++
-    ${CMAKE_SOURCE_DIR}/external/tomlplusplus/include
     # angelscript
     ${CMAKE_SOURCE_DIR}/external/angelscript/sdk/angelscript/include
 )

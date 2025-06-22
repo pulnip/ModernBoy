@@ -5,13 +5,8 @@
 #include <SDL3/SDL_main.h>
 #include <imgui_impl_sdl3.h>
 #include "game/app_state.hpp"
-
-#include "mesh_importer.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
-#elif defined(USE_METAL)
-#include "backends/metal/mesh.hpp"
-#include "backends/metal/shader.hpp"
 #elif defined(USE_OPENGL)
 #include <glad/glad.h>
 #endif

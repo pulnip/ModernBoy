@@ -28,6 +28,8 @@ namespace ModernBoy
     namespace Input
     {
         class Controller;
+        struct Task;
+        struct Component;
     }
     namespace Render
     {
@@ -49,11 +51,17 @@ namespace ModernBoy
         struct RenderContext;
     }
     using NativePtr = void*;
-
+#if defined(USE_DIRECTX)
+#elif defined(USE_METAL)
     using Mesh = Metal::Mesh;
     using Shader = Metal::Shader;
     using RenderContext = Metal::RenderContext;
-
+#elif defined(USE_OPENGL)
+#endif
+    using InputComponent = Input::Component;
+    using InputTask = Input::Task;
+    using InputSystem = TaskSystem<
+        InputComponent, InputTask>;
     using MeshManager = ResourceManager<Mesh>;
     using MeshHandle = ResourceHandle<Mesh>;
     using MeshLoader = ResourceLoader<RawMesh, Mesh>;
