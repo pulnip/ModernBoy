@@ -4,6 +4,7 @@
 #include <functional>
 #include <unordered_map>
 #include <vector>
+#include "fwd.hpp"
 #include "resource_handle.hpp"
 #include "input/state.hpp"
 

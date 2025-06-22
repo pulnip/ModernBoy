@@ -4,6 +4,7 @@
 #include <array>
 #include <optional>
 #include <variant>
+#include "fwd.hpp"
 #include "resource_handle.hpp"
 
 namespace ModernBoy::Render
@@ -13,15 +14,15 @@ namespace ModernBoy::Render
         std::optional<std::array<float, 4>> color = std::nullopt;
         bool clearColor = true;
         bool clearDepth = true;
-        ResourceHandle<Shader> shaderHandle;
+        ShaderHandle shaderHandle;
 
         TransformHandle cameraTransformHandle;
         CameraHandle cameraHandle;
     };
     template<typename Mesh>
     struct DrawCommand{
-        ResourceHandle<Transform> transformHandle;
-        ResourceHandle<Mesh> meshHandle;
+        TransformHandle transformHandle;
+        MeshHandle meshHandle;
     };
     struct FrameEndCommand{
     };

@@ -2,14 +2,21 @@
 #define MODERNBOY_RESOURCE_HANDLE_HPP
 
 #include <cstdint>
-#include "fwd.hpp"
 
 namespace ModernBoy
 {
-    template<typename T>
+    enum ResourceType{
+        INVALID = -1,
+        TRANSFORM = 0,
+        MESH = 1,
+        SHADER = 2,
+        CAMERA = 3,
+        NUM_RESOURCE = 4,
+    };
+
     struct ResourceHandle{
-        using ResourceType = T;
-    
+        ResourceType type = ResourceType::INVALID;
+
         uint32_t index = UINT32_MAX;
         uint32_t generation = 0;
     

@@ -9,7 +9,7 @@ namespace ModernBoy
     template<typename RawResource, typename Resource>
     class ResourceLoader{
     public:
-        using Handle = ResourceHandle<Resource>;
+        using Handle = ResourceHandle;
         using Handles = std::vector<Handle>;
 
     private:

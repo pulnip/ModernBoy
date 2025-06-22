@@ -15,7 +15,7 @@ namespace ModernBoy
     struct AppState;
     class UI;
     template<typename Resource> class ResourceManager;
-    template<typename Resource> struct ResourceHandle;
+    struct ResourceHandle;
     struct RawVertex;
     using Vertices = std::vector<RawVertex>;
     using Indices = std::vector<uint32_t>;
@@ -29,15 +29,15 @@ namespace ModernBoy
     enum class Projection;
     struct Camera;
     using EntityID = uint32_t;
-    using TransformHandle = ResourceHandle<Transform>;
-    using CameraHandle = ResourceHandle<Camera>;
+    using TransformHandle = ResourceHandle;
+    using CameraHandle = ResourceHandle;
     using TransformManager = ResourceManager<Transform>;
     using CameraManager = ResourceManager<Camera>;
     template<typename RawResource>
     std::vector<RawResource> import(AppState& app,
         const std::string& fileName);
     template<typename Resource>
-    ResourceHandle<Resource> manage(AppState& app,
+    ResourceHandle manage(AppState& app,
         Resource&& resource);
     template<typename RawResource, typename Resource>
     class ResourceLoader;
@@ -86,11 +86,11 @@ namespace ModernBoy
     using InputSystem = TaskSystem<
         InputComponent, InputTask>;
     using MeshManager = ResourceManager<Mesh>;
-    using MeshHandle = ResourceHandle<Mesh>;
+    using MeshHandle = ResourceHandle;
     using MeshLoader = ResourceLoader<RawMesh, Mesh>;
     using MeshComponent = Render::Component<Mesh>;
     using ShaderManager = ResourceManager<Shader>;
-    using ShaderHandle = ResourceHandle<Shader>;
+    using ShaderHandle = ResourceHandle;
     using FrameStartCommand_ = Render::FrameStartCommand<Shader>;
     using DrawCommand_ = Render::DrawCommand<Mesh>;
     using FrameEndCommand_ = Render::FrameEndCommand;
@@ -105,7 +105,7 @@ namespace ModernBoy
         EntityID actor);
     template<typename Resource>
     Resource& get(AppState& app,
-        ResourceHandle<Resource> handle);
+        ResourceHandle handle);
 }
 
 #endif // MODERNBOY_FWD_HPP

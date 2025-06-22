@@ -55,7 +55,7 @@ namespace ModernBoy
         std::vector<Resource> import(const std::string&);
 
         template<typename Resource>
-        Resource& get(ResourceHandle<Resource> handle);
+        Resource& get(ResourceHandle handle);
         template<typename Task>
         std::vector<Task> get();
     };

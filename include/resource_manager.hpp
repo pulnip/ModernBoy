@@ -11,27 +11,29 @@
 
 namespace ModernBoy
 {
-    template<typename T>
+    template<typename Resource>
     struct ResourceSlot{
-        T data;
+        Resource data;
         uint32_t generation = 0;
         bool alive = false;
     };
 
-    template<typename T>
+    template<typename Resource>
     class ResourceManager{
     public:
-        using Handle = ResourceHandle<T>;
-        using Slot = ResourceSlot<T>;
+        using Handle = ResourceHandle;
+        using Slot = ResourceSlot<Resource>;
 
     private:
+        static ResourceHandle makeHandle(uint32_t index, uint32_t generation);
+
         std::vector<Slot> slots;
         std::vector<uint32_t> freeSlots;
         // check if Named Resource is already Loaded.
         std::unordered_map<std::string, Handle> pathToHandle;
 
     public:
-        [[nodiscard]] Handle create(T&& in_data){
+        [[nodiscard]] Handle create(Resource&& in_data){
             [[unlikely]] if(!freeSlots.empty()){
                 uint32_t index = freeSlots.back();
                 freeSlots.pop_back();
@@ -41,23 +43,23 @@ namespace ModernBoy
                 ++slot.generation;
                 slot.alive = true;
 
-                return Handle{index, slot.generation};
+                return makeHandle(index, slot.generation);
             }
 
             uint32_t index = slots.size();
 
             slots.push_back(Slot{std::move(in_data), 1, true});
-            return Handle{index, 1};
+            return makeHandle(index, 1);
         }
         [[nodiscard]] Handle load(const std::string& in_fileName,
-            std::function<T(const std::string&)> in_loader
+            std::function<Resource(const std::string&)> in_loader
         ){
             // check if Named Resource is already Loaded.
             if(auto it = pathToHandle.find(in_fileName); it != pathToHandle.end()){
                 return it->second;
             }
 
-            T data = in_loader(in_fileName);
+            Resource data = in_loader(in_fileName);
 
             Handle handle = create(data);
             pathToHandle[in_fileName] = handle;
@@ -86,11 +88,11 @@ namespace ModernBoy
             freeSlots.push_back(in_handle.index);
         }
 
-        T* get(Handle in_handle){
+        Resource* get(Handle in_handle){
             [[unlikely]] if(!isValid(in_handle)) return nullptr;
             return &slots[in_handle.index].data;
         }
-        const T* get(Handle in_handle) const{
+        const Resource* get(Handle in_handle) const{
             [[unlikely]] if(!isValid(in_handle)) return nullptr;
             return &slots[in_handle.index].data;
         }
