@@ -46,7 +46,7 @@ private: \
         UI_ELM_DECL(rimPower)
         UI_ELM_DECL(rimStrength)
     };
-}
+} // namespace ModernBoy
 
 #undef UI_ELM_DECL
 

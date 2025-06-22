@@ -4,7 +4,8 @@
 #include <vector>
 #include "resource_handle.hpp"
 
-namespace ModernBoy{ namespace Render{
+namespace ModernBoy::Render
+{
     template<typename Mesh>
     struct Task{
         TransformHandle transformHandle;
@@ -37,6 +38,6 @@ namespace ModernBoy{ namespace Render{
             return tasks;
         }
     };
-}}
+} // namespace ModernBoy::Render
 
 #endif // MODERNBOY_RENDER_COMPONENT_HPP

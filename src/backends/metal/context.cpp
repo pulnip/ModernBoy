@@ -58,7 +58,7 @@ RenderContext::~RenderContext(){
     destroyRenderContext(_renderContext);
 }
 
-void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
+void RenderContext::operator()(const FrameStartCommand_& cmd){
     ShaderPtr shaderPtr = app.shaderManager.get(cmd.shaderHandle)->shaderPtr;
     const auto& cameraTransform = *app.transformManager.get(cmd.cameraTransformHandle);
     const auto& viewPos = cameraTransform.position;
@@ -84,7 +84,7 @@ void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
     app.gui.update();
 }
 
-void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
+void RenderContext::operator()(const DrawCommand_& cmd){
     Transform transform = *app.transformManager.get(cmd.transformHandle);
     float *p=transform.pos, *r=transform.rot, *s=transform.scl;
     
@@ -98,7 +98,7 @@ void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
         r[0], ry, r[2], s[0], s[1], s[2], meshPtr);
 }
 
-void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){
+void RenderContext::operator()([[maybe_unused]] const FrameEndCommand_& cmd){
     auto commandBuffer = static_cast<MTL::CommandBuffer*>(
         RenderContext_getCommandBuffer(_renderContext));
     auto renderEncoder = static_cast<MTL::RenderCommandEncoder*>(

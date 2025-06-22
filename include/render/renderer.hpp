@@ -5,7 +5,7 @@
 #include <mutex>
 #include <SDL3/SDL_video.h>
 #include "fwd.hpp"
-#include "lock_free_queue.hpp"
+#include "util/lock_free_queue.hpp"
 #include "render/command.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/context.hpp"
@@ -15,7 +15,8 @@
 #include "backends/opengl/context.hpp"
 #endif
 
-namespace ModernBoy{ namespace Render{
+namespace ModernBoy::Render
+{
     template<typename... Fs>
     struct Overload: Fs...{ using Fs::operator()...; };
     template<typename... Fs>
@@ -44,6 +45,6 @@ namespace ModernBoy{ namespace Render{
         void produceCommand(std::stop_token stoken);
         void consumeCommand(std::stop_token stoken);
     };
-}}
+}
 
 #endif // MODERNBOY_RENDERER_HPP

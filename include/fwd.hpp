@@ -34,16 +34,16 @@ namespace ModernBoy
     }
     namespace Render
     {
+        template<typename Shader>
+        struct FrameStartCommand;
+        template<typename Mesh>
+        struct DrawCommand;
+        struct FrameEndCommand;
         template<typename Mesh> struct Task;
         template<typename Mesh> struct Component;
         class Renderer;
     }
     using Renderer = Render::Renderer;
-    template<typename Shader>
-    struct FrameStartCommand;
-    template<typename Mesh>
-    struct DrawCommand;
-    struct FrameEndCommand;
 
     namespace Metal
     {
@@ -69,6 +69,9 @@ namespace ModernBoy
     using MeshComponent = Render::Component<Mesh>;
     using ShaderManager = ResourceManager<Shader>;
     using ShaderHandle = ResourceHandle<Shader>;
+    using FrameStartCommand_ = Render::FrameStartCommand<Shader>;
+    using DrawCommand_ = Render::DrawCommand<Mesh>;
+    using FrameEndCommand_ = Render::FrameEndCommand;
     using RenderTask = Render::Task<Mesh>;
     using RenderSystem = TaskSystem<
         MeshComponent, RenderTask>;

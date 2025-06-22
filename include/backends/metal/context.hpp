@@ -15,9 +15,9 @@ namespace ModernBoy::Metal
         RenderContext(SDL_Window* in_window, AppState& app);
         ~RenderContext();
 
-        void operator()(const FrameStartCommand<Shader>&);
-        void operator()(const DrawCommand<Mesh>&);
-        void operator()(const FrameEndCommand&);
+        void operator()(const FrameStartCommand_&);
+        void operator()(const DrawCommand_&);
+        void operator()(const FrameEndCommand_&);
 
     private:
         AppState& app;

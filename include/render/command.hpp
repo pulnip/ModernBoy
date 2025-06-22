@@ -6,7 +6,7 @@
 #include <variant>
 #include "resource_handle.hpp"
 
-namespace ModernBoy
+namespace ModernBoy::Render
 {
     template<typename Shader>
     struct FrameStartCommand{
@@ -33,6 +33,6 @@ namespace ModernBoy
         DrawCommand<Mesh>,
         FrameEndCommand
     >;
-} // namespace ModernBoy
+} // namespace ModernBoy::Render
 
 #endif // MODERNBOY_RENDER_COMMAND_HPP
