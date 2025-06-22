@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include "raw_resource.hpp"
-#include "fwd.hpp"
+#include "metal_fwd.hpp"
 #include "type.hpp"
 #include "resource_data.hpp"
 
