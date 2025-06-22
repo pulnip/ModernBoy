@@ -1,5 +1,6 @@
 #include <fstream>
 #include <sstream>
+#include "game/app_state.hpp"
 #include "input/controller.hpp"
 #include "util/as_helper.hpp"
 #include "util/as_stream.hpp"
@@ -8,11 +9,7 @@
 using namespace ModernBoy;
 using namespace ModernBoy::Input;
 
-Controller::Controller(Device& device,
-    InputSystem& inputSystem,
-    TransformManager& transformManager)
-:device(device), inputSystem(inputSystem),
-transformManager(transformManager),
+Controller::Controller(AppState& app):app(app),
 scriptEngine(asCreateScriptEngine()),
 scriptContext(scriptEngine->CreateContext()
 ){
@@ -33,16 +30,16 @@ void Controller::loadScriptModule(const std::string& moduleFileName){
 void Controller::update(){
     if(scriptModule == nullptr)
         return;
-    device.fetch(state);
+    app.inputDevice.fetch(state);
     
-    auto inputTasks = inputSystem.getAll();
+    auto inputTasks = app.inputSystem.getAll();
     std::erase_if(inputTasks,
         [&state=(this->state)](const Task& task){
             return task.condition != state.key[task.button];
         }
     );
     for(const auto& task: inputTasks){
-        auto transform = transformManager.get(
+        auto transform = app.transformManager.get(
             task.transformHandle);
 
         auto func = scriptModule->GetFunctionByName(

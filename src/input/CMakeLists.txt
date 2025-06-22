@@ -13,6 +13,8 @@ target_include_directories(InputModule PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     # angelscript
     ${CMAKE_SOURCE_DIR}/external/angelscript/sdk/angelscript/include
+    # toml++
+    ${CMAKE_SOURCE_DIR}/external/tomlplusplus/include
 )
 target_link_libraries(InputModule PRIVATE
     # SDL3

@@ -3,8 +3,15 @@
 
 #include <cstdint>
 
-namespace ModernBoy{
+namespace ModernBoy
+{
+    struct AppState;
     class UI;
+
+    namespace Input
+    {
+        class Controller;
+    }
 
     using ObserverID = uint32_t;
 }

@@ -56,21 +56,25 @@ namespace ModernBoy
         MeshLoader, RenderSystem, InputSystem>;
 
     struct AppState{
+        // Hardwares
         UI gui;
-        TransformManager transformManager;
         MeshImporter meshImporter;
+        SDL_Window* window;
+        Input::Device inputDevice;
+        // Resource Managers
+        TransformManager transformManager;
         MeshManager meshManager;
         ShaderManager shaderManager;
-        RenderSystem renderSystem;
         CameraManager cameraManager;
+        RenderSystem renderSystem;
         ViewSystem viewSystem;
-        SDL_Window* window;
+        InputSystem inputSystem;
+        // Softwares
+        Input::Controller controller;
         MeshRenderer renderer;
         MeshLoader meshLoader;
-        Input::Device inputDevice;
-        InputSystem inputSystem;
-        Input::Controller controller;
         ActorLoader actorLoader;
+        // Game State
         GameContext game_ctx;
         Uint64 last_step;
 

@@ -27,15 +27,15 @@ using namespace ModernBoy::OpenGL;
 #endif
 
 AppState::AppState(SDL_Window* window)
-:gui(), transformManager(), meshImporter(), meshManager(),
-shaderManager(), renderSystem(),
-cameraManager(), viewSystem(),
-window(window), renderer(window, transformManager, meshManager,
+:gui(), meshImporter(), window(window), inputDevice(),
+transformManager(), meshManager(), shaderManager(),
+cameraManager(),
+renderSystem(), viewSystem(), inputSystem(),
+controller(*this),
+renderer(window, transformManager, meshManager,
     shaderManager, renderSystem, cameraManager,
     viewSystem, &gui),
 meshLoader(meshImporter, meshManager, renderer.context.metalLayer),
-inputDevice(), inputSystem(),
-controller(inputDevice, inputSystem, transformManager),
 actorLoader(transformManager, meshLoader, renderSystem,
     cameraManager, viewSystem, inputSystem, controller){}
 AppState::~AppState(){}
