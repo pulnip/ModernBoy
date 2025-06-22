@@ -3,10 +3,6 @@
 
 #include <cstdint>
 #include "fwd.hpp"
-#include "raw_resource.hpp"
-#include "metal_fwd.hpp"
-#include "type.hpp"
-#include "resource_data.hpp"
 
 namespace ModernBoy::Metal
 {

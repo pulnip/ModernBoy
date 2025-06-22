@@ -4,7 +4,6 @@
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_metal.h>
 #include "fwd.hpp"
-#include "render/render_context.hpp"
 
 namespace ModernBoy::Metal
 {
@@ -24,7 +23,6 @@ namespace ModernBoy::Metal
         AppState& app;
         ObserverID fov_id = -1;
     };
-    // static_assert(ModernBoy::RenderContext<Metal::RenderContext>);
 
 #ifdef __cplusplus
 extern "C"{

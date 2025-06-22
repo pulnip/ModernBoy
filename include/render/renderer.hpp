@@ -6,6 +6,7 @@
 #include <SDL3/SDL_video.h>
 #include "fwd.hpp"
 #include "lock_free_queue.hpp"
+#include "render/command.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/context.hpp"
 #elif defined(USE_METAL)

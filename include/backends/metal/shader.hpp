@@ -1,7 +1,6 @@
 #ifndef MODERNBOY_METAL_SHADER_HPP
 #define MODERNBOY_METAL_SHADER_HPP
 
-#include "type.hpp"
 #include "fwd.hpp"
 
 namespace ModernBoy::Metal

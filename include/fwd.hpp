@@ -42,7 +42,7 @@ namespace ModernBoy
     struct FrameStartCommand;
     template<typename Mesh>
     struct DrawCommand;
-    struct FrameEndCOmmand;
+    struct FrameEndCommand;
 
     namespace Metal
     {

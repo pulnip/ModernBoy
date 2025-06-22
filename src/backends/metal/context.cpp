@@ -1,17 +1,16 @@
+#include <chrono>
+#include <numbers>
 #include <stdexcept>
 #include <SDL3/SDL_log.h>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include "game/app_state.hpp"
-#include "render/render_command.hpp"
+#include "render/command.hpp"
 #include "backends/metal/context.hpp"
 #define IMGUI_IMPL_METAL_CPP
 #include <imgui_impl_metal.h>
 
-#include <numbers>
-#include <chrono>
 using namespace std::chrono;
-
 using namespace ModernBoy::Metal;
 
 RenderContext::RenderContext(SDL_Window* in_window, AppState& app)
