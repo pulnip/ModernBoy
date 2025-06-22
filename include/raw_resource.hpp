@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <vector>
+#include "fwd.hpp"
+#include "resource_handle.hpp"
 
 struct Vector3{ float x, y, z; };
 struct Vector4{ float x, y, z, w; };
@@ -34,22 +36,16 @@ namespace ModernBoy
         float tangent[3];
     };
 
-    using Vertices = std::vector<RawVertex>;
-    using Indices = std::vector<uint32_t>;
-    // File Name of Texture
-    using Texture = std::string;
-    using Textures = std::vector<Texture>;
-
     struct RawMesh{
         Vertices vertices;
         Indices indices;
 
-        Textures textures;
+        TexPaths textures;
 
     public:
         RawMesh() = default;
         RawMesh(Vertices vertices, Indices indices,
-            Textures textures)
+            TexPaths textures)
         :vertices(vertices), indices(indices),
         textures(textures){}
         RawMesh(size_t numVertices, size_t numIndices,
@@ -58,14 +54,11 @@ namespace ModernBoy
         textures(numTextures){}
     };
 
-    using RawMeshes = std::vector<RawMesh>;
-
     struct RawTexture{
         int width=0, height=0;
         int channels=0;
         std::vector<uint8_t> pixels;
     };
-    using RawTextures = std::vector<RawTexture>;
 
     Vector3 zeros();
     Vector3 ones();
@@ -80,6 +73,26 @@ namespace ModernBoy
         float nearPlane = 0.1f;
         float farPlane = 100.0f;
         Projection projection = Projection::PERSPECTIVE;
+    };
+
+    struct ViewTask{
+        TransformHandle transformHandle;
+        CameraHandle cameraHandle;
+    };
+    using ViewTasks = std::vector<ViewTask>;
+
+    struct TransformComponent{
+        EntityID actor;
+        TransformHandle transformHandle;
+    };
+    struct CameraComponent{
+        EntityID actor;
+        bool enabled = true;
+        TransformHandle transformHandle;
+        CameraHandle cameraHandle;
+        // TODO: how to get viewport of this camera?
+
+        ViewTasks getTasks() const;
     };
 } // namespace ModernBoy
 

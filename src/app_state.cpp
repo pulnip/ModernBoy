@@ -1,5 +1,5 @@
 #include <vector>
-#include "game/app_state.hpp"
+#include "app_state.hpp"
 
 using namespace ModernBoy;
 

@@ -30,8 +30,8 @@ RawMeshes MeshImporter::import(const std::string& fileName){
     return {};
 }
 
-auto testTexs = Textures{"asset/metal_logo.png"};
-auto globeTexs = Textures{"asset/world_map.jpg"};
+auto testTexs = TexPaths{"asset/metal_logo.png"};
+auto globeTexs = TexPaths{"asset/world_map.jpg"};
 
 static RawMeshes createTriangle(){
     Vertices vertices = {

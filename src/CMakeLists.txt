@@ -1,14 +1,12 @@
-message(STATUS "Backend dir: ${BACKEND_SOURCE_DIR}")
 add_subdirectory(${BACKEND_SOURCE_DIR})
 add_subdirectory(input)
+add_subdirectory(render)
 add_subdirectory(shader)
 add_subdirectory(util)
 
 file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME}
     ${ALL_SOURCES}
-    render/renderer.cpp
-    game/app_state.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
@@ -32,13 +30,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/external/tomlplusplus/include
     # stb
     ${CMAKE_SOURCE_DIR}/external/stb
-    # angelscript
-    ${CMAKE_SOURCE_DIR}/external/angelscript/sdk/angelscript/include
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    Util
     RenderBackend
+    RenderModule
     InputModule
+    Util
     # SDL3
     SDL3::SDL3
     # SDL3_image

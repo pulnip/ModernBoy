@@ -2,13 +2,10 @@
 #define MODERNBOY_RESOURCE_HANDLE_HPP
 
 #include <cstdint>
-#include "raw_resource.hpp"
-#include "input/state.hpp"
+#include "fwd.hpp"
 
 namespace ModernBoy
 {
-    using EntityID = uint32_t;
-
     template<typename T>
     struct ResourceHandle{
         using ResourceType = T;
@@ -21,9 +18,6 @@ namespace ModernBoy
         bool isValid() const{ return index != UINT32_MAX; }
         bool operator==(const ResourceHandle&) const = default;
     };
-
-    using TransformHandle = ResourceHandle<Transform>;
-    using CameraHandle = ResourceHandle<Camera>;
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_HANDLE_HPP

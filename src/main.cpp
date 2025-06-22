@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <imgui_impl_sdl3.h>
-#include "game/app_state.hpp"
+#include "app_state.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
 #elif defined(USE_OPENGL)

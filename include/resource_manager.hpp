@@ -98,9 +98,6 @@ namespace ModernBoy
         size_t size() const{ return slots.size() - freeSlots.size(); }
         size_t capacity() const{ return slots.size(); }
     };
-
-    using TransformManager = ResourceManager<Transform>;
-    using CameraManager = ResourceManager<Camera>;
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_MANAGER_HPP

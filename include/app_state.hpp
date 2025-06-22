@@ -2,9 +2,7 @@
 #define MODERNBOY_APP_STATE_HPP
 
 #include "task_system.hpp"
-#include "view_system.hpp"
-#include "game_context.hpp"
-#include "resource_component.hpp"
+#include "game/game_context.hpp"
 #include "resource_manager.hpp"
 #include "mesh_importer.hpp"
 #include "resource_loader.hpp"

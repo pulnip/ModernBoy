@@ -2,7 +2,7 @@
 #include <utility>
 #include <vector>
 #include "backends/metal/mesh.hpp"
-#include "game/app_state.hpp"
+#include "app_state.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Metal;

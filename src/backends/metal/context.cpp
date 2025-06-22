@@ -4,7 +4,7 @@
 #include <SDL3/SDL_log.h>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
-#include "game/app_state.hpp"
+#include "app_state.hpp"
 #include "render/command.hpp"
 #include "backends/metal/context.hpp"
 #define IMGUI_IMPL_METAL_CPP

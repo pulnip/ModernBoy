@@ -6,7 +6,6 @@
 
 namespace ModernBoy
 {
-
     class AssetLoader{
         AppState& app;
 

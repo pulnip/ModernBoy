@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
-#include "resource_handle.hpp"
 
 namespace ModernBoy
 {

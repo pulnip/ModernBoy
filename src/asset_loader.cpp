@@ -1,6 +1,6 @@
 #include <toml++/toml.h>
 #include "asset_loader.hpp"
-#include "game/app_state.hpp"
+#include "app_state.hpp"
 
 using namespace ModernBoy;
 

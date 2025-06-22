@@ -2,7 +2,12 @@
 #define MODERNBOY_FWD_HPP
 
 #include <cstdint>
+#include <string>
 #include <vector>
+
+struct Vector3;
+struct Vector4;
+struct Transform;
 
 namespace ModernBoy
 {
@@ -10,7 +15,23 @@ namespace ModernBoy
     class UI;
     template<typename Resource> class ResourceManager;
     template<typename Resource> struct ResourceHandle;
+    struct RawVertex;
+    using Vertices = std::vector<RawVertex>;
+    using Indices = std::vector<uint32_t>;
+    // File Name of Texture
+    using TexPath = std::string;
+    using TexPaths = std::vector<TexPath>;
     struct RawMesh;
+    using RawMeshes = std::vector<RawMesh>;
+    struct RawTexture;
+    using RawTextures = std::vector<RawTexture>;
+    enum class Projection;
+    struct Camera;
+    using EntityID = uint32_t;
+    using TransformHandle = ResourceHandle<Transform>;
+    using CameraHandle = ResourceHandle<Camera>;
+    using TransformManager = ResourceManager<Transform>;
+    using CameraManager = ResourceManager<Camera>;
     template<typename RawResource>
     std::vector<RawResource> import(AppState& app,
         const std::string& fileName);

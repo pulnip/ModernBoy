@@ -10,7 +10,6 @@ set(AS_SRC_DIR "${CMAKE_SOURCE_DIR}/src/script")
 file(GLOB AS_SOURCES "${AS_SRC_DIR}/*.as")
 set(AS_TGT_DIR "${CMAKE_SOURCE_DIR}/asset/script")
 set(AS_TARGET "${AS_TGT_DIR}/${AS_MODULE_NAME}.asb")
-message(STATUS "files: ${AS_SOURCES}")
 
 add_custom_command(
     OUTPUT ${AS_TARGET}
