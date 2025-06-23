@@ -1,3 +1,4 @@
+#include <cassert>
 #include <chrono>
 #include <numbers>
 #include <stdexcept>
@@ -60,16 +61,18 @@ RenderContext::~RenderContext(){
 
 void RenderContext::operator()(const FrameStartCommand_& cmd){
     auto shaderPtr = app.get<Shader>(cmd.shaderHandle).shaderPtr;
-    const auto& cameraTransform = app.get<Transform>(cmd.cameraTransformHandle);
+    const auto& cameraTransform = cmd.transform;
     const auto& viewPos = cameraTransform.position;
     const auto& viewQuat = cameraTransform.rotation;
-    const auto& camera = app.get<Camera>(cmd.cameraHandle);
+    const auto& camera = cmd.camera;
 
+    assert(_renderContext != nullptr);
     RenderContext_setView(_renderContext,
         viewPos.x, viewPos.y, viewPos.z,
         viewQuat.x, viewQuat.y, viewQuat.z, viewQuat.w
     );
 
+    assert(shaderPtr != nullptr);
     RenderContext_frameStart(_renderContext,
         0.0, 0.0, 0.0, 0.5, shaderPtr);
 
@@ -85,7 +88,7 @@ void RenderContext::operator()(const FrameStartCommand_& cmd){
 }
 
 void RenderContext::operator()(const DrawCommand_& cmd){
-    Transform transform = app.get<Transform>(cmd.transformHandle);
+    Transform transform = cmd.transform;
     float *p=transform.pos, *r=transform.rot, *s=transform.scl;
     
     MeshPtr meshPtr = app.get<Mesh>(cmd.meshHandle).meshPtr;
@@ -94,11 +97,13 @@ void RenderContext::operator()(const DrawCommand_& cmd){
     float seconds = duration<float>(now).count();
     float ry = fmodf(seconds * (float)(std::numbers::pi/2.0), (float)(std::numbers::pi * 2.0));
 
+    assert(_renderContext != nullptr);
     RenderContext_draw_(_renderContext, p[0], p[1], p[2],
         r[0], ry, r[2], s[0], s[1], s[2], meshPtr);
 }
 
 void RenderContext::operator()([[maybe_unused]] const FrameEndCommand_& cmd){
+    assert(_renderContext != nullptr);
     auto commandBuffer = static_cast<MTL::CommandBuffer*>(
         RenderContext_getCommandBuffer(_renderContext));
     auto renderEncoder = static_cast<MTL::RenderCommandEncoder*>(
@@ -108,5 +113,7 @@ void RenderContext::operator()([[maybe_unused]] const FrameEndCommand_& cmd){
         commandBuffer, renderEncoder
     );
 
+    assert(commandBuffer != nullptr);
+    assert(renderEncoder != nullptr);
     RenderContext_frameEnd(_renderContext);
 }

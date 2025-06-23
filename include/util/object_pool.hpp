@@ -3,61 +3,72 @@
 
 #include <cassert>
 #include <vector>
-#include <unordered_map>
 #include <unordered_set>
 
 namespace ModernBoy
 {
-    template<typename Object>
+    using SlotIndex = uint32_t;
+
+    template<typename Slot>
     class ObjectPool{
     private:
-        using Slot = std::unordered_set<Object>;
+        using Slots = std::vector<Slot>;
+        Slots slots;
+        std::unordered_set<SlotIndex> freeSlots;
 
-        std::vector<Slot> slots;
-        std::unordered_set<EntityID> freeSlots;
-
-        EntityID issueID() noexcept{
+        SlotIndex issueSlot() noexcept{
             [[unlikely]] if(!freeSlots.empty()){
-                EntityID new_id = *freeSlots.end();
-                freeSlots.erase(new_id);
+                SlotIndex free_slotIndex = *freeSlots.end();
+                freeSlots.erase(free_slotIndex);
 
-                return new_id;
+                return free_slotIndex;
             }
 
-            EntityID new_id = slots.size();
-            slots.emplace_back(Slot{});
+            SlotIndex free_slotIndex = slots.size();
+            slots.emplace_back(Slot());
 
-            return new_id;
+            return free_slotIndex;
         }
 
     public:
-        EntityID create(Slot&& new_slot) noexcept{
-            EntityID new_id = issueID();
-            slots[new_id] = std::move(new_slot);
+        SlotIndex emplace(Slot&& new_slot) noexcept{
+            SlotIndex new_index = issueSlot();
+            slots[new_index] = std::move(new_slot);
 
-            return new_id;
+            return new_index;
         }
-        void destroy(EntityID id) noexcept{
-            slots[id] = Slot{};
-            freeSlots.insert(id);
-        }
+        SlotIndex push(const Slot& new_slot) noexcept{
+            SlotIndex new_index = issueSlot();
+            slots[new_index] = new_slot;
 
-        Slot& get(EntityID id) noexcept{
-            assert(id < slots.size());
-            assert(freeSlots.find(id) == freeSlots.end());
-            return slots[id];
+            return new_index;
         }
-        const Slot& get(EntityID id) const noexcept{
-            assert(id < slots.size());
-            assert(freeSlots.find(id) == freeSlots.end());
-            return slots[id];
+        void erase(SlotIndex index) noexcept{
+            slots[index] = Slot{};
+            freeSlots.insert(index);
         }
 
-        bool hasComponent(EntityID id, ResourceType t)const noexcept{
-            assert(id < slots.size());
-            assert(freeSlots.find(id) == freeSlots.cend());
-            return slots[id].find(t) != slots[id].cend();
+        Slot& get(SlotIndex index) noexcept{
+            assert(index < slots.size());
+            assert(freeSlots.find(index) == freeSlots.end());
+            return slots[index];
         }
+        const Slot& get(SlotIndex index) const noexcept{
+            assert(index < slots.size());
+            assert(freeSlots.find(index) == freeSlots.end());
+            return slots[index];
+        }
+        Slot& operator[](SlotIndex index) noexcept{
+            assert(index < slots.size());
+            assert(freeSlots.find(index) == freeSlots.end());
+            return slots[index];
+        }
+        const Slot& operator[](SlotIndex index) const noexcept{
+            assert(index < slots.size());
+            assert(freeSlots.find(index) == freeSlots.end());
+            return slots[index];
+        }
+        Slots get() const{ return slots; }
 
         size_t size() const{ return slots.size() - freeSlots.size(); }
         size_t capacity() const{ return slots.size(); }

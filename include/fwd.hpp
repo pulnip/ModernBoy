@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 struct Vector3;
 struct Vector4;
@@ -12,47 +13,76 @@ struct Transform;
 
 namespace ModernBoy
 {
-    struct AppState;
-    class UI;
-    template<typename Resource> class ResourceManager;
-    struct ResourceHandle;
+    // Raw Resource
     struct RawVertex;
     using Vertices = std::vector<RawVertex>;
     using Indices = std::vector<uint32_t>;
-    // File Name of Texture
-    using TexPath = std::string;
-    using TexPaths = std::vector<TexPath>;
     struct RawMesh;
     using RawMeshes = std::vector<RawMesh>;
     struct RawTexture;
     using RawTextures = std::vector<RawTexture>;
-    enum class Projection;
+    // Values
+}
+struct Transform;
+namespace ModernBoy{
     struct Camera;
-    using EntityID = uint32_t;
-    using TransformHandle = ResourceHandle;
-    using CameraHandle = ResourceHandle;
-    using TransformManager = ResourceManager<Transform>;
-    using CameraManager = ResourceManager<Camera>;
+    // Value Informations
+    enum class Projection;
+    // Resource
+    using TexPath = std::string; // File Name of Texture
+    using TexPaths = std::vector<TexPath>;
+#if defined(USE_DIRECTX)
+#elif defined(USE_METAL)
+    namespace Metal
+    {
+        struct Mesh;
+        struct Shader;
+        struct RenderContext;
+    }
+    using Mesh = Metal::Mesh;
+    using Shader = Metal::Shader;
+    using RenderContext = Metal::RenderContext;
+#elif defined(USE_OPENGL)
+#endif
+    struct AppState;
+    class UI;
+    // Handles
+    struct ResourceHandle;
+    using MeshHandle = ResourceHandle;
+    using ShaderHandle = ResourceHandle;
+    // Managers
+    template<typename Resource> class ResourceManager;
     template<typename RawResource>
     std::vector<RawResource> import(AppState& app,
         const std::string& fileName);
     template<typename Resource>
     ResourceHandle manage(AppState& app,
         Resource&& resource);
+    // Loaders
     template<typename RawResource, typename Resource>
     class ResourceLoader;
     class AssetLoader;
-    template<typename Comp, typename Task> class TaskSystem;
+    // Components
+    template<typename T> struct ValueComponent;
+    struct ResourceComponent;
+    using TransformComponent = ValueComponent<Transform>;
+    using CameraComponent = ValueComponent<Camera>;
+    // Actor
+    using EntityID = uint32_t;
+    // Tasks
     struct ViewTask;
-    struct CameraComponent;
-    using ViewSystem = TaskSystem<CameraComponent, ViewTask>;
+    struct InputTask;
+    // Systems
+    template<typename Task>
+    using Tasks = std::vector<Task>;
+    template<typename Task>
+    using TaskMap = std::unordered_map<EntityID, Tasks<Task>>;
+    using InputSystem = TaskMap<InputTask>;
 
     namespace Input
     {
         struct State;
         class Controller;
-        struct Task;
-        struct Component;
     }
     namespace Render
     {
@@ -61,51 +91,29 @@ namespace ModernBoy
         template<typename Mesh>
         struct DrawCommand;
         struct FrameEndCommand;
-        template<typename Mesh> struct Task;
-        template<typename Mesh> struct Component;
         class Renderer;
     }
     using Renderer = Render::Renderer;
 
-    namespace Metal
-    {
-        struct Mesh;
-        struct Shader;
-        struct RenderContext;
-    }
     using NativePtr = void*;
-#if defined(USE_DIRECTX)
-#elif defined(USE_METAL)
-    using Mesh = Metal::Mesh;
-    using Shader = Metal::Shader;
-    using RenderContext = Metal::RenderContext;
-#elif defined(USE_OPENGL)
-#endif
-    using InputComponent = Input::Component;
-    using InputTask = Input::Task;
-    using InputSystem = TaskSystem<
-        InputComponent, InputTask>;
+
     using MeshManager = ResourceManager<Mesh>;
-    using MeshHandle = ResourceHandle;
     using MeshLoader = ResourceLoader<RawMesh, Mesh>;
-    using MeshComponent = Render::Component<Mesh>;
     using ShaderManager = ResourceManager<Shader>;
     using ShaderHandle = ResourceHandle;
     using FrameStartCommand_ = Render::FrameStartCommand<Shader>;
     using DrawCommand_ = Render::DrawCommand<Mesh>;
     using FrameEndCommand_ = Render::FrameEndCommand;
-    using RenderTask = Render::Task<Mesh>;
-    using RenderSystem = TaskSystem<
-        MeshComponent, RenderTask>;
 
     using ObserverID = uint32_t;
 
-    template<typename Component>
-    std::optional<Component> find(AppState& app,
-        EntityID actor);
     template<typename Resource>
     Resource& get(AppState& app,
         ResourceHandle handle);
+    template<typename Component>
+    std::optional<Component> find(AppState& app,
+        EntityID actor);
+
 }
 
 #endif // MODERNBOY_FWD_HPP

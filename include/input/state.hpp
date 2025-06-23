@@ -3,6 +3,8 @@
 
 #include <array>
 #include <cstdint>
+#include <unordered_map>
+#include <vector>
 #include <SDL3/SDL_keycode.h>
 
 namespace ModernBoy::Input
@@ -95,6 +97,12 @@ namespace ModernBoy::Input
 
         State();
     };
+
+    using ButtonMap = std::unordered_map<ButtonState, std::string>;
+    using InputMap = std::unordered_map<Button, ButtonMap>;
+
+    void addInput(InputMap& map, Button button,
+        ButtonState state,const std::string& behaviour);
 }
 
 #endif // MODERNBOY_INPUT_STATE_HPP

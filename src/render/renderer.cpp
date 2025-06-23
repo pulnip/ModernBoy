@@ -29,15 +29,16 @@ void Renderer::produceCommand(std::stop_token stoken){
         for(auto& task: viewTasks){
             waitUntilPushed(queue, FrameStartCommand<Shader>{
                 // TODO: for multiple scene viewport
-                .shaderHandle = { .index=0, .generation=1 },
-                .cameraTransformHandle = task.transformHandle,
-                .cameraHandle = task.cameraHandle,
+                .shaderHandle = {.type=ResourceType::SHADER,
+                    .index=0, .generation=1},
+                .transform = task.transform,
+                .camera = task.camera,
             }, stoken);
         }
 
         for(auto& task: renderTasks){
             waitUntilPushed(queue, DrawCommand<Mesh>{
-                .transformHandle = task.transformHandle,
+                .transform = task.transform,
                 .meshHandle = task.meshHandle
             }, stoken);
         }

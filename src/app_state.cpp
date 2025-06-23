@@ -1,6 +1,7 @@
 #include <cassert>
 #include <vector>
 #include "app_state.hpp"
+#include "input/state.hpp"
 
 using namespace ModernBoy;
 
@@ -13,21 +14,6 @@ template<>
 MeshHandle ModernBoy::manage<Mesh>(
     AppState& app, Mesh&& resource
 ){ return app.meshManager.create(std::move(resource)); }
-
-template<>
-Transform& ModernBoy::get<Transform>(AppState& app,
-    TransformHandle handle
-){
-    assert(handle.type==ResourceType::TRANSFORM);
-    return *app.transformManager.get(handle);
-}
-template<>
-Transform& AppState::get<Transform>(
-    TransformHandle handle
-){
-    assert(handle.type==ResourceType::TRANSFORM);
-    return *transformManager.get(handle);
-}
 
 template<>
 Mesh& ModernBoy::get<Mesh>(AppState& app,
@@ -60,28 +46,41 @@ Shader& AppState::get<Shader>(
 }
 
 template<>
-Camera& ModernBoy::get<Camera>(AppState& app,
-    CameraHandle handle
-){
-    assert(handle.type==ResourceType::CAMERA);
-    return *app.cameraManager.get(handle);
-}
-template<>
-Camera& AppState::get<Camera>(
-    CameraHandle handle
-){
-    assert(handle.type==ResourceType::CAMERA);
-    return *cameraManager.get(handle);
+std::vector<RenderTask> AppState::get<RenderTask>(){
+    std::vector<RenderTask> result;
+
+    for(const auto& actorTask: renderSystem){
+        result.append_range(actorTask.second);
+    }
+    return result;
 }
 
 template<>
-std::vector<RenderTask> AppState::get<RenderTask>(){
-    return renderSystem.getAll(); }
+std::vector<InputTask> AppState::get<InputTask>(
+    const Input::State& state
+){
+    auto copied = inputSystem;
+    std::vector<InputTask> result;
+
+    for(auto& actorTask: copied){
+        std::erase_if(actorTask.second,
+            [&state](const auto& task){
+                return task.condition != state.key[task.button];
+            }
+        );
+    }
+    for(auto& actorTask: copied){
+        result.append_range(actorTask.second);
+    }
+    return result;
+}
 
 template<>
 std::vector<ViewTask> AppState::get<ViewTask>(){
-    return viewSystem.getAll(); }
+    std::vector<ViewTask> result;
 
-template<>
-std::vector<InputTask> AppState::get<InputTask>(){
-    return inputSystem.getAll(); }
+    for(const auto& actorTask: viewSystem){
+        result.append_range(actorTask.second);
+    }
+    return result;
+}

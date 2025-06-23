@@ -2,8 +2,8 @@
 #include <sstream>
 #include <angelscript.h>
 #include "app_state.hpp"
+#include "task.hpp"
 #include "input/controller.hpp"
-#include "input/component.hpp"
 #include "util/as_helper.hpp"
 #include "util/as_stream.hpp"
 #include "util/as_typehelper.hpp"
@@ -33,20 +33,13 @@ void Controller::update(){
     if(scriptModule == nullptr)
         return;
     app.inputDevice.fetch(state);
-    
-    auto inputTasks = app.get<InputTask>();
-    std::erase_if(inputTasks,
-        [&state=(this->state)](const Task& task){
-            return task.condition != state.key[task.button];
-        }
-    );
-    for(const auto& task: inputTasks){
-        auto transform = app.get<Transform>(task.transformHandle);
+    auto tasks = app.get<InputTask>(state);
 
+    for(auto& task: tasks){
         auto func = scriptModule->GetFunctionByName(
             task.behaviour.c_str());
         scriptContext->Prepare(func);
-        scriptContext->SetArgObject(0, &transform);
+        scriptContext->SetArgObject(0, &(task.transform));
         if(scriptContext->Execute() < 0)
             Util::printExceptionInfo(scriptContext);
     }

@@ -6,6 +6,7 @@
 #include <variant>
 #include "fwd.hpp"
 #include "resource_handle.hpp"
+#include "raw_resource.hpp"
 
 namespace ModernBoy::Render
 {
@@ -16,12 +17,12 @@ namespace ModernBoy::Render
         bool clearDepth = true;
         ShaderHandle shaderHandle;
 
-        TransformHandle cameraTransformHandle;
-        CameraHandle cameraHandle;
+        Transform transform;
+        Camera camera;
     };
     template<typename Mesh>
     struct DrawCommand{
-        TransformHandle transformHandle;
+        Transform transform;
         MeshHandle meshHandle;
     };
     struct FrameEndCommand{

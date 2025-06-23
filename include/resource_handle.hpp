@@ -5,13 +5,12 @@
 
 namespace ModernBoy
 {
-    enum ResourceType{
+    enum class ResourceType{
         INVALID = -1,
-        TRANSFORM = 0,
-        MESH = 1,
-        SHADER = 2,
-        CAMERA = 3,
-        NUM_RESOURCE = 4,
+        MESH = 0,
+        SHADER = 1,
+        INPUT = 2,
+        NUM_RESOURCE = 3,
     };
 
     struct ResourceHandle{

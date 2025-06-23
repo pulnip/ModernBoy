@@ -74,26 +74,6 @@ namespace ModernBoy
         float farPlane = 100.0f;
         Projection projection = Projection::PERSPECTIVE;
     };
-
-    struct ViewTask{
-        TransformHandle transformHandle;
-        CameraHandle cameraHandle;
-    };
-    using ViewTasks = std::vector<ViewTask>;
-
-    struct TransformComponent{
-        EntityID actor;
-        TransformHandle transformHandle;
-    };
-    struct CameraComponent{
-        EntityID actor;
-        bool enabled = true;
-        TransformHandle transformHandle;
-        CameraHandle cameraHandle;
-        // TODO: how to get viewport of this camera?
-
-        ViewTasks getTasks() const;
-    };
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RAW_RESOURCE_HPP

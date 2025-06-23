@@ -1,18 +1,18 @@
 #ifndef MODERNBOY_APP_STATE_HPP
 #define MODERNBOY_APP_STATE_HPP
 
+#include <vector>
+#include <unordered_map>
 #include "resource_manager.hpp"
 #include "mesh_importer.hpp"
 #include "resource_loader.hpp"
 #include "asset_loader.hpp"
 #include "util/object_pool.hpp"
 #include "component.hpp"
-#include "task_system.hpp"
+#include "task.hpp"
 #include "input/controller.hpp"
 #include "input/device.hpp"
-#include "input/component.hpp"
 #include "render/renderer.hpp"
-#include "render/component.hpp"
 #include "render/gui.hpp"
 #include "game/game_context.hpp"
 #if defined(USE_DIRECTX)
@@ -26,10 +26,20 @@
 
 namespace ModernBoy
 {
+    // Components
+    using InputComponent = ValueComponent<Input::InputMap>;
     // Archetype
-    using EntityTable = ObjectPool<ResourceType>;
-    template<typename Component>
-    using ComponentPool = ObjectPool<Component>;
+    using SlotIndexes = std::vector<SlotIndex>;
+    using ComponentSlot = std::unordered_map<ComponentType, SlotIndexes>;
+    using EntityTable = ObjectPool<ComponentSlot>;
+    // Component Pool
+    using TransformPool = ObjectPool<TransformComponent>;
+    using CameraPool = ObjectPool<CameraComponent>;
+    using MeshPool = ObjectPool<MeshComponent>;
+    using InputPool = ObjectPool<InputComponent>;
+    // Systems
+    using RenderSystem = TaskMap<RenderTask>;
+    using ViewSystem = TaskMap<ViewTask>;
 
     struct AppState{
         // Important!! Initialize Order
@@ -39,21 +49,23 @@ namespace ModernBoy
         SDL_Window* window;
         Input::Device inputDevice;
         // Resource Managers
-        TransformManager transformManager;
         MeshManager meshManager;
         ShaderManager shaderManager;
-        CameraManager cameraManager;
+
         EntityTable actorTable;
-        ComponentPool transformPool;
-        ComponentPool meshPool;
-        ComponentPool shaderPool;
-        ComponentPool cameraPool;
+
+        TransformPool transformPool;
+        CameraPool cameraPool;
+        MeshPool meshPool;
+        InputPool inputPool;
+
         RenderSystem renderSystem;
         ViewSystem viewSystem;
         InputSystem inputSystem;
         // Softwares
         Input::Controller controller;
         Renderer renderer;
+        // ResourceLoaders
         MeshLoader meshLoader;
         AssetLoader assetLoader;
         // Game State
@@ -68,8 +80,13 @@ namespace ModernBoy
 
         template<typename Resource>
         Resource& get(ResourceHandle handle);
+        template<typename Component>
+        std::optional<Component> get(EntityID actor);
+
         template<typename Task>
         std::vector<Task> get();
+        template<typename Task>
+        std::vector<Task> get(const Input::State& state);
     };
 }
 

@@ -9,9 +9,6 @@ namespace ModernBoy
     class AssetLoader{
         AppState& app;
 
-        uint32_t id_seed = 0;
-        uint32_t issueID(){ return id_seed++; }
-
     public:
         AssetLoader(AppState& app);
 

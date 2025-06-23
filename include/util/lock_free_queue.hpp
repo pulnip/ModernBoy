@@ -20,6 +20,13 @@ namespace ModernBoy
         std::atomic<size_t> tail = 0; // read index
 
     public:
+        LockFreeQueue() = default;
+        ~LockFreeQueue() = default;
+        LockFreeQueue(const LockFreeQueue& other)=default;
+        LockFreeQueue(LockFreeQueue&& other)=default;
+        LockFreeQueue& operator=(const LockFreeQueue& other)=default;
+        LockFreeQueue& operator=(LockFreeQueue&& other)=default;
+
         bool tryPush(const T& item){
             size_t h = head.load(std::memory_order_relaxed);
             size_t next = (h + 1) & MASK;
