@@ -63,6 +63,7 @@ namespace ModernBoy{
     class ResourceLoader;
     class AssetLoader;
     // Components
+    using ArchetypeBit = uint64_t;
     template<typename T> struct ValueComponent;
     struct ResourceComponent;
     using TransformComponent = ValueComponent<Transform>;

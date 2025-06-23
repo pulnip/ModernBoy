@@ -11,14 +11,9 @@ AssetLoader::AssetLoader(AppState& app):app(app){}
 static Transform parseTransform(const toml::v3::table& table);
 static Camera parseCamera(const toml::v3::table& table);
 
-struct DataLinker{
-    std::optional<Transform> transform = std::nullopt;
-    std::optional<Camera> camera = std::nullopt;
-    std::vector<MeshHandle> meshHandles{};
-    std::optional<Input::InputMap> input = std::nullopt;
-};
-static void linkActor(AppState& app, EntityID actor,
-    const DataLinker& linker);
+EntityID AssetLoader::issueID(){
+    return id_seed++;
+}
 
 struct SparseChunk{
     TransformComponent transform;
@@ -27,7 +22,7 @@ struct SparseChunk{
     InputComponent input;
 };
 static void linkActor(AppState& app, EntityID actor,
-    const SparseChunk& linker);
+    const SparseChunk& linker, ArchetypeBit bit);
 
 void AssetLoader::loadActors(const std::string& fileName){
     toml::table tbl = toml::parse_file(fileName);
@@ -36,9 +31,7 @@ void AssetLoader::loadActors(const std::string& fileName){
     for(const auto& actor_node: actors){
         const auto& actor = *actor_node.as_table();
         // new Actor
-        ComponentSlot components;
-        DataLinker datalinker;
-
+        EntityID actor_id = issueID();
         ArchetypeBit bit = 0;
         SparseChunk chunk;
 
@@ -46,17 +39,8 @@ void AssetLoader::loadActors(const std::string& fileName){
         if(auto trans_tbl = actor["transform"].as_table()){
             auto transform = parseTransform(*trans_tbl);
 
-            datalinker.transform = transform;
-            auto poolIndex = app.transformPool.emplace(
-                TransformComponent(transform)
-            );
-            components.emplace(std::make_pair(
-                ComponentType::TRANSFORM,
-                poolIndex
-            ));
-
-            chunk.transform = TransformComponent(transform);
-            bit = bit | (1<<uint64_t(ComponentType::TRANSFORM));
+            chunk.transform = TransformComponent{actor_id, transform};
+            bit = bit | TRANSFORM_BIT;
         }
 
         // mesh & texture & shader component
@@ -67,19 +51,13 @@ void AssetLoader::loadActors(const std::string& fileName){
                 // mesh component
                 const auto meshFile = *parts["mesh"].value<std::string>();
                 auto meshHandles = app.meshLoader.load(meshFile);
-
-                datalinker.meshHandles = meshHandles;
-
-                SlotIndex index = app.meshPool.emplace(
-                    MeshComponent(meshHandles)
-                );
-
-                components.emplace(std::make_pair(
-                    ComponentType::MESH, index
-                ));
+                chunk.mesh = MeshComponent{actor_id, meshHandles};
+                bit = bit | MESH_BIT;
 
                 // ToDo. texture component
                 // const auto& texFile = *parts["diffuse"].value<std::string>();
+                // ToDo. How to handle multiple model?
+                break;
             }
         }
         auto scriptModule = *actor["script"]["file"].value<std::string>();
@@ -100,16 +78,11 @@ void AssetLoader::loadActors(const std::string& fileName){
 
                 Input::addInput(inputMap, button, state, behaviour);
             }
-            datalinker.input = inputMap;
-            auto poolIndex = app.inputPool.emplace(
-                InputComponent(inputMap)
-            );
-            components.emplace(std::make_pair(
-                ComponentType::INPUT, poolIndex
-            ));
+            chunk.input = InputComponent{actor_id, inputMap};
+            bit = bit | INPUT_BIT;
         }
-        EntityID id = app.actorTable.emplace(std::move(components));
-        linkActor(app, id, datalinker);
+        app.actorTable.emplace(std::pair{actor_id, bit});
+        linkActor(app, actor_id, chunk, bit);
     }
 }
 void AssetLoader::loadCamera(const std::string& fileName){
@@ -120,8 +93,9 @@ void AssetLoader::loadCamera(const std::string& fileName){
     for(const auto& cam_node: *cameras){
         const auto& cam = *cam_node.as_table();
         // new Actor
-        ComponentSlot components;
-        DataLinker datalinker;
+        EntityID actor_id = issueID();
+        ArchetypeBit bit = 0;
+        SparseChunk chunk;
 
         auto name = *cam["name"].value<std::string>();
         auto type = *cam["type"].value<std::string>();
@@ -130,33 +104,24 @@ void AssetLoader::loadCamera(const std::string& fileName){
 
         if(auto t = cam["transform"].as_table()){
             auto transform = parseTransform(*t);
-            datalinker.transform = transform;
-            auto poolIndex = app.transformPool.emplace(
-                TransformComponent(transform)
-            );
-            components.emplace(std::make_pair(
-                ComponentType::TRANSFORM, poolIndex
-            ));
+
+            chunk.transform = TransformComponent{actor_id, transform};
+            bit = bit | TRANSFORM_BIT;
         }
         else{
             // warning!
         }
         if(auto c = cam["camera"].as_table()){
             auto camera = parseCamera(*c);
-            datalinker.camera = camera;
-            auto poolIndex = app.cameraPool.push(
-                CameraComponent(camera)
-            );
-            components.emplace(std::make_pair(
-                ComponentType::CAMERA, poolIndex
-            ));
+            chunk.camera = CameraComponent{actor_id, camera};
+            bit = bit | CAMERA_BIT;
         }
         else{
             // warning!
         }
-        EntityID id = app.actorTable.push(components);
-        linkActor(app, id, datalinker);
-        // TODO: Multi View
+        app.actorTable.emplace(std::pair{actor_id, bit});
+        linkActor(app, actor_id, chunk, bit);
+        // ToDo. Not Accept Multiple Camera actor.
         break;
     }
 }
@@ -197,32 +162,27 @@ static Camera parseCamera(const toml::v3::table& table){
 }
 
 static void linkActor(AppState& app, EntityID actor,
-    const DataLinker& linker
+    const SparseChunk& chunk, ArchetypeBit bit
 ){
-    bool hasTransform = linker.transform.has_value();
-    bool hasMesh = linker.meshHandles.size() > 0;
-    bool hasCamera = linker.camera.has_value();
-    bool hasInput = linker.input.has_value();
-
-    if(hasTransform && hasMesh){
-        auto transform = linker.transform.value();
-        std::vector<RenderTask> tasks(linker.meshHandles.size());
+    if(bit & (TRANSFORM_BIT | MESH_BIT)){
+        auto transform = chunk.transform.value;
+        std::vector<RenderTask> tasks(chunk.mesh.meshHandles.size());
         for(size_t i=0; i<tasks.size(); ++i)
-            tasks[i] = RenderTask{transform, linker.meshHandles[i]};
+            tasks[i] = RenderTask{transform, chunk.mesh.meshHandles[i]};
         app.renderSystem.emplace(actor, tasks);
     }
 
-    if(hasTransform && hasCamera){
-        auto transform = linker.transform.value();
+    if(bit & (TRANSFORM_BIT | CAMERA_BIT)){
+        auto transform = chunk.transform.value;
         std::vector<ViewTask> tasks(1);
-        tasks[0] = ViewTask{transform, linker.camera.value()};
+        tasks[0] = ViewTask{transform, chunk.camera.value};
         app.viewSystem.emplace(actor, tasks);
     }
 
-    if(hasInput && hasTransform){
-        auto transform = linker.transform.value();
+    if(bit & (TRANSFORM_BIT | INPUT_BIT)){
+        auto transform = chunk.transform.value;
         std::vector<InputTask> tasks;
-        for(const auto& buttonMap: linker.input.value()){
+        for(const auto& buttonMap: chunk.input.value){
             for(const auto& pair: buttonMap.second){
                 tasks.emplace_back(InputTask{
                     buttonMap.first, pair.first, pair.second,

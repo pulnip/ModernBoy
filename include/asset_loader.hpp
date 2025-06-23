@@ -7,13 +7,17 @@
 namespace ModernBoy
 {
     class AssetLoader{
-        AppState& app;
-
     public:
         AssetLoader(AppState& app);
 
         void loadActors(const std::string& fileName);
         void loadCamera(const std::string& fileName);
+
+    private:
+        AppState& app;
+
+        EntityID id_seed = 0;
+        EntityID issueID();
     };
 } // namespace ModernBoy
 

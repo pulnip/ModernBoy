@@ -81,6 +81,7 @@ std::vector<ViewTask> AppState::get<ViewTask>(){
 
     for(const auto& actorTask: viewSystem){
         result.append_range(actorTask.second);
+        break; // TODO: Multi View
     }
     return result;
 }

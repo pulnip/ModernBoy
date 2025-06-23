@@ -15,50 +15,26 @@ namespace ModernBoy
         INPUT = 3,
         NUM_COMPONENT = 4,
     };
+    constexpr ArchetypeBit TRANSFORM_BIT = (1 << ArchetypeBit(ComponentType::TRANSFORM));
+    constexpr ArchetypeBit CAMERA_BIT = (1 << ArchetypeBit(ComponentType::CAMERA));
+    constexpr ArchetypeBit MESH_BIT = (1 << ArchetypeBit(ComponentType::MESH));
+    constexpr ArchetypeBit INPUT_BIT = (1 << ArchetypeBit(ComponentType::INPUT));
 
     struct ResourceComponent{
         EntityID actor = UINT32_MAX;
 
         ResourceHandle handle;
-
-        ResourceComponent(ResourceHandle handle);
-        ResourceComponent() = default;
-        ~ResourceComponent() = default;
-        ResourceComponent(const ResourceComponent& other) = default;
-        ResourceComponent(ResourceComponent&&) = default;
-        ResourceComponent& operator=(const ResourceComponent&) = default;
-        ResourceComponent& operator=(ResourceComponent&&) = default;
     };
     struct MeshComponent{
         EntityID actor = UINT32_MAX;
 
         std::vector<MeshHandle> meshHandles;
         // TextureHandle textureHandle;
-
-        MeshComponent(const std::vector<MeshHandle>& handles);
-        MeshComponent() = default;
-        ~MeshComponent() = default;
-        MeshComponent(const MeshComponent& other) = default;
-        MeshComponent(MeshComponent&&) = default;
-        MeshComponent& operator=(const MeshComponent&) = default;
-        MeshComponent& operator=(MeshComponent&&) = default;
     };
     template<typename T>
     struct ValueComponent{
         EntityID actor = UINT32_MAX;
         T value;
-
-        ValueComponent(T value)
-        :value(value){}
-        ValueComponent() = default;
-        ~ValueComponent() = default;
-        ValueComponent(const ValueComponent& other){
-            actor = other.actor;
-            value = std::move(other.value);
-        }
-        ValueComponent(ValueComponent&&) = default;
-        ValueComponent& operator=(const ValueComponent&) = default;
-        ValueComponent& operator=(ValueComponent&&) = default;
     };
 }
 template<> struct std::hash<ModernBoy::ResourceComponent>{
