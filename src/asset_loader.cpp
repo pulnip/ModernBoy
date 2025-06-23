@@ -15,12 +15,6 @@ EntityID AssetLoader::issueID(){
     return id_seed++;
 }
 
-struct SparseChunk{
-    TransformComponent transform;
-    CameraComponent camera;
-    MeshComponent mesh;
-    InputComponent input;
-};
 static void linkActor(AppState& app, EntityID actor,
     const SparseChunk& linker, ArchetypeBit bit);
 
@@ -121,6 +115,7 @@ void AssetLoader::loadCamera(const std::string& fileName){
         }
         app.actorTable.emplace(std::pair{actor_id, bit});
         linkActor(app, actor_id, chunk, bit);
+        app.archetypeMap.add(actor_id, bit, chunk);
         // ToDo. Not Accept Multiple Camera actor.
         break;
     }

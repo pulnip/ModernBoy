@@ -5,6 +5,8 @@
 #include "fwd.hpp"
 #include "resource_handle.hpp"
 
+#define COMPONENT_ALIGN (8)
+
 namespace ModernBoy
 {
     enum class ComponentType{
@@ -20,19 +22,19 @@ namespace ModernBoy
     constexpr ArchetypeBit MESH_BIT = (1 << ArchetypeBit(ComponentType::MESH));
     constexpr ArchetypeBit INPUT_BIT = (1 << ArchetypeBit(ComponentType::INPUT));
 
-    struct ResourceComponent{
+    struct alignas(COMPONENT_ALIGN) ResourceComponent{
         EntityID actor = UINT32_MAX;
 
         ResourceHandle handle;
     };
-    struct MeshComponent{
+    struct alignas(COMPONENT_ALIGN) MeshComponent{
         EntityID actor = UINT32_MAX;
 
         std::vector<MeshHandle> meshHandles;
         // TextureHandle textureHandle;
     };
     template<typename T>
-    struct ValueComponent{
+    struct alignas(COMPONENT_ALIGN) ValueComponent{
         EntityID actor = UINT32_MAX;
         T value;
     };

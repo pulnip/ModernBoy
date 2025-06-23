@@ -2,6 +2,8 @@ add_library(Util STATIC
     as_helper.cpp
     as_stream.cpp
     as_typehelper.cpp
+
+    dynamic_vector.cpp
 )
 
 add_executable(ASCompiler as_compiler.cpp)

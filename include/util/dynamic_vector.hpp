@@ -16,14 +16,17 @@ namespace ModernBoy{
         void* data = nullptr;
         size_t size = 0;
         std::set<size_t> freeSlots{};
-    #ifdef _DEBUG || DEBUG
+    #ifdef _DEBUG
         size_t numChunk_last=0;
     #endif
 
     public:
         DynamicVector(size_t CHUNK_SIZE);
         DynamicVector(size_t CHUNK_SIZE, size_t initialSize);
+        DynamicVector() = delete;
         ~DynamicVector();
+        DynamicVector(DynamicVector&& other);
+        DynamicVector& operator=(DynamicVector&& other);
 
         // Start index of Chunk(s).
         Index newChunk(size_t numChunk=1);
@@ -31,6 +34,7 @@ namespace ModernBoy{
         void* operator[](Index index);
 
     private:
+        void moveFrom(DynamicVector&& other);
         Index findContinuousFreeFittedSlot(size_t numChunk);
     };
 
@@ -56,11 +60,11 @@ namespace ModernBoy{
         ) = std::move(data);
     }
     template<typename T1, typename... TN>
-    consteval void size_of(){
+    consteval size_t size_of(){
         return sizeof(T1)+size_of<TN...>();
     }
     template<typename T1>
-    consteval void size_of(){
+    consteval size_t size_of(){
         return sizeof(T1);
     }
 
@@ -69,11 +73,12 @@ namespace ModernBoy{
         if constexpr(std::same_as<D, T1>)
             memcpy(chunkMem, &data, sizeof(D));
         else
-            setChunkData<D, TN...>(data, chunkMem+sizeof(T1));
+            setChunkData__<D, TN...>(data,
+                static_cast<char*>(chunkMem)+sizeof(T1));
     }
     template<typename D, typename T1>
         requires std::same_as<D, T1>
-    constexpr void setChunkData__<D, T1>(const D& data, void* chumkMem){
+    constexpr void setChunkData__(const D& data, void* chumkMem){
         memcpy(chumkMem, &data, sizeof(D));
     }
     template<typename D, typename T1, typename... TN>
@@ -81,7 +86,13 @@ namespace ModernBoy{
         if constexpr(std::same_as<D, T1>)
             return *static_cast<D*>(chunkMem);
         else
-            getChunkData__<D, TN...>(chunkMem+sizeof(T1));
+            getChunkData__<D, TN...>(
+                static_cast<char*>(chunkMem)+sizeof(T1));
+    }
+    template<typename D, typename T1>
+        requires std::same_as<D, T1>
+    D& getChunkData__(void* chunkMem){
+        return *static_cast<D*>(chunkMem);
     }
 } // namespace ModernBoy
 

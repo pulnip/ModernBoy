@@ -68,6 +68,7 @@ namespace ModernBoy{
     struct ResourceComponent;
     using TransformComponent = ValueComponent<Transform>;
     using CameraComponent = ValueComponent<Camera>;
+    struct SparseChunk;
     // Actor
     using EntityID = uint32_t;
     // Tasks

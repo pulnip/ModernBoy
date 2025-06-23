@@ -8,6 +8,7 @@
 #include "resource_loader.hpp"
 #include "asset_loader.hpp"
 #include "util/object_pool.hpp"
+#include "archetype_map.hpp"
 #include "component.hpp"
 #include "task.hpp"
 #include "input/controller.hpp"
@@ -28,6 +29,12 @@ namespace ModernBoy
 {
     // Components
     using InputComponent = ValueComponent<Input::InputMap>;
+    struct SparseChunk{
+        TransformComponent transform;
+        CameraComponent camera;
+        MeshComponent mesh;
+        InputComponent input;
+    };
     // Archetype
     using EntityTable = std::unordered_map<EntityID, ArchetypeBit>;
     // Component Pool
@@ -51,6 +58,7 @@ namespace ModernBoy
         ShaderManager shaderManager;
 
         EntityTable actorTable;
+        ArchetypeMap archetypeMap;
 
         TransformPool transformPool;
         CameraPool cameraPool;

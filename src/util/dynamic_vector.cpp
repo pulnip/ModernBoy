@@ -8,20 +8,45 @@ DynamicVector::DynamicVector(size_t CHUNK_SIZE)
 :CHUNK_SIZE(CHUNK_SIZE){}
 
 DynamicVector::DynamicVector(size_t CHUNK_SIZE, size_t initialSize)
-:CHUNK_SIZE(CHUNK_SIZE), maxSize(std::bit_ceil(initialSize)), data(malloc(CHUNK_SIZE*maxSize)),
-size(initialSize){
-    for(Index i=initialSize; i<maxSize; ++i){
+:CHUNK_SIZE(CHUNK_SIZE), maxSize(std::bit_ceil(initialSize)), data(malloc(CHUNK_SIZE*maxSize)){
+    for(Index i=0; i<maxSize; ++i){
         freeSlots.insert(i);
     }
 }
 
 DynamicVector::~DynamicVector(){
-    free(data);
+    if(data != nullptr)
+        free(data);
+}
+DynamicVector::DynamicVector(DynamicVector&& other){
+    moveFrom(std::move(other)); }
+DynamicVector& DynamicVector::operator=(
+    DynamicVector&& other
+){
+    moveFrom(std::move(other));
+    return *this;
+}
+void DynamicVector::moveFrom(DynamicVector&& other){
+    CHUNK_SIZE = other.CHUNK_SIZE;
+    maxSize = other.maxSize;
+    data = other.data;
+    size = other.size;
+    freeSlots = other.freeSlots;
+#ifdef _DEBUG
+    numChunk_last = other.numChunk_last;
+#endif
+    other.maxSize = 0;
+    other.data = nullptr;
+    other.size = 0;
+    other.freeSlots = {};
+#ifdef _DEBUG
+    other.numChunk_last = 0;
+#endif
 }
 
 Index DynamicVector::newChunk(size_t numChunk){
     assert(numChunk > 0);
-#ifdef _DEBUG || DEBUG
+#ifdef _DEBUG
     if(numChunk_last % numChunk != 0)
         perror("[Warning] Memory Fragment Warning");
     numChunk_last = numChunk;
@@ -33,12 +58,20 @@ Index DynamicVector::newChunk(size_t numChunk){
     }
 
     size_t newMaxSize = std::bit_ceil(size+numChunk);
-    realloc(data, newMaxSize);
+    if(size == 0)
+        data = malloc(newMaxSize);
+    else
+        data = realloc(data, newMaxSize);
     for(Index i=maxSize; i<newMaxSize; ++i){
         freeSlots.insert(i);
     }
     maxSize = newMaxSize;
-    return findContinuousFreeFittedSlot(numChunk);
+    start = findContinuousFreeFittedSlot(numChunk);
+    for(Index i=0; i<numChunk; ++i){
+        freeSlots.erase(start+i);
+    }
+
+    return start;
 }
 
 Index DynamicVector::findContinuousFreeFittedSlot(
@@ -56,8 +89,9 @@ Index DynamicVector::findContinuousFreeFittedSlot(
         // Still Continuous
         if((freeIndex-candidateIndex) == numAvailable){
             // find Continuous Chunk!
-            if(numAvailable == numChunk)
+            if(numAvailable == numChunk){
                 return candidateIndex;
+            }
         }
         else{
             candidateIndex = freeIndex;
