@@ -20,6 +20,15 @@ struct DataLinker{
 static void linkActor(AppState& app, EntityID actor,
     const DataLinker& linker);
 
+struct SparseChunk{
+    TransformComponent transform;
+    CameraComponent camera;
+    MeshComponent mesh;
+    InputComponent input;
+};
+static void linkActor(AppState& app, EntityID actor,
+    const SparseChunk& linker);
+
 void AssetLoader::loadActors(const std::string& fileName){
     toml::table tbl = toml::parse_file(fileName);
 
@@ -30,17 +39,24 @@ void AssetLoader::loadActors(const std::string& fileName){
         ComponentSlot components;
         DataLinker datalinker;
 
+        ArchetypeBit bit = 0;
+        SparseChunk chunk;
+
         // transform component
         if(auto trans_tbl = actor["transform"].as_table()){
             auto transform = parseTransform(*trans_tbl);
+
             datalinker.transform = transform;
             auto poolIndex = app.transformPool.emplace(
                 TransformComponent(transform)
             );
             components.emplace(std::make_pair(
                 ComponentType::TRANSFORM,
-                SlotIndexes(poolIndex))
-            );
+                poolIndex
+            ));
+
+            chunk.transform = TransformComponent(transform);
+            bit = bit | (1<<uint64_t(ComponentType::TRANSFORM));
         }
 
         // mesh & texture & shader component
@@ -51,16 +67,15 @@ void AssetLoader::loadActors(const std::string& fileName){
                 // mesh component
                 const auto meshFile = *parts["mesh"].value<std::string>();
                 auto meshHandles = app.meshLoader.load(meshFile);
+
                 datalinker.meshHandles = meshHandles;
 
-                SlotIndexes indexes(meshHandles.size());
-                for(size_t i=0; i<meshHandles.size(); ++i){
-                    indexes[i] = app.meshPool.emplace(
-                        MeshComponent(meshHandles[i])
-                    );
-                }
+                SlotIndex index = app.meshPool.emplace(
+                    MeshComponent(meshHandles)
+                );
+
                 components.emplace(std::make_pair(
-                    ComponentType::MESH, indexes
+                    ComponentType::MESH, index
                 ));
 
                 // ToDo. texture component

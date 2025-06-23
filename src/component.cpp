@@ -5,5 +5,5 @@ using namespace ModernBoy;
 ResourceComponent::ResourceComponent(ResourceHandle handle)
 :handle(handle){}
 
-MeshComponent::MeshComponent(MeshHandle meshHandle)
-:meshHandle(meshHandle){}
+MeshComponent::MeshComponent(const std::vector<MeshHandle>& handles)
+:meshHandles(handles){}

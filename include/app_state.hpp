@@ -29,9 +29,9 @@ namespace ModernBoy
     // Components
     using InputComponent = ValueComponent<Input::InputMap>;
     // Archetype
-    using SlotIndexes = std::vector<SlotIndex>;
-    using ComponentSlot = std::unordered_map<ComponentType, SlotIndexes>;
+    using ComponentSlot = std::unordered_map<ComponentType, SlotIndex>;
     using EntityTable = ObjectPool<ComponentSlot>;
+    using EntityTable_ = std::unordered_map<EntityID, ArchetypeBit>;
     // Component Pool
     using TransformPool = ObjectPool<TransformComponent>;
     using CameraPool = ObjectPool<CameraComponent>;

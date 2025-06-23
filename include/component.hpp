@@ -32,10 +32,10 @@ namespace ModernBoy
     struct MeshComponent{
         EntityID actor = UINT32_MAX;
 
-        MeshHandle meshHandle;
+        std::vector<MeshHandle> meshHandles;
         // TextureHandle textureHandle;
 
-        MeshComponent(MeshHandle handle);
+        MeshComponent(const std::vector<MeshHandle>& handles);
         MeshComponent() = default;
         ~MeshComponent() = default;
         MeshComponent(const MeshComponent& other) = default;
