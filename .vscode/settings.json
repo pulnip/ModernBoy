@@ -108,6 +108,9 @@
     "flat_map": "cpp",
     "flat_set": "cpp",
     "generator": "cpp",
-    "stacktrace": "cpp"
+    "stacktrace": "cpp",
+    "scoped_allocator": "cpp",
+    "buffer": "cpp",
+    "socket": "cpp"
 }
 }
