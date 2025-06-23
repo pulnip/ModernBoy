@@ -1,7 +1,11 @@
 #include "render/renderer.hpp"
 #include "app_state.hpp"
+#include "component.hpp"
 
 using namespace ModernBoy;
+
+constexpr auto RENDER_BIT = bit_of<TransformComponent, MeshComponent>();
+constexpr auto VIEW_BIT = bit_of<TransformComponent, CameraComponent>();
 
 Renderer::Renderer(SDL_Window* window, AppState& app)
 :context(window, app),app(app){}

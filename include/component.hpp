@@ -4,24 +4,13 @@
 #include <utility>
 #include "fwd.hpp"
 #include "resource_handle.hpp"
+#include "raw_resource.hpp"
+#include "input/state.hpp"
 
 #define COMPONENT_ALIGN (8)
 
 namespace ModernBoy
 {
-    enum class ComponentType{
-        INVALID = -1,
-        TRANSFORM = 0,
-        CAMERA = 1,
-        MESH = 2,
-        INPUT = 3,
-        NUM_COMPONENT = 4,
-    };
-    constexpr ArchetypeBit TRANSFORM_BIT = (1 << ArchetypeBit(ComponentType::TRANSFORM));
-    constexpr ArchetypeBit CAMERA_BIT = (1 << ArchetypeBit(ComponentType::CAMERA));
-    constexpr ArchetypeBit MESH_BIT = (1 << ArchetypeBit(ComponentType::MESH));
-    constexpr ArchetypeBit INPUT_BIT = (1 << ArchetypeBit(ComponentType::INPUT));
-
     struct alignas(COMPONENT_ALIGN) ResourceComponent{
         EntityID actor = UINT32_MAX;
 
@@ -38,18 +27,41 @@ namespace ModernBoy
         EntityID actor = UINT32_MAX;
         T value;
     };
-}
-template<> struct std::hash<ModernBoy::ResourceComponent>{
-    std::size_t operator()(
-        const ModernBoy::ResourceComponent& key
-    ) const noexcept{ return key.actor; }
-};
-template<typename T>
-struct std::hash<ModernBoy::ValueComponent<T>>{
-    std::size_t operator()(
-        const ModernBoy::ValueComponent<T>& key
-    ) const noexcept{ return key.actor; }
-};
 
+    using TransformComponent = ValueComponent<Transform>;
+    using CameraComponent = ValueComponent<Camera>;
+    using InputComponent = ValueComponent<Input::InputMap>;
+
+        enum class ComponentType{
+        INVALID = -1,
+        TRANSFORM = 0,
+        CAMERA = 1,
+        MESH = 2,
+        INPUT = 3,
+        NUM_COMPONENT = 4,
+    };
+    constexpr ArchetypeBit TRANSFORM_BIT = (1 << ArchetypeBit(ComponentType::TRANSFORM));
+    constexpr ArchetypeBit CAMERA_BIT = (1 << ArchetypeBit(ComponentType::CAMERA));
+    constexpr ArchetypeBit MESH_BIT = (1 << ArchetypeBit(ComponentType::MESH));
+    constexpr ArchetypeBit INPUT_BIT = (1 << ArchetypeBit(ComponentType::INPUT));
+
+    template<typename T>
+    consteval ArchetypeBit bit_of(){
+        if constexpr(std::same_as<T, TransformComponent>)
+            return TRANSFORM_BIT;
+        else if constexpr(std::same_as<T, CameraComponent>)
+            return CAMERA_BIT;
+        else if constexpr(std::same_as<T, MeshComponent>)
+            return MESH_BIT;
+        else if constexpr(std::same_as<T, InputComponent>)
+            return INPUT_BIT;
+        else
+            return static_cast<ArchetypeBit>(0);
+    }
+    template<typename T1, typename T2, typename... TN>
+    consteval ArchetypeBit bit_of(){
+        return bit_of<T1>() | bit_of<T2, TN...>();
+    }
+} // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_COMPONENT_HPP
