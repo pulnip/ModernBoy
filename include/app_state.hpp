@@ -1,18 +1,20 @@
 #ifndef MODERNBOY_APP_STATE_HPP
 #define MODERNBOY_APP_STATE_HPP
 
-#include "task_system.hpp"
-#include "game/game_context.hpp"
 #include "resource_manager.hpp"
 #include "mesh_importer.hpp"
 #include "resource_loader.hpp"
 #include "asset_loader.hpp"
+#include "util/object_pool.hpp"
+#include "resource_component.hpp"
+#include "task_system.hpp"
 #include "input/controller.hpp"
 #include "input/device.hpp"
 #include "input/component.hpp"
 #include "render/renderer.hpp"
 #include "render/component.hpp"
 #include "render/gui.hpp"
+#include "game/game_context.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
 #elif defined(USE_METAL)
@@ -24,6 +26,10 @@
 
 namespace ModernBoy
 {
+    // Archetype
+    using EntityTable = ObjectPool<ResourceType>;
+    using ComponentPool = ObjectPool<Component>;
+
     struct AppState{
         // Important!! Initialize Order
         // Hardwares
@@ -36,6 +42,11 @@ namespace ModernBoy
         MeshManager meshManager;
         ShaderManager shaderManager;
         CameraManager cameraManager;
+        EntityTable actorTable;
+        ComponentPool transformPool;
+        ComponentPool meshPool;
+        ComponentPool shaderPool;
+        ComponentPool cameraPool;
         RenderSystem renderSystem;
         ViewSystem viewSystem;
         InputSystem inputSystem;
