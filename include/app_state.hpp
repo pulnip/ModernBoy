@@ -6,7 +6,7 @@
 #include "resource_loader.hpp"
 #include "asset_loader.hpp"
 #include "util/object_pool.hpp"
-#include "resource_component.hpp"
+#include "component.hpp"
 #include "task_system.hpp"
 #include "input/controller.hpp"
 #include "input/device.hpp"
@@ -28,6 +28,7 @@ namespace ModernBoy
 {
     // Archetype
     using EntityTable = ObjectPool<ResourceType>;
+    template<typename Component>
     using ComponentPool = ObjectPool<Component>;
 
     struct AppState{
