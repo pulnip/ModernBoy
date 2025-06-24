@@ -1,29 +1,30 @@
 #include "raw_resource.hpp"
 #include "util/as_typehelper.hpp"
+#include "common/type.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Util;
 
-static float getX(Transform* t){ return t->pos[0]; }
-static float getY(Transform* t){ return t->pos[1]; }
-static float getZ(Transform* t){ return t->pos[2]; }
-static void setX(Transform* t, float x){ t->pos[0] = x; }
-static void setY(Transform* t, float y){ t->pos[1] = y; }
-static void setZ(Transform* t, float z){ t->pos[2] = z; }
-static void moveX(Transform* t, float dx){ t->pos[0] += dx; }
-static void moveY(Transform* t, float dy){ t->pos[1] += dy; }
-static void moveZ(Transform* t, float dz){ t->pos[2] += dz; }
+static float getX(Transform* t){ return t->position.x; }
+static float getY(Transform* t){ return t->position.y; }
+static float getZ(Transform* t){ return t->position.z; }
+static void setX(Transform* t, float x){ t->position.x = x; }
+static void setY(Transform* t, float y){ t->position.y = y; }
+static void setZ(Transform* t, float z){ t->position.z = z; }
+static void moveX(Transform* t, float dx){ t->position.x += dx; }
+static void moveY(Transform* t, float dy){ t->position.y += dy; }
+static void moveZ(Transform* t, float dz){ t->position.z += dz; }
 static void setPosition(Transform* t, float x, float y, float z){
-    t->pos[0] = x; t->pos[1] = y; t->pos[2] = z; }
+    t->position.x = x; t->position.y = y; t->position.z = z; }
 static void move(Transform* t, float dx, float dy, float dz){
-    t->pos[0] += dx; t->pos[1] += dy; t->pos[2] += dz; }
+    t->position.x += dx; t->position.y += dy; t->position.z += dz; }
 
 int ModernBoy::Util::registerTransform(asIScriptEngine* engine){
     if(auto ret=engine->RegisterObjectType(
-        "Vector3", sizeof(Vector3), asOBJ_VALUE | asOBJ_POD ) < 0)
+        "Vec3", sizeof(Vec3), asOBJ_VALUE | asOBJ_POD ) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectType(
-        "Vector4", sizeof(Vector4), asOBJ_VALUE | asOBJ_POD ) < 0)
+        "Vec4", sizeof(Vec4), asOBJ_VALUE | asOBJ_POD ) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectType(
         "Transform", sizeof(Transform), asOBJ_REF | asOBJ_NOCOUNT ) < 0)

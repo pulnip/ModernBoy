@@ -2,8 +2,8 @@
 #define MODERNBOY_RESOURCE_COMPONENT_HPP
 
 #include <utility>
+#include "common/type.hpp"
 #include "fwd.hpp"
-#include "resource_handle.hpp"
 #include "raw_resource.hpp"
 #include "input/state.hpp"
 

@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include "common/type.hpp"
 #include "fwd.hpp"
-#include "resource_handle.hpp"
 #include "util/object_pool.hpp"
 
 namespace ModernBoy

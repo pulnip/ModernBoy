@@ -5,8 +5,8 @@
 #include <optional>
 #include <variant>
 #include "fwd.hpp"
-#include "resource_handle.hpp"
 #include "raw_resource.hpp"
+#include "common/type.hpp"
 
 namespace ModernBoy::Render
 {

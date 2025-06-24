@@ -89,7 +89,7 @@ void RenderContext::operator()(const FrameStartCommand_& cmd){
 
 void RenderContext::operator()(const DrawCommand_& cmd){
     Transform transform = cmd.transform;
-    float *p=transform.pos, *r=transform.rot, *s=transform.scl;
+    float *p=transform.position.v, *r=transform.rotation.v, *s=transform.scale.v;
     
     MeshPtr meshPtr = app.meshManager.get(cmd.meshHandle).meshPtr;
 

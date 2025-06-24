@@ -7,12 +7,15 @@
 #include <vector>
 #include <unordered_map>
 
-struct Vector3;
-struct Vector4;
-struct Transform;
-
 namespace ModernBoy
 {
+    // Common Types
+    union Vec3;
+    union Vec4;
+    struct Transform;
+    struct Camera;
+    struct Handle;
+
     // Raw Resource
     struct RawVertex;
     using Vertices = std::vector<RawVertex>;
@@ -21,11 +24,6 @@ namespace ModernBoy
     using RawMeshes = std::vector<RawMesh>;
     struct RawTexture;
     using RawTextures = std::vector<RawTexture>;
-    // Values
-}
-struct Transform;
-namespace ModernBoy{
-    struct Camera;
     // Value Informations
     enum class Projection;
     // Resource

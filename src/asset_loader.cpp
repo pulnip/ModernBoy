@@ -1,7 +1,7 @@
 #include <toml++/toml.h>
+#include "common/type.hpp"
 #include "asset_loader.hpp"
 #include "app_state.hpp"
-#include "resource_handle.hpp"
 #include "component.hpp"
 
 using namespace ModernBoy;
@@ -125,11 +125,11 @@ static Transform parseTransform(
     auto s = table["scale"].as_array();
 
     for(size_t i=0; i<3; ++i)
-        transform.pos[i] = *((*p)[i]).value<double>();
+        transform.position.v[i] = *((*p)[i]).value<double>();
     for(size_t i=0; i<4; ++i)
-        transform.rot[i] = *((*r)[i]).value<double>();
+        transform.rotation.v[i] = *((*r)[i]).value<double>();
     for(size_t i=0; i<3; ++i)
-        transform.scl[i] = *((*s)[i]).value<double>();
+        transform.scale.v[i] = *((*s)[i]).value<double>();
     return transform;
 }
 
