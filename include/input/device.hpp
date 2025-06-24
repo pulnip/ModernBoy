@@ -1,6 +1,7 @@
 #ifndef MODERNBOY_INPUT_DEVICE_HPP
 #define MODERNBOY_INPUT_DEVICE_HPP
 
+#include "input/state.hpp"
 #include "fwd.hpp"
 
 namespace ModernBoy::Input
@@ -19,6 +20,7 @@ namespace ModernBoy::Input
     private:
         void moveFrom(Device&& other);
 
+        State state;
         const bool* sdl_keystate = nullptr;
     };
 }

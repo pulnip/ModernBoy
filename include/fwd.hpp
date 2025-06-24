@@ -78,6 +78,9 @@ namespace ModernBoy
     namespace Input
     {
         struct State;
+    }
+    namespace Script
+    {
         class Controller;
     }
     namespace Render

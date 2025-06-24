@@ -10,7 +10,7 @@
 #include "archetype_map.hpp"
 #include "component.hpp"
 #include "task.hpp"
-#include "input/controller.hpp"
+#include "script/controller.hpp"
 #include "input/device.hpp"
 #include "render/renderer.hpp"
 #include "render/gui.hpp"
@@ -58,17 +58,17 @@ namespace ModernBoy
 
         EntityTable actorTable;
         ArchetypeMap archetypeMap;
-
+        
         TransformPool transformPool;
         CameraPool cameraPool;
         MeshPool meshPool;
         InputPool inputPool;
-
+        
         RenderSystem renderSystem;
         ViewSystem viewSystem;
         InputSystem inputSystem;
         // Softwares
-        Input::Controller controller;
+        Script::Controller controller;
         Renderer renderer;
 
         AssetLoader assetLoader;

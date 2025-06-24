@@ -2,6 +2,7 @@ add_subdirectory(${BACKEND_SOURCE_DIR})
 add_subdirectory(input)
 add_subdirectory(render)
 add_subdirectory(shader)
+add_subdirectory(script)
 add_subdirectory(util)
 
 file(GLOB ALL_SOURCES "*.cpp")
@@ -36,6 +37,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     RenderBackend
     RenderModule
     InputModule
+    ScriptModule
     Util
     # SDL3
     SDL3::SDL3

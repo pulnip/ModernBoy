@@ -1,11 +1,12 @@
-#ifndef MODERNBOY_UTIL_AS_STREAM_HPP
-#define MODERNBOY_UTIL_AS_STREAM_HPP
+#ifndef MODERNBOY_SCRIPT_AS_STREAM_HPP
+#define MODERNBOY_SCRIPT_AS_STREAM_HPP
 
 #include <fstream>
 #include <string>
 #include <angelscript.h>
 
-namespace ModernBoy{ namespace Util{
+namespace ModernBoy::Script
+{
     constexpr auto STREAM_READ  = std::ios::binary | std::ios::in;
     constexpr auto STREAM_WRITE = std::ios::binary | std::ios::out | std::ios::trunc;
 
@@ -20,6 +21,6 @@ namespace ModernBoy{ namespace Util{
     private:
         std::fstream stream;
     };
-}}
+} // namespace ModernBoy::Script
 
-#endif // MODERNBOY_UTIL_AS_STREAM_HPP
+#endif // MODERNBOY_SCRIPT_AS_STREAM_HPP

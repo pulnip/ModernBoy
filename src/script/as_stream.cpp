@@ -1,8 +1,8 @@
 #include <stdexcept>
-#include "util/as_stream.hpp"
+#include "script/as_stream.hpp"
 
 using namespace ModernBoy;
-using namespace ModernBoy::Util;
+using namespace ModernBoy::Script;
 
 StreamWrapper::StreamWrapper(const std::string& file,
     std::ios_base::openmode mode)

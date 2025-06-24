@@ -1,9 +1,9 @@
 #include "raw_resource.hpp"
-#include "util/as_typehelper.hpp"
+#include "script/as_typehelper.hpp"
 #include "common/type.hpp"
 
 using namespace ModernBoy;
-using namespace ModernBoy::Util;
+using namespace ModernBoy::Script;
 
 static float getX(Transform* t){ return t->position.x; }
 static float getY(Transform* t){ return t->position.y; }
@@ -19,7 +19,7 @@ static void setPosition(Transform* t, float x, float y, float z){
 static void move(Transform* t, float dx, float dy, float dz){
     t->position.x += dx; t->position.y += dy; t->position.z += dz; }
 
-int ModernBoy::Util::registerTransform(asIScriptEngine* engine){
+int ModernBoy::Script::registerTransform(asIScriptEngine* engine){
     if(auto ret=engine->RegisterObjectType(
         "Vec3", sizeof(Vec3), asOBJ_VALUE | asOBJ_POD ) < 0)
         return ret;

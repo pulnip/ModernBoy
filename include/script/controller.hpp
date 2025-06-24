@@ -1,11 +1,10 @@
-#ifndef MODERNBOY_INPUT_CONTROLLER_HPP
-#define MODERNBOY_INPUT_CONTROLLER_HPP
+#ifndef MODERNBOY_SCRIPT_CONTROLLER_HPP
+#define MODERNBOY_SCRIPT_CONTROLLER_HPP
 
 #include <string>
 #include "fwd.hpp"
-#include "input/state.hpp"
 
-namespace ModernBoy::Input
+namespace ModernBoy::Script
 {
     class Controller{
 
@@ -23,13 +22,11 @@ namespace ModernBoy::Input
     private:
         AppState& app;
 
-        State state;
-
         class asIScriptEngine* scriptEngine;
         class asIScriptContext* scriptContext;
         // TODO: add manager for multiple module?
         class asIScriptModule* scriptModule;
     };
-} // namespace ModernBoy::Input
+} // namespace ModernBoy::Script
 
-#endif // MODERNBOY_INPUT_CONTROLLER_HPP
+#endif // MODERNBOY_SCRIPT_CONTROLLER_HPP

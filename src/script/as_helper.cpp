@@ -1,7 +1,7 @@
 #include <print>
-#include "util/as_helper.hpp"
+#include "script/as_helper.hpp"
 
-void ModernBoy::Util::printExceptionInfo(asIScriptContext *ctx){
+void ModernBoy::Script::printExceptionInfo(asIScriptContext *ctx){
     // Determine the exception that occurred
     std::print("desc: {}\n", ctx->GetExceptionString());
  

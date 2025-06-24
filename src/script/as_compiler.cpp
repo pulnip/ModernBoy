@@ -4,11 +4,11 @@
 #include <sstream>
 #include <angelscript.h>
 #include <raw_resource.hpp>
-#include <util/as_stream.hpp>
-#include <util/as_typehelper.hpp>
+#include "script/as_stream.hpp"
+#include "script/as_typehelper.hpp"
 
 using namespace ModernBoy;
-using namespace ModernBoy::Util;
+using namespace ModernBoy::Script;
 
 static std::string load(const std::string& sourceFileName);
 
