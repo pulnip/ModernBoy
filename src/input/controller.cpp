@@ -11,8 +11,6 @@
 using namespace ModernBoy;
 using namespace ModernBoy::Input;
 
-constexpr auto KB_IN_BIT = bit_of<InputComponent, TransformComponent>();
-
 Controller::Controller(AppState& app):app(app),
 scriptEngine(asCreateScriptEngine()),
 scriptContext(scriptEngine->CreateContext()

@@ -7,7 +7,9 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include "fwd.hpp"
 #include "resource_handle.hpp"
+#include "util/object_pool.hpp"
 
 namespace ModernBoy
 {
@@ -15,90 +17,134 @@ namespace ModernBoy
     struct ResourceSlot{
         Resource data;
         uint32_t generation = 0;
-        bool alive = false;
+        uint32_t refCount = 0;
     };
 
     template<typename Resource>
     class ResourceManager{
-    public:
-        using Handle = ResourceHandle;
-        using Slot = ResourceSlot<Resource>;
-
     private:
-        static ResourceHandle makeHandle(uint32_t index, uint32_t generation);
+        using Slot = ResourceSlot<Resource>;
+        using AccessHandle = Handle;
+        using AccessSlot = ResourceSlot<std::vector<ResourceHandle>>;
 
-        std::vector<Slot> slots;
-        std::vector<uint32_t> freeSlots;
+        AppState& app;
+
+        ObjectPool<Slot> pool;
+        ObjectPool<AccessSlot> accessor;
         // check if Named Resource is already Loaded.
-        std::unordered_map<std::string, Handle> pathToHandle;
+        std::unordered_map<std::string, Index> pathToIndex;
+        std::unordered_map<Index, std::string> indexToPath;
 
+        static ResourceHandle makeResourceHandle(Index index, uint32_t generation);
     public:
-        [[nodiscard]] Handle create(Resource&& in_data){
-            [[unlikely]] if(!freeSlots.empty()){
-                uint32_t index = freeSlots.back();
-                freeSlots.pop_back();
+        [[nodiscard]] ResourceHandle emplace(Resource&& x){
+            Index index = pool.newIndex();
 
-                Slot& slot = slots[index];
-                slot.data = std::move(in_data);
-                ++slot.generation;
-                slot.alive = true;
+            Slot& slot = pool[index];
+            slot.data = std::move(x);
+            ++slot.generation;
+            slot.refCount = 1;
 
-                return makeHandle(index, slot.generation);
-            }
-
-            uint32_t index = slots.size();
-
-            slots.push_back(Slot{std::move(in_data), 1, true});
-            return makeHandle(index, 1);
+            return makeResourceHandle(index, slot.generation);
         }
-        [[nodiscard]] Handle load(const std::string& in_fileName,
-            std::function<Resource(const std::string&)> in_loader
-        ){
-            // check if Named Resource is already Loaded.
-            if(auto it = pathToHandle.find(in_fileName); it != pathToHandle.end()){
-                return it->second;
-            }
+    private:
+        [[nodiscard]] AccessHandle link(const std::string& fileName){
+            Index index = pathToIndex.at(fileName);
+            AccessSlot& slot = accessor.get(index);
+            ++slot.refCount;
 
-            Resource data = in_loader(in_fileName);
-
-            Handle handle = create(data);
-            pathToHandle[in_fileName] = handle;
-
-            return handle;
+            return AccessHandle{index, slot.generation};
         }
-
-        bool isValid(Handle in_handle) const{
+        bool isValid(ResourceHandle handle) const{
             // check if handle itself is valid
-            [[unlikely]] if(!in_handle.isValid()) return false;
-            [[unlikely]] if(in_handle.index >= slots.size()) return false;
+            [[unlikely]] if(!handle.isValid()) return false;
 
             // check if relation between handle and slot is valid
-            const Slot& slot = slots[in_handle.index];
-            return slot.alive && (slot.generation == in_handle.generation);
+            const Slot& slot = pool[handle.index];
+            return (slot.refCount > 0) && (slot.generation == handle.generation);
+        }
+        void unload(ResourceHandle handle){
+            [[unlikely]] if(!isValid(handle)) return;
+
+            Slot& slot = pool[handle.index];
+            --slot.refCount;
+
+            if(slot.refCount == 0){
+                pool.erase(handle.index);
+            }
         }
 
-        void unload(Handle in_handle){
-            [[unlikely]] if(!isValid(in_handle)) return;
+    public:
+        ResourceManager(AppState& app)
+        :app(app){}
 
-            Slot& slot = slots[in_handle.index];
-            slot.alive = false;
-            // invalidate previous handle
-            ++slot.generation;
+        bool isExist(const std::string& fileName){
+            auto it = pathToIndex.find(fileName);
+            return it != pathToIndex.end();
+        }
+        [[nodiscard]] AccessHandle load(const std::string& fileName){
+            if(isExist(fileName))
+                return link(fileName);
 
-            freeSlots.push_back(in_handle.index);
+            auto resources = ModernBoy::import<Resource>(app, fileName);
+            Index accessIndex = accessor.emplace(AccessSlot{
+                .data = std::vector<ResourceHandle>(resources.size()),
+                .generation = 1,
+                .refCount = 1
+            });
+
+            if(pool.capacity() < pool.size()+resources.size())
+                pool.resize(pool.size()+resources.size());
+
+            auto& handles = accessor.get(accessIndex).data;
+            for(auto& resource: resources){
+                Index poolIndex = pool.newIndex();
+                pool.get(poolIndex).data = std::move(resource);
+                handles.emplace_back(makeResourceHandle(poolIndex, 1));
+            }
+
+            pathToIndex.emplace(std::make_pair(fileName, accessIndex));
+            indexToPath.emplace(std::make_pair(accessIndex, fileName));
+            return AccessHandle{.index=accessIndex, .generation=1};
         }
 
-        Resource* get(Handle in_handle){
-            [[unlikely]] if(!isValid(in_handle)) return nullptr;
-            return &slots[in_handle.index].data;
-        }
-        const Resource* get(Handle in_handle) const{
-            [[unlikely]] if(!isValid(in_handle)) return nullptr;
-            return &slots[in_handle.index].data;
+        bool isValid(AccessHandle handle){
+            [[unlikely]] if(!handle.isValid()) return false;
+
+            const auto& slot = accessor.get(handle.index);
+            return (slot.refCount > 0) && (slot.generation == handle.generation);
         }
 
-        size_t size() const{ return slots.size() - freeSlots.size(); }
-        size_t capacity() const{ return slots.size(); }
+        void unload(AccessHandle handle){
+            if(isValid(handle)) return;
+
+            AccessSlot& slot = accessor.get(handle.index);
+            --slot.refCount;
+
+            if(slot.refCount == 0){
+                accessor.erase(handle.index);
+                const auto& fileName = indexToPath.at(handle.index);
+                pathToIndex.erase(fileName);
+                indexToPath.erase(handle.index);
+            }
+        }
+
+        auto& get(AccessHandle handle){
+            return accessor[handle.index].data;
+        }
+        const auto& get(AccessHandle handle) const{
+            return accessor[handle.index].data;
+        }
+        auto& get(ResourceHandle handle){
+            return pool[handle.index].data;
+        }
+        const auto& get(ResourceHandle handle) const{
+            return pool[handle.index].data;
+        }
+
+
+        size_t size() const{ return pool.size(); }
+        size_t capacity() const{ return pool.capacity(); }
     };
 } // namespace ModernBoy
 

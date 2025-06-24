@@ -6,43 +6,14 @@
 using namespace ModernBoy;
 
 template<>
-std::vector<RawMesh> ModernBoy::import<RawMesh>(
+std::vector<Mesh> ModernBoy::import<Mesh>(
     AppState& app, const std::string& filename
-){ return app.meshImporter.import(filename); }
-
-template<>
-MeshHandle ModernBoy::manage<Mesh>(
-    AppState& app, Mesh&& resource
-){ return app.meshManager.create(std::move(resource)); }
-
-template<>
-Mesh& ModernBoy::get<Mesh>(AppState& app,
-    MeshHandle handle
 ){
-    assert(handle.type==ResourceType::MESH);
-    return *app.meshManager.get(handle);
-}
-template<>
-Mesh& AppState::get<Mesh>(
-    MeshHandle handle
-){
-    assert(handle.type==ResourceType::MESH);
-    return *meshManager.get(handle);
-}
-
-template<>
-Shader& ModernBoy::get<Shader>(AppState& app,
-    ShaderHandle handle
-){
-    assert(handle.type==ResourceType::SHADER);
-    return *app.shaderManager.get(handle);
-}
-template<>
-Shader& AppState::get<Shader>(
-    ShaderHandle handle
-){
-    assert(handle.type==ResourceType::SHADER);
-    return *shaderManager.get(handle);
+    auto rawMeshes = app.meshImporter.import(filename);
+    std::vector<Mesh> meshes(rawMeshes.size());
+    for(auto& rawMesh: rawMeshes)
+        meshes.emplace_back(rawMesh, app);
+    return meshes;
 }
 
 template<>

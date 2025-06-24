@@ -23,13 +23,13 @@ using namespace ModernBoy::OpenGL;
 
 AppState::AppState(SDL_Window* window)
 :gui(), meshImporter(), window(window), inputDevice(),
-meshManager(), shaderManager(),
+meshManager(*this), shaderManager(*this),
 transformPool(), cameraPool(),
 meshPool(), inputPool(),
 renderSystem(), viewSystem(), inputSystem(),
 // Important!! Initialize Order
 controller(*this), renderer(window, *this),
-meshLoader(*this), assetLoader(*this){}
+assetLoader(*this){}
 AppState::~AppState(){}
 
 constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
@@ -92,7 +92,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     as->assetLoader.loadCamera("asset/camera.toml");
 
     auto shader = Shader(createShader(layerPtr), &(as->gui));
-    auto handle = as->shaderManager.create(std::move(shader));
+    auto handle = as->shaderManager.emplace(std::move(shader));
 #elif defined(USE_OPENGL)
     // TODO
 #endif

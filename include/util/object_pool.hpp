@@ -2,76 +2,115 @@
 #define MODERNBOY_OBJECT_POOL_HPP
 
 #include <cassert>
+#include <ranges>
 #include <vector>
 #include <unordered_set>
 
 namespace ModernBoy
 {
-    using SlotIndex = uint32_t;
+    using Index = size_t;
 
-    template<typename Slot>
+    template<typename T>
     class ObjectPool{
     private:
-        using Slots = std::vector<Slot>;
-        Slots slots;
-        std::unordered_set<SlotIndex> freeSlots;
+        using Ts = std::vector<T>;
+        Ts pool;
+        std::unordered_set<Index> freeIndexes;
 
-        SlotIndex issueSlot() noexcept{
-            [[unlikely]] if(!freeSlots.empty()){
-                SlotIndex free_slotIndex = *freeSlots.end();
-                freeSlots.erase(free_slotIndex);
+        Index issueSlot() noexcept{
+            [[unlikely]] if(!freeIndexes.empty()){
+                Index freeIndex = *freeIndexes.begin();
+                freeIndexes.erase(freeIndex);
 
-                return free_slotIndex;
+                return freeIndex;
             }
 
-            SlotIndex free_slotIndex = slots.size();
-            slots.emplace_back(Slot());
+            Index freeIndex = pool.size();
+            pool.resize(pool.size() + 1);
 
-            return free_slotIndex;
+            return freeIndex;
         }
 
     public:
-        SlotIndex emplace(Slot&& new_slot) noexcept{
-            SlotIndex new_index = issueSlot();
-            slots[new_index] = std::move(new_slot);
+        void resize(size_t count){
+            assert(size() <= count);
+            pool.resize(count);
+            freeIndexes.reserve(count - size());
+            for(size_t i=size(); i<count; ++i){
+                freeIndexes.emplace(i);
+            }
+        }
+
+        Index newIndex() noexcept{
+            Index new_index = issueSlot();
+            return new_index;
+        }
+        Index emplace(T&& x) noexcept{
+            Index new_index = issueSlot();
+            pool[new_index] = std::move(x);
 
             return new_index;
         }
-        SlotIndex push(const Slot& new_slot) noexcept{
-            SlotIndex new_index = issueSlot();
-            slots[new_index] = new_slot;
+        template<typename Range>
+        std::vector<Index> append_range(Range&& ranges) noexcept{
+            size_t size = ranges.size();
+            std::vector<Index> indexes(size);
+            size_t i=0;
+
+            if(freeIndexes.size() <= size){
+                resize(pool.size()+size);
+                for(Index freeIndex: freeIndexes){
+                    indexes[i++] = freeIndex;
+                }
+                i=0;
+                freeIndexes.clear();
+                for(auto&& x: ranges){
+                    pool[indexes[i++]] = std::forward<decltype(x)>(x);
+                }
+            }
+            else{
+                for(auto&& x: ranges){
+                    indexes[i++] = emplace(std::forward<decltype(x)>(x));
+                }
+            }
+
+            return newIndex;
+        }
+
+        Index push(const T& x) noexcept{
+            Index new_index = issueSlot();
+            pool[new_index] = x;
 
             return new_index;
         }
-        void erase(SlotIndex index) noexcept{
-            slots[index] = Slot{};
-            freeSlots.insert(index);
+        void erase(Index index) noexcept{
+            freeIndexes.insert(index);
         }
 
-        Slot& get(SlotIndex index) noexcept{
-            assert(index < slots.size());
-            assert(freeSlots.find(index) == freeSlots.end());
-            return slots[index];
+        T& get(Index index) noexcept{
+            assert(index < pool.size());
+            assert(freeIndexes.find(index) == freeIndexes.end());
+            return pool[index];
         }
-        const Slot& get(SlotIndex index) const noexcept{
-            assert(index < slots.size());
-            assert(freeSlots.find(index) == freeSlots.end());
-            return slots[index];
+        const T& get(Index index) const noexcept{
+            assert(index < pool.size());
+            assert(freeIndexes.find(index) == freeIndexes.end());
+            return pool[index];
         }
-        Slot& operator[](SlotIndex index) noexcept{
-            assert(index < slots.size());
-            assert(freeSlots.find(index) == freeSlots.end());
-            return slots[index];
+        T& operator[](Index index) noexcept{
+            assert(index < pool.size());
+            assert(freeIndexes.find(index) == freeIndexes.end());
+            return pool[index];
         }
-        const Slot& operator[](SlotIndex index) const noexcept{
-            assert(index < slots.size());
-            assert(freeSlots.find(index) == freeSlots.end());
-            return slots[index];
+        const T& operator[](Index index) const noexcept{
+            assert(index < pool.size());
+            assert(freeIndexes.find(index) == freeIndexes.end());
+            return pool[index];
         }
-        Slots get() const{ return slots; }
+        Ts get() const{ return pool; }
 
-        size_t size() const{ return slots.size() - freeSlots.size(); }
-        size_t capacity() const{ return slots.size(); }
+        size_t size() const{ return pool.size() - freeIndexes.size(); }
+        size_t capacity() const{ return pool.size(); }
     };
 } // namespace ModernBoy
 

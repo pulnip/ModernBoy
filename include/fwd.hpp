@@ -52,15 +52,10 @@ namespace ModernBoy{
     using ShaderHandle = ResourceHandle;
     // Managers
     template<typename Resource> class ResourceManager;
-    template<typename RawResource>
-    std::vector<RawResource> import(AppState& app,
-        const std::string& fileName);
     template<typename Resource>
-    ResourceHandle manage(AppState& app,
-        Resource&& resource);
+    std::vector<Resource> import(AppState& app,
+        const std::string& fileName);
     // Loaders
-    template<typename RawResource, typename Resource>
-    class ResourceLoader;
     class AssetLoader;
     // Components
     using ArchetypeBit = uint64_t;
@@ -100,7 +95,6 @@ namespace ModernBoy{
     using NativePtr = void*;
 
     using MeshManager = ResourceManager<Mesh>;
-    using MeshLoader = ResourceLoader<RawMesh, Mesh>;
     using ShaderManager = ResourceManager<Shader>;
     using ShaderHandle = ResourceHandle;
     using FrameStartCommand_ = Render::FrameStartCommand<Shader>;

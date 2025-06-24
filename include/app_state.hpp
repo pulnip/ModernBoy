@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include "resource_manager.hpp"
 #include "mesh_importer.hpp"
-#include "resource_loader.hpp"
 #include "asset_loader.hpp"
 #include "util/object_pool.hpp"
 #include "archetype_map.hpp"
@@ -71,8 +70,7 @@ namespace ModernBoy
         // Softwares
         Input::Controller controller;
         Renderer renderer;
-        // ResourceLoaders
-        MeshLoader meshLoader;
+
         AssetLoader assetLoader;
         // Game State
         GameContext game_ctx;
@@ -84,8 +82,6 @@ namespace ModernBoy
         template<typename Resource>
         std::vector<Resource> import(const std::string&);
 
-        template<typename Resource>
-        Resource& get(ResourceHandle handle);
         template<typename Component>
         std::optional<Component> get(EntityID actor);
 

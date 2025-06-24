@@ -14,12 +14,12 @@ namespace ModernBoy
     struct alignas(COMPONENT_ALIGN) ResourceComponent{
         EntityID actor = UINT32_MAX;
 
-        ResourceHandle handle;
+        Handle handle;
     };
     struct alignas(COMPONENT_ALIGN) MeshComponent{
         EntityID actor = UINT32_MAX;
 
-        std::vector<MeshHandle> meshHandles;
+        Handle accessHandle;
         // TextureHandle textureHandle;
     };
     template<typename T>
@@ -62,6 +62,12 @@ namespace ModernBoy
     consteval ArchetypeBit bit_of(){
         return bit_of<T1>() | bit_of<T2, TN...>();
     }
+
+    constexpr auto RENDER_BIT = bit_of<TransformComponent, MeshComponent>();
+    constexpr auto VIEW_BIT = bit_of<TransformComponent, CameraComponent>();
+    constexpr auto KB_IN_BIT = bit_of<InputComponent, TransformComponent>();
+
+    bool subset(ArchetypeBit a, ArchetypeBit b);
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_COMPONENT_HPP

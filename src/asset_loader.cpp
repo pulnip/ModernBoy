@@ -37,22 +37,17 @@ void AssetLoader::loadActors(const std::string& fileName){
             bit = bit | TRANSFORM_BIT;
         }
 
-        // mesh & texture & shader component
-        if(auto model_arr = actor["model"].as_array()){
-            for(const auto& parts_node: *model_arr){
-                const auto& parts = *parts_node.as_table();
+        if(auto model_tbl = actor["model"].as_table()){
+            // mesh component
+            const auto meshFile = (*model_tbl)["mesh"]
+                .value<std::string>().value_or("Sphere");
+            auto accessHandle = app.meshManager.load(meshFile);
 
-                // mesh component
-                const auto meshFile = *parts["mesh"].value<std::string>();
-                auto meshHandles = app.meshLoader.load(meshFile);
-                chunk.mesh = MeshComponent{actor_id, meshHandles};
-                bit = bit | MESH_BIT;
-
-                // ToDo. texture component
-                // const auto& texFile = *parts["diffuse"].value<std::string>();
-                // ToDo. How to handle multiple model?
-                break;
-            }
+            chunk.mesh = MeshComponent{actor_id, accessHandle};
+            bit = bit | MESH_BIT;
+            // ToDo. texture component
+            // const auto& texFile = *parts["diffuse"].value<std::string>();
+            // ToDo. How to handle multiple model?
         }
         auto scriptModule = *actor["script"]["file"].value<std::string>();
         app.controller.loadScriptModule(scriptModule);
@@ -159,22 +154,25 @@ static Camera parseCamera(const toml::v3::table& table){
 static void linkActor(AppState& app, EntityID actor,
     const SparseChunk& chunk, ArchetypeBit bit
 ){
-    if(bit & (TRANSFORM_BIT | MESH_BIT)){
+    if(subset(bit, RENDER_BIT)){
         auto transform = chunk.transform.value;
-        std::vector<RenderTask> tasks(chunk.mesh.meshHandles.size());
+        printf("Bit: %llu\n", bit);
+        auto& meshHandles = app.meshManager.get(chunk.mesh.accessHandle);
+        puts("Not Here!");
+        std::vector<RenderTask> tasks(meshHandles.size());
         for(size_t i=0; i<tasks.size(); ++i)
-            tasks[i] = RenderTask{transform, chunk.mesh.meshHandles[i]};
+            tasks[i] = RenderTask{transform, meshHandles[i]};
         app.renderSystem.emplace(actor, tasks);
     }
 
-    if(bit & (TRANSFORM_BIT | CAMERA_BIT)){
+    if(subset(bit, VIEW_BIT)){
         auto transform = chunk.transform.value;
         std::vector<ViewTask> tasks(1);
         tasks[0] = ViewTask{transform, chunk.camera.value};
         app.viewSystem.emplace(actor, tasks);
     }
 
-    if(bit & (TRANSFORM_BIT | INPUT_BIT)){
+    if(subset(bit, KB_IN_BIT)){
         auto transform = chunk.transform.value;
         std::vector<InputTask> tasks;
         for(const auto& buttonMap: chunk.input.value){
