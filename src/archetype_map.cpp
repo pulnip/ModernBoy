@@ -8,7 +8,7 @@ static size_t bit_size(ArchetypeBit bit);
 static void setChunk(void* dst, const SparseChunk& chunk,
     ArchetypeBit bit);
 
-void ArchetypeMap::add(EntityID actor, ArchetypeBit bit,
+Index ArchetypeMap::insert(ArchetypeBit bit,
     const SparseChunk& chunk
 ){
     size_t CHUNK_SIZE = bit_size(bit);
@@ -20,8 +20,7 @@ void ArchetypeMap::add(EntityID actor, ArchetypeBit bit,
     auto mem = vector[newIndex];
 
     setChunk(mem, chunk, bit);
-    auto archetypeInfo = std::make_pair(bit, newIndex);
-    actor_info.emplace(std::make_pair(actor, archetypeInfo));
+    return newIndex;
 }
 
 static size_t bit_size(ArchetypeBit bit){

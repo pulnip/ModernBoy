@@ -35,7 +35,11 @@ namespace ModernBoy
         InputComponent input;
     };
     // Archetype
-    using EntityTable = std::unordered_map<EntityID, ArchetypeBit>;
+    struct ComponentInfo{
+        ArchetypeBit bit;
+        size_t chunkIndex;
+    };
+    using EntityTable = std::unordered_map<EntityID, ComponentInfo>;
     // Component Pool
     using TransformPool = ObjectPool<TransformComponent>;
     using CameraPool = ObjectPool<CameraComponent>;

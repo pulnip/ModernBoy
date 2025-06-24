@@ -70,7 +70,8 @@ void AssetLoader::loadActors(const std::string& fileName){
             chunk.input = InputComponent{actor_id, inputMap};
             bit = bit | INPUT_BIT;
         }
-        app.actorTable.emplace(std::pair{actor_id, bit});
+        auto chunkIndex = app.archetypeMap.insert(bit, chunk);
+        app.actorTable.emplace(actor_id, ComponentInfo{bit, chunkIndex});
         linkActor(app, actor_id, chunk, bit);
     }
 }
@@ -108,9 +109,9 @@ void AssetLoader::loadCamera(const std::string& fileName){
         else{
             // warning!
         }
-        app.actorTable.emplace(std::pair{actor_id, bit});
+        auto chunkIndex = app.archetypeMap.insert(bit, chunk);
+        app.actorTable.emplace(actor_id, ComponentInfo{bit, chunkIndex});
         linkActor(app, actor_id, chunk, bit);
-        app.archetypeMap.add(actor_id, bit, chunk);
         // ToDo. Not Accept Multiple Camera actor.
         break;
     }

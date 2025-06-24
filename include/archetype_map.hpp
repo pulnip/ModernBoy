@@ -25,7 +25,7 @@ namespace ModernBoy
         const_iterator cbegin() const{ return archetypeMap.cbegin(); }
         const_iterator cend() const{ return archetypeMap.cend(); }
 
-        void add(EntityID actor, ArchetypeBit bit,
+        Index insert(ArchetypeBit bit,
             const SparseChunk& chunk);
     };
 
