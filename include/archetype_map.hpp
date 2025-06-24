@@ -14,6 +14,16 @@ namespace ModernBoy
         std::unordered_map<ArchetypeBit, DynamicVector> archetypeMap;
 
     public:
+        using iterator = std::unordered_map<ArchetypeBit, DynamicVector>::iterator;
+        using const_iterator = std::unordered_map<ArchetypeBit, DynamicVector>::const_iterator;
+
+        iterator begin(){ return archetypeMap.begin(); }
+        iterator end(){ return archetypeMap.end(); }
+        const_iterator begin() const{ return archetypeMap.begin(); }
+        const_iterator end() const{ return archetypeMap.end(); }
+        const_iterator cbegin() const{ return archetypeMap.cbegin(); }
+        const_iterator cend() const{ return archetypeMap.cend(); }
+
         void add(EntityID actor, ArchetypeBit bit,
             const SparseChunk& chunk);
     };

@@ -21,6 +21,38 @@ namespace ModernBoy{
     #endif
 
     public:
+        struct Iterator{
+            void* ptr;
+            const size_t STRIDE;
+
+            Iterator(void* ptr, size_t STRIDE)
+            :ptr(ptr),STRIDE(STRIDE){}
+
+            void* operator*(){ return ptr; }
+            const void* operator*() const{ return ptr; }
+            Iterator& operator++(){
+                ptr = static_cast<uint8_t*>(ptr) + STRIDE;
+                return *this;
+            }
+            bool operator!=(const Iterator& other) const{
+                return ptr != other.ptr; }
+        };
+        struct ConstIterator{
+            const void* ptr;
+            const size_t STRIDE;
+
+            ConstIterator(const void* ptr, size_t STRIDE)
+            :ptr(ptr),STRIDE(STRIDE){}
+
+            const void* operator*() const{ return ptr; }
+            ConstIterator& operator++(){
+                ptr = static_cast<const uint8_t*>(ptr) + STRIDE;
+                return *this;
+            }
+            bool operator!=(const ConstIterator& other) const{
+                return ptr != other.ptr; }
+        };
+
         DynamicVector(size_t CHUNK_SIZE);
         DynamicVector(size_t CHUNK_SIZE, size_t initialSize);
         DynamicVector() = delete;
@@ -32,6 +64,14 @@ namespace ModernBoy{
         Index newChunk(size_t numChunk=1);
         void freeChunk(Index startIndex, size_t numChunk=1);
         void* operator[](Index index);
+
+        Iterator begin(){ return Iterator(data, CHUNK_SIZE); }
+        Iterator end(){ return Iterator(static_cast<uint8_t*>(data)+size, CHUNK_SIZE); }
+        ConstIterator begin() const{ return ConstIterator(data, CHUNK_SIZE); }
+        ConstIterator end() const{ return ConstIterator(static_cast<uint8_t*>(data)+size, CHUNK_SIZE); }
+        ConstIterator cbegin() const{ return ConstIterator(data, CHUNK_SIZE); }
+        ConstIterator cend() const{ return ConstIterator(static_cast<uint8_t*>(data)+size, CHUNK_SIZE); }
+
 
     private:
         void moveFrom(DynamicVector&& other);
@@ -74,7 +114,7 @@ namespace ModernBoy{
             memcpy(chunkMem, &data, sizeof(D));
         else
             setChunkData__<D, TN...>(data,
-                static_cast<char*>(chunkMem)+sizeof(T1));
+                static_cast<uint8_t*>(chunkMem)+sizeof(T1));
     }
     template<typename D, typename T1>
         requires std::same_as<D, T1>
@@ -87,7 +127,7 @@ namespace ModernBoy{
             return *static_cast<D*>(chunkMem);
         else
             getChunkData__<D, TN...>(
-                static_cast<char*>(chunkMem)+sizeof(T1));
+                static_cast<uint8_t*>(chunkMem)+sizeof(T1));
     }
     template<typename D, typename T1>
         requires std::same_as<D, T1>

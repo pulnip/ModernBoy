@@ -67,6 +67,7 @@ namespace ModernBoy{
     // Actor
     using EntityID = uint32_t;
     // Tasks
+    struct RenderTask;
     struct ViewTask;
     struct InputTask;
     // Systems

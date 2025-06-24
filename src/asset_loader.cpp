@@ -156,9 +156,7 @@ static void linkActor(AppState& app, EntityID actor,
 ){
     if(subset(bit, RENDER_BIT)){
         auto transform = chunk.transform.value;
-        printf("Bit: %llu\n", bit);
         auto& meshHandles = app.meshManager.get(chunk.mesh.accessHandle);
-        puts("Not Here!");
         std::vector<RenderTask> tasks(meshHandles.size());
         for(size_t i=0; i<tasks.size(); ++i)
             tasks[i] = RenderTask{transform, meshHandles[i]};
