@@ -1,4 +1,5 @@
 #include "archetype_map.hpp"
+#include "util/bit.hpp"
 #include "app_state.hpp"
 
 using namespace ModernBoy;
@@ -39,22 +40,26 @@ static size_t bit_size(ArchetypeBit bit){
 static void setChunk(void* dst, const SparseChunk& chunk,
     ArchetypeBit bit
 ){
-    size_t offset = 0;
+    if(bit & TRANSFORM_BIT)
+        dst = Util::chunkcpy(dst, chunk.transform);
+    if(bit & CAMERA_BIT)
+        dst = Util::chunkcpy(dst, chunk.camera);
+    if(bit & MESH_BIT)
+        dst = Util::chunkcpy(dst, chunk.mesh);
+    // if(bit & INPUT_BIT)
+    //     dst = Util::chunkcpy(dst, chunk.input);
+}
 
-    if(bit & TRANSFORM_BIT){
-        setChunkData(&(chunk.transform), dst, offset);
-        offset += sizeof(TransformComponent);
-    }
-    if(bit & CAMERA_BIT){
-        setChunkData(&(chunk.camera), dst, offset);
-        offset += sizeof(CameraComponent);
-    }
-    if(bit & MESH_BIT){
-        setChunkData(&(chunk.mesh), dst, offset);
-        offset += sizeof(MeshComponent);
-    }
-    if(bit & INPUT_BIT){
-        setChunkData(&(chunk.input), dst, offset);
-        offset += sizeof(InputComponent);
-    }
+void ModernBoy::getChunk(TransformComponent* tc,
+    CameraComponent* cc, MeshComponent* mc,
+    InputComponent* ic, const void* src
+){
+    if(tc != nullptr)
+        src = Util::chunkcpy(*tc, src);
+    if(cc != nullptr)
+        src = Util::chunkcpy(*cc, src);
+    if(mc != nullptr)
+        src = Util::chunkcpy(*mc, src);
+    // if(ic != nullptr)
+    //     src = Util::chunkcpy(*ic, src);
 }

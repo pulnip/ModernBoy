@@ -30,14 +30,14 @@ void DynamicVector::moveFrom(DynamicVector&& other){
     CHUNK_SIZE = other.CHUNK_SIZE;
     maxSize = other.maxSize;
     data = other.data;
-    size = other.size;
+    size_ = other.size_;
     freeSlots = other.freeSlots;
 #ifdef _DEBUG
     numChunk_last = other.numChunk_last;
 #endif
     other.maxSize = 0;
     other.data = nullptr;
-    other.size = 0;
+    other.size_ = 0;
     other.freeSlots = {};
 #ifdef _DEBUG
     other.numChunk_last = 0;
@@ -57,8 +57,8 @@ Index DynamicVector::newChunk(size_t numChunk){
         return start;
     }
 
-    size_t newMaxSize = std::bit_ceil(size+numChunk);
-    if(size == 0)
+    size_t newMaxSize = std::bit_ceil(size_+numChunk);
+    if(size_ == 0)
         data = malloc(newMaxSize);
     else
         data = realloc(data, newMaxSize);
@@ -77,8 +77,8 @@ Index DynamicVector::newChunk(size_t numChunk){
 Index DynamicVector::findContinuousFreeFittedSlot(
     size_t numChunk
 ){
-    assert(freeSlots.size()==(maxSize-size));
-    if(maxSize-size < numChunk)
+    assert(freeSlots.size()==(maxSize-size_));
+    if(maxSize-size_ < numChunk)
         return size_t(-1);
 
     Index candidateIndex = *freeSlots.cbegin();
@@ -113,12 +113,11 @@ void* DynamicVector::operator[](Index index){
     return nullptr;
 }
 
-void* ModernBoy::getChunkData(void* chunk, size_t byteOffset){
-    return static_cast<uint8_t*>(chunk)+byteOffset;
+size_t DynamicVector::size() const noexcept{
+    assert(size_ + freeSlots.size() == maxSize);
+    return size_;
 }
-void ModernBoy::setChunkData(const void* data, void* chunk, size_t byteOffset){
-    memcpy(static_cast<uint8_t*>(chunk)+byteOffset,
-        data, byteOffset
-    );
+size_t DynamicVector::capacity() const noexcept{
+    assert(size_ + freeSlots.size() == maxSize);
+    return maxSize;
 }
-

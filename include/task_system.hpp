@@ -7,9 +7,9 @@
 
 namespace ModernBoy
 {
-    class ComponentSystem{
+    class TaskSystem{
     public:
-        ComponentSystem(AppState& app):app(app){}
+        TaskSystem(AppState& app):app(app){}
 
         template<typename Task>
         std::vector<Task> getTask();

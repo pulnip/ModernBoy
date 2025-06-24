@@ -1,0 +1,44 @@
+#ifndef MODERNBOY_UTIL_BIT_HPP
+#define MODERNBOY_UTIL_BIT_HPP
+
+#include <cstdint>
+#include <utility>
+
+namespace ModernBoy::Util
+{
+    template<typename T>
+    T& as(void* ptr){
+        return *static_cast<T*>(ptr);
+    }
+    template<typename T>
+    const T& as(const void* ptr){
+        return *static_cast<const T*>(ptr);
+    }
+
+    template<typename T>
+    void* add(void* ptr){
+        return static_cast<uint8_t*>(ptr)+sizeof(T);
+    }
+    template<typename T>
+    const void* add(const void* ptr){
+        return static_cast<const uint8_t*>(ptr)+sizeof(T);
+    }
+
+    template<typename T>
+    void* chunkcpy(void* dst, const T& src){
+        *static_cast<T*>(dst) = src;
+        return add<T>(dst);
+    }
+    template<typename T>
+    void* chunkcpy(void* dst, T&& src){
+        *static_cast<T*>(dst) = std::move(src);
+        return add<T>(dst);
+    }
+    template<typename T>
+    const void* chunkcpy(T& dst, const void* src){
+        dst = *static_cast<const T*>(src);
+        return add<T>(src);
+    }
+}
+
+#endif // MODERNBOY_UTIL_BIT_HPP

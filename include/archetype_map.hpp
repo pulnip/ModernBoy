@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "fwd.hpp"
 #include "util/dynamic_vector.hpp"
+#include "component.hpp"
 
 namespace ModernBoy
 {
@@ -27,6 +28,11 @@ namespace ModernBoy
         void add(EntityID actor, ArchetypeBit bit,
             const SparseChunk& chunk);
     };
+
+    void getChunk(TransformComponent* tc,
+        CameraComponent* cc, MeshComponent* mc,
+        InputComponent* ic, const void* src
+    );
 }
 
 #endif // MODERNBOY_ARCHETYPE_MAP_HPP
