@@ -5,11 +5,10 @@
 #include <ranges>
 #include <vector>
 #include <unordered_set>
+#include "common/alias.hpp"
 
 namespace ModernBoy
 {
-    using Index = size_t;
-
     template<typename T>
     class ObjectPool{
     private:

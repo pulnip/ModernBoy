@@ -4,9 +4,9 @@
 #include <cstdlib>
 #include <set>
 #include <type_traits>
+#include "common/alias.hpp"
 
 namespace ModernBoy{
-    using Index = size_t;
     using Byte = size_t;
 
     class DynamicVector{
