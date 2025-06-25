@@ -7,6 +7,7 @@
 #include "mesh_importer.hpp"
 #include "asset_loader.hpp"
 #include "util/object_pool.hpp"
+#include "util/bit.hpp"
 #include "archetype_map.hpp"
 #include "component.hpp"
 #include "task.hpp"
@@ -92,17 +93,16 @@ namespace ModernBoy
             SparseChunk&& components);
         void destroyActor(EntityID ID);
 
-        template<typename Resource>
-        std::vector<Resource> import(const std::string&);
-
         template<typename Component>
-        std::optional<Component> get(EntityID actor);
-
-        template<typename Task>
-        std::vector<Task> get();
-        template<typename Task>
-        std::vector<Task> get(const Input::State& state);
-
+        std::optional<Component> query(EntityID actor){
+            const auto& comp = actorTable.at(actor);
+            auto querybit = bit_of<Component>;
+            if(comp.bit & querybit != querybit)
+                return std::nullopt;
+            return Util::as<Component>(
+                archetypeMap.at(comp.bit)[comp.chunkIndex]
+            );
+        }
     };
 }
 
