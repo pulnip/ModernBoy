@@ -1,12 +1,13 @@
 #ifndef MODERNBOY_FWD_HPP
 #define MODERNBOY_FWD_HPP
 
+#include <chrono>
 #include <cstdint>
-#include <optional>
 #include <limits>
+#include <optional>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace ModernBoy
 {
@@ -16,6 +17,8 @@ namespace ModernBoy
     struct Transform;
     struct Camera;
     struct Handle;
+
+    using DeltaTime = std::chrono::seconds;
 
     // Raw Resource
     struct RawVertex;

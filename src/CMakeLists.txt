@@ -6,9 +6,10 @@ add_subdirectory(script)
 add_subdirectory(util)
 
 file(GLOB ALL_SOURCES "*.cpp")
+file(GLOB COMMON_SOURCES "common/*.cpp")
 add_executable(${PROJECT_NAME}
     ${ALL_SOURCES}
-    common/type.cpp
+    ${COMMON_SOURCES}
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
