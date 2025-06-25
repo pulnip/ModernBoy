@@ -13,8 +13,8 @@
 #include "task.hpp"
 #include "script/controller.hpp"
 #include "input/device.hpp"
-#include "render/renderer.hpp"
 #include "render/gui.hpp"
+#include "render/system.hpp"
 #include "game/game_context.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
@@ -46,9 +46,6 @@ namespace ModernBoy
     using CameraPool = ObjectPool<CameraComponent>;
     using MeshPool = ObjectPool<MeshComponent>;
     using InputPool = ObjectPool<InputComponent>;
-    // Systems
-    using RenderSystem = TaskMap<RenderTask>;
-    using ViewSystem = TaskMap<ViewTask>;
 
     struct AppState{
     private:
@@ -73,13 +70,11 @@ namespace ModernBoy
         CameraPool cameraPool;
         MeshPool meshPool;
         InputPool inputPool;
-        
-        RenderSystem renderSystem;
-        ViewSystem viewSystem;
+
+        Render::System renderSystem;
         InputSystem inputSystem;
         // Softwares
         Script::Controller controller;
-        Renderer renderer;
 
         AssetLoader assetLoader;
         // Game State
@@ -97,7 +92,7 @@ namespace ModernBoy
         std::optional<Component> query(EntityID actor){
             const auto& comp = actorTable.at(actor);
             auto querybit = bit_of<Component>;
-            if(comp.bit & querybit != querybit)
+            if((comp.bit & querybit) != querybit)
                 return std::nullopt;
             return Util::as<Component>(
                 archetypeMap.at(comp.bit)[comp.chunkIndex]

@@ -26,7 +26,7 @@ Mesh::Mesh(RawMesh& rawMesh, AppState& app){
         texPath = rawMesh.textures[0].c_str();
     }
 
-    meshPtr = createMesh(app.renderer.context.metalLayer,
+    meshPtr = createMesh(app.renderSystem.renderer.context.metalLayer,
         vertices.data(), vertices.size() / 8,
         rawMesh.indices.data(), rawMesh.indices.size(),
         texPath

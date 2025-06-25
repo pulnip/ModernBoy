@@ -25,7 +25,7 @@ void AssetLoader::loadActors(const std::string& fileName){
         if(auto trans_tbl = actor["transform"].as_table()){
             auto transform = parseTransform(*trans_tbl);
 
-            chunk.transform = TransformComponent{INVALID_ENTITY, transform};
+            chunk.transform = dangled<TransformComponent>(transform);
             bit = bit | TRANSFORM_BIT;
         }
 
@@ -35,7 +35,8 @@ void AssetLoader::loadActors(const std::string& fileName){
                 .value<std::string>().value_or("Sphere");
             auto accessHandle = app.meshManager.load(meshFile);
 
-            chunk.mesh = MeshComponent{INVALID_ENTITY, accessHandle};
+            chunk.mesh = MeshComponent{
+                INVALID_ENTITY, true, accessHandle};
             bit = bit | MESH_BIT;
             // ToDo. texture component
             // const auto& texFile = *parts["diffuse"].value<std::string>();
@@ -59,7 +60,8 @@ void AssetLoader::loadActors(const std::string& fileName){
 
                 Input::addInput(inputMap, button, state, behaviour);
             }
-            chunk.input = InputComponent{INVALID_ENTITY, inputMap};
+            chunk.input = dangled<InputComponent,
+                Input::InputMap&&>(std::move(inputMap));
             bit = bit | INPUT_BIT;
         }
         [[maybe_unused]] auto actor_id = app.createActor(bit, std::move(chunk));
@@ -84,7 +86,7 @@ void AssetLoader::loadCamera(const std::string& fileName){
         if(auto t = cam["transform"].as_table()){
             auto transform = parseTransform(*t);
 
-            chunk.transform = TransformComponent{INVALID_ENTITY, transform};
+            chunk.transform = dangled<TransformComponent>(transform);
             bit = bit | TRANSFORM_BIT;
         }
         else{
@@ -92,7 +94,7 @@ void AssetLoader::loadCamera(const std::string& fileName){
         }
         if(auto c = cam["camera"].as_table()){
             auto camera = parseCamera(*c);
-            chunk.camera = CameraComponent{INVALID_ENTITY, camera};
+            chunk.camera = dangled<CameraComponent>(camera);
             bit = bit | CAMERA_BIT;
         }
         else{

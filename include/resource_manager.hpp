@@ -57,7 +57,7 @@ namespace ModernBoy
         }
         bool isValid(ResourceHandle handle) const{
             // check if handle itself is valid
-            [[unlikely]] if(!handle.isValid()) return false;
+            [[unlikely]] if(!isValid(handle)) return false;
 
             // check if relation between handle and slot is valid
             const Slot& slot = pool[handle.index];
@@ -109,7 +109,7 @@ namespace ModernBoy
         }
 
         bool isValid(AccessHandle handle){
-            [[unlikely]] if(!handle.isValid()) return false;
+            [[unlikely]] if(!isValid(handle)) return false;
 
             const auto& slot = accessor.get(handle.index);
             return (slot.refCount > 0) && (slot.generation == handle.generation);

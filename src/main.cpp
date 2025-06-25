@@ -75,7 +75,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     DX11::DefaultShader shader(as->renderer.context.device);
     as->shaderManager.create(std::move(shader));
 #elif defined(USE_METAL)
-    NativePtr layerPtr = as->renderer.context.metalLayer;
+    NativePtr layerPtr = as->renderSystem.renderer.context.metalLayer;
 
     as->assetLoader.loadActors("asset/actor.toml");
     as->assetLoader.loadCamera("asset/camera.toml");
@@ -86,8 +86,6 @@ SDL_AppResult SDL_AppInit(void** appState,
     // TODO
 #endif
     *appState = as;
-
-    as->renderer.renderStart();
 
     as->last_step = SDL_GetTicks();
     return SDL_APP_CONTINUE;  /* carry on with the program! */

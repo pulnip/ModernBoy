@@ -11,10 +11,9 @@ AppState::AppState(SDL_Window* window)
 meshManager(*this), shaderManager(*this),
 transformPool(), cameraPool(),
 meshPool(), inputPool(),
-renderSystem(), viewSystem(), inputSystem(),
+renderSystem(*this, window), inputSystem(),
 // Important!! Initialize Order
-controller(*this), renderer(window, *this),
-assetLoader(*this){}
+controller(*this), assetLoader(*this){}
 AppState::~AppState(){}
 
 EntityID AppState::issueID(){
@@ -64,22 +63,6 @@ static void assignEntityID(SparseChunk& components,
 static void linkActor(AppState& app, EntityID actor,
     const SparseChunk& chunk, ArchetypeBit bit
 ){
-    if(subset(bit, RENDER_BIT)){
-        auto transform = chunk.transform.value;
-        auto& meshHandles = app.meshManager.get(chunk.mesh.accessHandle);
-        std::vector<RenderTask> tasks(meshHandles.size());
-        for(size_t i=0; i<tasks.size(); ++i)
-            tasks[i] = RenderTask{transform, meshHandles[i]};
-        app.renderSystem.emplace(actor, tasks);
-    }
-
-    if(subset(bit, VIEW_BIT)){
-        auto transform = chunk.transform.value;
-        std::vector<ViewTask> tasks(1);
-        tasks[0] = ViewTask{transform, chunk.camera.value};
-        app.viewSystem.emplace(actor, tasks);
-    }
-
     if(subset(bit, KB_IN_BIT)){
         auto transform = chunk.transform.value;
         std::vector<InputTask> tasks;

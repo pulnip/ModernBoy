@@ -1,53 +1,19 @@
+#include <print>
 #include "render/renderer.hpp"
 #include "app_state.hpp"
-#include "component.hpp"
 
 using namespace ModernBoy;
 
 Renderer::Renderer(SDL_Window* window, AppState& app)
-:context(window, app),app(app){}
+:context(window, app){}
 
-Renderer::~Renderer(){ stsrc.request_stop(); }
-
-void Renderer::renderStart(){
-    commandThread = std::jthread(
-        [this](std::stop_token stoken){
-            produceCommand(stoken);
-        }, stsrc.get_token()
-    );
+void Renderer::renderStart(std::stop_token stoken){
     renderThread = std::jthread(
         [this](std::stop_token stoken){
             consumeCommand(stoken);
-        }, stsrc.get_token()
+        }, stoken
     );
 }
-
-void Renderer::produceCommand(std::stop_token stoken){
-    while(!stoken.stop_requested()){
-        auto viewTasks = app.get<ViewTask>();
-        auto renderTasks = app.get<RenderTask>();
-
-        for(auto& task: viewTasks){
-            waitUntilPushed(queue, FrameStartCommand<Shader>{
-                // TODO: for multiple scene viewport
-                .shaderHandle = {.type=ResourceType::SHADER,
-                    .index=0, .generation=1},
-                .transform = task.transform,
-                .camera = task.camera,
-            }, stoken);
-        }
-
-        for(auto& task: renderTasks){
-            waitUntilPushed(queue, DrawCommand<Mesh>{
-                .transform = task.transform,
-                .meshHandle = task.meshHandle
-            }, stoken);
-        }
-
-        waitUntilPushed(queue, FrameEndCommand{}, stoken);
-    }
-}
-
 void Renderer::consumeCommand(std::stop_token stoken){
     while(!stoken.stop_requested()){
         RenderCommand<Mesh, Shader> cmd;

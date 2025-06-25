@@ -12,25 +12,32 @@
 namespace ModernBoy
 {
     struct alignas(COMPONENT_ALIGN) ResourceComponent{
-        EntityID actor = UINT32_MAX;
+        EntityID actor;
 
+        bool isActive;
         Handle handle;
-    };
+    }; static_assert(std::is_pod_v<ResourceComponent>);
     struct alignas(COMPONENT_ALIGN) MeshComponent{
-        EntityID actor = UINT32_MAX;
+        EntityID actor;
 
+        bool isActive;
         Handle accessHandle;
         // TextureHandle textureHandle;
-    };
+    }; static_assert(std::is_pod_v<MeshComponent>);
     template<typename T>
     struct alignas(COMPONENT_ALIGN) ValueComponent{
         EntityID actor = UINT32_MAX;
+
+        bool isActive = true;
         T value;
     };
 
     using TransformComponent = ValueComponent<Transform>;
     using CameraComponent = ValueComponent<Camera>;
     using InputComponent = ValueComponent<Input::InputMap>;
+
+    template<typename Component, typename ...T>
+    Component dangled(T... args);
 
         enum class ComponentType{
         INVALID   = -1,

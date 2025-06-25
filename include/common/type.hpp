@@ -34,21 +34,22 @@ namespace ModernBoy
         ORTHOGRAPHIC
     };
     struct Camera{
-        float fov = 100.0f;
-        float nearPlane = 0.1f;
-        float farPlane = 100.0f;
-        Projection projection = Projection::PERSPECTIVE;
-    };
+        float fov;
+        float nearPlane;
+        float farPlane;
+        Projection projection;
+    }; static_assert(std::is_pod_v<Camera>);
 
-        struct Handle{
-        size_t index = size_t(-1);
-        uint32_t generation = 0;
+    Camera defaultCamera();
 
-        static constexpr Handle invalid(){ return Handle{}; }
+    struct Handle{
+        size_t index;
+        uint32_t generation;
+    }; static_assert(std::is_pod_v<Handle>);
 
-        bool isValid() const{ return index != UINT32_MAX; }
-        bool operator==(const Handle&) const = default;
-    };
+    Handle invalidHandle();
+    bool isValid(Handle handle);
+    bool operator==(const Handle& lhs, const Handle& rhs);
 
     enum class ResourceType{
         INVALID      = -1,
@@ -58,17 +59,15 @@ namespace ModernBoy
     };
 
     struct ResourceHandle{
-        ResourceType type = ResourceType::INVALID;
+        ResourceType type;
 
-        size_t index = size_t(-1);
-        uint32_t generation = 0;
+        size_t index;
+        uint32_t generation;
+    }; static_assert(std::is_pod_v<ResourceHandle>);
 
-        static constexpr ResourceHandle invalid(){ return ResourceHandle{}; }
-
-        bool isValid() const{ return index != size_t(-1); }
-        bool operator==(const ResourceHandle&) const = default;
-    };
-
+    ResourceHandle invalidResourceHandle();
+    bool isValid(ResourceHandle handle);
+    bool operator==(const ResourceHandle& lhs, const ResourceHandle& rhs);
 } // namespace ModernBoy
 
 #endif // MODERNBOY_COMMON_TYPE_HPP

@@ -75,9 +75,7 @@ namespace ModernBoy
     struct InputTask;
     // Systems
     template<typename Task>
-    using Tasks = std::vector<Task>;
-    template<typename Task>
-    using TaskMap = std::unordered_map<EntityID, Tasks<Task>>;
+    using TaskMap = std::unordered_map<EntityID, std::vector<Task>>;
     using InputSystem = TaskMap<InputTask>;
 
     namespace Input

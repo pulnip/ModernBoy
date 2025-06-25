@@ -4,7 +4,6 @@
 #include <thread>
 #include <mutex>
 #include <SDL3/SDL_video.h>
-#include "fwd.hpp"
 #include "util/lock_free_queue.hpp"
 #include "render/command.hpp"
 #if defined(USE_DIRECTX)
@@ -26,23 +25,17 @@ namespace ModernBoy::Render
     public:
         RenderContext context;
 
-    private:
-        AppState& app;
-
+        // MUST CONSTRUCT queue FIRST
         LockFreeQueue<RenderCommand<Mesh, Shader>> queue;
-
-        std::stop_source stsrc;
-        std::jthread commandThread;
+    private:
         std::jthread renderThread;
 
     public:
         Renderer(SDL_Window* window, AppState& app);
-        ~Renderer();
+        ~Renderer() = default;
 
-        void renderStart();
-
+        void renderStart(std::stop_token stoken);
     private:
-        void produceCommand(std::stop_token stoken);
         void consumeCommand(std::stop_token stoken);
     };
 }
