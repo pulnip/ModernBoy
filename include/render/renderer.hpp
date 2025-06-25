@@ -23,20 +23,17 @@ namespace ModernBoy::Render
 
     class Renderer{
     public:
-        RenderContext context;
-
-        // MUST CONSTRUCT queue FIRST
-        LockFreeQueue<RenderCommand<Mesh, Shader>> queue;
-    private:
-        std::jthread renderThread;
-
-    public:
         Renderer(SDL_Window* window, AppState& app);
-        ~Renderer() = default;
+        ~Renderer();
 
-        void renderStart(std::stop_token stoken);
+        RenderContext context;
+        LockFreeQueue<RenderCommand> queue;
+
     private:
         void consumeCommand(std::stop_token stoken);
+
+        std::stop_source stsrc;
+        std::jthread renderThread;
     };
 }
 

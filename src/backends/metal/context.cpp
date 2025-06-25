@@ -12,6 +12,7 @@
 #include <imgui_impl_metal.h>
 
 using namespace std::chrono;
+using namespace ModernBoy::Render;
 using namespace ModernBoy::Metal;
 
 RenderContext::RenderContext(SDL_Window* in_window, AppState& app)
@@ -47,8 +48,8 @@ app(app){
     ImGui_ImplMetal_Init(device);
 
     fov_id = app.gui.subscribefieldOfView(
-        [rctx=_renderContext](float fov){
-            RenderContext_setfov(rctx, fov);
+        [this](float fov){
+            this->fov = fov;
         }
     );
 }
@@ -59,22 +60,11 @@ RenderContext::~RenderContext(){
     destroyRenderContext(_renderContext);
 }
 
-void RenderContext::operator()(const FrameStartCommand_& cmd){
-    auto shaderPtr = app.shaderManager.get(cmd.shaderHandle).shaderPtr;
-    const auto& cameraTransform = cmd.transform;
-    const auto& viewPos = cameraTransform.position;
-    const auto& viewQuat = cameraTransform.rotation;
-    const auto& camera = cmd.camera;
-
+void RenderContext::operator()(const FrameStartCommand& cmd){
     assert(_renderContext != nullptr);
-    RenderContext_setView(_renderContext,
-        viewPos.x, viewPos.y, viewPos.z,
-        viewQuat.x, viewQuat.y, viewQuat.z, viewQuat.w
-    );
 
-    assert(shaderPtr != nullptr);
     RenderContext_frameStart(_renderContext,
-        0.0, 0.0, 0.0, 0.5, shaderPtr);
+        0.0, 0.0, 0.0, 0.5);
 
     auto renderPassDesc = static_cast<MTL::RenderPassDescriptor*>(
         RenderContext_getRenderPassDesc(_renderContext));
@@ -86,8 +76,29 @@ void RenderContext::operator()(const FrameStartCommand_& cmd){
     // ImGui::ShowDemoWindow(); // Show demo window! :)
     app.gui.update();
 }
+void RenderContext::operator()(const SetViewCommand& cmd){
+    assert(_renderContext != nullptr);
+    const auto& cameraTransform = cmd.transform;
+    const auto& viewPos = cameraTransform.position;
+    const auto& viewQuat = cameraTransform.rotation;
+    const auto& camera = cmd.camera;
 
-void RenderContext::operator()(const DrawCommand_& cmd){
+    RenderContext_setView(_renderContext,
+        viewPos.x, viewPos.y, viewPos.z, fov,
+        viewQuat.x, viewQuat.y, viewQuat.z, viewQuat.w
+    );
+}
+void RenderContext::operator()(const SetShaderCommand& cmd){
+    assert(_renderContext != nullptr);
+    auto shaderPtr = app.shaderManager.get(cmd.shaderHandle).shaderPtr;
+    assert(shaderPtr != nullptr);
+
+    RenderContext_setShader(_renderContext,
+        shaderPtr
+    );
+}
+void RenderContext::operator()(const DrawMeshCommand& cmd){
+    assert(_renderContext != nullptr);
     Transform transform = cmd.transform;
     float *p=transform.position.v, *r=transform.rotation.v, *s=transform.scale.v;
     
@@ -102,7 +113,7 @@ void RenderContext::operator()(const DrawCommand_& cmd){
         r[0], ry, r[2], s[0], s[1], s[2], meshPtr);
 }
 
-void RenderContext::operator()([[maybe_unused]] const FrameEndCommand_& cmd){
+void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){
     assert(_renderContext != nullptr);
     auto commandBuffer = static_cast<MTL::CommandBuffer*>(
         RenderContext_getCommandBuffer(_renderContext));

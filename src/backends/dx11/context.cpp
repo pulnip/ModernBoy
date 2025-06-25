@@ -67,7 +67,7 @@ RenderContext::RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
         throw std::runtime_error("Failed to initialize ImGui.");
 }
 
-void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
+void RenderContext::operator()(const FrameStartCommand& cmd){
     // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplSDL3_NewFrame();
@@ -89,7 +89,7 @@ void RenderContext::operator()(const FrameStartCommand<Shader>& cmd){
     shaderManager.get(cmd.shaderHandle)->bind(*this);
 }
 
-void RenderContext::operator()(const DrawCommand<Mesh>& cmd){
+void RenderContext::operator()(const DrawMeshCommand<Mesh>& cmd){
     auto pMesh = meshManager.get(cmd.meshHandle);
     if(pMesh != nullptr){
         pMesh->bind(*this);

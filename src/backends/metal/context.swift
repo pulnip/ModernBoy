@@ -18,10 +18,7 @@ class RenderContext {
     let sampler: MTLSamplerState
     var dsTexture: MTLTexture?
 
-    var fov: Float = toRadians(from: 45)
-    var aspectRatio: Float = 1.0
     var viewPosition = simd_float3(repeating: 0)
-    var viewMat = matrix_identity_float4x4
 
     // material per frame
     var renderPassDesc: MTLRenderPassDescriptor?
@@ -62,8 +59,7 @@ class RenderContext {
     }
 
     func frameStart(
-        _ r: Double, _ g: Double, _ b: Double, _ a: Double,
-        _ shader: Shader
+        _ r: Double, _ g: Double, _ b: Double, _ a: Double
     ) {
         guard let drawable
             = layer.nextDrawable() else { return }
@@ -85,17 +81,23 @@ class RenderContext {
         commandBuffer = commandQueue.makeCommandBuffer()
         renderEncoder = commandBuffer?
             .makeRenderCommandEncoder(descriptor: rpd)
+    }
+    func setView(_ viewPos: simd_float3, _ fov: Float, _ viewQuat: simd_float4) {
+        let aspectRatio = Float(layer.bounds.width / layer.bounds.height)
+        viewPosition = viewPos
+        let viewMat = viewMatrix(viewPos, viewQuat)
 
-        shader.bind(encoder: renderEncoder)
-        renderEncoder?.setDepthStencilState(shader.depthStencilState)
-
-        aspectRatio = Float(layer.bounds.width / layer.bounds.height)
         let projMat = perspectiveMatrix(
             fov: fov, aspectRatio: aspectRatio, nearPlane: 0.1, farPlane: 100.0)
         var viewConstant = ViewConstant(
             viewMat: viewMat, projMat: projMat)
         renderEncoder!.setVertexBytes(&viewConstant,
             length: MemoryLayout<ViewConstant>.stride, index: 1)
+
+    }
+    func setShader(_ shader: Shader) {
+        shader.bind(encoder: renderEncoder)
+        renderEncoder?.setDepthStencilState(shader.depthStencilState)
     }
     func draw(_ modelMat: simd_float4x4, _ mesh: Mesh) {
         guard let encoder
@@ -154,16 +156,39 @@ public func destroyRenderContext(_ ptr: UnsafeRawPointer?) {
 @_cdecl("RenderContext_frameStart")
 public func RenderContext_frameStart(_ rctxPtr: UnsafeRawPointer?,
     _ r: Double, _ g: Double, _ b: Double, _ a: Double,
+) {
+    guard let rctxPtr = rctxPtr else { return }      
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+
+    rctx.frameStart(r, g, b, a)
+}
+@_cdecl("RenderContext_setView")
+public func RenderContext_setView(_ rctxPtr: UnsafeRawPointer?,
+    _ px: Float, _ py: Float, _ pz: Float, _ fov: Float,
+    _ rx: Float, _ ry: Float, _ rz: Float, _ w: Float
+    
+) {
+    guard let rctxPtr = rctxPtr else { return }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    let viewPos = simd_float3(px, py, pz)
+    let viewQuat = simd_float4(rx, ry, rz, w)
+
+    rctx.setView(viewPos, toRadians(from: fov), viewQuat)
+}
+@_cdecl("RenderContext_setShader")
+public func RenderContext_setShader(_ rctxPtr: UnsafeRawPointer?,
     _ shaderPtr: UnsafeRawPointer?
 ) {
     guard let rctxPtr = rctxPtr,
-          let shaderPtr = shaderPtr else { return }      
+          let shaderPtr = shaderPtr else { return }
     let rctx = Unmanaged<RenderContext>
         .fromOpaque(rctxPtr).takeUnretainedValue()
     let shader = Unmanaged<Shader>
         .fromOpaque(shaderPtr).takeUnretainedValue()
 
-    rctx.frameStart(r, g, b, a, shader)
+    rctx.setShader(shader)
 }
 @_cdecl("RenderContext_draw")
 public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,
@@ -258,28 +283,4 @@ public func RenderContext_getRenderEncoder(_ rctxPtr: UnsafeRawPointer?
         return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
     }
     return nil
-}
-
-@_cdecl("RenderContext_setView")
-public func RenderContext_setView(_ rctxPtr: UnsafeRawPointer?,
-    _ px: Float, _ py: Float, _ pz: Float,
-    _ rx: Float, _ ry: Float, _ rz: Float, _ w: Float
-) {
-    guard let rctxPtr = rctxPtr else { return }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    let viewPos = simd_float3(px, py, pz)
-    let viewQuat = simd_float4(rx, ry, rz, w)
-    rctx.viewPosition = viewPos
-    rctx.viewMat = viewMatrix(viewPos, viewQuat)
-}
-
-@_cdecl("RenderContext_setfov")
-public func RenderContext_setfov(_ rctxPtr: UnsafeRawPointer?,
-    _ fov: Float
-) {
-    guard let rctxPtr = rctxPtr else { return }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    rctx.fov = toRadians(from: fov)
 }

@@ -10,29 +10,28 @@
 
 namespace ModernBoy::Render
 {
-    template<typename Shader>
     struct FrameStartCommand{
-        std::optional<std::array<float, 4>> color = std::nullopt;
-        bool clearColor = true;
-        bool clearDepth = true;
-        ShaderHandle shaderHandle;
-
+        Vec4 clearColor;
+    };
+    struct SetViewCommand{
         Transform transform;
         Camera camera;
     };
-    template<typename Mesh>
-    struct DrawCommand{
+    struct SetShaderCommand{
+        ShaderHandle shaderHandle;
+    };
+    struct DrawMeshCommand{
         Transform transform;
         MeshHandle meshHandle;
     };
     struct FrameEndCommand{
     };
 
-    template<typename Mesh,
-        typename Shader>
     using RenderCommand = std::variant<
-        FrameStartCommand<Shader>,
-        DrawCommand<Mesh>,
+        FrameStartCommand,
+        SetViewCommand,
+        SetShaderCommand,
+        DrawMeshCommand,
         FrameEndCommand
     >;
 } // namespace ModernBoy::Render

@@ -8,11 +8,9 @@ using namespace ModernBoy;
 
 AppState::AppState(SDL_Window* window)
 :gui(), meshImporter(), window(window), inputDevice(),
-meshManager(*this), shaderManager(*this),
-transformPool(), cameraPool(),
-meshPool(), inputPool(),
-renderSystem(*this, window), inputSystem(),
 // Important!! Initialize Order
+meshManager(*this), shaderManager(*this),
+renderSystem(*this, window), inputSystem(*this),
 controller(*this), assetLoader(*this){}
 AppState::~AppState(){}
 
@@ -22,8 +20,6 @@ EntityID AppState::issueID(){
 
 static void assignEntityID(SparseChunk& components,
     EntityID actor);
-static void linkActor(AppState& app, EntityID actor,
-    const SparseChunk& linker, ArchetypeBit bit);
 
 EntityID AppState::createActor(ArchetypeBit bit,
     SparseChunk&& components
@@ -42,7 +38,6 @@ EntityID AppState::createActor(ArchetypeBit bit,
         );
         throw std::runtime_error(actorInfo);
     }
-    linkActor(*this, actor_id, components, bit);
     return actor_id;
 }
 void AppState::destroyActor(EntityID actor){
@@ -58,24 +53,6 @@ static void assignEntityID(SparseChunk& components,
     components.camera.actor = actor;
     components.mesh.actor = actor;
     components.input.actor = actor;
-}
-
-static void linkActor(AppState& app, EntityID actor,
-    const SparseChunk& chunk, ArchetypeBit bit
-){
-    if(subset(bit, KB_IN_BIT)){
-        auto transform = chunk.transform.value;
-        std::vector<InputTask> tasks;
-        for(const auto& buttonMap: chunk.input.value){
-            for(const auto& pair: buttonMap.second){
-                tasks.emplace_back(InputTask{
-                    buttonMap.first, pair.first, pair.second,
-                    transform
-                });
-            }
-        }
-        app.inputSystem.emplace(actor, tasks);
-    }
 }
 
 template<>

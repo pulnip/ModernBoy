@@ -15,20 +15,19 @@ namespace ModernBoy::Render
     class System{
     public:
         System(AppState& app, SDL_Window* window);
-        ~System() = default;
+        ~System();
 
+    private:
         void update(std::stop_token stoken);
+
+    public:
+        Renderer renderer;
 
     private:
         AppState& app;
 
-        // MUST CONSTRUCT queue FIRST
-    public:
-        Renderer renderer;
-    private:
-        std::jthread commandThread;
-        // MUST DESTRUCT stop_souce FIRST
         std::stop_source stsrc;
+        std::jthread commandThread;
     };
 } // namespace ModernBoy::Render
 

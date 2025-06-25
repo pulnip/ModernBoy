@@ -73,10 +73,6 @@ namespace ModernBoy
     struct RenderTask;
     struct ViewTask;
     struct InputTask;
-    // Systems
-    template<typename Task>
-    using TaskMap = std::unordered_map<EntityID, std::vector<Task>>;
-    using InputSystem = TaskMap<InputTask>;
 
     namespace Input
     {
@@ -90,23 +86,18 @@ namespace ModernBoy
     }
     namespace Render
     {
-        template<typename Shader>
         struct FrameStartCommand;
-        template<typename Mesh>
-        struct DrawCommand;
+        struct SetViewCommand;
+        struct SetShaderCommand;
+        struct DrawMeshCommand;
         struct FrameEndCommand;
         class Renderer;
     }
-    using Renderer = Render::Renderer;
-
     using NativePtr = void*;
 
     using MeshManager = ResourceManager<Mesh>;
     using ShaderManager = ResourceManager<Shader>;
     using ShaderHandle = ResourceHandle;
-    using FrameStartCommand_ = Render::FrameStartCommand<Shader>;
-    using DrawCommand_ = Render::DrawCommand<Mesh>;
-    using FrameEndCommand_ = Render::FrameEndCommand;
 
     using ObserverID = uint32_t;
 
@@ -116,7 +107,6 @@ namespace ModernBoy
     template<typename Component>
     std::optional<Component> find(AppState& app,
         EntityID actor);
-
 }
 
 #endif // MODERNBOY_FWD_HPP

@@ -7,25 +7,29 @@ using namespace ModernBoy;
 using namespace ModernBoy::Render;
 
 System::System(AppState& app, SDL_Window* window)
-:app(app),renderer(window, app){
-    commandThread = std::jthread(
+:renderer(window, app), app(app), commandThread(
+    std::jthread(
         [this](std::stop_token stoken){
             update(stoken);
         }, stsrc.get_token()
-    );
-    renderer.renderStart(stsrc.get_token());
-}
+    )
+){}
+System::~System(){ stsrc.request_stop(); }
 
 using ViewTasks = std::vector<ViewTask>;
 using RenderTasks = std::vector<RenderTask>;
 using Tasks = std::pair<ViewTasks, RenderTasks>;
 using RenderQueue = std::decay_t<decltype(Renderer::queue)>;
-using RenderCommands = std::vector<RenderCommand<Mesh, Shader>>;
+using RenderCommands = std::vector<RenderCommand>;
 
 static Tasks fetchTask(const ArchetypeMap& map);
 static void sortTask(RenderTasks& tasks);
 static void setFrameStart(RenderQueue& queue,
+    std::stop_token stoken);
+static void setView(RenderQueue& queue,
     const ViewTasks& tasks, std::stop_token stoken);
+static void setShader(RenderQueue& queue,
+    std::stop_token stoken);
 static void drawMeshes(RenderQueue& queue,
     const RenderTasks& tasks, std::stop_token stoken);
 static void setFrameEnd(RenderQueue& queue,
@@ -39,9 +43,11 @@ void System::update(std::stop_token stoken){
         auto [viewTasks, renderTasks] = fetchTask(app.archetypeMap);
         sortTask(renderTasks);
 
-        setFrameStart(renderer.queue, viewTasks, stoken);
-        drawMeshes(renderer.queue, renderTasks, stoken);
-        setFrameEnd(renderer.queue, stoken);
+        setFrameStart(commandQueue, stoken);
+        setView(commandQueue, viewTasks, stoken);
+        setShader(commandQueue, stoken);
+        drawMeshes(commandQueue, renderTasks, stoken);
+        setFrameEnd(commandQueue, stoken);
     }
 }
 
@@ -87,25 +93,36 @@ static void sortTask(RenderTasks& tasks){
 }
 
 static void setFrameStart(RenderQueue& queue,
+    std::stop_token stoken
+){
+    waitUntilPushed(queue, FrameStartCommand{}, stoken);
+}
+static void setView(RenderQueue& queue,
     const ViewTasks& tasks, std::stop_token stoken
 ){
     for(auto& task: tasks){
-        waitUntilPushed(queue, FrameStartCommand<Shader>{
+        waitUntilPushed(queue, SetViewCommand{
             // TODO: for multiple scene viewport
-            .shaderHandle = {.type=ResourceType::SHADER,
-                .index=0, .generation=1
-            },
             .transform = task.transform,
-            .camera = task.camera,
+            .camera = task.camera
         }, stoken);
     }
 }
-
+static void setShader(RenderQueue& queue,
+    std::stop_token stoken
+){
+    waitUntilPushed(queue, SetShaderCommand{
+        .shaderHandle = {
+            .type=ResourceType::SHADER,
+            .index=0, .generation=1
+        }
+    }, stoken);
+}
 static void drawMeshes(RenderQueue& queue,
     const RenderTasks& tasks, std::stop_token stoken
 ){
     for(auto& task: tasks){
-        waitUntilPushed(queue, DrawCommand<Mesh>{
+        waitUntilPushed(queue, DrawMeshCommand{
             .transform = task.transform,
             .meshHandle = task.meshHandle
         }, stoken);

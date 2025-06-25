@@ -15,10 +15,13 @@ namespace ModernBoy::Metal
         RenderContext(SDL_Window* in_window, AppState& app);
         ~RenderContext();
 
-        void operator()(const FrameStartCommand_&);
-        void operator()(const DrawCommand_&);
-        void operator()(const FrameEndCommand_&);
+        void operator()(const Render::FrameStartCommand&);
+        void operator()(const Render::SetViewCommand&);
+        void operator()(const Render::SetShaderCommand&);
+        void operator()(const Render::DrawMeshCommand&);
+        void operator()(const Render::FrameEndCommand&);
 
+        float fov;
     private:
         AppState& app;
         ObserverID fov_id = -1;
@@ -33,7 +36,15 @@ extern "C"{
 
     extern void RenderContext_frameStart(
         void* _nativeContext,
-        double r, double g, double b, double a,
+        double r, double g, double b, double a
+    );
+    extern void RenderContext_setView(
+        void* _nativeContext,
+        float px, float py, float pz, float fov,
+        float rx, float ry, float rz, float w
+    );
+    extern void RenderContext_setShader(
+        void* _nativeContext,
         void* shaderPtr
     );
     extern void RenderContext_draw(
@@ -64,16 +75,6 @@ extern "C"{
     );
     extern void* RenderContext_getRenderEncoder(
         void* _nativeContext
-    );
-
-    extern void RenderContext_setView(
-        void* _nativeContext,
-        float px, float py, float pz,
-        float rx, float ry, float rz, float w
-    );
-
-    extern void RenderContext_setfov(
-        void* _nativeContext, float fov
     );
 
 #ifdef __cplusplus

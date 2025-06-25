@@ -13,6 +13,7 @@
 #include "task.hpp"
 #include "script/controller.hpp"
 #include "input/device.hpp"
+#include "input/system.hpp"
 #include "render/gui.hpp"
 #include "render/system.hpp"
 #include "game/game_context.hpp"
@@ -41,17 +42,12 @@ namespace ModernBoy
         size_t chunkIndex;
     };
     using EntityTable = std::unordered_map<EntityID, ComponentInfo>;
-    // Component Pool
-    using TransformPool = ObjectPool<TransformComponent>;
-    using CameraPool = ObjectPool<CameraComponent>;
-    using MeshPool = ObjectPool<MeshComponent>;
-    using InputPool = ObjectPool<InputComponent>;
 
     struct AppState{
     private:
         EntityID id_seed;
         EntityID issueID();
-
+        
     public:
         // Important!! Initialize Order
         // Hardwares
@@ -65,15 +61,9 @@ namespace ModernBoy
 
         EntityTable actorTable;
         ArchetypeMap archetypeMap;
-        
-        TransformPool transformPool;
-        CameraPool cameraPool;
-        MeshPool meshPool;
-        InputPool inputPool;
 
         Render::System renderSystem;
-        InputSystem inputSystem;
-        // Softwares
+        Input::System inputSystem;
         Script::Controller controller;
 
         AssetLoader assetLoader;
