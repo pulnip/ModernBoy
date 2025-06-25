@@ -1,5 +1,6 @@
 #include <cassert>
 #include <bit>
+#include <limits>
 #include "util/dynamic_vector.hpp"
 
 using namespace ModernBoy;
@@ -8,7 +9,9 @@ DynamicVector::DynamicVector(size_t CHUNK_SIZE)
 :CHUNK_SIZE(CHUNK_SIZE){}
 
 DynamicVector::DynamicVector(size_t CHUNK_SIZE, size_t initialSize)
-:CHUNK_SIZE(CHUNK_SIZE), maxSize(std::bit_ceil(initialSize)), data(malloc(CHUNK_SIZE*maxSize)){
+:workingIndex(initialSize), CHUNK_SIZE(CHUNK_SIZE),
+maxSize(std::bit_ceil(initialSize)), data(malloc(CHUNK_SIZE*maxSize))
+{
     for(Index i=0; i<maxSize; ++i){
         freeSlots.insert(i);
     }
@@ -53,7 +56,10 @@ Index DynamicVector::newChunk(size_t numChunk){
 #endif
     Index start = findContinuousFreeFittedSlot(numChunk);
     // already have free slot.
-    if(start != size_t(-1)){
+    if(start != std::numeric_limits<size_t>::max()){
+        for(Index i=0; i<numChunk; ++i)
+            freeSlots.erase(start + i);
+        size_ += numChunk;
         return start;
     }
 
@@ -71,6 +77,7 @@ Index DynamicVector::newChunk(size_t numChunk){
         freeSlots.erase(start+i);
     }
 
+    size_ += numChunk;
     return start;
 }
 
@@ -79,7 +86,7 @@ Index DynamicVector::findContinuousFreeFittedSlot(
 ){
     assert(freeSlots.size()==(maxSize-size_));
     if(maxSize-size_ < numChunk)
-        return size_t(-1);
+        return std::numeric_limits<size_t>::max();
 
     Index candidateIndex = *freeSlots.cbegin();
     size_t numAvailable = 0;
@@ -99,12 +106,14 @@ Index DynamicVector::findContinuousFreeFittedSlot(
         }
     }
 
-    return size_t(-1);
+    return std::numeric_limits<size_t>::max();
 }
 
 void DynamicVector::freeChunk(Index startIndex, size_t numChunk){
-    for(Index i=startIndex; i<numChunk; ++i)
-        freeSlots.insert(i);
+    assert(numChunk <= size_);
+    for(Index i=0; i<numChunk; ++i)
+        freeSlots.insert(startIndex+i);
+    size_ -= numChunk;
 }
 
 void* DynamicVector::operator[](Index index){
