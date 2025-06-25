@@ -111,6 +111,7 @@
     "stacktrace": "cpp",
     "scoped_allocator": "cpp",
     "buffer": "cpp",
-    "socket": "cpp"
+    "socket": "cpp",
+    "typeindex": "cpp"
 }
 }

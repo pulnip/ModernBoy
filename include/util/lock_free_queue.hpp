@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <iterator>
 #include <span>
+#include <thread>
+#include "thread_backoff.hpp"
 
 namespace ModernBoy
 {
@@ -83,24 +85,6 @@ namespace ModernBoy
         }
         consteval size_t capacity() const{
             return Capacity - 1; // 1 for distinct full/empty 
-        }
-    };
-
-    template<int PassiveWaitLimit = 16, int YieldLimit = 64, int SleepMs=1>
-    struct AdaptiveBackoff{
-        int retries = 0;
-    
-        void reset(){ retries = 0; }
-
-        void operator()(){
-            if(retries < PassiveWaitLimit){
-                // do Nothing (passive spin)
-            } else if(retries < YieldLimit){
-                std::this_thread::yield();
-            } else{
-                std::this_thread::sleep_for(std::chrono::milliseconds(SleepMs));
-            }
-            ++retries;
         }
     };
 

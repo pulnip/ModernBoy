@@ -35,6 +35,7 @@ namespace ModernBoy{
             const void* operator*() const;
             Iterator& operator++();
             bool operator!=(const Iterator& other) const;
+            bool operator==(const Iterator& other) const;
         };
         struct ConstIterator{
             const void* const ptr;
@@ -48,6 +49,7 @@ namespace ModernBoy{
             const void* operator*() const;
             ConstIterator& operator++();
             bool operator!=(const ConstIterator& other) const;
+            bool operator==(const ConstIterator& other) const;
         };
 
         DynamicVector(size_t CHUNK_SIZE);
@@ -61,14 +63,18 @@ namespace ModernBoy{
         Index newChunk(size_t numChunk=1);
         void freeChunk(Index startIndex, size_t numChunk=1);
         void* operator[](Index index);
+        Index final_index() const noexcept;
         size_t size() const noexcept;
         size_t capacity() const noexcept;
 
         Iterator begin();
+        Iterator begin(Index i);
         Iterator end();
         ConstIterator begin() const;
+        ConstIterator begin(Index i) const;
         ConstIterator end() const;
         ConstIterator cbegin() const;
+        ConstIterator cbegin(Index i) const;
         ConstIterator cend() const;
 
     private:

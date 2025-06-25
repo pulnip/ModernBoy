@@ -1,12 +1,75 @@
 #include "archetype_map.hpp"
 #include "util/bit.hpp"
 #include "app_state.hpp"
+#include "util/thread_backoff.hpp"
 
 using namespace ModernBoy;
 
 static size_t bit_size(ArchetypeBit bit);
 static void setChunk(void* dst, const SparseChunk& chunk,
     ArchetypeBit bit);
+
+void RWPhaseGate::for_each(Reader fn){
+    on_read_phase();
+    for(const auto chunk: vec)
+        fn(chunk);
+    read_phase_end();
+}
+void RWPhaseGate::transform(Writer fn){
+    on_write_phase();
+    for(auto chunk: vec)
+        fn(chunk);
+    write_phase_end();
+}
+void RWPhaseGate::transform_range(
+    Writer fn, Index start, size_t num
+){
+    on_write_phase();
+    auto it = vec.begin(start);
+    auto end = vec.end();
+    for(size_t i=0; i<num; ++i){
+        fn(*it);
+        ++it;
+        if(it==end){
+            // warning: only (i+1) chunk(s) available.
+            break;
+        }
+    }
+    write_phase_end();
+}
+
+void RWPhaseGate::on_read_phase(){
+    AdaptiveBackoff backoff = {};
+
+    while(true){
+        uint_fast32_t s = state.load(std::memory_order_acquire);
+        if(s & WRITER_BIT)
+            backoff();
+        if(state.compare_exchange_weak(s, s+1,
+            std::memory_order_acquire)) break;
+    }
+}
+void RWPhaseGate::read_phase_end(){
+    state.fetch_sub(1, std::memory_order_release);
+}
+void RWPhaseGate::on_write_phase(){
+    AdaptiveBackoff backoff{};
+    while(true){
+        uint_fast32_t expected = state.load(std::memory_order_acquire);
+        if(expected & WRITER_BIT)
+            continue;
+        if(state.compare_exchange_weak(
+            expected, expected | WRITER_BIT,
+            std::memory_order_acq_rel
+        )) break;
+    }
+    while((state.load(std::memory_order_acquire)
+        & READER_MASK) != 0
+    ) backoff();
+}
+void RWPhaseGate::write_phase_end(){
+    state.fetch_and(~WRITER_BIT, std::memory_order_release);
+}
 
 DynamicVector& ArchetypeMap::at(ArchetypeBit bit){
     return archetypeMap.at(bit);

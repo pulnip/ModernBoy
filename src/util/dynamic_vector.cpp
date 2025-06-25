@@ -9,8 +9,8 @@ DynamicVector::DynamicVector(size_t CHUNK_SIZE)
 :CHUNK_SIZE(CHUNK_SIZE){}
 
 DynamicVector::DynamicVector(size_t CHUNK_SIZE, size_t initialSize)
-:workingIndex(initialSize), CHUNK_SIZE(CHUNK_SIZE),
-maxSize(std::bit_ceil(initialSize)), data(malloc(CHUNK_SIZE*maxSize))
+:CHUNK_SIZE(CHUNK_SIZE), maxSize(std::bit_ceil(initialSize)),
+data(malloc(CHUNK_SIZE*maxSize))
 {
     for(Index i=0; i<maxSize; ++i){
         freeSlots.insert(i);
@@ -137,17 +137,27 @@ using ConstIt = DynamicVector::ConstIterator;
 Iterator DynamicVector::begin(){
     return Iterator(data, 0, CHUNK_SIZE, freeSlots.cbegin());
 }
+Iterator DynamicVector::begin(Index i){
+freeSlots.lower_bound(i);
+    return Iterator(data, i, CHUNK_SIZE, freeSlots.lower_bound(i));
+}
 Iterator DynamicVector::end(){
     return Iterator(data, size_, CHUNK_SIZE, freeSlots.cend());
 }
 ConstIt DynamicVector::begin() const{
     return ConstIt(data, 0, CHUNK_SIZE, freeSlots.cbegin());
 }
+ConstIt DynamicVector::begin(Index i) const{
+    return ConstIt(data, i, CHUNK_SIZE, freeSlots.lower_bound(i));
+}
 ConstIt DynamicVector::end() const{
     return ConstIt(data, 0, CHUNK_SIZE, freeSlots.cend());
 }
 ConstIt DynamicVector::cbegin() const{
     return ConstIt(data, 0, CHUNK_SIZE, freeSlots.cbegin());
+}
+ConstIt DynamicVector::cbegin(Index i) const{
+    return ConstIt(data, 0, CHUNK_SIZE, freeSlots.lower_bound(i));
 }
 ConstIt DynamicVector::cend() const{
     return ConstIt(data, size_, CHUNK_SIZE, freeSlots.cend());
@@ -173,6 +183,9 @@ Iterator& Iterator::operator++(){
 bool Iterator::operator!=(const Iterator& other) const{
     return ptr != other.ptr || index != other.index;
 }
+bool Iterator::operator==(const Iterator& other) const{
+    return ptr == other.ptr && index == other.index;
+}
 
 ConstIt::ConstIterator(const void* ptr, Index index, size_t STRIDE,
     std::set<size_t>::const_iterator it)
@@ -188,4 +201,7 @@ ConstIt& ConstIt::operator++(){
 }
 bool ConstIt::operator!=(const ConstIt& other) const{
     return ptr != other.ptr || index != other.index;
+}
+bool ConstIt::operator==(const ConstIt& other) const{
+    return ptr == other.ptr && index == other.index;
 }
