@@ -15,21 +15,9 @@ namespace ModernBoy::Input
         ~System() = default;
 
         void update(DeltaTime dt);
-        size_t numInputTask();
-
-        void ignoreActor(EntityID actor);
-        void unignoreActor(EntityID actor);
 
     private:
         AppState& app;
-
-        using IgnoredActors = std::unordered_set<EntityID>;
-        using IgnoredIndex = std::unordered_set<Index>;
-        using IgnoranceInfo = std::map<ArchetypeBit, IgnoredIndex>;
-
-        void removeDangledActor();
-
-        IgnoranceInfo ignoranceInfo;
     };
 } // namespace ModernBoy::Input
 
