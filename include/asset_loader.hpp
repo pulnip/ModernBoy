@@ -15,9 +15,6 @@ namespace ModernBoy
 
     private:
         AppState& app;
-
-        EntityID id_seed = 0;
-        EntityID issueID();
     };
 } // namespace ModernBoy
 

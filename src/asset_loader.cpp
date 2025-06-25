@@ -11,13 +11,6 @@ AssetLoader::AssetLoader(AppState& app):app(app){}
 static Transform parseTransform(const toml::v3::table& table);
 static Camera parseCamera(const toml::v3::table& table);
 
-EntityID AssetLoader::issueID(){
-    return id_seed++;
-}
-
-static void linkActor(AppState& app, EntityID actor,
-    const SparseChunk& linker, ArchetypeBit bit);
-
 void AssetLoader::loadActors(const std::string& fileName){
     toml::table tbl = toml::parse_file(fileName);
 
@@ -25,7 +18,6 @@ void AssetLoader::loadActors(const std::string& fileName){
     for(const auto& actor_node: actors){
         const auto& actor = *actor_node.as_table();
         // new Actor
-        EntityID actor_id = issueID();
         ArchetypeBit bit = 0;
         SparseChunk chunk;
 
@@ -33,7 +25,7 @@ void AssetLoader::loadActors(const std::string& fileName){
         if(auto trans_tbl = actor["transform"].as_table()){
             auto transform = parseTransform(*trans_tbl);
 
-            chunk.transform = TransformComponent{actor_id, transform};
+            chunk.transform = TransformComponent{INVALID_ENTITY, transform};
             bit = bit | TRANSFORM_BIT;
         }
 
@@ -43,7 +35,7 @@ void AssetLoader::loadActors(const std::string& fileName){
                 .value<std::string>().value_or("Sphere");
             auto accessHandle = app.meshManager.load(meshFile);
 
-            chunk.mesh = MeshComponent{actor_id, accessHandle};
+            chunk.mesh = MeshComponent{INVALID_ENTITY, accessHandle};
             bit = bit | MESH_BIT;
             // ToDo. texture component
             // const auto& texFile = *parts["diffuse"].value<std::string>();
@@ -67,12 +59,10 @@ void AssetLoader::loadActors(const std::string& fileName){
 
                 Input::addInput(inputMap, button, state, behaviour);
             }
-            chunk.input = InputComponent{actor_id, inputMap};
+            chunk.input = InputComponent{INVALID_ENTITY, inputMap};
             bit = bit | INPUT_BIT;
         }
-        auto chunkIndex = app.archetypeMap.insert(bit, chunk);
-        app.actorTable.emplace(actor_id, ComponentInfo{bit, chunkIndex});
-        linkActor(app, actor_id, chunk, bit);
+        [[maybe_unused]] auto actor_id = app.createActor(bit, std::move(chunk));
     }
 }
 void AssetLoader::loadCamera(const std::string& fileName){
@@ -83,7 +73,6 @@ void AssetLoader::loadCamera(const std::string& fileName){
     for(const auto& cam_node: *cameras){
         const auto& cam = *cam_node.as_table();
         // new Actor
-        EntityID actor_id = issueID();
         ArchetypeBit bit = 0;
         SparseChunk chunk;
 
@@ -95,7 +84,7 @@ void AssetLoader::loadCamera(const std::string& fileName){
         if(auto t = cam["transform"].as_table()){
             auto transform = parseTransform(*t);
 
-            chunk.transform = TransformComponent{actor_id, transform};
+            chunk.transform = TransformComponent{INVALID_ENTITY, transform};
             bit = bit | TRANSFORM_BIT;
         }
         else{
@@ -103,15 +92,13 @@ void AssetLoader::loadCamera(const std::string& fileName){
         }
         if(auto c = cam["camera"].as_table()){
             auto camera = parseCamera(*c);
-            chunk.camera = CameraComponent{actor_id, camera};
+            chunk.camera = CameraComponent{INVALID_ENTITY, camera};
             bit = bit | CAMERA_BIT;
         }
         else{
             // warning!
         }
-        auto chunkIndex = app.archetypeMap.insert(bit, chunk);
-        app.actorTable.emplace(actor_id, ComponentInfo{bit, chunkIndex});
-        linkActor(app, actor_id, chunk, bit);
+        [[maybe_unused]] auto actor_id = app.createActor(bit, std::move(chunk));
         // ToDo. Not Accept Multiple Camera actor.
         break;
     }
@@ -150,38 +137,4 @@ static Camera parseCamera(const toml::v3::table& table){
         .farPlane = static_cast<float>(far),
         .projection = projection
     };
-}
-
-static void linkActor(AppState& app, EntityID actor,
-    const SparseChunk& chunk, ArchetypeBit bit
-){
-    if(subset(bit, RENDER_BIT)){
-        auto transform = chunk.transform.value;
-        auto& meshHandles = app.meshManager.get(chunk.mesh.accessHandle);
-        std::vector<RenderTask> tasks(meshHandles.size());
-        for(size_t i=0; i<tasks.size(); ++i)
-            tasks[i] = RenderTask{transform, meshHandles[i]};
-        app.renderSystem.emplace(actor, tasks);
-    }
-
-    if(subset(bit, VIEW_BIT)){
-        auto transform = chunk.transform.value;
-        std::vector<ViewTask> tasks(1);
-        tasks[0] = ViewTask{transform, chunk.camera.value};
-        app.viewSystem.emplace(actor, tasks);
-    }
-
-    if(subset(bit, KB_IN_BIT)){
-        auto transform = chunk.transform.value;
-        std::vector<InputTask> tasks;
-        for(const auto& buttonMap: chunk.input.value){
-            for(const auto& pair: buttonMap.second){
-                tasks.emplace_back(InputTask{
-                    buttonMap.first, pair.first, pair.second,
-                    transform
-                });
-            }
-        }
-        app.inputSystem.emplace(actor, tasks);
-    }
 }

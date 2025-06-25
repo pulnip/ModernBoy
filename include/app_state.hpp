@@ -50,6 +50,11 @@ namespace ModernBoy
     using ViewSystem = TaskMap<ViewTask>;
 
     struct AppState{
+    private:
+        EntityID id_seed;
+        EntityID issueID();
+
+    public:
         // Important!! Initialize Order
         // Hardwares
         UI gui;
@@ -83,6 +88,10 @@ namespace ModernBoy
         AppState(SDL_Window* window);
         ~AppState();
 
+        EntityID createActor(ArchetypeBit bit,
+            SparseChunk&& components);
+        void destroyActor(EntityID ID);
+
         template<typename Resource>
         std::vector<Resource> import(const std::string&);
 
@@ -93,6 +102,7 @@ namespace ModernBoy
         std::vector<Task> get();
         template<typename Task>
         std::vector<Task> get(const Input::State& state);
+
     };
 }
 

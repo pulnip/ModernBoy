@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <limits>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -64,6 +65,7 @@ namespace ModernBoy
     struct SparseChunk;
     // Actor
     using EntityID = uint32_t;
+    constexpr auto INVALID_ENTITY = std::numeric_limits<EntityID>::max();
     // Tasks
     struct RenderTask;
     struct ViewTask;
@@ -78,6 +80,8 @@ namespace ModernBoy
     namespace Input
     {
         struct State;
+        class Device;
+        class System;
     }
     namespace Script
     {

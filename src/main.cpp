@@ -21,17 +21,6 @@ using namespace ModernBoy::Metal;
 using namespace ModernBoy::OpenGL;
 #endif
 
-AppState::AppState(SDL_Window* window)
-:gui(), meshImporter(), window(window), inputDevice(),
-meshManager(*this), shaderManager(*this),
-transformPool(), cameraPool(),
-meshPool(), inputPool(),
-renderSystem(), viewSystem(), inputSystem(),
-// Important!! Initialize Order
-controller(*this), renderer(window, *this),
-assetLoader(*this){}
-AppState::~AppState(){}
-
 constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
 
 static SDL_AppResult _handle_key_event(void* ctx, SDL_Scancode key_code);

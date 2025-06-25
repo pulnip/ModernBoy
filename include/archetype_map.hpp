@@ -15,6 +15,11 @@ namespace ModernBoy
         std::unordered_map<ArchetypeBit, DynamicVector> archetypeMap;
 
     public:
+        Index insert(ArchetypeBit bit,
+            const SparseChunk& chunk);
+        DynamicVector& at(ArchetypeBit bit);
+        const DynamicVector& at(ArchetypeBit bit) const;
+
         using iterator = std::unordered_map<ArchetypeBit, DynamicVector>::iterator;
         using const_iterator = std::unordered_map<ArchetypeBit, DynamicVector>::const_iterator;
 
@@ -25,8 +30,6 @@ namespace ModernBoy
         const_iterator cbegin() const{ return archetypeMap.cbegin(); }
         const_iterator cend() const{ return archetypeMap.cend(); }
 
-        Index insert(ArchetypeBit bit,
-            const SparseChunk& chunk);
     };
 
     void getChunk(TransformComponent* tc,

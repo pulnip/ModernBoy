@@ -8,6 +8,13 @@ static size_t bit_size(ArchetypeBit bit);
 static void setChunk(void* dst, const SparseChunk& chunk,
     ArchetypeBit bit);
 
+DynamicVector& ArchetypeMap::at(ArchetypeBit bit){
+    return archetypeMap.at(bit);
+}
+const DynamicVector& ArchetypeMap::at(ArchetypeBit bit) const{
+    return archetypeMap.at(bit);
+}
+
 Index ArchetypeMap::insert(ArchetypeBit bit,
     const SparseChunk& chunk
 ){
