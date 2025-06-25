@@ -84,9 +84,8 @@ namespace ModernBoy
             auto querybit = bit_of<Component>;
             if((comp.bit & querybit) != querybit)
                 return std::nullopt;
-            return Util::as<Component>(
-                archetypeMap.at(comp.bit)[comp.chunkIndex]
-            );
+            Component c;
+            archetypeMap.at(comp.bit).get(comp.chunkIndex, &c);
         }
     };
 }

@@ -58,19 +58,19 @@ static Tasks fetchTask(const ArchetypeMap& map){
 
     for(const auto& [bit, vec]: map){
         if(subset(bit_of<ViewTask>(), bit))
-            for(const auto& chunk: vec){
+            vec.for_each([](Index, const void* chunk){
                 TransformComponent tc;
                 CameraComponent cc;
                 getChunk(&tc, &cc, nullptr, nullptr, chunk);
                 assert(tc.actor == cc.actor);
-            }
+            });
         else if(subset(bit_of<RenderTask>(), bit))
-            for(const auto& chunk: vec){
+            vec.for_each([](Index, const void* chunk){
                 TransformComponent tc;
                 MeshComponent mc;
                 getChunk(&tc, nullptr, &mc, nullptr, chunk);
                 assert(tc.actor == mc.actor);
-            }
+            });
     }
     return {viewTasks, renderTasks};
 }

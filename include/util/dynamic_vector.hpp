@@ -62,7 +62,9 @@ namespace ModernBoy{
         // Start index of Chunk(s).
         Index newChunk(size_t numChunk=1);
         void freeChunk(Index startIndex, size_t numChunk=1);
+        size_t getChunkSize() const;
         void* operator[](Index index);
+        const void* operator[](Index index) const;
         Index final_index() const noexcept;
         size_t size() const noexcept;
         size_t capacity() const noexcept;

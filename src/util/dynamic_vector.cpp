@@ -116,7 +116,16 @@ void DynamicVector::freeChunk(Index startIndex, size_t numChunk){
     size_ -= numChunk;
 }
 
+size_t DynamicVector::getChunkSize() const{
+    return CHUNK_SIZE;
+}
+
 void* DynamicVector::operator[](Index index){
+    [[likely]] if(index < maxSize)
+        return static_cast<uint8_t*>(data) + CHUNK_SIZE*index;
+    return nullptr;
+}
+const void* DynamicVector::operator[](Index index) const{
     [[likely]] if(index < maxSize)
         return static_cast<uint8_t*>(data) + CHUNK_SIZE*index;
     return nullptr;

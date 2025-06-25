@@ -9,16 +9,16 @@ static size_t bit_size(ArchetypeBit bit);
 static void setChunk(void* dst, const SparseChunk& chunk,
     ArchetypeBit bit);
 
-void RWPhaseGate::for_each(Reader fn){
+void RWPhaseGate::for_each(Reader fn) const{
     on_read_phase();
-    for(const auto chunk: vec)
-        fn(chunk);
+    for(Index i=0; i<vec.size(); ++i)
+        fn(i, vec[i]);
     read_phase_end();
 }
 void RWPhaseGate::transform(Writer fn){
     on_write_phase();
-    for(auto chunk: vec)
-        fn(chunk);
+    for(Index i=0; i<vec.size(); ++i)
+        fn(i, vec[i]);
     write_phase_end();
 }
 void RWPhaseGate::transform_range(
@@ -28,7 +28,7 @@ void RWPhaseGate::transform_range(
     auto it = vec.begin(start);
     auto end = vec.end();
     for(size_t i=0; i<num; ++i){
-        fn(*it);
+        fn(start+i, *it);
         ++it;
         if(it==end){
             // warning: only (i+1) chunk(s) available.
@@ -38,7 +38,32 @@ void RWPhaseGate::transform_range(
     write_phase_end();
 }
 
-void RWPhaseGate::on_read_phase(){
+template<>
+void RWPhaseGate::mutate<void>(std::function<void(DynamicVector&)> fn){
+    on_write_phase();
+    fn(vec);
+    write_phase_end();
+}
+
+size_t RWPhaseGate::size() const{
+    on_read_phase();
+    return vec.size();
+    read_phase_end();
+}
+void RWPhaseGate::get(Index i, void* dst) const{
+    on_read_phase();
+    memcpy(dst, vec[i], vec.getChunkSize());
+    read_phase_end();
+}
+void RWPhaseGate::free(Index i){
+    on_write_phase();
+    vec.freeChunk(i);
+    write_phase_end();
+}
+
+
+
+void RWPhaseGate::on_read_phase() const{
     AdaptiveBackoff backoff = {};
 
     while(true){
@@ -49,7 +74,7 @@ void RWPhaseGate::on_read_phase(){
             std::memory_order_acquire)) break;
     }
 }
-void RWPhaseGate::read_phase_end(){
+void RWPhaseGate::read_phase_end() const{
     state.fetch_sub(1, std::memory_order_release);
 }
 void RWPhaseGate::on_write_phase(){
@@ -71,10 +96,10 @@ void RWPhaseGate::write_phase_end(){
     state.fetch_and(~WRITER_BIT, std::memory_order_release);
 }
 
-DynamicVector& ArchetypeMap::at(ArchetypeBit bit){
+RWPhaseGate& ArchetypeMap::at(ArchetypeBit bit){
     return archetypeMap.at(bit);
 }
-const DynamicVector& ArchetypeMap::at(ArchetypeBit bit) const{
+const RWPhaseGate& ArchetypeMap::at(ArchetypeBit bit) const{
     return archetypeMap.at(bit);
 }
 
@@ -84,12 +109,14 @@ Index ArchetypeMap::insert(ArchetypeBit bit,
     size_t CHUNK_SIZE = bit_size(bit);
 
     if(archetypeMap.find(bit) == archetypeMap.end())
-        archetypeMap.emplace(bit, DynamicVector(CHUNK_SIZE, 8));
+        archetypeMap.try_emplace(bit, CHUNK_SIZE, 8);
     auto& vector = archetypeMap.at(bit);
-    auto newIndex = vector.newChunk(1);
-    auto mem = vector[newIndex];
-
-    setChunk(mem, chunk, bit);
+    auto newIndex = vector.mutate<Index>([bit, &chunk](DynamicVector& vec){
+        auto newIndex = vec.newChunk(1);
+        auto mem = vec[newIndex];
+        setChunk(mem, chunk, bit);
+        return newIndex;
+    });
     return newIndex;
 }
 

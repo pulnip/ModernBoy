@@ -14,25 +14,39 @@ namespace ModernBoy
     private:
         DynamicVector vec;
 
-        std::atomic_uint_fast32_t state = 0;
+        mutable std::atomic_uint_fast32_t state = 0;
         static constexpr uint_fast32_t WRITER_BIT
             = 1 << (8*sizeof(uint_fast32_t)-1);
         static constexpr uint_fast32_t READER_MASK
             = WRITER_BIT - 1;
 
-        using Reader = std::function<void(const void*)>;
-        using Writer = std::function<void(void*)>;
+        using Reader = std::function<void(Index, const void*)>;
+        using Writer = std::function<void(Index, void*)>;
 
     public:
-        void for_each(Reader fn);
+        template<typename... Args>
+        RWPhaseGate(Args&&... args)
+        :vec(std::forward<Args>(args)...){}
+
+        void for_each(Reader fn) const;
         void transform(Writer fn);
         void transform_range(Writer fn,
             Index start, size_t num);
-        
+        template<typename R>
+        R mutate(std::function<R(DynamicVector&)> fn){
+            on_write_phase();
+            auto ret = fn(vec);
+            write_phase_end();
+            return ret;
+        }
+
+        size_t size() const;
+        void get(Index i, void* dst) const;
+        void free(Index i);
 
     private:
-        void on_read_phase();
-        void read_phase_end();
+        void on_read_phase() const;
+        void read_phase_end() const;
         void on_write_phase();
         void write_phase_end();
     };
@@ -41,16 +55,16 @@ namespace ModernBoy
     private:
         using ArchetypeIndex = std::pair<ArchetypeBit, Index>;
         std::unordered_map<EntityID, ArchetypeIndex> actor_info;
-        std::unordered_map<ArchetypeBit, DynamicVector> archetypeMap;
+        std::unordered_map<ArchetypeBit, RWPhaseGate> archetypeMap;
 
     public:
         Index insert(ArchetypeBit bit,
             const SparseChunk& chunk);
-        DynamicVector& at(ArchetypeBit bit);
-        const DynamicVector& at(ArchetypeBit bit) const;
+        RWPhaseGate& at(ArchetypeBit bit);
+        const RWPhaseGate& at(ArchetypeBit bit) const;
 
-        using iterator = std::unordered_map<ArchetypeBit, DynamicVector>::iterator;
-        using const_iterator = std::unordered_map<ArchetypeBit, DynamicVector>::const_iterator;
+        using iterator = std::unordered_map<ArchetypeBit, RWPhaseGate>::iterator;
+        using const_iterator = std::unordered_map<ArchetypeBit, RWPhaseGate>::const_iterator;
 
         iterator begin(){ return archetypeMap.begin(); }
         iterator end(){ return archetypeMap.end(); }

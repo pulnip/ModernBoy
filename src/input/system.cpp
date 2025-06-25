@@ -24,19 +24,22 @@ void System::update(DeltaTime dt){
         // has ignorance info about this bit
         if(it->first == bit){
             auto jt = it->second.cbegin();
-            for(auto vit = vec.cbegin(); vit!=vec.cend(); ++vit){
-                while(*jt < vit.index) ++jt;
-                if(*jt == vit.index) continue;
-                // Do Task
-                parseComponent(*vit);
-            }
+            // vec.for_each([&jt](Index i, const void* chunk){
+
+            // });
+            // for(auto vit = vec.cbegin(); vit!=vec.cend(); ++vit){
+            //     while(*jt < vit.index) ++jt;
+            //     if(*jt == vit.index) continue;
+            //     // Do Task
+            //     parseComponent(*vit);
+            // }
         }
         else{
             // no ignorance
-            for(const auto& chunk: vec){
-                // Do Task
-                parseComponent(chunk);
-            }
+            // for(const auto& chunk: vec){
+            //     // Do Task
+            //     parseComponent(chunk);
+            // }
         }
     }
 }
@@ -65,10 +68,10 @@ size_t System::numInputTask(){
         // has ignorance info about this bit
         if(it->first == bit){
             auto jt = it->second.cbegin();
-            for(auto vit=vec.cbegin(); vit!=vec.cend(); ++vit){
-                if(*jt <= vit.index) ++jt;
-                if(vit.index < *jt) ++num;
-            }
+            // for(auto vit=vec.cbegin(); vit!=vec.cend(); ++vit){
+            //     if(*jt <= vit.index) ++jt;
+            //     if(vit.index < *jt) ++num;
+            // }
         }
     }
     return num;

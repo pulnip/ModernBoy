@@ -42,7 +42,7 @@ EntityID AppState::createActor(ArchetypeBit bit,
 }
 void AppState::destroyActor(EntityID actor){
     ComponentInfo info = actorTable.at(actor);
-    archetypeMap.at(info.bit).freeChunk(info.chunkIndex);
+    archetypeMap.at(info.bit).free(info.chunkIndex);
     actorTable.erase(actor);
 }
 
