@@ -5,6 +5,7 @@
 #include <set>
 #include <type_traits>
 #include "common/alias.hpp"
+#include "util/bit.hpp"
 
 namespace ModernBoy{
     using Byte = size_t;
@@ -22,35 +23,31 @@ namespace ModernBoy{
 
     public:
         struct Iterator{
-            void* ptr;
+            void* const ptr;
+            Index index;
             const size_t STRIDE;
+            std::set<size_t>::const_iterator it;
 
-            Iterator(void* ptr, size_t STRIDE)
-            :ptr(ptr),STRIDE(STRIDE){}
+            Iterator(void* ptr, Index index, size_t STRIDE,
+                std::set<size_t>::const_iterator it);
 
-            void* operator*(){ return ptr; }
-            const void* operator*() const{ return ptr; }
-            Iterator& operator++(){
-                ptr = static_cast<uint8_t*>(ptr) + STRIDE;
-                return *this;
-            }
-            bool operator!=(const Iterator& other) const{
-                return ptr != other.ptr; }
+            void* operator*();
+            const void* operator*() const;
+            Iterator& operator++();
+            bool operator!=(const Iterator& other) const;
         };
         struct ConstIterator{
-            const void* ptr;
+            const void* const ptr;
+            Index index;
             const size_t STRIDE;
+            std::set<size_t>::const_iterator it;
 
-            ConstIterator(const void* ptr, size_t STRIDE)
-            :ptr(ptr),STRIDE(STRIDE){}
+            ConstIterator(const void* ptr, Index index, size_t STRIDE,
+                std::set<size_t>::const_iterator it);
 
-            const void* operator*() const{ return ptr; }
-            ConstIterator& operator++(){
-                ptr = static_cast<const uint8_t*>(ptr) + STRIDE;
-                return *this;
-            }
-            bool operator!=(const ConstIterator& other) const{
-                return ptr != other.ptr; }
+            const void* operator*() const;
+            ConstIterator& operator++();
+            bool operator!=(const ConstIterator& other) const;
         };
 
         DynamicVector(size_t CHUNK_SIZE);
@@ -67,12 +64,12 @@ namespace ModernBoy{
         size_t size() const noexcept;
         size_t capacity() const noexcept;
 
-        Iterator begin(){ return Iterator(data, CHUNK_SIZE); }
-        Iterator end(){ return Iterator(static_cast<uint8_t*>(data)+size_, CHUNK_SIZE); }
-        ConstIterator begin() const{ return ConstIterator(data, CHUNK_SIZE); }
-        ConstIterator end() const{ return ConstIterator(static_cast<uint8_t*>(data)+size_, CHUNK_SIZE); }
-        ConstIterator cbegin() const{ return ConstIterator(data, CHUNK_SIZE); }
-        ConstIterator cend() const{ return ConstIterator(static_cast<uint8_t*>(data)+size_, CHUNK_SIZE); }
+        Iterator begin();
+        Iterator end();
+        ConstIterator begin() const;
+        ConstIterator end() const;
+        ConstIterator cbegin() const;
+        ConstIterator cend() const;
 
     private:
         void moveFrom(DynamicVector&& other);

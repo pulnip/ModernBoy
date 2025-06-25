@@ -1,6 +1,7 @@
 #ifndef MODERNBOY_UTIL_BIT_HPP
 #define MODERNBOY_UTIL_BIT_HPP
 
+#include <cstddef>
 #include <cstdint>
 #include <utility>
 
@@ -23,6 +24,8 @@ namespace ModernBoy::Util
     const void* add(const void* ptr){
         return static_cast<const uint8_t*>(ptr)+sizeof(T);
     }
+    void* add(void* ptr, size_t nbyte);
+    const void* add(const void* ptr, size_t nbyte);
 
     template<typename T>
     void* chunkcpy(void* dst, const T& src){

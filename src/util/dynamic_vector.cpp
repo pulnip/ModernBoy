@@ -121,3 +121,62 @@ size_t DynamicVector::capacity() const noexcept{
     assert(size_ + freeSlots.size() == maxSize);
     return maxSize;
 }
+
+using Iterator = DynamicVector::Iterator;
+using ConstIt = DynamicVector::ConstIterator;
+
+Iterator DynamicVector::begin(){
+    return Iterator(data, 0, CHUNK_SIZE, freeSlots.cbegin());
+}
+Iterator DynamicVector::end(){
+    return Iterator(data, size_, CHUNK_SIZE, freeSlots.cend());
+}
+ConstIt DynamicVector::begin() const{
+    return ConstIt(data, 0, CHUNK_SIZE, freeSlots.cbegin());
+}
+ConstIt DynamicVector::end() const{
+    return ConstIt(data, 0, CHUNK_SIZE, freeSlots.cend());
+}
+ConstIt DynamicVector::cbegin() const{
+    return ConstIt(data, 0, CHUNK_SIZE, freeSlots.cbegin());
+}
+ConstIt DynamicVector::cend() const{
+    return ConstIt(data, size_, CHUNK_SIZE, freeSlots.cend());
+}
+
+Iterator::Iterator(void* ptr, Index index, size_t STRIDE,
+    std::set<size_t>::const_iterator it)
+:ptr(ptr),index(index),STRIDE(STRIDE),it(it){}
+
+void* Iterator::operator*(){
+    return Util::add(ptr, STRIDE*index);
+}
+const void* Iterator::operator*() const{
+    return Util::add(ptr, STRIDE*index);
+}
+Iterator& Iterator::operator++(){
+    do{
+        index += 1;
+    } while(*it < index);
+    ++it;
+    return *this;
+}
+bool Iterator::operator!=(const Iterator& other) const{
+    return ptr != other.ptr || index != other.index;
+}
+
+ConstIt::ConstIterator(const void* ptr, Index index, size_t STRIDE,
+    std::set<size_t>::const_iterator it)
+:ptr(ptr),index(index),STRIDE(STRIDE),it(it){}
+
+const void* ConstIt::operator*() const{ return Util::add(ptr, STRIDE*index); }
+ConstIt& ConstIt::operator++(){
+    do{
+        index += 1;
+    } while(*it < index);
+    ++it;
+    return *this;
+}
+bool ConstIt::operator!=(const ConstIt& other) const{
+    return ptr != other.ptr || index != other.index;
+}
