@@ -20,8 +20,8 @@ namespace ModernBoy
         static constexpr uint_fast32_t READER_MASK
             = WRITER_BIT - 1;
 
-        using Reader = std::function<void(Index, const void*)>;
-        using Writer = std::function<void(Index, void*)>;
+        using Reader = std::function<void(const void*)>;
+        using Writer = std::function<void(void*)>;
 
     public:
         template<typename... Args>
@@ -31,7 +31,7 @@ namespace ModernBoy
         void for_each(Reader fn) const;
         void transform(Writer fn);
         void transform_range(Writer fn,
-            Index start, size_t num);
+            Index start, size_t maxNum);
         template<typename R>
         R mutate(std::function<R(DynamicVector&)> fn){
             on_write_phase();
@@ -39,6 +39,8 @@ namespace ModernBoy
             write_phase_end();
             return ret;
         }
+        void custom_read(Reader fn) const;
+        void custom_write(Writer fn);
 
         size_t size() const;
         void get(Index i, void* dst) const;

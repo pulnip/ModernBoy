@@ -65,9 +65,10 @@ namespace ModernBoy{
         size_t getChunkSize() const;
         void* operator[](Index index);
         const void* operator[](Index index) const;
-        Index final_index() const noexcept;
         size_t size() const noexcept;
         size_t capacity() const noexcept;
+        void* raw() noexcept;
+        const void* raw() const noexcept;
 
         Iterator begin();
         Iterator begin(Index i);

@@ -140,6 +140,13 @@ size_t DynamicVector::capacity() const noexcept{
     return maxSize;
 }
 
+void* DynamicVector::raw() noexcept{
+    return data;
+}
+const void* DynamicVector::raw() const noexcept{
+    return data;
+}
+
 using Iterator = DynamicVector::Iterator;
 using ConstIt = DynamicVector::ConstIterator;
 

@@ -11,29 +11,23 @@ static void setChunk(void* dst, const SparseChunk& chunk,
 
 void RWPhaseGate::for_each(Reader fn) const{
     on_read_phase();
-    for(Index i=0; i<vec.size(); ++i)
-        fn(i, vec[i]);
+    for(const auto chunk: vec)
+        fn(chunk);
     read_phase_end();
 }
 void RWPhaseGate::transform(Writer fn){
     on_write_phase();
-    for(Index i=0; i<vec.size(); ++i)
-        fn(i, vec[i]);
+    for(auto chunk: vec)
+        fn(chunk);
     write_phase_end();
 }
 void RWPhaseGate::transform_range(
-    Writer fn, Index start, size_t num
+    Writer fn, Index start, size_t maxNum
 ){
     on_write_phase();
-    auto it = vec.begin(start);
     auto end = vec.end();
-    for(size_t i=0; i<num; ++i){
-        fn(start+i, *it);
-        ++it;
-        if(it==end){
-            // warning: only (i+1) chunk(s) available.
-            break;
-        }
+    for(auto it = vec.begin(start); it!=end; ++it){
+        fn(*it);
     }
     write_phase_end();
 }
@@ -42,6 +36,17 @@ template<>
 void RWPhaseGate::mutate<void>(std::function<void(DynamicVector&)> fn){
     on_write_phase();
     fn(vec);
+    write_phase_end();
+}
+
+void RWPhaseGate::custom_read(Reader fn) const{
+    on_read_phase();
+    fn(vec.raw());
+    read_phase_end();
+}
+void RWPhaseGate::custom_write(Writer fn){
+    on_write_phase();
+    fn(vec.raw());
     write_phase_end();
 }
 

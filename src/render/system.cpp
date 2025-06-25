@@ -22,7 +22,7 @@ using Tasks = std::pair<ViewTasks, RenderTasks>;
 using RenderQueue = std::decay_t<decltype(Renderer::queue)>;
 using RenderCommands = std::vector<RenderCommand>;
 
-static Tasks fetchTask(const ArchetypeMap& map);
+static Tasks fetchTask(const MeshManager& mm, const ArchetypeMap& map);
 static void sortTask(RenderTasks& tasks);
 static void setFrameStart(RenderQueue& queue,
     std::stop_token stoken);
@@ -40,7 +40,8 @@ void System::update(std::stop_token stoken){
     auto& commandQueue = renderer.queue;
 
     while(!stoken.stop_requested()){
-        auto [viewTasks, renderTasks] = fetchTask(app.archetypeMap);
+        auto [viewTasks, renderTasks] = fetchTask(
+            app.meshManager, app.archetypeMap);
         sortTask(renderTasks);
 
         setFrameStart(commandQueue, stoken);
@@ -51,26 +52,44 @@ void System::update(std::stop_token stoken){
     }
 }
 
-static Tasks fetchTask(const ArchetypeMap& map){
+static Tasks fetchTask(const MeshManager& mm,
+    const ArchetypeMap& map
+){
     auto [vt_size, rt_size] = countTask(map);
     ViewTasks viewTasks(vt_size);
     RenderTasks renderTasks(rt_size);
 
     for(const auto& [bit, vec]: map){
-        if(subset(bit_of<ViewTask>(), bit))
-            vec.for_each([](Index, const void* chunk){
+        if(subset(bit_of<ViewTask>(), bit)){
+            viewTasks.reserve(viewTasks.size()+vec.size());
+            vec.for_each([&viewTasks](const void* chunk){
                 TransformComponent tc;
                 CameraComponent cc;
                 getChunk(&tc, &cc, nullptr, nullptr, chunk);
+
                 assert(tc.actor == cc.actor);
+                viewTasks.emplace_back(ViewTask{
+                    tc.value, cc.value
+                });
             });
-        else if(subset(bit_of<RenderTask>(), bit))
-            vec.for_each([](Index, const void* chunk){
+        }
+        else if(subset(bit_of<RenderTask>(), bit)){
+            renderTasks.reserve(renderTasks.size()+vec.size());
+            vec.for_each([&renderTasks, &mm](const void* chunk){
                 TransformComponent tc;
                 MeshComponent mc;
                 getChunk(&tc, nullptr, &mc, nullptr, chunk);
+
                 assert(tc.actor == mc.actor);
+                const auto& meshVec = mm.get(mc.accessHandle);
+                renderTasks.reserve(renderTasks.size()+meshVec.size());
+                for(const auto& meshHandle: meshVec){
+                    renderTasks.emplace_back(RenderTask{
+                        tc.value, meshHandle
+                    });
+                }
             });
+        }
     }
     return {viewTasks, renderTasks};
 }
