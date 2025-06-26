@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include <bit>
 #include <limits>
@@ -12,7 +13,7 @@ DynamicVector::DynamicVector(size_t CHUNK_SIZE, size_t initialSize)
 :CHUNK_SIZE(CHUNK_SIZE), maxSize(std::bit_ceil(initialSize)),
 data(malloc(CHUNK_SIZE*maxSize))
 {
-    for(Index i=0; i<maxSize; ++i){
+    for(Index i=0; i<=maxSize; ++i){
         freeSlots.insert(i);
     }
 }
@@ -30,18 +31,16 @@ DynamicVector& DynamicVector::operator=(
     return *this;
 }
 void DynamicVector::moveFrom(DynamicVector&& other){
-    CHUNK_SIZE = other.CHUNK_SIZE;
+    assert(CHUNK_SIZE == other.CHUNK_SIZE);
     maxSize = other.maxSize;
     data = other.data;
     size_ = other.size_;
+    freeOnlyIndex = other.freeOnlyIndex;
     freeSlots = other.freeSlots;
 #ifdef _DEBUG
     numChunk_last = other.numChunk_last;
 #endif
-    other.maxSize = 0;
     other.data = nullptr;
-    other.size_ = 0;
-    other.freeSlots = {};
 #ifdef _DEBUG
     other.numChunk_last = 0;
 #endif
@@ -55,36 +54,33 @@ Index DynamicVector::newChunk(size_t numChunk){
     numChunk_last = numChunk;
 #endif
     Index start = findContinuousFreeFittedSlot(numChunk);
-    // already have free slot.
-    if(start != std::numeric_limits<size_t>::max()){
-        for(Index i=0; i<numChunk; ++i)
-            freeSlots.erase(start + i);
-        size_ += numChunk;
-        return start;
+    // not have free slot.
+    if(start == std::numeric_limits<size_t>::max()){
+        size_t newMaxSize = std::bit_ceil(freeOnlyIndex+numChunk);
+        assert(maxSize < newMaxSize);
+        if(size_ == 0)
+            data = malloc(newMaxSize);
+        else
+            data = realloc(data, newMaxSize);
+        for(Index i=maxSize+1; i<=newMaxSize; ++i){
+            freeSlots.insert(i);
+        }
+        maxSize = newMaxSize;
+        start = findContinuousFreeFittedSlot(numChunk);
     }
 
-    size_t newMaxSize = std::bit_ceil(size_+numChunk);
-    if(size_ == 0)
-        data = malloc(newMaxSize);
-    else
-        data = realloc(data, newMaxSize);
-    for(Index i=maxSize; i<newMaxSize; ++i){
-        freeSlots.insert(i);
-    }
-    maxSize = newMaxSize;
-    start = findContinuousFreeFittedSlot(numChunk);
     for(Index i=0; i<numChunk; ++i){
         freeSlots.erase(start+i);
     }
-
     size_ += numChunk;
+    freeOnlyIndex = std::max(start+numChunk, freeOnlyIndex);
     return start;
 }
 
 Index DynamicVector::findContinuousFreeFittedSlot(
     size_t numChunk
 ){
-    assert(freeSlots.size()==(maxSize-size_));
+    assert((size_+freeSlots.size())==(maxSize+1));
     if(maxSize-size_ < numChunk)
         return std::numeric_limits<size_t>::max();
 
@@ -100,6 +96,9 @@ Index DynamicVector::findContinuousFreeFittedSlot(
                 return candidateIndex;
             }
         }
+        else if(freeIndex == maxSize){
+            break;
+        }
         else{
             candidateIndex = freeIndex;
             numAvailable = 0;
@@ -109,11 +108,14 @@ Index DynamicVector::findContinuousFreeFittedSlot(
     return std::numeric_limits<size_t>::max();
 }
 
-void DynamicVector::freeChunk(Index startIndex, size_t numChunk){
+void DynamicVector::freeChunk(Index start, size_t numChunk){
     assert(numChunk <= size_);
     for(Index i=0; i<numChunk; ++i)
-        freeSlots.insert(startIndex+i);
+        freeSlots.insert(start+i);
     size_ -= numChunk;
+    assert(start+numChunk<=freeOnlyIndex);
+    if(start+numChunk==freeOnlyIndex)
+        freeOnlyIndex = start;
 }
 
 size_t DynamicVector::getChunkSize() const{
@@ -132,11 +134,11 @@ const void* DynamicVector::operator[](Index index) const{
 }
 
 size_t DynamicVector::size() const noexcept{
-    assert(size_ + freeSlots.size() == maxSize);
+    assert(size_+freeSlots.size()==(maxSize+1));
     return size_;
 }
 size_t DynamicVector::capacity() const noexcept{
-    assert(size_ + freeSlots.size() == maxSize);
+    assert(size_+freeSlots.size()==(maxSize+1));
     return maxSize;
 }
 
@@ -151,32 +153,46 @@ using Iterator = DynamicVector::Iterator;
 using ConstIt = DynamicVector::ConstIterator;
 
 Iterator DynamicVector::begin(){
-    return Iterator(data, 0, CHUNK_SIZE, freeSlots.cbegin());
+    return Iterator(data, 0, CHUNK_SIZE,
+        freeSlots.cbegin());
 }
 Iterator DynamicVector::begin(Index i){
-freeSlots.lower_bound(i);
-    return Iterator(data, i, CHUNK_SIZE, freeSlots.lower_bound(i));
+    return Iterator(data, i, CHUNK_SIZE,
+        freeSlots.lower_bound(i));
 }
 Iterator DynamicVector::end(){
-    return Iterator(data, size_, CHUNK_SIZE, freeSlots.cend());
+    assert(freeSlots.find(freeOnlyIndex)
+        != freeSlots.end());
+    return Iterator(data, size_, CHUNK_SIZE,
+        freeSlots.find(freeOnlyIndex));
 }
 ConstIt DynamicVector::begin() const{
-    return ConstIt(data, 0, CHUNK_SIZE, freeSlots.cbegin());
+    return ConstIt(data, 0, CHUNK_SIZE,
+        freeSlots.cbegin());
 }
 ConstIt DynamicVector::begin(Index i) const{
-    return ConstIt(data, i, CHUNK_SIZE, freeSlots.lower_bound(i));
+    return ConstIt(data, i, CHUNK_SIZE,
+        freeSlots.lower_bound(i));
 }
 ConstIt DynamicVector::end() const{
-    return ConstIt(data, 0, CHUNK_SIZE, freeSlots.cend());
+    assert(freeSlots.find(freeOnlyIndex)
+        != freeSlots.end());
+    return ConstIt(data, 0, CHUNK_SIZE,
+        freeSlots.find(freeOnlyIndex));
 }
 ConstIt DynamicVector::cbegin() const{
-    return ConstIt(data, 0, CHUNK_SIZE, freeSlots.cbegin());
+    return ConstIt(data, 0, CHUNK_SIZE,
+        freeSlots.cbegin());
 }
 ConstIt DynamicVector::cbegin(Index i) const{
-    return ConstIt(data, 0, CHUNK_SIZE, freeSlots.lower_bound(i));
+    return ConstIt(data, 0, CHUNK_SIZE,
+        freeSlots.lower_bound(i));
 }
 ConstIt DynamicVector::cend() const{
-    return ConstIt(data, size_, CHUNK_SIZE, freeSlots.cend());
+    assert(freeSlots.find(freeOnlyIndex)
+        != freeSlots.end());
+    return ConstIt(data, size_, CHUNK_SIZE,
+        freeSlots.find(freeOnlyIndex));
 }
 
 Iterator::Iterator(void* ptr, Index index, size_t STRIDE,
@@ -197,10 +213,10 @@ Iterator& Iterator::operator++(){
     return *this;
 }
 bool Iterator::operator!=(const Iterator& other) const{
-    return ptr != other.ptr || index != other.index;
+    return (ptr != other.ptr) || (index != other.index);
 }
 bool Iterator::operator==(const Iterator& other) const{
-    return ptr == other.ptr && index == other.index;
+    return (ptr == other.ptr) && (index == other.index);
 }
 
 ConstIt::ConstIterator(const void* ptr, Index index, size_t STRIDE,
@@ -216,8 +232,8 @@ ConstIt& ConstIt::operator++(){
     return *this;
 }
 bool ConstIt::operator!=(const ConstIt& other) const{
-    return ptr != other.ptr || index != other.index;
+    return (ptr != other.ptr) || (index != other.index);
 }
 bool ConstIt::operator==(const ConstIt& other) const{
-    return ptr == other.ptr && index == other.index;
+    return (ptr == other.ptr) && (index == other.index);
 }

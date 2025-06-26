@@ -8,14 +8,14 @@
 #include "util/bit.hpp"
 
 namespace ModernBoy{
-    using Byte = size_t;
-
     class DynamicVector{
     private:
         size_t CHUNK_SIZE;
         size_t maxSize = 0;
         void* data = nullptr;
         size_t size_ = 0;
+        size_t freeOnlyIndex=0;
+        // for practical reason, freeSlots also hold maxSize;
         std::set<size_t> freeSlots{};
     #ifdef _DEBUG
         size_t numChunk_last=0;
