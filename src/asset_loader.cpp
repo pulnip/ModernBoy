@@ -1,5 +1,6 @@
 #include <toml++/toml.h>
 #include "common/type.hpp"
+#include "common/helper.hpp"
 #include "asset_loader.hpp"
 #include "app_state.hpp"
 #include "component.hpp"
@@ -21,6 +22,8 @@ void AssetLoader::loadActors(const std::string& fileName){
         ArchetypeBit bit = 0;
         SparseChunk chunk;
 
+        std::string name = *actor["name"].value<std::string>();
+
         // transform component
         if(auto trans_tbl = actor["transform"].as_table()){
             auto transform = parseTransform(*trans_tbl);
@@ -29,8 +32,17 @@ void AssetLoader::loadActors(const std::string& fileName){
             bit = bit | TRANSFORM_BIT;
         }
 
+        // camera component
+        if(auto cam_tbl = actor["camera"].as_table()){
+            auto camera = parseCamera(*cam_tbl);
+            bool enabled = camera.type==CameraType::MainCamera;
+
+            chunk.camera = dangled<CameraComponent>(camera, enabled);
+            bit = bit | CAMERA_BIT;
+        }
+
+        // mesh component
         if(auto model_tbl = actor["model"].as_table()){
-            // mesh component
             const auto meshFile = (*model_tbl)["mesh"]
                 .value<std::string>().value_or("Sphere");
             auto accessHandle = app.meshManager.load(meshFile);
@@ -42,8 +54,13 @@ void AssetLoader::loadActors(const std::string& fileName){
             // const auto& texFile = *parts["diffuse"].value<std::string>();
             // ToDo. How to handle multiple model?
         }
-        auto scriptModule = *actor["script"]["file"].value<std::string>();
-        app.controller.loadScriptModule(scriptModule);
+
+        if(auto script_tbl = actor["script"].as_table()){
+            auto scriptFile = (*script_tbl)["file"].value<std::string>();
+            if(scriptFile.has_value()){
+                app.controller.loadScriptModule(scriptFile.value());
+            }
+        }
 
         // input component
         if(auto input_arr = actor["input"].as_array()){
@@ -67,44 +84,6 @@ void AssetLoader::loadActors(const std::string& fileName){
         [[maybe_unused]] auto actor_id = app.createActor(bit, std::move(chunk));
     }
 }
-void AssetLoader::loadCamera(const std::string& fileName){
-    toml::table tbl = toml::parse_file(fileName);
-
-    auto cameras = tbl["entities"].as_array();
-
-    for(const auto& cam_node: *cameras){
-        const auto& cam = *cam_node.as_table();
-        // new Actor
-        ArchetypeBit bit = 0;
-        SparseChunk chunk;
-
-        auto name = *cam["name"].value<std::string>();
-        auto type = *cam["type"].value<std::string>();
-        bool enabled = type.compare("MainCamera")==0;
-        std::println("{} {}", name, type);
-
-        if(auto t = cam["transform"].as_table()){
-            auto transform = parseTransform(*t);
-
-            chunk.transform = dangled<TransformComponent>(transform);
-            bit = bit | TRANSFORM_BIT;
-        }
-        else{
-            // warning!
-        }
-        if(auto c = cam["camera"].as_table()){
-            auto camera = parseCamera(*c);
-            chunk.camera = dangled<CameraComponent>(camera);
-            bit = bit | CAMERA_BIT;
-        }
-        else{
-            // warning!
-        }
-        [[maybe_unused]] auto actor_id = app.createActor(bit, std::move(chunk));
-        // ToDo. Not Accept Multiple Camera actor.
-        break;
-    }
-}
 
 static Transform parseTransform(
     const toml::v3::table& table
@@ -124,16 +103,20 @@ static Transform parseTransform(
 }
 
 static Camera parseCamera(const toml::v3::table& table){
+    auto typeText = *table["type"].value<std::string>();
     auto fov = *table["fov"].value<double>();
     auto near = *table["nearPlane"].value<double>();
     auto far = *table["farPlane"].value<double>();
-    auto proj = *table["projection"].value<std::string>();
+    auto projText = *table["projection"].value<std::string>();
+
+    auto type = cameraType(typeText);
 
     Projection projection = Projection::PERSPECTIVE;
-    if(proj.compare("orthographic") == 0)
+    if(projText.compare("orthographic") == 0)
         projection = Projection::ORTHOGRAPHIC;
 
     return Camera{
+        .type = type,
         .fov = static_cast<float>(fov),
         .nearPlane = static_cast<float>(near),
         .farPlane = static_cast<float>(far),

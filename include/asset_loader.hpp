@@ -11,7 +11,6 @@ namespace ModernBoy
         AssetLoader(AppState& app);
 
         void loadActors(const std::string& fileName);
-        void loadCamera(const std::string& fileName);
 
     private:
         AppState& app;

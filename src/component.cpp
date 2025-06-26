@@ -1,4 +1,6 @@
 #include <limits>
+#include <unordered_map>
+#include "common/helper.hpp"
 #include "component.hpp"
 
 using namespace ModernBoy;
@@ -13,9 +15,9 @@ TransformComponent ModernBoy::dangled(Transform transform){
         true, transform };
 }
 template<>
-CameraComponent ModernBoy::dangled(Camera camera){
+CameraComponent ModernBoy::dangled(Camera camera, bool active){
     return {std::numeric_limits<EntityID>::max(),
-        true, camera };
+        active, camera};
 
 }
 template<>

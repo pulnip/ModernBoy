@@ -29,3 +29,29 @@ behaviour = "MoveBackward"
 key = "right"
 trigger = "pressed"
 behaviour = "MoveRight"
+
+[[entities]]
+name = "Camera0"
+[entities.transform]
+position = [0.0, 5.0, -4.5]
+rotation = [0.3826834, 0.0, 0.0, 0.9238795]
+scale    = [1.0, 1.0, 1.0]
+[entities.camera]
+type       = "MainCamera"
+fov        = 100.0
+nearPlane  = 0.1
+farPlane   = 100.0
+projection = "perspective"
+
+[[entities]]
+name = "Camera1"
+[entities.transform]
+position = [8.0, 8.0, 0.0]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [1.0, 1.0, 1.0]
+[entities.camera]
+type       = "SubCamera"
+fov        = 70.0
+nearPlane  = 0.1
+farPlane   = 50.0
+projection = "perspective"

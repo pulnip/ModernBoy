@@ -66,9 +66,10 @@ static Tasks fetchTask(const MeshManager& mm,
                 getChunk(&tc, &cc, nullptr, nullptr, chunk);
 
                 assert(tc.actor == cc.actor);
-                viewTasks.emplace_back(ViewTask{
-                    tc.value, cc.value
-                });
+                if(cc.isActive)
+                    viewTasks.emplace_back(ViewTask{
+                        tc.value, cc.value
+                    });
             });
         }
         else if(subset(bit_of<RenderTask>(), bit)){

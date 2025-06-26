@@ -1,3 +1,4 @@
+add_subdirectory(common)
 add_subdirectory(${BACKEND_SOURCE_DIR})
 add_subdirectory(input)
 add_subdirectory(render)
@@ -6,10 +7,8 @@ add_subdirectory(script)
 add_subdirectory(util)
 
 file(GLOB ALL_SOURCES "*.cpp")
-file(GLOB COMMON_SOURCES "common/*.cpp")
 add_executable(${PROJECT_NAME}
     ${ALL_SOURCES}
-    ${COMMON_SOURCES}
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
@@ -35,6 +34,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/external/stb
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    CommonModule
     RenderBackend
     RenderModule
     InputModule
