@@ -29,7 +29,6 @@
 namespace ModernBoy
 {
     // Components
-    using InputComponent = ValueComponent<Input::InputMap>;
     struct SparseChunk{
         TransformComponent transform;
         CameraComponent camera;

@@ -1,6 +1,7 @@
 #ifndef MODERNBOY_RESOURCE_COMPONENT_HPP
 #define MODERNBOY_RESOURCE_COMPONENT_HPP
 
+#include <array>
 #include <utility>
 #include "common/type.hpp"
 #include "fwd.hpp"
@@ -34,7 +35,8 @@ namespace ModernBoy
 
     using TransformComponent = ValueComponent<Transform>;
     using CameraComponent = ValueComponent<Camera>;
-    using InputComponent = ValueComponent<Input::InputMap>;
+    using InputComponent = ValueComponent<Input::ActionMap>;
+    static_assert(std::is_trivially_copyable_v<InputComponent>);
 
     template<typename Component, typename ...T>
     Component dangled(T... args);

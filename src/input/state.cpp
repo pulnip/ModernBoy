@@ -217,7 +217,7 @@ text2button = {
     {"SPACE"    , Button::KEY_SPACE},
     {"ENTER"    , Button::KEY_ENTER}
 };
-Button ModernBoy::Input::convert(
+Button ModernBoy::Input::toButton(
     const std::string& text
 ){
     auto upper = toUpper(text);

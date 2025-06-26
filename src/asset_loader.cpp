@@ -1,3 +1,5 @@
+#include <optional>
+#include <regex>
 #include <toml++/toml.h>
 #include "common/type.hpp"
 #include "common/helper.hpp"
@@ -44,37 +46,13 @@ void AssetLoader::loadActors(const std::string& fileName){
         }
         if(mc.has_value()){
             bit = bit | MESH_BIT;
-            // ToDo. texture component
-            // const auto& texFile = *parts["diffuse"].value<std::string>();
-            // ToDo. How to handle multiple model?
+            chunk.mesh = mc.value();
         }
+        // if(ic.has_value()){
+        //     bit = bit | INPUT_BIT;
+        //     chunk.input = ic.value();
+        // }
 
-        if(auto script_tbl = actor["script"].as_table()){
-            auto scriptFile = (*script_tbl)["file"].value<std::string>();
-            if(scriptFile.has_value()){
-                app.controller.loadScriptModule(scriptFile.value());
-            }
-        }
-
-        // input component
-        if(auto input_arr = actor["input"].as_array()){
-            Input::InputMap inputMap;
-            for(const auto& input_node: *input_arr){
-                const auto& input = *input_node.as_table();
-    
-                auto button_text = *input["key"].value<std::string>();
-                auto state_text = *input["trigger"].value<std::string>();
-                auto behaviour = *input["behaviour"].value<std::string>();
-
-                auto button = Input::convert(button_text);
-                auto state = Input::toButtonState(state_text);
-
-                Input::addInput(inputMap, button, state, behaviour);
-            }
-            chunk.input = dangled<InputComponent,
-                Input::InputMap&&>(std::move(inputMap));
-            bit = bit | INPUT_BIT;
-        }
         [[maybe_unused]] auto actor_id = app.createActor(bit, std::move(chunk));
     }
 }
@@ -117,6 +95,70 @@ static std::optional<CameraComponent> parseCameraComponent(
         .fov = static_cast<float>(fov),
         .nearPlane = static_cast<float>(near),
         .farPlane = static_cast<float>(far),
-        .projection = projection
+        .projection = proj
     };
+
+    return dangled<CameraComponent>(
+        camera, type==CameraType::MainCamera);
+}
+
+static std::optional<MeshComponent> parseMeshComponent(
+    const toml::table* table, MeshManager& meshManager
+){
+    if(table==nullptr)
+        return std::nullopt;
+
+    const auto meshFile = (*table)["mesh"]
+        .value<std::string>().value_or("Sphere");
+    auto accessHandle = meshManager.load(meshFile);
+
+    // ToDo. texture component
+    // const auto& texFile = *parts["diffuse"].value<std::string>();
+    // ToDo. How to handle multiple model?
+
+    return dangled<MeshComponent>(accessHandle);
+}
+
+static std::tuple<std::string, std::string, std::string>
+parseInputTrigger(const std::string& text);
+
+static std::optional<InputComponent> parseInputComponent(
+    const toml::table* table, AppState& app
+){
+    if(table==nullptr)
+        return std::nullopt;
+
+    auto component = InputComponent{
+        
+    };
+
+    auto scriptFile = (*table)["file"].value<std::string>().value();
+
+    for(const auto& n: *(*table)["map"].as_array()){
+        const auto& input = *n.as_table();
+
+        auto triggerText = input["trigger"].value<std::string>().value();
+        auto [d, keyText, stateText] = parseInputTrigger(triggerText);
+
+        auto key = Input::toButton(keyText);
+        auto state = Input::toButtonState(stateText);
+
+        auto behaviourText = input["behaviour"].value<std::string>().value();
+        // auto b_id = app.controller.load(behaviourText);
+
+    }
+}
+
+static std::tuple<std::string, std::string, std::string>
+parseInputTrigger(const std::string& text){
+    std::regex re(R"(\.)");
+    std::sregex_token_iterator iter(text.begin(), text.end(), re, -1);
+    std::sregex_token_iterator end;
+
+    std::vector<std::string> result(3);
+    for(; iter!=end; ++iter){
+        result.push_back(iter->str());
+    }
+
+    return {result[0], result[1], result[2]};
 }

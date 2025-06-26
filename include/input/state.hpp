@@ -85,7 +85,7 @@ namespace ModernBoy::Input
     };
     SDL_Scancode convert(Button code);
     Button convert(SDL_Scancode code);
-    Button convert(const std::string& text);
+    Button toButton(const std::string& text);
 
     ButtonState transit(ButtonState state,
         uint8_t current);
@@ -97,12 +97,7 @@ namespace ModernBoy::Input
 
         State();
     };
-
-    using ButtonMap = std::unordered_map<ButtonState, std::string>;
-    using InputMap = std::unordered_map<Button, ButtonMap>;
-
-    void addInput(InputMap& map, Button button,
-        ButtonState state,const std::string& behaviour);
+    using ActionMap = std::array<Input::ButtonState, Input::KEY_UNKNOWN>;
 }
 
 #endif // MODERNBOY_INPUT_STATE_HPP

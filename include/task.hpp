@@ -25,7 +25,6 @@ namespace ModernBoy
         // ToDo.
         Transform transform;
     };
-    std::vector<InputTask> toTasks(const Input::InputMap& map);
 } // namespace ModernBoy::Render
 
 #endif // MODERNBOY_TASK_HPP

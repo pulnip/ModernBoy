@@ -24,12 +24,25 @@ text2camera = {
     {"MAINCAMERA", CameraType::MainCamera},
     { "SUBCAMERA",  CameraType::SubCamera},
 };
-
-CameraType ModernBoy::cameraType(std::string& text){
+CameraType ModernBoy::cameraType(const std::string& text){
     auto upper = toUpper(text);
         auto it = text2camera.find(upper);
     if (it == text2camera.end()){
         return CameraType::UNKNOWN;
+    }
+    return it->second;
+}
+
+static std::unordered_map<std::string, Projection>
+text2projection = {
+    {"PERSPECTIVE", Projection::PERSPECTIVE},
+    {"ORTHOGRAPHIC",  Projection::ORTHOGRAPHIC},
+};
+Projection ModernBoy::projection(const std::string& text){
+    auto upper = toUpper(text);
+        auto it = text2projection.find(upper);
+    if (it == text2projection.end()){
+        return Projection::UNKNOWN;
     }
     return it->second;
 }
