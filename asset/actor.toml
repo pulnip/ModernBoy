@@ -11,24 +11,20 @@ scale    = [1.0, 1.0, 1.0]
 mesh = "Sphere"
 diffuse = "cube_diffuse.png"
 normal  = "cube_normal.png"
-[entities.script]
-file = "asset/script/ModernBoy.asb"
-[[entities.input]]
-key = "up"
-trigger = "pressed"
-behaviour = "MoveForward"
-[[entities.input]]
-key = "left"
-trigger = "pressed"
-behaviour = "MoveLeft"
-[[entities.input]]
-key = "down"
-trigger = "pressed"
-behaviour = "MoveBackward"
-[[entities.input]]
-key = "right"
-trigger = "pressed"
-behaviour = "MoveRight"
+[entities.input]
+file = "asset/script/action.toml"
+[[entities.input.map]]
+trigger = "Keyboard.Up.Pressed"
+behaviour = "default.MoveForward"
+[[entities.input.map]]
+trigger = "Keyboard.Left.Pressed"
+behaviour = "default.MoveLeft"
+[[entities.input.map]]
+trigger = "Keyboard.Down.Pressed"
+behaviour = "default.MoveBackward"
+[[entities.input.map]]
+trigger = "Keyboard.Right.Pressed"
+behaviour = "default.MoveRight"
 
 [[entities]]
 name = "Camera0"

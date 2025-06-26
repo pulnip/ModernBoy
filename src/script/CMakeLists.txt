@@ -28,11 +28,27 @@ add_executable(ASCompiler
     as_stream.cpp
     as_typehelper.cpp
 )
-set(AS_MODULE_NAME ${PROJECT_NAME})
 set(AS_SRC_DIR "${CMAKE_SOURCE_DIR}/src/script")
-file(GLOB AS_SOURCES "${AS_SRC_DIR}/*.as")
 set(AS_TGT_DIR "${CMAKE_SOURCE_DIR}/asset/script")
-set(AS_TARGET "${AS_TGT_DIR}/${AS_MODULE_NAME}.asb")
+file(GLOB SCRIPT_FILES "${CMAKE_SOURCE_DIR}/src/script/*.as")
+foreach(AS_SCRIPT IN LISTS SCRIPT_FILES)
+    get_filename_component(AS_MODULE ${AS_SCRIPT} NAME_WE)
+    set(AS_TARGET "${AS_TGT_DIR}/${AS_MODULE}.asb")
+    add_custom_command(
+        OUTPUT ${AS_TARGET}
+        COMMAND ASCompiler ${AS_MODULE} ${AS_SCRIPT}
+        COMMAND mv ${AS_SRC_DIR}/${AS_MODULE}.asb ${AS_TGT_DIR}
+        DEPENDS ASCompiler ${AS_SCRIPT}
+        WORKING_DIRECTORY ${AS_SRC_DIR}
+        COMMENT "Building all AngelScript scripts into bytecode"
+    )
+    list(APPEND AS_TARGETS ${AS_TARGET})
+endforeach()
+
+add_custom_target(
+    AS_Scripts ALL
+    DEPENDS ${AS_TARGETS}
+)
 
 target_compile_options(ASCompiler PRIVATE
     -Wall -Wextra
@@ -49,17 +65,4 @@ target_include_directories(ASCompiler PRIVATE
 target_link_libraries(ASCompiler PRIVATE
     # angelscript
     angelscript
-)
-
-add_custom_command(
-    OUTPUT ${AS_TARGET}
-    COMMAND ASCompiler ${AS_MODULE_NAME} ${AS_SOURCES}
-    COMMAND mv "${AS_SRC_DIR}/${AS_MODULE_NAME}.asb" ${AS_TGT_DIR}
-    DEPENDS ASCompiler ${AS_SOURCES}
-    WORKING_DIRECTORY ${AS_SRC_DIR}
-    COMMENT "Building all AngelScript scripts into bytecode"
-)
-add_custom_target(
-    build_scripts ALL
-    DEPENDS ${AS_TARGET}
 )

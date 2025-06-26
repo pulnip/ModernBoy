@@ -1,0 +1,11 @@
+[[modules]]
+name="default"
+file = "asset/script/default.asb"
+[[module.function]]
+name="MoveForward"
+[[module.function]]
+name="MoveBackward"
+[[module.function]]
+name="MoveLeft"
+[[module.function]]
+name="MoveRight"
