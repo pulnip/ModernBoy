@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include <SDL3/SDL_keycode.h>
+#include "fwd.hpp"
 
 namespace ModernBoy::Input
 {
@@ -92,12 +93,11 @@ namespace ModernBoy::Input
 
     using KeyState = std::array<ButtonState, KEY_UNKNOWN>;
 
-    struct State{
-        KeyState key;
-
-        State();
+    struct KeyActionPair{
+        // least 2 bit for state, other bit for button.
+        int32_t trigger;
+        ActionID action_id;
     };
-    using ActionMap = std::array<Input::ButtonState, Input::KEY_UNKNOWN>;
 }
 
 #endif // MODERNBOY_INPUT_STATE_HPP

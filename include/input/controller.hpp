@@ -1,10 +1,10 @@
-#ifndef MODERNBOY_SCRIPT_CONTROLLER_HPP
-#define MODERNBOY_SCRIPT_CONTROLLER_HPP
+#ifndef MODERNBOY_INPUT_CONTROLLER_HPP
+#define MODERNBOY_INPUT_CONTROLLER_HPP
 
 #include <string>
 #include "fwd.hpp"
 
-namespace ModernBoy::Script
+namespace ModernBoy::Input
 {
     class Controller{
 
@@ -15,6 +15,8 @@ namespace ModernBoy::Script
         Controller(Controller&&)=delete;
         Controller& operator=(const Controller& other)=delete;
         Controller& operator=(Controller&&)=delete;
+
+        ActionID loadModuleFunction(const std::string& name);
 
         void loadScriptModule(const std::string& moduleFileName);
         void update();
@@ -27,6 +29,6 @@ namespace ModernBoy::Script
         // TODO: add manager for multiple module?
         class asIScriptModule* scriptModule;
     };
-} // namespace ModernBoy::Script
+} // namespace ModernBoy::Input
 
-#endif // MODERNBOY_SCRIPT_CONTROLLER_HPP
+#endif // MODERNBOY_INPUT_CONTROLLER_HPP

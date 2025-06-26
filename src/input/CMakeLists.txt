@@ -11,8 +11,12 @@ target_compile_definitions(InputModule PRIVATE
 
 target_include_directories(InputModule PRIVATE
     ${CMAKE_SOURCE_DIR}/include
+    # angelscript
+    ${CMAKE_SOURCE_DIR}/external/angelscript/sdk/angelscript/include
 )
 target_link_libraries(InputModule PRIVATE
     # SDL3
     SDL3::SDL3
+    # angelscript
+    angelscript
 )

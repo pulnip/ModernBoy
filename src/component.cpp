@@ -25,7 +25,7 @@ MeshComponent ModernBoy::dangled(Handle handle){
         true, handle};
 }
 template<>
-InputComponent ModernBoy::dangled(Input::ActionMap&& map){
+InputComponent ModernBoy::dangled(){
     return {std::numeric_limits<EntityID>::max(),
-        true, map };
+        true, 0, {}};
 }

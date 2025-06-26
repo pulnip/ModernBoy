@@ -11,7 +11,7 @@
 #include "archetype_map.hpp"
 #include "component.hpp"
 #include "task.hpp"
-#include "script/controller.hpp"
+#include "input/controller.hpp"
 #include "input/device.hpp"
 #include "input/system.hpp"
 #include "render/gui.hpp"
@@ -63,7 +63,7 @@ namespace ModernBoy
 
         Render::System renderSystem;
         Input::System inputSystem;
-        Script::Controller controller;
+        Input::Controller controller;
 
         AssetLoader assetLoader;
         // Game State

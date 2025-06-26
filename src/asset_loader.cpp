@@ -48,10 +48,10 @@ void AssetLoader::loadActors(const std::string& fileName){
             bit = bit | MESH_BIT;
             chunk.mesh = mc.value();
         }
-        // if(ic.has_value()){
-        //     bit = bit | INPUT_BIT;
-        //     chunk.input = ic.value();
-        // }
+        if(ic.has_value()){
+            bit = bit | INPUT_BIT;
+            chunk.input = ic.value();
+        }
 
         [[maybe_unused]] auto actor_id = app.createActor(bit, std::move(chunk));
     }
@@ -128,9 +128,7 @@ static std::optional<InputComponent> parseInputComponent(
     if(table==nullptr)
         return std::nullopt;
 
-    auto component = InputComponent{
-        
-    };
+    auto component = dangled<InputComponent>();
 
     auto scriptFile = (*table)["file"].value<std::string>().value();
 
@@ -142,11 +140,18 @@ static std::optional<InputComponent> parseInputComponent(
 
         auto key = Input::toButton(keyText);
         auto state = Input::toButtonState(stateText);
+        auto trigger = (key << 2) | state;
 
-        auto behaviourText = input["behaviour"].value<std::string>().value();
-        // auto b_id = app.controller.load(behaviourText);
+        auto actionText = input["action"].value<std::string>().value();
+        auto a_id = app.controller.loadModuleFunction(actionText);
 
+        component.map[component.countMap] = {trigger, a_id};
+        ++component.countMap;
+        if(component.countMap == MAX_KEYACTION_PAIR)
+            break;
     }
+
+    return component;
 }
 
 static std::tuple<std::string, std::string, std::string>

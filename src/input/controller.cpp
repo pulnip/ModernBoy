@@ -3,13 +3,13 @@
 #include <angelscript.h>
 #include "app_state.hpp"
 #include "task.hpp"
-#include "script/controller.hpp"
+#include "input/controller.hpp"
 #include "script/as_helper.hpp"
 #include "script/as_stream.hpp"
 #include "script/as_typehelper.hpp"
 
 using namespace ModernBoy;
-using namespace ModernBoy::Script;
+using namespace ModernBoy::Input;
 
 Controller::Controller(AppState& app):app(app),
 scriptEngine(asCreateScriptEngine()),
@@ -20,6 +20,10 @@ scriptContext(scriptEngine->CreateContext()
 Controller::~Controller(){
     scriptContext->Release();
     scriptEngine->ShutDownAndRelease();
+}
+
+ActionID Controller::loadModuleFunction(const std::string& name){
+    return 0;
 }
 
 void Controller::loadScriptModule(const std::string& moduleFileName){
@@ -37,7 +41,7 @@ void Controller::update(){
 
     // for(auto& task: tasks){
     //     auto func = scriptModule->GetFunctionByName(
-    //         task.behaviour.c_str());
+    //         task.action.c_str());
     //     scriptContext->Prepare(func);
     //     scriptContext->SetArgObject(0, &(task.transform));
     //     if(scriptContext->Execute() < 0)
