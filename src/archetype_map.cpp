@@ -11,22 +11,22 @@ static void setChunk(void* dst, const SparseChunk& chunk,
 
 void RWPhaseGate::for_each(Reader fn) const{
     on_read_phase();
-    for(const auto chunk: vec)
-        fn(chunk);
+    for(auto it=vec.cbegin(); it!=vec.cend(); ++it)
+        fn(*it);
     read_phase_end();
 }
 void RWPhaseGate::transform(Writer fn){
     on_write_phase();
-    for(auto chunk: vec)
-        fn(chunk);
+    for(auto it=vec.begin(); it!=vec.end(); ++it)
+        fn(*it);
     write_phase_end();
 }
 void RWPhaseGate::transform_range(
-    Writer fn, Index start, size_t maxNum
+    Writer fn, Index start, size_t end
 ){
     on_write_phase();
-    auto end = vec.end();
-    for(auto it = vec.begin(start); it!=end; ++it){
+    auto end_it = vec.begin(end);
+    for(auto it = vec.begin(start); it!=end_it; ++it){
         fn(*it);
     }
     write_phase_end();

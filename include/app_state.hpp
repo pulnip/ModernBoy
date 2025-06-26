@@ -45,7 +45,7 @@ namespace ModernBoy
 
     struct AppState{
     private:
-        EntityID id_seed;
+        EntityID id_seed = 0;
         EntityID issueID();
         
     public:

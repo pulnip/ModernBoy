@@ -34,7 +34,6 @@ static void drawMeshes(RenderQueue& queue,
     const RenderTasks& tasks, std::stop_token stoken);
 static void setFrameEnd(RenderQueue& queue,
     std::stop_token stoken);
-static std::pair<size_t, size_t> countTask(const ArchetypeMap& map);
 
 void System::update(std::stop_token stoken){
     auto& commandQueue = renderer.queue;
@@ -55,9 +54,8 @@ void System::update(std::stop_token stoken){
 static Tasks fetchTask(const MeshManager& mm,
     const ArchetypeMap& map
 ){
-    auto [vt_size, rt_size] = countTask(map);
-    ViewTasks viewTasks(vt_size);
-    RenderTasks renderTasks(rt_size);
+    ViewTasks viewTasks;
+    RenderTasks renderTasks;
 
     for(const auto& [bit, vec]: map){
         if(subset(bit_of<ViewTask>(), bit)){
@@ -92,19 +90,6 @@ static Tasks fetchTask(const MeshManager& mm,
         }
     }
     return {viewTasks, renderTasks};
-}
-
-static std::pair<size_t, size_t> countTask(const ArchetypeMap& map){
-    size_t numView = 0;
-    size_t numRender = 0;
-
-    for(const auto& [bit, vec]: map){
-        if(subset(bit_of<ViewTask>(), bit))
-            numView += vec.size();
-        else if(!subset(bit_of<RenderTask>(), bit))
-            numRender += vec.size();
-    }
-    return {numView, numRender};
 }
 
 static void sortTask(RenderTasks& tasks){
