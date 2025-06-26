@@ -1,5 +1,7 @@
 #include <limits>
+#include <unordered_map>
 #include "common/type.hpp"
+#include "common/helper.hpp"
 
 using namespace ModernBoy;
 
@@ -17,8 +19,24 @@ Transform ModernBoy::identity(){
     return{ zeros(), unitQuat(), ones() };
 }
 
+static std::unordered_map<std::string, CameraType>
+text2camera = {
+    {"MAINCAMERA", CameraType::MainCamera},
+    { "SUBCAMERA",  CameraType::SubCamera},
+};
+
+CameraType ModernBoy::cameraType(std::string& text){
+    auto upper = toUpper(text);
+        auto it = text2camera.find(upper);
+    if (it == text2camera.end()){
+        return CameraType::UNKNOWN;
+    }
+    return it->second;
+}
+
 Camera ModernBoy::defaultCamera(){
-    return { 100.0f, 0.1f, 100.0f, Projection::PERSPECTIVE };
+    return { CameraType::MainCamera,
+        100.0f, 0.1f, 100.0f, Projection::PERSPECTIVE };
 }
 
 Handle ModernBoy::invalidHandle(){

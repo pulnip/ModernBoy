@@ -2,6 +2,7 @@
 #define MODERNBOY_COMMON_TYPE_HPP
 
 #include <cstddef>
+#include <string>
 #include <type_traits>
 
 namespace ModernBoy
@@ -29,11 +30,20 @@ namespace ModernBoy
 
     Transform identity();
 
+    enum class CameraType{
+        UNKNOWN     = -1,
+        MainCamera  =  0,
+        SubCamera   =  1,
+    };
+
+    CameraType cameraType(std::string& text);
+
     enum class Projection{
         PERSPECTIVE,
         ORTHOGRAPHIC
     };
     struct Camera{
+        CameraType type;
         float fov;
         float nearPlane;
         float farPlane;
