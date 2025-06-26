@@ -21,10 +21,8 @@ namespace ModernBoy::Metal
         void operator()(const Render::DrawMeshCommand&);
         void operator()(const Render::FrameEndCommand&);
 
-        float fov;
     private:
         AppState& app;
-        ObserverID fov_id = -1;
     };
 
 #ifdef __cplusplus

@@ -99,7 +99,9 @@ static void sortTask(RenderTasks& tasks){
 static void setFrameStart(RenderQueue& queue,
     std::stop_token stoken
 ){
-    waitUntilPushed(queue, FrameStartCommand{}, stoken);
+    waitUntilPushed(queue, FrameStartCommand{
+        .clearColor={.r=0.0f, .g=0.0f, .b=0.0f, .a=0.5f}
+    }, stoken);
 }
 static void setView(RenderQueue& queue,
     const ViewTasks& tasks, std::stop_token stoken

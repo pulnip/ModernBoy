@@ -15,8 +15,6 @@ void UI::update(){
     // ImGui::Checkbox("DrawNormal", &drawNormal);
 
     // ImGui::Checkbox("usePerspective", &shader->usePerspective);
-    if(ImGui::SliderFloat("Field of View", &fieldOfView, 0.0f, 120.0f))
-        notifyfieldOfView();
     if(ImGui::SliderFloat("Normal Scale", &normalScale, 0.0f, 1.0f))
         notifynormalScale();
 
@@ -60,7 +58,6 @@ void UI::unsubscribe##e(ObserverID id){ \
 }
 
 UI_ELM_FUNC_DEFINE(drawAsWire)
-UI_ELM_FUNC_DEFINE(fieldOfView)
 UI_ELM_FUNC_DEFINE(normalScale)
 UI_ELM_FUNC_DEFINE(lightType)
 UI_ELM_FUNC_DEFINE(rimPower)

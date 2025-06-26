@@ -46,25 +46,17 @@ app(app){
     auto device = static_cast<MTL::Device*>(
         RenderContext_getDevice(_renderContext));
     ImGui_ImplMetal_Init(device);
-
-    fov_id = app.gui.subscribefieldOfView(
-        [this](float fov){
-            this->fov = fov;
-        }
-    );
 }
 RenderContext::~RenderContext(){
-    app.gui.unsubscribefieldOfView(fov_id);
-
     SDL_Metal_DestroyView(view);
     destroyRenderContext(_renderContext);
 }
 
 void RenderContext::operator()(const FrameStartCommand& cmd){
     assert(_renderContext != nullptr);
-
+    const auto& color = cmd.clearColor;
     RenderContext_frameStart(_renderContext,
-        0.0, 0.0, 0.0, 0.5);
+        color.r, color.g, color.b, color.a);
 
     auto renderPassDesc = static_cast<MTL::RenderPassDescriptor*>(
         RenderContext_getRenderPassDesc(_renderContext));
@@ -84,7 +76,7 @@ void RenderContext::operator()(const SetViewCommand& cmd){
     const auto& camera = cmd.camera;
 
     RenderContext_setView(_renderContext,
-        viewPos.x, viewPos.y, viewPos.z, fov,
+        viewPos.x, viewPos.y, viewPos.z, camera.fov,
         viewQuat.x, viewQuat.y, viewQuat.z, viewQuat.w
     );
 }

@@ -31,7 +31,6 @@ private: \
     public:
         bool drawAsWire=false;
         // ToDo. sync when init
-        float fieldOfView=45.0f;
         float normalScale = 0.0f;
         int lightType=0;
         float rimPower=1.0f;
@@ -40,7 +39,6 @@ private: \
         void update();
 
         UI_ELM_DECL(drawAsWire)
-        UI_ELM_DECL(fieldOfView)
         UI_ELM_DECL(normalScale)
         UI_ELM_DECL(lightType)
         UI_ELM_DECL(rimPower)
