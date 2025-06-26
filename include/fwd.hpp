@@ -16,8 +16,24 @@ namespace ModernBoy
     union Vec4;
     struct Transform;
     struct Camera;
+    using EntityID = uint32_t;
+    using ArchetypeBit = uint64_t;
+    // for Input-Action
+    using ActionID = uint32_t;
+    // for UI subscription
+    using ObserverID = uint32_t;
+    // Handles
     struct Handle;
-
+    struct ResourceHandle;
+    using MeshHandle = ResourceHandle;
+    using ShaderHandle = ResourceHandle;
+    // Components
+    struct TransformComponent;
+    struct CameraComponent;
+    struct MeshComponent;
+    struct InputComponent;
+    struct SparseChunk;
+    // Games
     using DeltaTime = std::chrono::seconds;
 
     // Raw Resource
@@ -49,9 +65,6 @@ namespace ModernBoy
     struct AppState;
     class UI;
     // Handles
-    struct ResourceHandle;
-    using MeshHandle = ResourceHandle;
-    using ShaderHandle = ResourceHandle;
     // Managers
     template<typename Resource> class ResourceManager;
     template<typename Resource>
@@ -59,15 +72,7 @@ namespace ModernBoy
         const std::string& fileName);
     // Loaders
     class AssetLoader;
-    // Components
-    using ArchetypeBit = uint64_t;
-    template<typename T> struct ValueComponent;
-    struct ResourceComponent;
-    using TransformComponent = ValueComponent<Transform>;
-    using CameraComponent = ValueComponent<Camera>;
-    struct SparseChunk;
     // Actor
-    using EntityID = uint32_t;
     constexpr auto INVALID_ENTITY = std::numeric_limits<EntityID>::max();
     // Tasks
     struct RenderTask;
@@ -98,8 +103,6 @@ namespace ModernBoy
     using MeshManager = ResourceManager<Mesh>;
     using ShaderManager = ResourceManager<Shader>;
     using ShaderHandle = ResourceHandle;
-
-    using ObserverID = uint32_t;
 
     template<typename Resource>
     Resource& get(AppState& app,

@@ -20,7 +20,7 @@ namespace ModernBoy
     struct InputTask{
         Input::Button button;
         Input::ButtonState condition;
-        std::string behaviour;
+        std::string action;
 
         // ToDo.
         Transform transform;

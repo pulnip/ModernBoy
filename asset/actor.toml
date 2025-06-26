@@ -15,16 +15,16 @@ normal  = "cube_normal.png"
 file = "asset/script/action.toml"
 [[entities.input.map]]
 trigger = "Keyboard.Up.Pressed"
-behaviour = "default.MoveForward"
+action = "default.MoveForward"
 [[entities.input.map]]
 trigger = "Keyboard.Left.Pressed"
-behaviour = "default.MoveLeft"
+action = "default.MoveLeft"
 [[entities.input.map]]
 trigger = "Keyboard.Down.Pressed"
-behaviour = "default.MoveBackward"
+action = "default.MoveBackward"
 [[entities.input.map]]
 trigger = "Keyboard.Right.Pressed"
-behaviour = "default.MoveRight"
+action = "default.MoveRight"
 
 [[entities]]
 name = "Camera0"

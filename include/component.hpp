@@ -12,12 +12,18 @@
 
 namespace ModernBoy
 {
-    struct alignas(COMPONENT_ALIGN) ResourceComponent{
+    struct alignas(COMPONENT_ALIGN) TransformComponent{
         EntityID actor;
 
         bool isActive;
-        Handle handle;
-    }; static_assert(std::is_pod_v<ResourceComponent>);
+        Transform value;
+    }; static_assert(std::is_pod_v<TransformComponent>);
+    struct alignas(COMPONENT_ALIGN) CameraComponent{
+        EntityID actor;
+
+        bool isActive;
+        Camera value;
+    }; static_assert(std::is_pod_v<CameraComponent>);
     struct alignas(COMPONENT_ALIGN) MeshComponent{
         EntityID actor;
 
@@ -25,18 +31,14 @@ namespace ModernBoy
         Handle accessHandle;
         // TextureHandle textureHandle;
     }; static_assert(std::is_pod_v<MeshComponent>);
-    template<typename T>
-    struct alignas(COMPONENT_ALIGN) ValueComponent{
-        EntityID actor = UINT32_MAX;
+    constexpr auto MAX_KEYACTION_PAIR = 16;
+    struct InputComponent{
+        EntityID actor;
 
-        bool isActive = true;
-        T value;
-    };
-
-    using TransformComponent = ValueComponent<Transform>;
-    using CameraComponent = ValueComponent<Camera>;
-    using InputComponent = ValueComponent<Input::ActionMap>;
-    static_assert(std::is_trivially_copyable_v<InputComponent>);
+        bool isActive;
+        uint8_t countMap;
+        Input::KeyActionPair map[MAX_KEYACTION_PAIR];
+    }; static_assert(std::is_trivially_copyable_v<InputComponent>);
 
     template<typename Component, typename ...T>
     Component dangled(T... args);
