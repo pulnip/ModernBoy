@@ -20,8 +20,8 @@ namespace ModernBoy::Input
     private:
         void moveFrom(Device&& other);
 
-        State state;
-        const bool* sdl_keystate = nullptr;
+        KeyState keyState;
+        const bool* sdl_key = nullptr;
     };
 }
 

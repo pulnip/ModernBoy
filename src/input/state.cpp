@@ -234,7 +234,3 @@ ButtonState ModernBoy::Input::transit(
     uint8_t changed = ((state & ACTIVE_FLAG) ^ current) << 1;
     return static_cast<ButtonState>(changed | current);
 }
-
-State::State(){
-    key.fill(ButtonState::None);
-}
