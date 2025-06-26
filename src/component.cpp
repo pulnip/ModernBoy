@@ -18,10 +18,14 @@ template<>
 CameraComponent ModernBoy::dangled(Camera camera, bool active){
     return {std::numeric_limits<EntityID>::max(),
         active, camera};
-
 }
 template<>
-InputComponent ModernBoy::dangled(Input::InputMap&& map){
+MeshComponent ModernBoy::dangled(Handle handle){
+    return {std::numeric_limits<EntityID>::max(),
+        true, handle};
+}
+template<>
+InputComponent ModernBoy::dangled(Input::ActionMap&& map){
     return {std::numeric_limits<EntityID>::max(),
         true, map };
 }

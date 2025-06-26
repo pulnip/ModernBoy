@@ -35,13 +35,15 @@ namespace ModernBoy
         MainCamera  =  0,
         SubCamera   =  1,
     };
-
-    CameraType cameraType(std::string& text);
+    CameraType cameraType(const std::string& text);
 
     enum class Projection{
-        PERSPECTIVE,
-        ORTHOGRAPHIC
+        UNKNOWN     = -1,
+        PERSPECTIVE =  0,
+        ORTHOGRAPHIC=  1,
     };
+    Projection projection(const std::string& text);
+
     struct Camera{
         CameraType type;
         float fov;

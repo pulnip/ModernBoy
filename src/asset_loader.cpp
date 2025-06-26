@@ -9,46 +9,40 @@ using namespace ModernBoy;
 
 AssetLoader::AssetLoader(AppState& app):app(app){}
 
-static Transform parseTransform(const toml::v3::table& table);
-static Camera parseCamera(const toml::v3::table& table);
+static std::optional<TransformComponent> parseTransformComponent(
+    const toml::table* table);
+static std::optional<CameraComponent> parseCameraComponent(
+    const toml::table* table);
+static std::optional<MeshComponent> parseMeshComponent(
+    const toml::table* table, MeshManager& meshManager);
+static std::optional<InputComponent> parseInputComponent(
+    const toml::table* table, AppState& app);
 
 void AssetLoader::loadActors(const std::string& fileName){
     toml::table tbl = toml::parse_file(fileName);
 
-    auto actors = *tbl["entities"].as_array();
-    for(const auto& actor_node: actors){
-        const auto& actor = *actor_node.as_table();
+    auto entities = *tbl["entities"].as_array();
+    for(const auto& entity: entities){
+        const auto& actor = *entity.as_table();
         // new Actor
+        std::string name = *actor["name"].value<std::string>();
         ArchetypeBit bit = 0;
         SparseChunk chunk;
 
-        std::string name = *actor["name"].value<std::string>();
+        auto tc = parseTransformComponent(actor["transform"].as_table());
+        auto cc = parseCameraComponent(actor["camera"].as_table());
+        auto mc = parseMeshComponent(actor["model"].as_table(), app.meshManager);
+        auto ic = parseInputComponent(actor["input"].as_table(), app);
 
-        // transform component
-        if(auto trans_tbl = actor["transform"].as_table()){
-            auto transform = parseTransform(*trans_tbl);
-
-            chunk.transform = dangled<TransformComponent>(transform);
+        if(tc.has_value()){
             bit = bit | TRANSFORM_BIT;
+            chunk.transform = tc.value();
         }
-
-        // camera component
-        if(auto cam_tbl = actor["camera"].as_table()){
-            auto camera = parseCamera(*cam_tbl);
-            bool enabled = camera.type==CameraType::MainCamera;
-
-            chunk.camera = dangled<CameraComponent>(camera, enabled);
+        if(cc.has_value()){
             bit = bit | CAMERA_BIT;
+            chunk.camera = cc.value();
         }
-
-        // mesh component
-        if(auto model_tbl = actor["model"].as_table()){
-            const auto meshFile = (*model_tbl)["mesh"]
-                .value<std::string>().value_or("Sphere");
-            auto accessHandle = app.meshManager.load(meshFile);
-
-            chunk.mesh = MeshComponent{
-                INVALID_ENTITY, true, accessHandle};
+        if(mc.has_value()){
             bit = bit | MESH_BIT;
             // ToDo. texture component
             // const auto& texFile = *parts["diffuse"].value<std::string>();
@@ -85,37 +79,40 @@ void AssetLoader::loadActors(const std::string& fileName){
     }
 }
 
-static Transform parseTransform(
-    const toml::v3::table& table
+static std::optional<TransformComponent> parseTransformComponent(
+    const toml::table* table
 ){
-    Transform transform{};
-    auto p = table["position"].as_array();
-    auto r = table["rotation"].as_array();
-    auto s = table["scale"].as_array();
+    if(table==nullptr)
+        return std::nullopt;
+    auto p = *(*table)["position"].as_array();
+    auto r = *(*table)["rotation"].as_array();
+    auto s = *(*table)["scale"].as_array();
 
+    Transform transform;
     for(size_t i=0; i<3; ++i)
-        transform.position.v[i] = *((*p)[i]).value<double>();
+        transform.position.v[i] = *p[i].value<double>();
     for(size_t i=0; i<4; ++i)
-        transform.rotation.v[i] = *((*r)[i]).value<double>();
+        transform.rotation.v[i] = *r[i].value<double>();
     for(size_t i=0; i<3; ++i)
-        transform.scale.v[i] = *((*s)[i]).value<double>();
-    return transform;
+        transform.scale.v[i] = *s[i].value<double>();
+    return dangled<TransformComponent>(transform);
 }
 
-static Camera parseCamera(const toml::v3::table& table){
-    auto typeText = *table["type"].value<std::string>();
-    auto fov = *table["fov"].value<double>();
-    auto near = *table["nearPlane"].value<double>();
-    auto far = *table["farPlane"].value<double>();
-    auto projText = *table["projection"].value<std::string>();
+static std::optional<CameraComponent> parseCameraComponent(
+    const toml::table* table
+){
+    if(table==nullptr)
+        return std::nullopt;
 
+    auto typeText = (*table)["type"].value<std::string>().value();
     auto type = cameraType(typeText);
+    auto fov = (*table)["fov"].value<double>().value();
+    auto near = (*table)["nearPlane"].value<double>().value();
+    auto far = (*table)["farPlane"].value<double>().value();
+    auto projText = (*table)["projection"].value<std::string>().value();
+    auto proj = projection(projText);
 
-    Projection projection = Projection::PERSPECTIVE;
-    if(projText.compare("orthographic") == 0)
-        projection = Projection::ORTHOGRAPHIC;
-
-    return Camera{
+    Camera camera{
         .type = type,
         .fov = static_cast<float>(fov),
         .nearPlane = static_cast<float>(near),
