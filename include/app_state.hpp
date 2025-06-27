@@ -4,7 +4,6 @@
 #include <vector>
 #include <unordered_map>
 #include "resource_manager.hpp"
-#include "mesh_importer.hpp"
 #include "asset_loader.hpp"
 #include "util/object_pool.hpp"
 #include "util/bit.hpp"
@@ -50,7 +49,6 @@ namespace ModernBoy
         
     public:
         UI gui;
-        MeshImporter meshImporter;
         SDL_Window* window;
         Input::Device inputDevice;
 

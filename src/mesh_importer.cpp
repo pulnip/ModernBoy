@@ -3,7 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "mesh_importer.hpp"
+#include "importer.hpp"
 
 using namespace ModernBoy;
 
@@ -16,7 +16,7 @@ static RawMeshes createCube();
 static RawMeshes createSphere(float radius=1.0f,
     int numSlices=32, int numStacks=16);
 
-RawMeshes MeshImporter::import(const std::string& fileName){
+RawMeshes importMesh(const std::string& fileName){
     if(fileName.ends_with(".fbx"))
         return fromFbx(fileName);
     else if(fileName.compare("Triangle") == 0)

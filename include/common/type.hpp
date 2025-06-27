@@ -67,7 +67,8 @@ namespace ModernBoy
         INVALID      = -1,
         MESH         = 0,
         SHADER       = 1,
-        NUM_RESOURCE = 2,
+        MODULE       = 2,
+        NUM_RESOURCE = 3,
     };
 
     struct ResourceHandle{

@@ -10,6 +10,7 @@
 #include "common/type.hpp"
 #include "fwd.hpp"
 #include "util/object_pool.hpp"
+#include "importer.hpp"
 
 namespace ModernBoy
 {

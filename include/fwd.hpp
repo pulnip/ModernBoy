@@ -67,9 +67,6 @@ namespace ModernBoy
     // Handles
     // Managers
     template<typename Resource> class ResourceManager;
-    template<typename Resource>
-    std::vector<Resource> import(AppState& app,
-        const std::string& fileName);
     // Loaders
     class AssetLoader;
     // Actor

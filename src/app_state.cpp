@@ -2,12 +2,11 @@
 #include <format>
 #include <vector>
 #include "app_state.hpp"
-#include "input/state.hpp"
 
 using namespace ModernBoy;
 
 AppState::AppState(SDL_Window* window)
-:gui(), meshImporter(), window(window), inputDevice(),
+:gui(), window(window), inputDevice(),
 // Important!! Initialize Order
 meshManager(*this), shaderManager(*this),
 moduleManager(*this),
@@ -54,15 +53,4 @@ static void assignEntityID(SparseChunk& components,
     components.camera.actor = actor;
     components.mesh.actor = actor;
     components.input.actor = actor;
-}
-
-template<>
-std::vector<Mesh> ModernBoy::import<Mesh>(
-    AppState& app, const std::string& filename
-){
-    auto rawMeshes = app.meshImporter.import(filename);
-    std::vector<Mesh> meshes(rawMeshes.size());
-    for(auto& rawMesh: rawMeshes)
-        meshes.emplace_back(rawMesh, app);
-    return meshes;
 }
