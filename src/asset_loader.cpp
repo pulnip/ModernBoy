@@ -6,7 +6,7 @@
 #include "asset_loader.hpp"
 #include "app_state.hpp"
 #include "component.hpp"
-#include "input/controller.hpp"
+#include "script/invoker.hpp"
 #include "script/type.hpp"
 
 using namespace ModernBoy;
@@ -195,7 +195,7 @@ void AssetLoader::loadScripts(const std::string& fileName){
             const auto funcName = (*func)["name"].value<std::string>();
             funcNames.push_back(funcName.value());
         }
-        app.controller.buildModule(moduleName.value(),
+        app.scriptInvoker.buildModule(moduleName.value(),
             fileNames, funcNames);
         break;
     }

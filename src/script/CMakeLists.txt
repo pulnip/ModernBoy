@@ -4,6 +4,7 @@ add_library(ScriptModule STATIC
     ${ALL_SOURCES}
     ${AS_ADD_ON_ROOT}/scriptstdstring/scriptstdstring.cpp
     ${AS_ADD_ON_ROOT}/scriptstdstring/scriptstdstring_utils.cpp
+    ${AS_ADD_ON_ROOT}/scriptbuilder/scriptbuilder.cpp
 )
 
 target_compile_options(ScriptModule PRIVATE
