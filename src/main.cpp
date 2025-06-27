@@ -78,6 +78,7 @@ SDL_AppResult SDL_AppInit(void** appState,
     NativePtr layerPtr = as->renderSystem.renderer.context.metalLayer;
 
     as->assetLoader.loadActors("asset/actor.toml");
+    as->assetLoader.loadScripts("asset/action.toml");
 
     auto shader = Shader(createShader(layerPtr), &(as->gui));
     auto handle = as->shaderManager.emplace(std::move(shader));
@@ -140,8 +141,6 @@ SDL_AppResult SDL_AppIterate(void* appState){
         ctx.shown = !ctx.shown;
         as.last_step += STEP_RATE_IN_MILLISECONDS;
     }
-
-    as.controller.update();
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }

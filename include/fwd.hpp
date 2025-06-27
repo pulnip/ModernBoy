@@ -84,10 +84,11 @@ namespace ModernBoy
         struct State;
         class Device;
         class System;
+        class Controller;
     }
     namespace Script
     {
-        class Controller;
+        struct Module;
     }
     namespace Render
     {
@@ -103,6 +104,8 @@ namespace ModernBoy
     using MeshManager = ResourceManager<Mesh>;
     using ShaderManager = ResourceManager<Shader>;
     using ShaderHandle = ResourceHandle;
+    using ModuleManager = ResourceManager<Script::Module>;
+    using ModuleHandle = ResourceHandle;
 
     template<typename Resource>
     Resource& get(AppState& app,

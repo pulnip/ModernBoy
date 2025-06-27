@@ -10,8 +10,9 @@ AppState::AppState(SDL_Window* window)
 :gui(), meshImporter(), window(window), inputDevice(),
 // Important!! Initialize Order
 meshManager(*this), shaderManager(*this),
+moduleManager(*this),
 renderSystem(*this, window), inputSystem(*this),
-controller(*this), assetLoader(*this){}
+scriptInvoker(*this), assetLoader(*this){}
 AppState::~AppState(){}
 
 EntityID AppState::issueID(){

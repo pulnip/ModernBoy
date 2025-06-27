@@ -11,11 +11,12 @@
 #include "archetype_map.hpp"
 #include "component.hpp"
 #include "task.hpp"
-#include "input/controller.hpp"
 #include "input/device.hpp"
 #include "input/system.hpp"
 #include "render/gui.hpp"
 #include "render/system.hpp"
+#include "script/type.hpp"
+#include "script/invoker.hpp"
 #include "game/game_context.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
@@ -48,22 +49,21 @@ namespace ModernBoy
         EntityID issueID();
         
     public:
-        // Important!! Initialize Order
-        // Hardwares
         UI gui;
         MeshImporter meshImporter;
         SDL_Window* window;
         Input::Device inputDevice;
-        // Resource Managers
+
         MeshManager meshManager;
         ShaderManager shaderManager;
+        ModuleManager moduleManager;
 
         EntityTable actorTable;
         ArchetypeMap archetypeMap;
 
         Render::System renderSystem;
         Input::System inputSystem;
-        Input::Controller controller;
+        Script::Invoker scriptInvoker;
 
         AssetLoader assetLoader;
         // Game State
