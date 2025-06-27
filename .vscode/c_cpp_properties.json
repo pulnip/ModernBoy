@@ -52,6 +52,7 @@
         "${workspaceFolder}/external/imgui",
         "${workspaceFolder}/external/tomlplusplus/include",
         "${workspaceFolder}/external/angelscript/sdk/angelscript/include",
+        "${workspaceFolder}/external/angelscript/sdk/add_on",
         "${workspaceFolder}/external/metal-cpp"
       ],
       "defines": [

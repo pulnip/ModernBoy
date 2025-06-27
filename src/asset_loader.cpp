@@ -6,6 +6,8 @@
 #include "asset_loader.hpp"
 #include "app_state.hpp"
 #include "component.hpp"
+#include "input/controller.hpp"
+#include "script/type.hpp"
 
 using namespace ModernBoy;
 
@@ -143,12 +145,12 @@ static std::optional<InputComponent> parseInputComponent(
         auto trigger = (key << 2) | state;
 
         auto actionText = input["action"].value<std::string>().value();
-        auto a_id = app.controller.loadModuleFunction(actionText);
+        // auto a_id = app.controller.loadModuleFunction(actionText);
 
-        component.map[component.countMap] = {trigger, a_id};
-        ++component.countMap;
-        if(component.countMap == MAX_KEYACTION_PAIR)
-            break;
+        // component.map[component.countMap] = {trigger, a_id};
+        // ++component.countMap;
+        // if(component.countMap == MAX_KEYACTION_PAIR)
+        //     break;
     }
 
     return component;
@@ -166,4 +168,36 @@ parseInputTrigger(const std::string& text){
     }
 
     return {result[0], result[1], result[2]};
+}
+
+void AssetLoader::loadScripts(const std::string& fileName){
+    toml::table tbl = toml::parse_file(fileName);
+
+    auto modules = *tbl["module"].as_array();
+    for(const auto& m: modules){
+        const auto& module_ = m.as_table();
+
+        const auto moduleName = (*module_)["name"].value<std::string>();
+
+        std::vector<std::string> fileNames;
+        std::vector<std::string> funcNames;
+
+        const auto files = *(*module_)["file"].as_array();
+        for(const auto& f: files){
+            const auto& file = f.as_table();
+
+            const auto& fileName = (*file)["name"].value<std::string>();
+            fileNames.push_back(fileName.value());
+        }
+        const auto funcs = *(*module_)["function"].as_array();
+        for(const auto& f: funcs){
+            const auto& func = f.as_table();
+            const auto funcName = (*func)["name"].value<std::string>();
+            funcNames.push_back(funcName.value());
+        }
+        app.controller.buildModule(moduleName.value(),
+            fileNames, funcNames);
+        break;
+    }
+
 }

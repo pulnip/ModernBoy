@@ -1,6 +1,14 @@
-[[modules]]
+[[module]]
+name="test"
+[[module.file]]
+name = "src/script/test.as"
+[[module.function]]
+name="printHello"
+
+[[module]]
 name="default"
-file = "asset/script/default.asb"
+[[module.file]]
+name = "src/script/default.as"
 [[module.function]]
 name="MoveForward"
 [[module.function]]
