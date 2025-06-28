@@ -52,13 +52,13 @@ Camera ModernBoy::defaultCamera(){
         100.0f, 0.1f, 100.0f, Projection::PERSPECTIVE };
 }
 
-Handle ModernBoy::invalidHandle(){
+NaiveHandle ModernBoy::invalidHandle(){
     return {std::numeric_limits<size_t>::max(), 0};
 }
-bool ModernBoy::isValid(Handle handle){
+bool ModernBoy::isValid(NaiveHandle handle){
     return handle.index != std::numeric_limits<size_t>::max();
 }
-bool ModernBoy::operator==(const Handle& lhs, const Handle& rhs){
+bool ModernBoy::operator==(const NaiveHandle& lhs, const NaiveHandle& rhs){
     return lhs.index==rhs.index 
         & lhs.generation==rhs.generation;
 }

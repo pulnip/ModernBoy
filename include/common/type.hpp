@@ -54,14 +54,14 @@ namespace ModernBoy
 
     Camera defaultCamera();
 
-    struct Handle{
+    struct NaiveHandle{
         size_t index;
         uint32_t generation;
-    }; static_assert(std::is_pod_v<Handle>);
+    }; static_assert(std::is_pod_v<NaiveHandle>);
 
-    Handle invalidHandle();
-    bool isValid(Handle handle);
-    bool operator==(const Handle& lhs, const Handle& rhs);
+    NaiveHandle invalidHandle();
+    bool isValid(NaiveHandle handle);
+    bool operator==(const NaiveHandle& lhs, const NaiveHandle& rhs);
 
     enum class ResourceType{
         INVALID      = -1,
