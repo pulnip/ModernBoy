@@ -20,9 +20,11 @@ CameraComponent ModernBoy::dangled(Camera camera, bool active){
         active, camera};
 }
 template<>
-MeshComponent ModernBoy::dangled(ResourceHandle handle){
+MeshComponent ModernBoy::dangled(MeshHandle meshHandle,
+    TextureHandle textureHandle, ShaderHandle shaderHandle
+){
     return {std::numeric_limits<EntityID>::max(),
-        true, handle};
+        true, meshHandle, textureHandle, shaderHandle};
 }
 template<>
 InputComponent ModernBoy::dangled(){

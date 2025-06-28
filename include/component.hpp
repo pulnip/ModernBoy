@@ -29,7 +29,8 @@ namespace ModernBoy
 
         bool isActive;
         ResourceHandle handle;
-        // TextureHandle textureHandle;
+        TextureHandle textureHandle;
+        ShaderHandle shaderHandle;
     }; static_assert(std::is_pod_v<MeshComponent>);
     constexpr auto MAX_KEYACTION_PAIR = 16;
     struct InputComponent{

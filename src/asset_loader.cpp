@@ -17,8 +17,12 @@ static std::optional<TransformComponent> parseTransformComponent(
     const toml::table* table);
 static std::optional<CameraComponent> parseCameraComponent(
     const toml::table* table);
-static std::optional<MeshComponent> parseMeshComponent(
-    const toml::table* table, MeshManager& meshManager);
+static MeshComponent parseMeshComponent(
+    const std::string& meshFile, MeshManager& meshManager,
+    const std::string& textureFile, TextureManager& textureManager,
+    const std::string& shaderFile, ShaderManager& shaderManager,
+    NativePtr layerPtr, UI& gui
+);
 static std::optional<InputComponent> parseInputComponent(
     const toml::table* table, AppState& app);
 
@@ -35,7 +39,19 @@ void AssetLoader::loadActors(const std::string& fileName){
 
         auto tc = parseTransformComponent(actor["transform"].as_table());
         auto cc = parseCameraComponent(actor["camera"].as_table());
-        auto mc = parseMeshComponent(actor["model"].as_table(), app.meshManager);
+
+        if(actor.contains("model")){
+            auto model = actor["model"];
+            auto mc = parseMeshComponent(
+                model["mesh"].value_or("cube"), app.meshManager,
+                model["texture"].value_or("metal_logo.png"), app.textureManager,
+                model["shader"].value_or("default"), app.shaderManager,
+                app.renderSystem.renderer.context.metalLayer, app.gui
+            );
+
+            bit = bit | MESH_BIT;
+            chunk.mesh = mc;
+        }
         auto ic = parseInputComponent(actor["input"].as_table(), app);
 
         if(tc.has_value()){
@@ -46,16 +62,13 @@ void AssetLoader::loadActors(const std::string& fileName){
             bit = bit | CAMERA_BIT;
             chunk.camera = cc.value();
         }
-        if(mc.has_value()){
-            bit = bit | MESH_BIT;
-            chunk.mesh = mc.value();
-        }
         if(ic.has_value()){
             bit = bit | INPUT_BIT;
             chunk.input = ic.value();
         }
 
-        [[maybe_unused]] auto actor_id = app.createActor(bit, std::move(chunk));
+        auto actor_id = app.createActor(bit, std::move(chunk));
+        std::println("Actor {}: {}, {}", actor_id, name, bit);
     }
 }
 
@@ -104,21 +117,22 @@ static std::optional<CameraComponent> parseCameraComponent(
         camera, type==CameraType::MainCamera);
 }
 
-static std::optional<MeshComponent> parseMeshComponent(
-    const toml::table* table, MeshManager& meshManager
+static MeshComponent parseMeshComponent(
+    const std::string& meshFile, MeshManager& meshManager,
+    const std::string& textureFile, TextureManager& textureManager,
+    const std::string& shaderFile, ShaderManager& shaderManager,
+    NativePtr metalLayer, UI& gui
 ){
-    if(table==nullptr)
-        return std::nullopt;
+    auto meshHandle = meshManager.emplace(meshFile, metalLayer);
+    auto textureHandle = textureManager.emplace(textureFile, metalLayer);
+    auto shaderHandle = shaderManager.emplace(
+        shaderFile.compare("default") != 0 ?
+        shaderFile : "asset/shader/ModernBoy.metallib",
+        metalLayer, &gui
+    );
 
-    const auto meshFile = (*table)["mesh"]
-        .value<std::string>().value_or("Sphere");
-    auto handle = meshManager.load(meshFile);
-
-    // ToDo. texture component
-    // const auto& texFile = *parts["diffuse"].value<std::string>();
-    // ToDo. How to handle multiple model?
-
-    return dangled<MeshComponent>(handle);
+    return dangled<MeshComponent>(meshHandle,
+        textureHandle, shaderHandle);
 }
 
 static std::tuple<std::string, std::string, std::string>
@@ -199,5 +213,4 @@ void AssetLoader::loadScripts(const std::string& fileName){
             fileNames, funcNames);
         break;
     }
-
 }

@@ -8,8 +8,8 @@ using namespace ModernBoy;
 AppState::AppState(SDL_Window* window)
 :gui(), window(window), inputDevice(),
 // Important!! Initialize Order
-meshManager(*this), shaderManager(*this),
-moduleManager(*this),
+meshManager(*this), textureManager(*this),
+shaderManager(*this), moduleManager(*this),
 renderSystem(*this, window), inputSystem(*this),
 scriptInvoker(*this),
 assetLoader(*this){}

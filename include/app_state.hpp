@@ -21,6 +21,7 @@
 #include "backends/dx11/mesh.hpp"
 #elif defined(USE_METAL)
 #include "backends/metal/mesh.hpp"
+#include "backends/metal/texture.hpp"
 #include "backends/metal/shader.hpp"
 #elif defined(USE_OPENGL)
 #include "backends/opengl/mesh.hpp"
@@ -53,6 +54,7 @@ namespace ModernBoy
         Input::Device inputDevice;
 
         MeshManager meshManager;
+        TextureManager textureManager;
         ShaderManager shaderManager;
         ModuleManager moduleManager;
 

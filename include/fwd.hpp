@@ -101,6 +101,7 @@ namespace ModernBoy
     using NativePtr = void*;
 
     using MeshManager = ResourceManager<Mesh>;
+    using TextureManager = ResourceManager<Texture>;
     using ShaderManager = ResourceManager<Shader>;
     using ShaderHandle = ResourceHandle;
     using TextureHandle = ResourceHandle;
