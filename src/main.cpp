@@ -74,17 +74,12 @@ SDL_AppResult SDL_AppInit(void** appState,
 
     DX11::DefaultShader shader(as->renderer.context.device);
     as->shaderManager.create(std::move(shader));
-#elif defined(USE_METAL)
-    NativePtr layerPtr = as->renderSystem.renderer.context.metalLayer;
-
-    as->assetLoader.loadActors("asset/actor.toml");
-    as->assetLoader.loadScripts("asset/action.toml");
-
-    auto shader = Shader(createShader(layerPtr), &(as->gui));
-    auto handle = as->shaderManager.emplace(std::move(shader));
 #elif defined(USE_OPENGL)
     // TODO
 #endif
+    as->assetLoader.loadActors("asset/actor.toml");
+    as->assetLoader.loadScripts("asset/action.toml");
+
     *appState = as;
 
     as->last_step = SDL_GetTicks();

@@ -11,6 +11,13 @@ ResourceHandle ResourceManager<Mesh>::makeHandle(
         index, generation};
 }
 template<>
+ResourceHandle ResourceManager<Texture>::makeHandle(
+    Index index, uint32_t generation
+){
+    return TextureHandle{ResourceType::TEXTURE,
+        index, generation};
+}
+template<>
 ResourceHandle ResourceManager<Shader>::makeHandle(
     Index index, uint32_t generation
 ){

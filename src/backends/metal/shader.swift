@@ -1,6 +1,7 @@
 import Metal
 import QuartzCore
 import simd
+import Foundation
 
 // Fragment shader constant
 struct RimConstant{
@@ -67,16 +68,26 @@ class Shader{
 }
 
 @_cdecl("createShader")
-public func createShader(_ layerPtr: UnsafeRawPointer?
+public func createShader(_ pathPtr: UnsafeRawPointer?,
+    _ layerPtr: UnsafeRawPointer?
 ) -> UnsafeRawPointer? {
-    guard let layerPtr = layerPtr
+    guard let pathPtr = pathPtr,
+        let layerPtr = layerPtr
         else { return nil }
     let device = Unmanaged<CAMetalLayer>
         .fromOpaque(layerPtr).takeUnretainedValue().device!
-    
-    let shaderPath = Bundle.main.path(
-        forResource: "ModernBoy", ofType: "metallib") ??
-        "./asset/shader/ModernBoy.metallib"
+
+    let cStr = pathPtr.assumingMemoryBound(to: CChar.self)
+    let providedPath = String(cString: cStr)
+    let shaderPath: String
+    if FileManager.default.fileExists(atPath: providedPath) {
+        shaderPath = providedPath
+    }
+    else if let bundlePath = Bundle.main.path(forResource: "ModernBoy", ofType: "metallib") {
+        shaderPath = bundlePath
+    } else {
+        shaderPath = "./asset/shader/ModernBoy.metallib"
+    }
     let shader = Shader(device: device,
     shaderPath: shaderPath)
     return UnsafeRawPointer(Unmanaged

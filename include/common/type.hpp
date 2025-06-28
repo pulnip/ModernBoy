@@ -66,9 +66,10 @@ namespace ModernBoy
     enum class ResourceType{
         INVALID      = -1,
         MESH         = 0,
-        SHADER       = 1,
-        MODULE       = 2,
-        NUM_RESOURCE = 3,
+        TEXTURE      = 1,
+        SHADER       = 2,
+        MODULE       = 3,
+        NUM_RESOURCE = 4,
     };
 
     struct ResourceHandle{

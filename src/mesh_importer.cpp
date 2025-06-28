@@ -3,14 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "app_state.hpp"
-#if defined(USE_DIRECTX)
-#include "backends/dx11/mesh.hpp"
-#elif defined(USE_METAL)
-#include "backends/metal/mesh.hpp"
-#elif defined(USE_OPENGL)
-#include "backends/opengl/mesh.hpp"
-#endif
+#include "raw_resource.hpp"
 
 using namespace ModernBoy;
 
@@ -24,7 +17,7 @@ static RawMesh createSphere(float radius=1.0f,
     int numSlices=32, int numStacks=16);
 
 template<>
-Mesh ModernBoy::import<Mesh>(AppState& app,
+RawMesh ModernBoy::import<RawMesh>(
     const std::string& fileName
 ){
     RawMesh rawMesh;
@@ -45,7 +38,7 @@ Mesh ModernBoy::import<Mesh>(AppState& app,
             fileName)
         );
 
-    return Mesh(rawMesh, app);
+    return rawMesh;
 }
 
 auto testTexs = TexPaths{"asset/metal_logo.png"};

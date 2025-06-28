@@ -1,8 +1,23 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "raw_resource.hpp"
 #include "backends/metal/mesh.hpp"
-#include "app_state.hpp"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+    extern void* createMesh(const void* layerPtr,
+        const float* vertices, int numVertices,
+        const uint32_t* indices, int numIndices,
+        const char* texturePath);
+    extern void destroyMesh(const void* meshPtr);
+    extern void* makeTriangle(const void* layerPtr);
+
+#ifdef __cplusplus
+}
+#endif
 
 using namespace ModernBoy;
 using namespace ModernBoy::Metal;
@@ -19,8 +34,11 @@ void Mesh::moveFrom(Mesh&& other){
     other.meshPtr.clear();
 }
 
-Mesh::Mesh(RawMesh& rawMesh, AppState& app)
-:meshPtr(rawMesh.size()){
+Mesh::Mesh(const std::string& fileName,
+    NativePtr metalLayer){
+    auto rawMesh = import<RawMesh>(fileName);
+    meshPtr.reserve(rawMesh.size());
+
     for(const auto& part: rawMesh){
         auto vertices = toFloats(part.vertices);
         const char* texPath = nullptr;
@@ -29,12 +47,16 @@ Mesh::Mesh(RawMesh& rawMesh, AppState& app)
         }
 
         meshPtr.emplace_back(createMesh(
-            app.renderSystem.renderer.context.metalLayer,
+            metalLayer,
             vertices.data(), vertices.size() / 8,
             part.indices.data(), part.indices.size(),
                 texPath
         ));
     }
+}
+Mesh::~Mesh(){
+    for(const auto& part: meshPtr)
+        destroyMesh(part);
 }
 
 static std::vector<float> toFloats(const Vertices& vertices){

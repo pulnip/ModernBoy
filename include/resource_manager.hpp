@@ -33,9 +33,8 @@ namespace ModernBoy
         std::unordered_map<Index, std::string> indexToPath;
 
         static ResourceHandle makeHandle(Index index, uint32_t generation);
-        // ToDo. public for just shader.
-    public:
-        [[nodiscard]] ResourceHandle emplace(Resource&& x){
+
+        [[nodiscard]] ResourceHandle load(Resource&& x){
             Index index = pool.newIndex();
 
             ResourceSlot& slot = pool[index];
@@ -62,12 +61,17 @@ namespace ModernBoy
             auto it = pathToIndex.find(fileName);
             return it != pathToIndex.end();
         }
-        [[nodiscard]] ResourceHandle load(const std::string& fileName){
+
+        template<typename... Args>
+        [[nodiscard]] ResourceHandle emplace(
+            const std::string& fileName, Args... args
+        ){
             if(isExist(fileName))
                 return link(fileName);
 
-            auto resource = import<Resource>(app, fileName);
-            auto handle = emplace(std::move(resource));
+            auto resource = Resource(fileName,
+                std::forward<Args>(args)...);
+            auto handle = load(std::move(resource));
 
             pathToIndex.emplace(std::make_pair(fileName, handle.index));
             indexToPath.emplace(std::make_pair(handle.index, fileName));

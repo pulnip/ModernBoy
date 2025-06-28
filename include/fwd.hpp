@@ -54,10 +54,12 @@ namespace ModernBoy
     namespace Metal
     {
         struct Mesh;
+        struct Texture;
         struct Shader;
         struct RenderContext;
     }
     using Mesh = Metal::Mesh;
+    using Texture = Metal::Texture;
     using Shader = Metal::Shader;
     using RenderContext = Metal::RenderContext;
 #elif defined(USE_OPENGL)
@@ -101,16 +103,10 @@ namespace ModernBoy
     using MeshManager = ResourceManager<Mesh>;
     using ShaderManager = ResourceManager<Shader>;
     using ShaderHandle = ResourceHandle;
+    using TextureHandle = ResourceHandle;
     using ModuleManager = ResourceManager<Script::Module>;
     using ModuleHandle = ResourceHandle;
 
-    template<typename Resource>
-    Resource import(AppState& app,
-        const std::string& fileName);
-    template<> Mesh import(AppState&, const std::string&);
-    template<> Shader import(AppState&, const std::string&);
-    template<> Script::Module import(
-        AppState& app, const std::string& fileName);
     template<typename Resource>
     Resource& get(
         AppState& app, ResourceHandle handle);

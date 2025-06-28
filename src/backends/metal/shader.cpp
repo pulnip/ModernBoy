@@ -2,15 +2,35 @@
 #include "render/gui.hpp"
 #include "backends/metal/shader.hpp"
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+    extern void* createShader(const char* filePath,
+        const void* layerPtr);
+    extern void destroyShader(const void* shaderPtr);
+
+    extern void Shader_setRimPower(
+        void* shaderPtr, float rimPower
+    );
+    extern void Shader_setRimStrength(
+        void* shaderPtr, float rimStrength
+    );
+
+#ifdef __cplusplus
+}
+#endif
+
 using namespace ModernBoy::Metal;
 
-Shader::Shader(ShaderPtr shaderPtr, UI* gui)
-:shaderPtr(shaderPtr), gui(gui){
+Shader::Shader(const std::string& fileName,
+    NativePtr layerPtr, UI* gui)
+:shaderPtr(createShader(fileName.c_str(), layerPtr)), gui(gui){
     if(gui != nullptr){
-        rp_id = gui->subscriberimPower([shaderPtr](float rp){
+        rp_id = gui->subscriberimPower([this](float rp){
             Shader_setRimPower(shaderPtr, rp);
         });
-        rs_id = gui->subscriberimStrength([shaderPtr](float rs){
+        rs_id = gui->subscriberimStrength([this](float rs){
             Shader_setRimStrength(shaderPtr, rs);
         });
     }

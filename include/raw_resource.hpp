@@ -37,6 +37,8 @@ namespace ModernBoy
         int channels=0;
         std::vector<uint8_t> pixels;
     };
+    template<typename Resource>
+    Resource import(const std::string&);
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RAW_RESOURCE_HPP
