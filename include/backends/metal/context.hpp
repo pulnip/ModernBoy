@@ -10,19 +10,20 @@ namespace ModernBoy::Metal
     struct RenderContext{
         SDL_MetalView view;
         NativePtr metalLayer;
-        NativePtr _renderContext;
 
-        RenderContext(SDL_Window* in_window, AppState& app);
+        RenderContext(SDL_Window* in_window, UI& ui);
         ~RenderContext();
 
         void operator()(const Render::FrameStartCommand&);
         void operator()(const Render::SetViewCommand&);
         void operator()(const Render::SetShaderCommand&);
+        void operator()(const Render::SetTextureCommand&);
         void operator()(const Render::DrawMeshCommand&);
         void operator()(const Render::FrameEndCommand&);
 
     private:
-        AppState& app;
+        NativePtr _renderContext;
+        UI& ui;
     };
 }
 

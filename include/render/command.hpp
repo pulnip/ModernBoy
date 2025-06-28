@@ -18,11 +18,14 @@ namespace ModernBoy::Render
         Camera camera;
     };
     struct SetShaderCommand{
-        ShaderHandle shaderHandle;
+        NativePtr shader;
+    };
+    struct SetTextureCommand{
+        NativePtr texture;
     };
     struct DrawMeshCommand{
         Transform transform;
-        MeshHandle meshHandle;
+        NativePtr mesh;
     };
     struct FrameEndCommand{
     };
@@ -31,6 +34,7 @@ namespace ModernBoy::Render
         FrameStartCommand,
         SetViewCommand,
         SetShaderCommand,
+        SetTextureCommand,
         DrawMeshCommand,
         FrameEndCommand
     >;

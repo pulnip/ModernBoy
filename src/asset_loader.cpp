@@ -46,7 +46,7 @@ void AssetLoader::loadActors(const std::string& fileName){
                 model["mesh"].value_or("cube"), app.meshManager,
                 model["texture"].value_or("metal_logo.png"), app.textureManager,
                 model["shader"].value_or("default"), app.shaderManager,
-                app.renderSystem.renderer.context.metalLayer, app.gui
+                app.renderSystem.context.metalLayer, app.ui
             );
 
             bit = bit | MESH_BIT;

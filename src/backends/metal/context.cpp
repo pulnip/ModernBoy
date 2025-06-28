@@ -2,16 +2,18 @@
 #include <chrono>
 #include <numbers>
 #include <stdexcept>
-#include <SDL3/SDL_log.h>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
+#define IMGUI_IMPL_METAL_CPP
+#include <imgui_impl_metal.h>
+#include <SDL3/SDL_log.h>
 #include "app_state.hpp"
 #include "render/command.hpp"
 #include "backends/metal/context.hpp"
 #include "backends/metal/mesh.hpp"
-#define IMGUI_IMPL_METAL_CPP
-#include <imgui_impl_metal.h>
+#include "render/gui.hpp"
 
+#include <print>
 
 #ifdef __cplusplus
 extern "C"{
@@ -75,10 +77,9 @@ using namespace std::chrono;
 using namespace ModernBoy::Render;
 using namespace ModernBoy::Metal;
 
-RenderContext::RenderContext(SDL_Window* in_window, AppState& app)
+RenderContext::RenderContext(SDL_Window* in_window, UI& ui)
 :view(SDL_Metal_CreateView(in_window)),
-metalLayer(SDL_Metal_GetLayer(view)),
-app(app){
+metalLayer(SDL_Metal_GetLayer(view)), ui(ui){
     NativePtr layer = SDL_Metal_GetLayer(view);
     _renderContext = createRenderContext(layer);
 
@@ -95,7 +96,7 @@ app(app){
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize = ImVec2(w, h);
     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     // Setup Dear ImGui style
     // ImGui::StyleColorsLight();
@@ -123,10 +124,10 @@ void RenderContext::operator()(const FrameStartCommand& cmd){
     // Start the Dear ImGui frame
     ImGui_ImplMetal_NewFrame(renderPassDesc);
     ImGui_ImplSDL3_NewFrame();
-
     ImGui::NewFrame();
     // ImGui::ShowDemoWindow(); // Show demo window! :)
-    app.gui.update();
+
+    ui.update();
 }
 void RenderContext::operator()(const SetViewCommand& cmd){
     assert(_renderContext != nullptr);
@@ -142,11 +143,18 @@ void RenderContext::operator()(const SetViewCommand& cmd){
 }
 void RenderContext::operator()(const SetShaderCommand& cmd){
     assert(_renderContext != nullptr);
-    auto shaderPtr = app.shaderManager.get(cmd.shaderHandle).shaderPtr;
-    assert(shaderPtr != nullptr);
+    assert(cmd.shader != nullptr);
 
     RenderContext_setShader(_renderContext,
-        shaderPtr
+        cmd.shader
+    );
+}
+void RenderContext::operator()(const SetTextureCommand& cmd){
+    assert(_renderContext != nullptr);
+    assert(cmd.texture != nullptr);
+
+    RenderContext_setTexture(_renderContext,
+        cmd.texture
     );
 }
 void RenderContext::operator()(const DrawMeshCommand& cmd){
@@ -154,17 +162,16 @@ void RenderContext::operator()(const DrawMeshCommand& cmd){
     Transform transform = cmd.transform;
     float *p=transform.position.v, *r=transform.rotation.v, *s=transform.scale.v;
 
-    const Mesh& mesh = get<Mesh>(app, cmd.meshHandle);
+    // auto now = steady_clock::now().time_since_epoch();
+    // float seconds = duration<float>(now).count();
+    // float ry = fmodf(seconds * (float)(std::numbers::pi/2.0), (float)(std::numbers::pi * 2.0));
 
-    auto now = steady_clock::now().time_since_epoch();
-    float seconds = duration<float>(now).count();
-    float ry = fmodf(seconds * (float)(std::numbers::pi/2.0), (float)(std::numbers::pi * 2.0));
-
-    for(const auto& part: mesh.meshPtr){
-        assert(_renderContext != nullptr);
-        RenderContext_draw_(_renderContext, p[0], p[1], p[2],
-            r[0], ry, r[2], s[0], s[1], s[2], part);
-    }
+    assert(_renderContext != nullptr);
+    RenderContext_draw_(_renderContext,
+        p[0], p[1], p[2],
+        r[0], r[1], r[2],
+        s[0], s[1], s[2],
+        cmd.mesh);
 }
 
 void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){

@@ -74,3 +74,9 @@ bool ModernBoy::operator==(const ResourceHandle& lhs, const ResourceHandle& rhs)
     return lhs.index==rhs.index 
         & lhs.generation==rhs.generation;
 }
+bool ModernBoy::operator!=(const ResourceHandle& lhs, const ResourceHandle& rhs){
+    return !(lhs==rhs);
+}
+bool ModernBoy::operator<(const ResourceHandle& lhs, const ResourceHandle& rhs){
+    return lhs.index<rhs.index;
+}

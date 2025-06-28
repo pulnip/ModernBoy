@@ -6,7 +6,7 @@
 using namespace ModernBoy;
 
 AppState::AppState(SDL_Window* window)
-:gui(), window(window), inputDevice(),
+:ui(), window(window), inputDevice(),
 // Important!! Initialize Order
 meshManager(*this), textureManager(*this),
 shaderManager(*this), moduleManager(*this),
@@ -58,6 +58,8 @@ static void assignEntityID(SparseChunk& components,
 
 template<> Mesh& AppState::get(ResourceHandle handle
 ){ return meshManager.get(handle); }
+template<> Texture& AppState::get(ResourceHandle handle
+){ return textureManager.get(handle); }
 template<> Shader& AppState::get(ResourceHandle handle
 ){ return shaderManager.get(handle); }
 template<> Script::Module& AppState::get(

@@ -49,7 +49,7 @@ namespace ModernBoy
         EntityID issueID();
         
     public:
-        UI gui;
+        UI ui;
         SDL_Window* window;
         Input::Device inputDevice;
 

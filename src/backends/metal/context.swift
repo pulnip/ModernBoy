@@ -47,7 +47,7 @@ class RenderContext {
             desc.tAddressMode = .repeat
         sampler = layer.device!.makeSamplerState(
             descriptor: desc)!
-                let dstd = MTLTextureDescriptor.texture2DDescriptor(
+        let dstd = MTLTextureDescriptor.texture2DDescriptor(
             pixelFormat: .depth32Float_stencil8,
             width: Int(layer.drawableSize.width),
             height: Int(layer.drawableSize.height),

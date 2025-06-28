@@ -82,6 +82,8 @@ namespace ModernBoy
     ResourceHandle invalidResourceHandle();
     bool isValid(ResourceHandle handle);
     bool operator==(const ResourceHandle& lhs, const ResourceHandle& rhs);
+    bool operator!=(const ResourceHandle& lhs, const ResourceHandle& rhs);
+    bool operator<(const ResourceHandle& lhs, const ResourceHandle& rhs);
 } // namespace ModernBoy
 
 #endif // MODERNBOY_COMMON_TYPE_HPP

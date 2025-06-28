@@ -12,7 +12,12 @@ namespace ModernBoy
     struct RenderTask{
         Transform transform;
         MeshHandle meshHandle;
+        TextureHandle texHandle;
+        ShaderHandle shaderHandle;
     };
+
+    bool operator<(const RenderTask& lhs, const RenderTask& rhs);
+
     struct ViewTask{
         Transform transform;
         Camera camera;
