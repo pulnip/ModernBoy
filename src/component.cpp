@@ -20,7 +20,7 @@ CameraComponent ModernBoy::dangled(Camera camera, bool active){
         active, camera};
 }
 template<>
-MeshComponent ModernBoy::dangled(Handle handle){
+MeshComponent ModernBoy::dangled(ResourceHandle handle){
     return {std::numeric_limits<EntityID>::max(),
         true, handle};
 }

@@ -16,21 +16,25 @@ Mesh& Mesh::operator=(Mesh&& other){
 }
 void Mesh::moveFrom(Mesh&& other){
     meshPtr = other.meshPtr;
-    other.meshPtr = nullptr;
+    other.meshPtr.clear();
 }
 
-Mesh::Mesh(RawMesh& rawMesh, AppState& app){
-    auto vertices = toFloats(rawMesh.vertices);
-    const char* texPath = nullptr;
-    if(!rawMesh.textures.empty()){
-        texPath = rawMesh.textures[0].c_str();
-    }
+Mesh::Mesh(RawMesh& rawMesh, AppState& app)
+:meshPtr(rawMesh.size()){
+    for(const auto& part: rawMesh){
+        auto vertices = toFloats(part.vertices);
+        const char* texPath = nullptr;
+        if(!part.textures.empty()){
+            texPath = part.textures[0].c_str();
+        }
 
-    meshPtr = createMesh(app.renderSystem.renderer.context.metalLayer,
-        vertices.data(), vertices.size() / 8,
-        rawMesh.indices.data(), rawMesh.indices.size(),
-        texPath
-    );
+        meshPtr.emplace_back(createMesh(
+            app.renderSystem.renderer.context.metalLayer,
+            vertices.data(), vertices.size() / 8,
+            part.indices.data(), part.indices.size(),
+                texPath
+        ));
+    }
 }
 
 static std::vector<float> toFloats(const Vertices& vertices){

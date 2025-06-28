@@ -14,19 +14,19 @@ namespace ModernBoy
         float tangent[3];
     };
 
-    struct RawMesh{
+    struct RawMeshPart{
         Vertices vertices;
         Indices indices;
 
         TexPaths textures;
 
     public:
-        RawMesh() = default;
-        RawMesh(Vertices vertices, Indices indices,
+        RawMeshPart() = default;
+        RawMeshPart(Vertices vertices, Indices indices,
             TexPaths textures)
         :vertices(vertices), indices(indices),
         textures(textures){}
-        RawMesh(size_t numVertices, size_t numIndices,
+        RawMeshPart(size_t numVertices, size_t numIndices,
             std::size_t numTextures)
         :vertices(numVertices), indices(numIndices),
         textures(numTextures){}

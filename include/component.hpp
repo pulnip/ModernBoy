@@ -28,7 +28,7 @@ namespace ModernBoy
         EntityID actor;
 
         bool isActive;
-        Handle accessHandle;
+        ResourceHandle handle;
         // TextureHandle textureHandle;
     }; static_assert(std::is_pod_v<MeshComponent>);
     constexpr auto MAX_KEYACTION_PAIR = 16;

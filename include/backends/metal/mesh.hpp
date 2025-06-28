@@ -6,6 +6,8 @@
 
 namespace ModernBoy::Metal
 {
+    using MeshPartPtr = NativePtr;
+
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -20,10 +22,9 @@ extern "C"{
 #ifdef __cplusplus
 }
 #endif
-    using MeshPtr = NativePtr;
 
     struct Mesh{
-        MeshPtr meshPtr;
+        std::vector<MeshPartPtr> meshPtr;
 
         Mesh()=default;
         Mesh(const Mesh&)=delete;
@@ -32,8 +33,11 @@ extern "C"{
         Mesh& operator=(Mesh&&);
 
         Mesh(RawMesh& rawMesh, AppState& app);
-        Mesh(NativePtr meshPtr):meshPtr(meshPtr){}
-        ~Mesh(){ destroyMesh(meshPtr); }
+        Mesh(MeshPartPtr partPtr):meshPtr({partPtr}){}
+        ~Mesh(){
+            for(const auto& part: meshPtr)
+                destroyMesh(part);
+        }
 
     private:
         // Move semantics

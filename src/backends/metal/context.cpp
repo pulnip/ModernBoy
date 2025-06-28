@@ -8,6 +8,7 @@
 #include "app_state.hpp"
 #include "render/command.hpp"
 #include "backends/metal/context.hpp"
+#include "backends/metal/mesh.hpp"
 #define IMGUI_IMPL_METAL_CPP
 #include <imgui_impl_metal.h>
 
@@ -93,16 +94,18 @@ void RenderContext::operator()(const DrawMeshCommand& cmd){
     assert(_renderContext != nullptr);
     Transform transform = cmd.transform;
     float *p=transform.position.v, *r=transform.rotation.v, *s=transform.scale.v;
-    
-    MeshPtr meshPtr = app.meshManager.get(cmd.meshHandle).meshPtr;
+
+    const Mesh& mesh = get<Mesh>(app, cmd.meshHandle);
 
     auto now = steady_clock::now().time_since_epoch();
     float seconds = duration<float>(now).count();
     float ry = fmodf(seconds * (float)(std::numbers::pi/2.0), (float)(std::numbers::pi * 2.0));
 
-    assert(_renderContext != nullptr);
-    RenderContext_draw_(_renderContext, p[0], p[1], p[2],
-        r[0], ry, r[2], s[0], s[1], s[2], meshPtr);
+    for(const auto& part: mesh.meshPtr){
+        assert(_renderContext != nullptr);
+        RenderContext_draw_(_renderContext, p[0], p[1], p[2],
+            r[0], ry, r[2], s[0], s[1], s[2], part);
+    }
 }
 
 void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){

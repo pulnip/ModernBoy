@@ -3,37 +3,55 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "importer.hpp"
+#include "app_state.hpp"
+#if defined(USE_DIRECTX)
+#include "backends/dx11/mesh.hpp"
+#elif defined(USE_METAL)
+#include "backends/metal/mesh.hpp"
+#elif defined(USE_OPENGL)
+#include "backends/opengl/mesh.hpp"
+#endif
 
 using namespace ModernBoy;
 
-static RawMesh importMesh(const aiMesh* mesh, const aiScene* scene);
-RawMeshes fromFbx(const std::string& fileName);
+static RawMeshPart importMesh(const aiMesh* mesh, const aiScene* scene);
+RawMesh fromFbx(const std::string& fileName);
 // RawMesh for shader test
-static RawMeshes createTriangle();
-static RawMeshes createRectangle();
-static RawMeshes createCube();
-static RawMeshes createSphere(float radius=1.0f,
+static RawMesh createTriangle();
+static RawMesh createRectangle();
+static RawMesh createCube();
+static RawMesh createSphere(float radius=1.0f,
     int numSlices=32, int numStacks=16);
 
-RawMeshes importMesh(const std::string& fileName){
+template<>
+Mesh ModernBoy::import<Mesh>(AppState& app,
+    const std::string& fileName
+){
+    RawMesh rawMesh;
+
     if(fileName.ends_with(".fbx"))
-        return fromFbx(fileName);
+        rawMesh = fromFbx(fileName);
     else if(fileName.compare("Triangle") == 0)
-        return createTriangle();
+        rawMesh = createTriangle();
     else if(fileName.compare("Rectangle") == 0)
-        return createRectangle();
+        rawMesh = createRectangle();
     else if(fileName.compare("Cube") == 0)
-        return createCube();
+        rawMesh = createCube();
     else if(fileName.compare("Sphere") == 0)
-        return createSphere();
-    return {};
+        rawMesh = createSphere();
+    else
+        throw std::runtime_error(
+            std::format("Not Implemented Type: ${}",
+            fileName)
+        );
+
+    return Mesh(rawMesh, app);
 }
 
 auto testTexs = TexPaths{"asset/metal_logo.png"};
 auto globeTexs = TexPaths{"asset/world_map.jpg"};
 
-static RawMeshes createTriangle(){
+static RawMesh createTriangle(){
     Vertices vertices = {
         {
             {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
@@ -48,10 +66,10 @@ static RawMeshes createTriangle(){
     };
     Indices indices = {0, 2, 1};
 
-    return { RawMesh(vertices, indices, testTexs) };
+    return { RawMeshPart(vertices, indices, testTexs) };
 
 }
-static RawMeshes createRectangle(){
+static RawMesh createRectangle(){
     Vertices vertices = {
         {
             {-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, -1.0f}, 
@@ -72,9 +90,9 @@ static RawMeshes createRectangle(){
         0, 2, 3
     };
 
-    return { RawMesh(vertices, indices, testTexs) };
+    return { RawMeshPart(vertices, indices, testTexs) };
 }
-static RawMeshes createCube(){
+static RawMesh createCube(){
     Vertices vertices = {
         // front
         {
@@ -182,9 +200,9 @@ static RawMeshes createCube(){
         22, 23, 20
     };
 
-    return { RawMesh(vertices, indices, testTexs) };
+    return { RawMeshPart(vertices, indices, testTexs) };
 }
-static RawMeshes createSphere(float radius,
+static RawMesh createSphere(float radius,
     int numSlices, int numStacks
 ){
     Vertices vertices;
@@ -223,10 +241,10 @@ static RawMeshes createSphere(float radius,
         }
     }
 
-    return { RawMesh(vertices, indices, globeTexs) };
+    return { RawMeshPart(vertices, indices, globeTexs) };
 }
 
-RawMeshes fromFbx(const std::string& fileName){
+RawMesh fromFbx(const std::string& fileName){
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(fileName.c_str(),
         aiProcess_Triangulate | aiProcess_CalcTangentSpace
@@ -237,19 +255,19 @@ RawMeshes fromFbx(const std::string& fileName){
         return {};
     }
 
-    size_t numMeshes = scene->mNumMeshes;
-    RawMeshes meshes(numMeshes);
-    for(size_t i=0; i<numMeshes; ++i){
-        meshes[i] = importMesh(scene->mMeshes[i], scene);
+    size_t numParts = scene->mNumMeshes;
+    RawMesh mesh(numParts);
+    for(size_t i=0; i<numParts; ++i){
+        mesh[i] = importMesh(scene->mMeshes[i], scene);
     }
 
-    return meshes;
+    return mesh;
 }
 
-static RawMesh importMesh(const aiMesh* mesh,
+static RawMeshPart importMesh(const aiMesh* mesh,
     const aiScene* scene
 ){
-    RawMesh result(
+    RawMeshPart result(
         // Only Triangle
         mesh->mNumVertices, mesh->mNumFaces * 3,
         // one material per mesh (Assimp guarantee)

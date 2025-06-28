@@ -112,13 +112,13 @@ static std::optional<MeshComponent> parseMeshComponent(
 
     const auto meshFile = (*table)["mesh"]
         .value<std::string>().value_or("Sphere");
-    auto accessHandle = meshManager.load(meshFile);
+    auto handle = meshManager.load(meshFile);
 
     // ToDo. texture component
     // const auto& texFile = *parts["diffuse"].value<std::string>();
     // ToDo. How to handle multiple model?
 
-    return dangled<MeshComponent>(accessHandle);
+    return dangled<MeshComponent>(handle);
 }
 
 static std::tuple<std::string, std::string, std::string>

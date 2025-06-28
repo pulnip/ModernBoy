@@ -75,15 +75,10 @@ namespace ModernBoy
             SparseChunk&& components);
         void destroyActor(EntityID ID);
 
+        template<typename Resource>
+        Resource& get(ResourceHandle);
         template<typename Component>
-        std::optional<Component> query(EntityID actor){
-            const auto& comp = actorTable.at(actor);
-            auto querybit = bit_of<Component>;
-            if((comp.bit & querybit) != querybit)
-                return std::nullopt;
-            Component c;
-            archetypeMap.at(comp.bit).get(comp.chunkIndex, &c);
-        }
+        std::optional<Component> query(EntityID actor);
     };
 }
 

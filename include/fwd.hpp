@@ -40,8 +40,8 @@ namespace ModernBoy
     struct RawVertex;
     using Vertices = std::vector<RawVertex>;
     using Indices = std::vector<uint32_t>;
-    struct RawMesh;
-    using RawMeshes = std::vector<RawMesh>;
+    struct RawMeshPart;
+    using RawMesh = std::vector<RawMeshPart>;
     struct RawTexture;
     using RawTextures = std::vector<RawTexture>;
     // Value Informations
@@ -105,11 +105,18 @@ namespace ModernBoy
     using ModuleHandle = ResourceHandle;
 
     template<typename Resource>
-    Resource& get(AppState& app,
-        ResourceHandle handle);
+    Resource import(AppState& app,
+        const std::string& fileName);
+    template<> Mesh import(AppState&, const std::string&);
+    template<> Shader import(AppState&, const std::string&);
+    template<> Script::Module import(
+        AppState& app, const std::string& fileName);
+    template<typename Resource>
+    Resource& get(
+        AppState& app, ResourceHandle handle);
     template<typename Component>
-    std::optional<Component> find(AppState& app,
-        EntityID actor);
+    std::optional<Component> query(
+        AppState& app, EntityID actor);
 }
 
 #endif // MODERNBOY_FWD_HPP
