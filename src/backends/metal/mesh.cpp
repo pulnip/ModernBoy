@@ -10,8 +10,8 @@ extern "C"{
 
     extern void* createMesh(const void* layerPtr,
         const float* vertices, int numVertices,
-        const uint32_t* indices, int numIndices,
-        const char* texturePath);
+        const uint32_t* indices, int numIndices
+    );
     extern void destroyMesh(const void* meshPtr);
     extern void* makeTriangle(const void* layerPtr);
 
@@ -41,16 +41,11 @@ Mesh::Mesh(const std::string& fileName,
 
     for(const auto& part: rawMesh){
         auto vertices = toFloats(part.vertices);
-        const char* texPath = nullptr;
-        if(!part.textures.empty()){
-            texPath = part.textures[0].c_str();
-        }
 
         meshPtr.emplace_back(createMesh(
             metalLayer,
             vertices.data(), vertices.size() / 8,
-            part.indices.data(), part.indices.size(),
-                texPath
+            part.indices.data(), part.indices.size()
         ));
     }
 }

@@ -22,7 +22,7 @@ class Mesh{
     var texture: MTLTexture?
 
     init(_ device: MTLDevice, _ vertices: [Vertex],
-        _ indices: [UInt32]? = nil, _ texturePath: String?
+        _ indices: [UInt32]? = nil
     ) {
         vertexBuffer = device.makeBuffer(
             bytes: vertices,
@@ -36,17 +36,6 @@ class Mesh{
             )
             numIndices = indices.count
         }
-
-        // TODO: duplicate texture
-        if let path = texturePath{
-            let url = URL(fileURLWithPath: path)
-            let loader: MTKTextureLoader = MTKTextureLoader(
-                device: device)
-
-            let options: [MTKTextureLoader.Option: Any] = [.SRGB: false]
-            texture = try? loader.newTexture(URL: url,
-                options: options)
-        }
     }
 }
 
@@ -54,7 +43,6 @@ class Mesh{
 public func createMesh(layerPtr: UnsafeRawPointer?,
     packedVertices: UnsafePointer<Float>, numVertices: Int32,
     indicesPtr: UnsafePointer<UInt32>?, numIndices: Int32,
-    texturePath: UnsafePointer<CChar>?
 ) -> UnsafeRawPointer? {
     guard let layerPtr = layerPtr else {
         fatalError("Invalid Metel Layer Pointer")
@@ -83,11 +71,7 @@ public func createMesh(layerPtr: UnsafeRawPointer?,
             start: indicesPtr, count: Int(numIndices))
         indices = Array(buffer)
     }
-    var texPath: String? = nil
-    if let texturePath = texturePath {
-        texPath = String(cString: texturePath)
-    }
-    let mesh = Mesh(device, vertices, indices, texPath)
+    let mesh = Mesh(device, vertices, indices)
     return UnsafeRawPointer(Unmanaged.passRetained(mesh).toOpaque())
 }
 @_cdecl("destroyMesh")

@@ -41,9 +41,6 @@ RawMesh ModernBoy::import<RawMesh>(
     return rawMesh;
 }
 
-auto testTexs = TexPaths{"asset/metal_logo.png"};
-auto globeTexs = TexPaths{"asset/world_map.jpg"};
-
 static RawMesh createTriangle(){
     Vertices vertices = {
         {
@@ -59,7 +56,7 @@ static RawMesh createTriangle(){
     };
     Indices indices = {0, 2, 1};
 
-    return { RawMeshPart(vertices, indices, testTexs) };
+    return { RawMeshPart(vertices, indices) };
 
 }
 static RawMesh createRectangle(){
@@ -83,7 +80,7 @@ static RawMesh createRectangle(){
         0, 2, 3
     };
 
-    return { RawMeshPart(vertices, indices, testTexs) };
+    return { RawMeshPart(vertices, indices) };
 }
 static RawMesh createCube(){
     Vertices vertices = {
@@ -193,7 +190,7 @@ static RawMesh createCube(){
         22, 23, 20
     };
 
-    return { RawMeshPart(vertices, indices, testTexs) };
+    return { RawMeshPart(vertices, indices) };
 }
 static RawMesh createSphere(float radius,
     int numSlices, int numStacks
@@ -234,7 +231,7 @@ static RawMesh createSphere(float radius,
         }
     }
 
-    return { RawMeshPart(vertices, indices, globeTexs) };
+    return { RawMeshPart(vertices, indices) };
 }
 
 RawMesh fromFbx(const std::string& fileName){
@@ -262,9 +259,7 @@ static RawMeshPart importMesh(const aiMesh* mesh,
 ){
     RawMeshPart result(
         // Only Triangle
-        mesh->mNumVertices, mesh->mNumFaces * 3,
-        // one material per mesh (Assimp guarantee)
-        1
+        mesh->mNumVertices, mesh->mNumFaces * 3
     );
 
     auto& vertices = result.vertices;
@@ -317,7 +312,6 @@ static RawMeshPart importMesh(const aiMesh* mesh,
     )){
         printf("Diffuse Texture: %s\n", texPath.C_Str());
     }
-    result.textures[0] = std::string(texPath.C_Str());
 
     return result;
 }

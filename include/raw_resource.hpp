@@ -18,18 +18,12 @@ namespace ModernBoy
         Vertices vertices;
         Indices indices;
 
-        TexPaths textures;
-
     public:
         RawMeshPart() = default;
-        RawMeshPart(Vertices vertices, Indices indices,
-            TexPaths textures)
-        :vertices(vertices), indices(indices),
-        textures(textures){}
-        RawMeshPart(size_t numVertices, size_t numIndices,
-            std::size_t numTextures)
-        :vertices(numVertices), indices(numIndices),
-        textures(numTextures){}
+        RawMeshPart(Vertices vertices, Indices indices)
+        :vertices(vertices), indices(indices){}
+        RawMeshPart(size_t numVertices, size_t numIndices)
+        :vertices(numVertices), indices(numIndices){}
     };
 
     struct RawTexture{
