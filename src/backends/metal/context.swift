@@ -85,6 +85,8 @@ class RenderContext {
         commandBuffer = commandQueue.makeCommandBuffer()
         renderEncoder = commandBuffer?
             .makeRenderCommandEncoder(descriptor: rpd)
+        renderEncoder!.setDepthStencilState(depthStencilState)
+        renderEncoder?.setCullMode(.back)
         renderEncoder!.setFragmentSamplerState(sampler, index: 0)
     }
     func setView(_ viewPos: simd_float3, _ fov: Float, _ viewQuat: simd_float4) {

@@ -9,8 +9,8 @@ rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [1.0, 1.0, 1.0]
 [entities.model]
 mesh = "Sphere"
-diffuse = "cube_diffuse.png"
-normal  = "cube_normal.png"
+texture = "asset/world_map.jpg"
+shader = "default"
 [entities.input]
 file = "asset/script/action.toml"
 [[entities.input.map]]
@@ -34,7 +34,7 @@ rotation = [0.3826834, 0.0, 0.0, 0.9238795]
 scale    = [1.0, 1.0, 1.0]
 [entities.camera]
 type       = "MainCamera"
-fov        = 100.0
+fov        = 45.0
 nearPlane  = 0.1
 farPlane   = 100.0
 projection = "perspective"

@@ -48,13 +48,13 @@ static RawMesh createTriangle(){
             {0.5f, 0.0f}, {0.0f, -1.0f, 0.0f}
         },{
             {-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
-            {1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}
+            {0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}
         },{
             {1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
             {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}
         }
     };
-    Indices indices = {0, 2, 1};
+    Indices indices = {1, 0, 2};
 
     return { RawMeshPart(vertices, indices) };
 
@@ -76,8 +76,8 @@ static RawMesh createRectangle(){
         }
     };
     Indices indices = {
-        0, 1, 2,
-        0, 2, 3
+        0, 2, 1,
+        0, 3, 2
     };
 
     return { RawMeshPart(vertices, indices) };
@@ -171,8 +171,8 @@ static RawMesh createCube(){
     };
     Indices indices = {
         // front
-         0,  3,  2,
-         2,  1,  0,
+         2,  0,  3,
+         1,  0,  2,
         // back
          4,  5,  6,
          6,  7,  4,
@@ -180,14 +180,14 @@ static RawMesh createCube(){
         11,  8,  9,
          9, 10, 11,
         // right
-        12, 13, 14,
-        14, 15, 12,
+        13, 12, 14,
+        15, 14, 12,
         // bottom
         16, 17, 18,
         18, 19, 16,
         // top
-        20, 21, 22,
-        22, 23, 20
+        21, 20, 22,
+        22, 20, 23
     };
 
     return { RawMeshPart(vertices, indices) };
@@ -219,10 +219,10 @@ static RawMesh createSphere(float radius,
     for(int i=0; i<numStacks; ++i){
         const auto base = (numSlices+1) * i;
         for(int j=0; j<numSlices; ++j){
-            const uint32_t topLeft = base + (j+1);
-            const uint32_t topRight = base + j;
-            const uint32_t bottomLeft = base+(numSlices+1) + (j+1);
-            const uint32_t bottomRight = base+(numSlices+1) + j;
+            const uint32_t topLeft = base + j;
+            const uint32_t topRight = base + (j+1);
+            const uint32_t bottomLeft = base+(numSlices+1) + j;
+            const uint32_t bottomRight = base+(numSlices+1) + (j+1);
             Indices rect{
                 topLeft, topRight, bottomRight,
                 topLeft, bottomRight, bottomLeft
