@@ -16,9 +16,8 @@ class RenderContext {
     let layer: CAMetalLayer
     let commandQueue: MTLCommandQueue
     let sampler: MTLSamplerState
+    var depthStencilState: MTLDepthStencilState?
     var dsTexture: MTLTexture?
-
-    var viewPosition = simd_float3(repeating: 0)
 
     // material per frame
     var renderPassDesc: MTLRenderPassDescriptor?
@@ -35,6 +34,11 @@ class RenderContext {
         layer.device = MTLCreateSystemDefaultDevice()!
         layer.pixelFormat = .bgra8Unorm
         commandQueue = layer.device!.makeCommandQueue()!
+
+        let dsd = MTLDepthStencilDescriptor()
+        dsd.depthCompareFunction = .less
+        dsd.isDepthWriteEnabled = true
+        depthStencilState = layer.device!.makeDepthStencilState(descriptor: dsd)
 
         let desc = MTLSamplerDescriptor()
             desc.minFilter = .linear
@@ -81,10 +85,14 @@ class RenderContext {
         commandBuffer = commandQueue.makeCommandBuffer()
         renderEncoder = commandBuffer?
             .makeRenderCommandEncoder(descriptor: rpd)
+        renderEncoder!.setFragmentSamplerState(sampler, index: 0)
     }
     func setView(_ viewPos: simd_float3, _ fov: Float, _ viewQuat: simd_float4) {
         let aspectRatio = Float(layer.bounds.width / layer.bounds.height)
-        viewPosition = viewPos
+        var viewPosition = viewPos
+        renderEncoder!.setFragmentBytes(&viewPosition,
+            length: MemoryLayout<simd_float3>.stride, 
+            index: 1)
         let viewMat = viewMatrix(viewPos, viewQuat)
 
         let projMat = perspectiveMatrix(
@@ -92,12 +100,14 @@ class RenderContext {
         var viewConstant = ViewConstant(
             viewMat: viewMat, projMat: projMat)
         renderEncoder!.setVertexBytes(&viewConstant,
-            length: MemoryLayout<ViewConstant>.stride, index: 1)
-
+            length: MemoryLayout<ViewConstant>.stride,
+            index: 1)
     }
     func setShader(_ shader: Shader) {
         shader.bind(encoder: renderEncoder)
-        renderEncoder?.setDepthStencilState(shader.depthStencilState)
+    }
+    func setTexture(_ texture: Texture) {
+        texture.bind(encoder: renderEncoder)
     }
     func draw(_ modelMat: simd_float4x4, _ mesh: Mesh) {
         guard let encoder
@@ -108,12 +118,6 @@ class RenderContext {
             length: MemoryLayout<ModelConstant>.stride, index: 2)
 
         encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
-        if let texture = mesh.texture {
-            encoder.setFragmentTexture(texture, index: 0)
-            encoder.setFragmentSamplerState(sampler, index: 0)
-        }
-        encoder.setFragmentBytes(&viewPosition,
-            length: MemoryLayout<simd_float3>.stride, index: 0)
 
         if let indexBuffer = mesh.indexBuffer,
            let numIndices = mesh.numIndices, numIndices > 0 {
@@ -189,6 +193,19 @@ public func RenderContext_setShader(_ rctxPtr: UnsafeRawPointer?,
         .fromOpaque(shaderPtr).takeUnretainedValue()
 
     rctx.setShader(shader)
+}
+@_cdecl("RenderContext_setTexture")
+public func RenderContext_setTexture(_ rctxPtr: UnsafeRawPointer?,
+    _ texPtr: UnsafeRawPointer?
+) {
+    guard let rctxPtr = rctxPtr,
+          let texPtr = texPtr else { return }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    let shader = Unmanaged<Texture>
+        .fromOpaque(texPtr).takeUnretainedValue()
+
+    rctx.setTexture(shader)
 }
 @_cdecl("RenderContext_draw")
 public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,

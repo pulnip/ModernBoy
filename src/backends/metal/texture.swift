@@ -15,6 +15,10 @@ class Texture{
                 options: options)
         }
     }
+    func bind(encoder: MTLRenderCommandEncoder?){
+        guard let encoder = encoder else { return }
+        encoder.setFragmentTexture(texture, index: 0)
+    }
 }
 
 @_cdecl("createTexture")

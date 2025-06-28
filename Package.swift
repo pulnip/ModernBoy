@@ -16,6 +16,7 @@ let package = Package(
                 "context.cpp",
                 "mesh.cpp",
                 "shader.cpp",
+                "texture.cpp"
             ]
         ),
     ],

@@ -19,8 +19,6 @@ class Mesh{
     var indexBuffer: MTLBuffer?
     var numIndices: Int?
 
-    var texture: MTLTexture?
-
     init(_ device: MTLDevice, _ vertices: [Vertex],
         _ indices: [UInt32]? = nil
     ) {
