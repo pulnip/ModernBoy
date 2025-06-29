@@ -12,7 +12,6 @@ mesh = "Sphere"
 texture = "asset/world_map.jpg"
 shader = "default"
 [entities.input]
-file = "asset/script/action.toml"
 [[entities.input.map]]
 trigger = "Keyboard.Up.Pressed"
 action = "default.MoveForward"

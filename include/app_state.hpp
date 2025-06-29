@@ -1,6 +1,7 @@
 #ifndef MODERNBOY_APP_STATE_HPP
 #define MODERNBOY_APP_STATE_HPP
 
+#include <chrono>
 #include <vector>
 #include <unordered_map>
 #include "resource_manager.hpp"
@@ -69,6 +70,8 @@ namespace ModernBoy
         AssetLoader assetLoader;
         // Game State
         GameContext game_ctx;
+
+        std::chrono::time_point<std::chrono::high_resolution_clock> last_time;
         Uint64 last_step;
 
         AppState(SDL_Window* window);

@@ -1,5 +1,6 @@
 #define SDL_MAIN_USE_CALLBACKS 1
 
+#include <chrono>
 #include <print>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -77,8 +78,8 @@ SDL_AppResult SDL_AppInit(void** appState,
 #elif defined(USE_OPENGL)
     // TODO
 #endif
-    as->assetLoader.loadActors("asset/actor.toml");
     as->assetLoader.loadScripts("asset/action.toml");
+    as->assetLoader.loadActors("asset/actor.toml");
 
     *appState = as;
 
@@ -130,9 +131,15 @@ SDL_AppResult SDL_AppIterate(void* appState){
     AppState& as = *static_cast<AppState*>(appState);
     GameContext& ctx = as.game_ctx;
 
-    const Uint64 now = SDL_GetTicks();
+    using namespace std::chrono;
+    auto now = high_resolution_clock::now();
+    auto dt = (now - as.last_time);
+    auto deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(dt);
 
-    while((now - as.last_step) >= STEP_RATE_IN_MILLISECONDS){
+    as.inputSystem.update(deltaTime);
+
+    const Uint64 sdl_now = SDL_GetTicks();
+    while((sdl_now - as.last_step) >= STEP_RATE_IN_MILLISECONDS){
         ctx.shown = !ctx.shown;
         as.last_step += STEP_RATE_IN_MILLISECONDS;
     }
