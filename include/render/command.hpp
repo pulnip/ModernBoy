@@ -10,24 +10,32 @@
 
 namespace ModernBoy::Render
 {
+    using RenderEpoch = uint32_t;
+
     struct FrameStartCommand{
+        RenderEpoch epoch;
         Vec4 clearColor;
     };
     struct SetViewCommand{
+        RenderEpoch epoch;
         Transform transform;
         Camera camera;
     };
     struct SetShaderCommand{
+        RenderEpoch epoch;
         NativePtr shader;
     };
     struct SetTextureCommand{
+        RenderEpoch epoch;
         NativePtr texture;
     };
     struct DrawMeshCommand{
+        RenderEpoch epoch;
         Transform transform;
         NativePtr mesh;
     };
     struct FrameEndCommand{
+        RenderEpoch epoch;
     };
 
     using RenderCommand = std::variant<

@@ -10,7 +10,7 @@ AppState::AppState(SDL_Window* window)
 // Important!! Initialize Order
 meshManager(*this), textureManager(*this),
 shaderManager(*this), moduleManager(*this),
-renderSystem(*this, window), inputSystem(*this),
+renderSystem(*this), inputSystem(*this),
 scriptInvoker(*this),
 assetLoader(*this){}
 AppState::~AppState(){}

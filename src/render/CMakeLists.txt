@@ -11,8 +11,12 @@ target_compile_definitions(RenderModule PRIVATE
 
 target_include_directories(RenderModule PRIVATE
     ${CMAKE_SOURCE_DIR}/include
+    # ImGui
+    ${ImGui_INCLUDE_DIRS}
 )
 target_link_libraries(RenderModule PRIVATE
     # SDL3
     SDL3::SDL3
+    # ImGui
+    ImGui
 )

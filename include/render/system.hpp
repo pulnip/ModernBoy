@@ -1,6 +1,7 @@
 #ifndef MODERNBOY_RENDER_SYSTEM_HPP
 #define MODERNBOY_RENDER_SYSTEM_HPP
 
+#include <atomic>
 #include <chrono>
 #include <map>
 #include <thread>
@@ -20,10 +21,18 @@
 
 namespace ModernBoy::Render
 {
+
     class System{
     public:
-        System(AppState& app, SDL_Window* window);
+        System(AppState& app);
         ~System();
+
+        void operator()(const Render::FrameStartCommand&);
+        void operator()(const Render::SetViewCommand&);
+        void operator()(const Render::SetShaderCommand&);
+        void operator()(const Render::SetTextureCommand&);
+        void operator()(const Render::DrawMeshCommand&);
+        void operator()(const Render::FrameEndCommand&);
 
     private:
         void produceCommand(std::stop_token stoken);
@@ -46,7 +55,10 @@ namespace ModernBoy::Render
     private:
         LockFreeQueue<RenderCommand> commandQueue;
         std::stop_source stsrc;
+        std::atomic<RenderEpoch> lastCompleted = 0;
+        // producer thread
         std::jthread commandThread;
+        // consumer thread
         std::jthread renderThread;
     };
 } // namespace ModernBoy::Render

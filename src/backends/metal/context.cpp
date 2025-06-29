@@ -1,19 +1,12 @@
 #include <cassert>
-#include <chrono>
-#include <numbers>
-#include <stdexcept>
-#include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #define IMGUI_IMPL_METAL_CPP
 #include <imgui_impl_metal.h>
-#include <SDL3/SDL_log.h>
 #include "app_state.hpp"
 #include "render/command.hpp"
 #include "backends/metal/context.hpp"
 #include "backends/metal/mesh.hpp"
 #include "render/gui.hpp"
-
-#include <print>
 
 #ifdef __cplusplus
 extern "C"{
@@ -73,118 +66,86 @@ extern "C"{
 }
 #endif
 
-using namespace std::chrono;
 using namespace ModernBoy::Render;
 using namespace ModernBoy::Metal;
 
-RenderContext::RenderContext(SDL_Window* in_window, UI& ui)
-:view(SDL_Metal_CreateView(in_window)),
-metalLayer(SDL_Metal_GetLayer(view)), ui(ui){
-    NativePtr layer = SDL_Metal_GetLayer(view);
-    _renderContext = createRenderContext(layer);
+RenderContext::RenderContext(SDL_Window* window)
+:view(SDL_Metal_CreateView(window)),
+metalLayer(SDL_Metal_GetLayer(view)){}
 
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-
-    int w, h;
-    if(!SDL_GetWindowSize(in_window, &w, &h)){
-        SDL_Log("SDL_GetWindowSize Failed: %s", SDL_GetError());
-        throw 1;
-    }
-
-    ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = ImVec2(w, h);
-    // Enable Keyboard Controls
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-    // Setup Dear ImGui style
-    // ImGui::StyleColorsLight();
-    ImGui::StyleColorsDark();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplSDL3_InitForMetal(in_window);
-    auto device = static_cast<MTL::Device*>(
-        RenderContext_getDevice(_renderContext));
-    ImGui_ImplMetal_Init(device);
-}
 RenderContext::~RenderContext(){
     SDL_Metal_DestroyView(view);
     destroyRenderContext(_renderContext);
 }
 
-void RenderContext::operator()(const FrameStartCommand& cmd){
+void RenderContext::initialize(SDL_Window* window){
+    _renderContext = createRenderContext(metalLayer);
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL3_InitForMetal(window);
+    auto device = static_cast<MTL::Device*>(
+        RenderContext_getDevice(_renderContext));
+    ImGui_ImplMetal_Init(device);
+}
+
+void RenderContext::onFrameStart(Vec4 clearColor){
     assert(_renderContext != nullptr);
-    const auto& color = cmd.clearColor;
     RenderContext_frameStart(_renderContext,
-        color.r, color.g, color.b, color.a);
+        clearColor.r, clearColor.g, clearColor.b,
+        clearColor.a);
 
     auto renderPassDesc = static_cast<MTL::RenderPassDescriptor*>(
         RenderContext_getRenderPassDesc(_renderContext));
     // Start the Dear ImGui frame
     ImGui_ImplMetal_NewFrame(renderPassDesc);
     ImGui_ImplSDL3_NewFrame();
-    ImGui::NewFrame();
-    // ImGui::ShowDemoWindow(); // Show demo window! :)
-
-    ui.update();
 }
-void RenderContext::operator()(const SetViewCommand& cmd){
-    assert(_renderContext != nullptr);
-    const auto& cameraTransform = cmd.transform;
-    const auto& viewPos = cameraTransform.position;
-    const auto& viewQuat = cameraTransform.rotation;
-    const auto& camera = cmd.camera;
-
+void RenderContext::setView(float fov, Vec3 viewPos,
+    Vec4 viewQuat
+){
     RenderContext_setView(_renderContext,
-        viewPos.x, viewPos.y, viewPos.z, camera.fov,
+        viewPos.x, viewPos.y, viewPos.z, fov,
         viewQuat.x, viewQuat.y, viewQuat.z, viewQuat.w
     );
 }
-void RenderContext::operator()(const SetShaderCommand& cmd){
+void RenderContext::setShader(NativePtr shader){
     assert(_renderContext != nullptr);
-    assert(cmd.shader != nullptr);
 
-    RenderContext_setShader(_renderContext,
-        cmd.shader
-    );
+    RenderContext_setShader(_renderContext, shader);
 }
-void RenderContext::operator()(const SetTextureCommand& cmd){
+void RenderContext::setTexture(NativePtr texture){
     assert(_renderContext != nullptr);
-    assert(cmd.texture != nullptr);
 
-    RenderContext_setTexture(_renderContext,
-        cmd.texture
-    );
+    RenderContext_setTexture(_renderContext, texture);
 }
-void RenderContext::operator()(const DrawMeshCommand& cmd){
-    assert(_renderContext != nullptr);
-    Transform transform = cmd.transform;
-    float *p=transform.position.v, *r=transform.rotation.v, *s=transform.scale.v;
-
-    // auto now = steady_clock::now().time_since_epoch();
-    // float seconds = duration<float>(now).count();
-    // float ry = fmodf(seconds * (float)(std::numbers::pi/2.0), (float)(std::numbers::pi * 2.0));
+void RenderContext::drawMesh(Transform transform,
+    NativePtr mesh
+){
+    const auto& position = transform.position;
+    const auto& rotation = transform.rotation;
+    const auto& scale = transform.scale;
 
     assert(_renderContext != nullptr);
     RenderContext_draw_(_renderContext,
-        p[0], p[1], p[2],
-        r[0], r[1], r[2],
-        s[0], s[1], s[2],
-        cmd.mesh);
+        position.x, position.y, position.z,
+        rotation.x, rotation.y, rotation.z,
+        scale.x, scale.y, scale.z,
+        mesh);
 }
-
-void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){
+void RenderContext::onFrameEnd(ImDrawData* uiDrawData){
     assert(_renderContext != nullptr);
     auto commandBuffer = static_cast<MTL::CommandBuffer*>(
         RenderContext_getCommandBuffer(_renderContext));
     auto renderEncoder = static_cast<MTL::RenderCommandEncoder*>(
         RenderContext_getRenderEncoder(_renderContext));
-    ImGui::Render();
-    ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(),
+
+    ImGui_ImplMetal_RenderDrawData(uiDrawData,
         commandBuffer, renderEncoder
     );
-
     assert(commandBuffer != nullptr);
     assert(renderEncoder != nullptr);
     RenderContext_frameEnd(_renderContext);
