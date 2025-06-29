@@ -14,8 +14,6 @@ namespace ModernBoy
         void loadScripts(const std::string& fileName);
 
     private:
-        void loadModule(const std::string& moduleName);
-
         AppState& app;
     };
 } // namespace ModernBoy

@@ -205,10 +205,6 @@ parseInputAction(const std::string& text){
     return {result[0], result[1]};
 }
 
-void AssetLoader::loadModule(const std::string& moduleName){
-
-}
-
 void AssetLoader::loadScripts(const std::string& fileName){
     toml::table tbl = toml::parse_file(fileName);
 
@@ -235,14 +231,8 @@ void AssetLoader::loadScripts(const std::string& fileName){
             funcNames.push_back(funcName.value());
         }
 
-        auto mod = app.moduleManager.emplace(
+        [[maybe_unused]] auto mod = app.moduleManager.emplace(
             moduleName.value(), fileNames,
             app.scriptInvoker.engine);
-        // for(const auto& func: funcs){
-        //     const auto& funcName = func.value<std::string>();
-        //     auto func_id = app.scriptInvoker.registerFunction(
-        //         funcName.value()
-        //     );
-        // }
     }
 }
