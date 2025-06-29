@@ -21,6 +21,9 @@ static void messageCallback(const asSMessageInfo *msg, void *param);
 static void print(const std::string& in){
     std::println("{}", in);
 }
+static void printFloat(float f){
+    std::println("{}", f);
+}
 
 Invoker::Invoker(AppState& app):app(app),
 engine(asCreateScriptEngine()),
@@ -31,8 +34,12 @@ context(engine->CreateContext()){
 
     r = engine->RegisterGlobalFunction("void print(const string &in)",
         asFUNCTION(print), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("void printFloat(float)",
+        asFUNCTION(printFloat), asCALL_CDECL); assert( r >= 0 );
 
     Script::registerTransform(engine);
+    Script::registerAppState(engine);
+    Script::registerActor(engine);
 }
 Invoker::~Invoker(){
     context->Release();
@@ -48,7 +55,7 @@ FunctionID Invoker::registerFunction(const FuncName& funcName){
     return newID;
 }
 
-ABNORMAL_FLAG Invoker::invoke(const Module& module_, FunctionID id){
+ABNORMAL_FLAG Invoker::invoke(const Module& module_, FunctionID id, EntityID actor){
     auto mod = module_.module_;
     auto funcName = functionMap.at(id);
 
@@ -61,6 +68,10 @@ ABNORMAL_FLAG Invoker::invoke(const Module& module_, FunctionID id){
     }
 
     context->Prepare(func);
+
+    context->SetArgObject(0, &app);
+    context->SetArgDWord(1, actor);
+
     auto ret = context->Execute();
     if(ret != asEXECUTION_FINISHED){
         if(ret == asEXECUTION_EXCEPTION)

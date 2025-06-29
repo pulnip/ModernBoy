@@ -6,6 +6,9 @@
 namespace ModernBoy::Script
 {
     int registerTransform(asIScriptEngine* engine);
+    int registerAppState(asIScriptEngine* engine);
+    int registerActor(asIScriptEngine* engine);
+
 } // namespace ModernBoy::Script
 
 #endif // MODERNBOY_SCRIPT_AS_TYPEHELPER_HPP

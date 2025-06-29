@@ -55,7 +55,7 @@ namespace ModernBoy
         void on_write_phase();
         void write_phase_end();
 
-        friend ArchetypeMap;
+        friend class ArchetypeMap;
     };
 
     class ArchetypeMap{

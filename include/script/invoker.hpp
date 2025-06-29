@@ -22,7 +22,7 @@ namespace ModernBoy::Script
         Invoker& operator=(Invoker&&)=delete;
 
         FunctionID registerFunction(const FuncName& funcName);
-        ABNORMAL_FLAG invoke(const Module&, FunctionID);
+        ABNORMAL_FLAG invoke(const Module&, FunctionID, EntityID);
 
     private:
         FunctionID issueID();

@@ -23,7 +23,8 @@ void System::update([[maybe_unused]] DeltaTime dt){
 
     for(const auto& task: tasks){
         const auto& module = app.get<Script::Module>(task.handle);
-        app.scriptInvoker.invoke(module, task.function);
+        // ToDo. actor 0 fixed
+        app.scriptInvoker.invoke(module, task.function, 0);
     }
 }
 
