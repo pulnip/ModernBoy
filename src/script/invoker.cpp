@@ -59,8 +59,6 @@ ABNORMAL_FLAG Invoker::invoke(const Module& module_, FunctionID id, EntityID act
     auto mod = module_.module_;
     auto funcName = functionMap.at(id);
 
-    std::println("Invoke {}", id);
-
     auto* func = mod->GetFunctionByName(funcName.c_str());
     if(func == nullptr){
         std::println("No function Name {} exists!", funcName);
