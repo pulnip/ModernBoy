@@ -7,6 +7,7 @@
 #include "fwd.hpp"
 #include "raw_resource.hpp"
 #include "input/state.hpp"
+#include "script/type.hpp"
 
 #define COMPONENT_ALIGN (8)
 
@@ -32,14 +33,14 @@ namespace ModernBoy
         TextureHandle textureHandle;
         ShaderHandle shaderHandle;
     }; static_assert(std::is_pod_v<MeshComponent>);
-    constexpr auto MAX_KEYACTION_PAIR = 16;
-    struct InputComponent{
+    struct alignas(COMPONENT_ALIGN) InputComponent{
         EntityID actor;
 
         bool isActive;
-        uint8_t countMap;
-        Input::KeyActionPair map[MAX_KEYACTION_PAIR];
-    }; static_assert(std::is_trivially_copyable_v<InputComponent>);
+        uint8_t numAction;
+        Input::Trigger triggers[16];
+        Script::Action actions[16];
+    }; static_assert(std::is_pod_v<InputComponent>);
 
     template<typename Component, typename ...T>
     Component dangled(T... args);

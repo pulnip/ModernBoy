@@ -58,22 +58,43 @@ static void assignEntityID(SparseChunk& components,
 
 template<> Mesh& AppState::get(ResourceHandle handle
 ){ return meshManager.get(handle); }
-template<> Texture& AppState::get(ResourceHandle handle
-){ return textureManager.get(handle); }
-template<> Shader& AppState::get(ResourceHandle handle
-){ return shaderManager.get(handle); }
-template<> Script::Module& AppState::get(
-    ResourceHandle handle
-){ return moduleManager.get(handle); }
 template<> Mesh& ModernBoy::get(AppState& app, 
     ResourceHandle handle
 ){ return app.get<Mesh>(handle); }
+
+template<> Texture& AppState::get(ResourceHandle handle
+){ return textureManager.get(handle); }
+template<> Texture& ModernBoy::get(AppState& app,
+    ResourceHandle handle
+){ return app.get<Texture>(handle); }
+
+template<> Shader& AppState::get(ResourceHandle handle
+){ return shaderManager.get(handle); }
 template<> Shader& ModernBoy::get(AppState& app,
     ResourceHandle handle
 ){ return app.get<Shader>(handle); }
+
+template<> Script::Module& AppState::get(
+    ResourceHandle handle
+){ return moduleManager.get(handle); }
 template<> Script::Module& ModernBoy::get(
     AppState& app, ResourceHandle handle
 ){ return app.get<Script::Module>(handle); }
+
+
+template<> Script::Module& AppState::get(
+    const std::string& name
+){ return moduleManager.get(name); }
+template<> Script::Module& ModernBoy::get(
+    AppState& app, const std::string& name
+){ return app.get<Script::Module>(name); }
+template<> ResourceHandle AppState::getHandle<Script::Module>(
+    const std::string& name
+){ return moduleManager.getHandle(name); }
+template<> ResourceHandle ModernBoy::getHandle<Script::Module>(
+    AppState& app, const std::string& name
+){ return app.getHandle<Script::Module>(name); }
+
 
 template<typename Component>
 std::optional<Component> AppState::query(EntityID actor){

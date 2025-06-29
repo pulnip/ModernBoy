@@ -22,6 +22,8 @@ namespace ModernBoy
     using ActionID = uint32_t;
     // for UI subscription
     using ObserverID = uint32_t;
+    // for script invoker indexing
+    using FunctionID = uint32_t;
     // Handles
     struct Handle;
     struct ResourceHandle;
@@ -34,7 +36,9 @@ namespace ModernBoy
     struct InputComponent;
     struct SparseChunk;
     // Games
-    using DeltaTime = std::chrono::seconds;
+    using DeltaTime = std::chrono::milliseconds;
+
+    class AssetLoader;
 
     // Raw Resource
     struct RawVertex;
@@ -111,7 +115,14 @@ namespace ModernBoy
     template<typename Resource>
     Resource& get(
         AppState& app, ResourceHandle handle);
-    template<typename Component>
+    template<typename Resource>
+    Resource& get(
+        AppState& app, const std::string& name);
+    template<typename Resource>
+    ResourceHandle getHandle(
+        AppState& app, const std::string& name);
+
+        template<typename Component>
     std::optional<Component> query(
         AppState& app, EntityID actor);
 }

@@ -148,8 +148,7 @@ static std::optional<InputComponent> parseInputComponent(
 
     auto component = dangled<InputComponent>();
 
-    auto scriptFile = (*table)["file"].value<std::string>().value();
-
+    uint8_t i=0;
     for(const auto& n: *(*table)["map"].as_array()){
         const auto& input = *n.as_table();
 

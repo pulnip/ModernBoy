@@ -1,7 +1,7 @@
 #include <angelscript.h>
 #include <scriptstdstring/scriptstdstring.h>
 #include <scriptbuilder/scriptbuilder.h>
-#include "script/type.hpp"
+#include "script/module.hpp"
 
 using namespace ModernBoy::Script;
 
@@ -14,13 +14,11 @@ Module& Module::operator=(Module&& other){
 }
 void Module::moveFrom(Module&& other){
     module_ = other.module_;
-    name = std::move(other.name);
     other.module_ = nullptr;
-    other.name.clear();
 }
 
 Module::Module(const std::string& name,
-    std::span<std::string> files,
+    const std::vector<std::string>& files,
     asIScriptEngine* engine
 ){
     CScriptBuilder builder;
@@ -42,17 +40,6 @@ Module::Module(const std::string& name,
         // compilation errors that were listed in the output stream.
         throw "Please correct the errors in the script and try again.";
     }
-}
-
-void Module::bind(asIScriptContext* context,
-    const std::string& funcName
-){
-    auto func = module_->GetFunctionByName(funcName.c_str());
-    if(func == 0){
-        // The function couldn't be found. Instruct the script writer
-        // to include the expected function in the script.
-        throw "The script must have the function 'void foo()'. Please add it and try again.";
-    }
-    context->Prepare(func);
+    module_ = engine->GetModule(name.c_str());
 }
 

@@ -29,8 +29,8 @@ namespace ModernBoy
 
         ObjectPool<ResourceSlot> pool;
         // check if Named Resource is already Loaded.
-        std::unordered_map<std::string, Index> pathToIndex;
-        std::unordered_map<Index, std::string> indexToPath;
+        std::unordered_map<std::string, Index> nameToIndex;
+        std::unordered_map<Index, std::string> indexToName;
 
         static ResourceHandle makeHandle(Index index, uint32_t generation);
 
@@ -45,8 +45,8 @@ namespace ModernBoy
             return makeHandle(index, slot.generation);
         }
     private:
-        [[nodiscard]] ResourceHandle link(const std::string& fileName){
-            Index index = pathToIndex.at(fileName);
+        [[nodiscard]] ResourceHandle link(const std::string& name){
+            Index index = nameToIndex.at(name);
             ResourceSlot& slot = pool.get(index);
             ++slot.refCount;
 
@@ -57,24 +57,24 @@ namespace ModernBoy
         ResourceManager(AppState& app)
         :app(app){}
 
-        bool isExist(const std::string& fileName){
-            auto it = pathToIndex.find(fileName);
-            return it != pathToIndex.end();
+        bool isExist(const std::string& name){
+            auto it = nameToIndex.find(name);
+            return it != nameToIndex.end();
         }
 
         template<typename... Args>
         [[nodiscard]] ResourceHandle emplace(
-            const std::string& fileName, Args... args
+            const std::string& name, Args... args
         ){
-            if(isExist(fileName))
-                return link(fileName);
+            if(isExist(name))
+                return link(name);
 
-            auto resource = Resource(fileName,
+            auto resource = Resource(name,
                 std::forward<Args>(args)...);
             auto handle = load(std::move(resource));
 
-            pathToIndex.emplace(std::make_pair(fileName, handle.index));
-            indexToPath.emplace(std::make_pair(handle.index, fileName));
+            nameToIndex.emplace(std::make_pair(name, handle.index));
+            indexToName.emplace(std::make_pair(handle.index, name));
 
             return handle;
         }
@@ -104,6 +104,13 @@ namespace ModernBoy
         const auto& get(ResourceHandle handle) const{
             return pool[handle.index].data;
         }
+        auto& get(const std::string& name){
+            return pool[nameToIndex.at(name)].data;
+        }
+        const auto& get(const std::string& name) const{
+            return pool[nameToIndex.at(name)].data;
+        }
+        ResourceHandle getHandle(const std::string& name) const;
 
         size_t size() const{ return pool.size(); }
         size_t capacity() const{ return pool.capacity(); }
