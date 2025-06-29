@@ -1,12 +1,12 @@
 void MoveForward(Transform@ t) {
-    t.moveZ(1.0f);
+    print("MoveForward");
 }
 void MoveBackward(Transform@ t) {
-    t.moveZ(-1.0f);
+    print("MoveBackward");
 }
 void MoveLeft(Transform@ t) {
-    t.moveX(-1.0f);
+    print("MoveLeft");
 }
 void MoveRight(Transform@ t) {
-    t.moveX(1.0f);
+    print("MoveRight");
 }

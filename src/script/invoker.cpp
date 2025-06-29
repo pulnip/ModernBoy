@@ -29,7 +29,8 @@ context(engine->CreateContext()){
     assert(r >= 0);
     RegisterStdString(engine);
 
-    r = engine->RegisterGlobalFunction("void print(const string &in)", asFUNCTION(print), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("void print(const string &in)",
+        asFUNCTION(print), asCALL_CDECL); assert( r >= 0 );
 
     Script::registerTransform(engine);
 }
@@ -72,7 +73,9 @@ ABNORMAL_FLAG Invoker::invoke(const Module& module_, FunctionID id){
 
 FunctionID Invoker::issueID(){ return id_seed++; }
 
-static void messageCallback(const asSMessageInfo *msg, void *param){
+static void messageCallback(const asSMessageInfo* msg,
+    [[maybe_unused]] void* param
+){
     const char *type = "ERR ";
     if(msg->type == asMSGTYPE_WARNING)
         type = "WARN";
@@ -81,18 +84,4 @@ static void messageCallback(const asSMessageInfo *msg, void *param){
     std::println("[{}]{}:{}:{}: {}", type,
         msg->section, msg->row, msg->col,
         msg->message);
-}
-
-static std::pair<std::string, std::string>
-parseModuleFunction(const std::string& text){
-        std::regex re(R"(\.)");
-    std::sregex_token_iterator iter(text.begin(), text.end(), re, -1);
-    std::sregex_token_iterator end;
-
-    std::vector<std::string> result(3);
-    for(; iter!=end; ++iter){
-        result.push_back(iter->str());
-    }
-
-    return {result[0], result[1]};
 }
