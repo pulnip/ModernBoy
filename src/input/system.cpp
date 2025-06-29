@@ -23,8 +23,8 @@ void System::update([[maybe_unused]] DeltaTime dt){
 
     for(const auto& task: tasks){
         const auto& module = app.get<Script::Module>(task.handle);
-        // ToDo. actor 0 fixed
-        app.scriptInvoker.invoke(module, task.function, 0);
+        app.scriptInvoker.invoke(module, task.function,
+            task.actor);
     }
 }
 
@@ -38,9 +38,9 @@ static InputTasks fetchTask(const ArchetypeMap& map,
         if(!subset(bit_of<InputTask>(), bit))
             continue;
         vec.for_each([&tasks, &inputState, bit](const void* chunk){
-            TransformComponent tc;
             InputComponent ic;
-            getChunk(&tc, nullptr, nullptr, &ic, chunk, bit);
+            getChunk(nullptr, nullptr, nullptr, &ic,
+                chunk, bit);
 
             // std::println("actor: {}, num Action: {}", ic.actor, ic.numAction);
 
@@ -49,9 +49,9 @@ static InputTasks fetchTask(const ArchetypeMap& map,
                     == ic.triggers[i].onState
                 ){
                     tasks.emplace_back(InputTask{
+                        .actor = ic.actor,
                         .function = ic.actions[i].function,
                         .handle = ic.actions[i].moduleHandle,
-                        .transform = tc.value
                     });
                 }
 

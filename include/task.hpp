@@ -23,9 +23,9 @@ namespace ModernBoy
         Camera camera;
     };
     struct InputTask{
+        EntityID actor;
         FunctionID function;
         ModuleHandle handle;
-        Transform transform;
     };
 } // namespace ModernBoy::Render
 

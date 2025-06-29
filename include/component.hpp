@@ -60,7 +60,7 @@ namespace ModernBoy
 
     constexpr auto RENDER_BIT = TRANSFORM_BIT | MESH_BIT;
     constexpr auto VIEW_BIT   = TRANSFORM_BIT | CAMERA_BIT;
-    constexpr auto KB_IN_BIT = TRANSFORM_BIT | INPUT_BIT;
+    constexpr auto KB_IN_BIT = INPUT_BIT;
 
     template<typename T>
     consteval ArchetypeBit bit_of(){
