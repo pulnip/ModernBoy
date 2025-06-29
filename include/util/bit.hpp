@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <utility>
+#include <print>
 
 namespace ModernBoy::Util
 {
@@ -29,6 +30,7 @@ namespace ModernBoy::Util
 
     template<typename T>
     void* chunkcpy(void* dst, const T& src){
+        // std::println("save to {} chunk: {}bytes", dst, sizeof(T));
         *static_cast<T*>(dst) = src;
         return add<T>(dst);
     }
@@ -39,6 +41,7 @@ namespace ModernBoy::Util
     }
     template<typename T>
     const void* chunkcpy(T& dst, const void* src){
+        // std::println("load from {} chunk: {}bytes", src, sizeof(T));
         dst = *static_cast<const T*>(src);
         return add<T>(src);
     }

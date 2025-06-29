@@ -8,9 +8,7 @@ using namespace ModernBoy;
 using namespace ModernBoy::Input;
 
 Device::Device()
-:sdl_key(SDL_GetKeyboardState(nullptr)){
-    keyState.fill(ButtonState::None);
-}
+:sdl_key(SDL_GetKeyboardState(nullptr)){}
 Device::~Device(){}
 Device::Device(Device&& other){
     moveFrom(std::move(other)); }
@@ -31,7 +29,7 @@ void Device::fetch(State& state){
         auto sdl_code = convert(code);
         uint8_t active = sdl_key[sdl_code] ? ACTIVE_FLAG : 0;
 
-        auto newState = transit(keyState[code], active);
-        keyState[code] = newState;
+        auto newState = transit(state.keyState[code], active);
+        state.keyState[code] = newState;
     }
 }

@@ -3,6 +3,8 @@
 #include "app_state.hpp"
 #include "util/thread_backoff.hpp"
 
+#include <print>
+
 using namespace ModernBoy;
 
 static size_t bit_size(ArchetypeBit bit);
@@ -147,20 +149,36 @@ static void setChunk(void* dst, const SparseChunk& chunk,
         dst = Util::chunkcpy(dst, chunk.camera);
     if(bit & MESH_BIT)
         dst = Util::chunkcpy(dst, chunk.mesh);
-    // if(bit & INPUT_BIT)
-    //     dst = Util::chunkcpy(dst, chunk.input);
+    if(bit & INPUT_BIT)
+        dst = Util::chunkcpy(dst, chunk.input);
 }
 
 void ModernBoy::getChunk(TransformComponent* tc,
     CameraComponent* cc, MeshComponent* mc,
-    InputComponent* ic, const void* src
+    InputComponent* ic, const void* src,
+    ArchetypeBit bit
 ){
+    TransformComponent tc_tmp;
+    CameraComponent cc_tmp;
+    MeshComponent mc_tmp;
+    InputComponent ic_tmp;
+
+    if(bit & TRANSFORM_BIT)
+        src = Util::chunkcpy(tc_tmp, src);
+    if(bit & CAMERA_BIT)
+        src = Util::chunkcpy(cc_tmp, src);
+    if(bit & MESH_BIT)
+        src = Util::chunkcpy(mc_tmp, src);
+    if(bit & INPUT_BIT)
+        src = Util::chunkcpy(ic_tmp, src);
+
+    
     if(tc != nullptr)
-        src = Util::chunkcpy(*tc, src);
+        *tc = tc_tmp;
     if(cc != nullptr)
-        src = Util::chunkcpy(*cc, src);
+        *cc = cc_tmp;
     if(mc != nullptr)
-        src = Util::chunkcpy(*mc, src);
-    // if(ic != nullptr)
-    //     src = Util::chunkcpy(*ic, src);
+        *mc = mc_tmp;
+    if(ic != nullptr)
+        *ic = ic_tmp;
 }

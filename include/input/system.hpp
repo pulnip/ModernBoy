@@ -6,6 +6,8 @@
 #include <unordered_set>
 #include "fwd.hpp"
 #include "common/alias.hpp"
+#include "input/device.hpp"
+#include "input/state.hpp"
 
 namespace ModernBoy::Input
 {
@@ -18,6 +20,9 @@ namespace ModernBoy::Input
 
     private:
         AppState& app;
+
+        State state;
+        Device device;
     };
 } // namespace ModernBoy::Input
 

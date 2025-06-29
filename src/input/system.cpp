@@ -2,34 +2,62 @@
 #include "app_state.hpp"
 #include "task.hpp"
 
+#include <print>
+
 using namespace ModernBoy;
 using namespace ModernBoy::Input;
 
 System::System(AppState& app)
-:app(app){}
+:app(app){
+    state.keyState.fill(ButtonState::None);
+}
 
-static InputTask parseComponent(const void* chunk);
+using InputTasks = std::vector<InputTask>;
 
-void System::update(DeltaTime dt){
-    std::vector<InputTask> tasks;
+static InputTasks fetchTask(const ArchetypeMap& map,
+    const Input::State& state);
 
-    for(const auto& [bit, vec]: app.archetypeMap){
-        tasks.reserve(tasks.size()+vec.size());
-        if(!subset(bit_of<InputTask>(), bit))
-            continue;
-        vec.for_each([&tasks](const void* chunk){
-            tasks.emplace_back(parseComponent(chunk));
-        });
+void System::update([[maybe_unused]] DeltaTime dt){
+    device.fetch(state);
+    auto tasks = fetchTask(app.archetypeMap, state);
+
+    for(const auto& task: tasks){
+        const auto& module = app.get<Script::Module>(task.handle);
+        app.scriptInvoker.invoke(module, task.function);
+        std::println("Invoked");
     }
 }
 
-static InputTask parseComponent(const void* chunk){
-    InputTask task;
-    TransformComponent tc;
-    InputComponent ic;
-    getChunk(&tc, nullptr, nullptr, &ic, chunk);
-    assert(tc.actor == ic.actor);
+static InputTasks fetchTask(const ArchetypeMap& map,
+    const Input::State& inputState
+){
+        std::vector<InputTask> tasks;
 
-    // app.input...
-    return task;
+    for(const auto& [bit, vec]: map){
+        tasks.reserve(tasks.size()+vec.size());
+        if(!subset(bit_of<InputTask>(), bit))
+            continue;
+        vec.for_each([&tasks, &inputState, bit](const void* chunk){
+            TransformComponent tc;
+            InputComponent ic;
+            getChunk(&tc, nullptr, nullptr, &ic, chunk, bit);
+
+            // std::println("actor: {}, num Action: {}", ic.actor, ic.numAction);
+
+            for(size_t i=0; i<ic.numAction; ++i){
+                if(inputState.keyState[ic.triggers[i].button]
+                    == ic.triggers[i].onState
+                ){
+                    tasks.emplace_back(InputTask{
+                        .function = ic.actions[i].function,
+                        .handle = ic.actions[i].moduleHandle,
+                        .transform = tc.value
+                    });
+                }
+
+            }
+        });
+    }
+    return tasks;
 }
+

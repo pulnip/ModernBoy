@@ -79,7 +79,8 @@ namespace ModernBoy
 
     void getChunk(TransformComponent* tc,
         CameraComponent* cc, MeshComponent* mc,
-        InputComponent* ic, const void* src
+        InputComponent* ic, const void* src,
+        ArchetypeBit bit
     );
 }
 
