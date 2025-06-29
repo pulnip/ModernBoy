@@ -1,3 +1,6 @@
+#include <format>
+#include <stdexcept>
+#include <thread>
 #include "archetype_map.hpp"
 #include "util/bit.hpp"
 #include "app_state.hpp"
@@ -87,31 +90,43 @@ const void* RWPhaseGate::operator[](Index index) const{
     return vec[index];
 }
 
+thread_local int read_phase_depth = 0;
+
 void RWPhaseGate::on_read_phase() const{
     AdaptiveBackoff backoff = {};
 
     while(true){
         uint_fast32_t s = state.load(std::memory_order_acquire);
         if(s & WRITER_BIT)
-            backoff();
-        if(state.compare_exchange_weak(s, s+1,
-            std::memory_order_acquire)) break;
+            continue;
+        else if(state.compare_exchange_weak(s, s+1,
+            std::memory_order_acquire
+        )) break;
+        backoff();
     }
+    ++read_phase_depth;
 }
 void RWPhaseGate::read_phase_end() const{
+    assert((state.load() & READER_MASK) != 0);
     state.fetch_sub(1, std::memory_order_release);
+    --read_phase_depth;
 }
 void RWPhaseGate::on_write_phase(){
+    // greedy thread
+    assert(read_phase_depth == 0);
+
     AdaptiveBackoff backoff{};
     while(true){
         uint_fast32_t expected = state.load(std::memory_order_acquire);
         if(expected & WRITER_BIT)
             continue;
-        if(state.compare_exchange_weak(
+        else if(state.compare_exchange_weak(
             expected, expected | WRITER_BIT,
             std::memory_order_acq_rel
         )) break;
+        backoff();
     }
+    backoff.reset();
     while((state.load(std::memory_order_acquire)
         & READER_MASK) != 0
     ) backoff();

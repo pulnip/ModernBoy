@@ -71,13 +71,13 @@ static void setTransform(AppState* appState, Transform transform, EntityID id){
         return;
     }
     auto [_, info] = *it;
-    auto component = appState->archetypeMap.
-        getTransformComponent(info.bit, info.chunkIndex);
-    if(component.actor != id){
-        std::println("Actor Mismatched. Expected: {}, but Got {}",
-            id, component.actor);
-        return;
-    }
+    // auto component = appState->archetypeMap.
+    //     getTransformComponent(info.bit, info.chunkIndex);
+    auto component = TransformComponent{
+        .actor = id,
+        .isActive = true,
+        .value = transform
+    };
     component.value = transform;
     appState->archetypeMap.setTransformComponent(
         component, info.bit, info.chunkIndex);
