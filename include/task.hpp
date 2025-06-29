@@ -23,11 +23,8 @@ namespace ModernBoy
         Camera camera;
     };
     struct InputTask{
-        Input::Button button;
-        Input::ButtonState condition;
-        std::string action;
-
-        // ToDo.
+        FunctionID function;
+        ModuleHandle handle;
         Transform transform;
     };
 } // namespace ModernBoy::Render

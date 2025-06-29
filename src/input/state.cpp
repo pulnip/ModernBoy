@@ -6,6 +6,13 @@
 
 using namespace ModernBoy::Input;
 
+bool ModernBoy::Input::isValid(Button button){
+    return button != Button::KEY_UNKNOWN;
+}
+bool ModernBoy::Input::isValid(ButtonState state){
+    return state != ButtonState::STATE_INVALID;
+}
+
 static std::unordered_map<std::string, ButtonState>
 text2state = {
     {"NONE", ButtonState::None},

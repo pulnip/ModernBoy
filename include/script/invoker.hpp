@@ -4,22 +4,18 @@
 #include <string>
 #include <unordered_map>
 #include "fwd.hpp"
+#include "script/type.hpp"
+#include "common/alias.hpp"
+
+class asIScriptEngine;
+class asIScriptContext;
 
 namespace ModernBoy::Script
 {
-    using ModuleName = std::string;
-    using FileName = std::string;
-    using FileNames = std::vector<FileName>;
-    using FuncName = std::string;
-    using FuncNames = std::vector<FuncName>;
-    using FileMap = std::unordered_map<
-        FileName, FuncName>;
-
-    using ModuleID = uint16_t;
-    using FunctionID = uint16_t;
+    using FunctionMap = std::unordered_map<
+        FunctionID, FuncName>;
 
     class Invoker{
-
     public:
         Invoker(AppState& app);
         ~Invoker();
@@ -28,21 +24,21 @@ namespace ModernBoy::Script
         Invoker& operator=(const Invoker& other)=delete;
         Invoker& operator=(Invoker&&)=delete;
 
-        ActionID loadModuleFunction(const std::string& name);
-        void buildModule(const ModuleName& moduleName,
-            const FileNames& fileNames, const FuncNames& funcNames);
+        FunctionID registerFunction(const FuncName& funcName);
+        ABNORMAL_FLAG invoke(const Module&, FunctionID);
 
     private:
+        FunctionID issueID();
+
         AppState& app;
 
-        class asIScriptEngine* engine;
-        class asIScriptContext* context;
+        asIScriptEngine* engine;
+        asIScriptContext* context;
 
-        ModuleID id_seed = 0;
+        FunctionID id_seed = 0;
+        FunctionMap functionMap;
 
-        using ModuleMap = std::unordered_map<
-            ModuleID, FunctionID*>;
-        ModuleMap moduleMap;
+        friend AssetLoader;
     };
 } // namespace ModernBoy::Input
 

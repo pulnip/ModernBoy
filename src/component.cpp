@@ -29,5 +29,5 @@ MeshComponent ModernBoy::dangled(MeshHandle meshHandle,
 template<>
 InputComponent ModernBoy::dangled(){
     return {std::numeric_limits<EntityID>::max(),
-        true, 0, {}};
+        true, 0, {}, {}};
 }

@@ -137,6 +137,8 @@ static MeshComponent parseMeshComponent(
 
 static std::tuple<std::string, std::string, std::string>
 parseInputTrigger(const std::string& text);
+static std::tuple<std::string, std::string>
+parseInputAction(const std::string& text);
 
 static std::optional<InputComponent> parseInputComponent(
     const toml::table* table, AppState& app
@@ -154,17 +156,24 @@ static std::optional<InputComponent> parseInputComponent(
         auto triggerText = input["trigger"].value<std::string>().value();
         auto [d, keyText, stateText] = parseInputTrigger(triggerText);
 
-        auto key = Input::toButton(keyText);
+        auto button = Input::toButton(keyText);
         auto state = Input::toButtonState(stateText);
-        auto trigger = (key << 2) | state;
 
         auto actionText = input["action"].value<std::string>().value();
-        // auto a_id = app.controller.loadModuleFunction(actionText);
+        auto [mod, func] = parseInputAction(actionText);
 
-        // component.map[component.countMap] = {trigger, a_id};
-        // ++component.countMap;
-        // if(component.countMap == MAX_KEYACTION_PAIR)
-        //     break;
+        auto moduleHandle = app.getHandle<Script::Module>(mod);
+        auto func_id = app.scriptInvoker.registerFunction(func);
+
+        component.triggers[i] = {
+            .button = button,
+            .onState = state
+        };
+        component.actions[i] = {
+            .moduleHandle = moduleHandle,
+            .function = func_id
+        };
+        component.numAction = ++i;
     }
 
     return component;
@@ -176,12 +185,29 @@ parseInputTrigger(const std::string& text){
     std::sregex_token_iterator iter(text.begin(), text.end(), re, -1);
     std::sregex_token_iterator end;
 
-    std::vector<std::string> result(3);
-    for(; iter!=end; ++iter){
-        result.push_back(iter->str());
+    std::array<std::string, 3> result;
+    for(size_t i=0; i<3; ++i){
+        result[i] = (iter++)->str();
     }
 
     return {result[0], result[1], result[2]};
+}
+static std::tuple<std::string, std::string>
+parseInputAction(const std::string& text){
+    std::regex re(R"(\.)");
+    std::sregex_token_iterator iter(text.begin(), text.end(), re, -1);
+    std::sregex_token_iterator end;
+
+    std::array<std::string, 2> result;
+    for(size_t i=0; i<2; ++i){
+        result[i] = (iter++)->str();
+    }
+
+    return {result[0], result[1]};
+}
+
+void AssetLoader::loadModule(const std::string& moduleName){
+
 }
 
 void AssetLoader::loadScripts(const std::string& fileName){
@@ -209,8 +235,15 @@ void AssetLoader::loadScripts(const std::string& fileName){
             const auto funcName = (*func)["name"].value<std::string>();
             funcNames.push_back(funcName.value());
         }
-        app.scriptInvoker.buildModule(moduleName.value(),
-            fileNames, funcNames);
-        break;
+
+        auto mod = app.moduleManager.emplace(
+            moduleName.value(), fileNames,
+            app.scriptInvoker.engine);
+        // for(const auto& func: funcs){
+        //     const auto& funcName = func.value<std::string>();
+        //     auto func_id = app.scriptInvoker.registerFunction(
+        //         funcName.value()
+        //     );
+        // }
     }
 }

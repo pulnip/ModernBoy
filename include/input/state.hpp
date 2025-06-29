@@ -3,10 +3,12 @@
 
 #include <array>
 #include <cstdint>
+#include <limits>
 #include <unordered_map>
 #include <vector>
 #include <SDL3/SDL_keycode.h>
 #include "fwd.hpp"
+#include "common/type.hpp"
 
 namespace ModernBoy::Input
 {
@@ -22,7 +24,7 @@ namespace ModernBoy::Input
     };
     ButtonState toButtonState(const std::string& text);
 
-    enum Button{
+    enum Button: uint8_t{
         KEY_0     =  0,
         KEY_1     =  1,
         KEY_2     =  2,
@@ -84,6 +86,9 @@ namespace ModernBoy::Input
         KEY_ENTER = 58,
         KEY_UNKNOWN = 59,
     };
+    bool isValid(Button button);
+    bool isValid(ButtonState state);
+
     SDL_Scancode convert(Button code);
     Button convert(SDL_Scancode code);
     Button toButton(const std::string& text);
@@ -92,11 +97,17 @@ namespace ModernBoy::Input
         uint8_t current);
 
     using KeyState = std::array<ButtonState, KEY_UNKNOWN>;
+    
+    struct State{
+        KeyState keyState;
+    };
 
-    struct KeyActionPair{
-        // least 2 bit for state, other bit for button.
-        int32_t trigger;
-        ActionID action_id;
+    constexpr uint32_t STATE_MASK = 0b11;
+    constexpr uint32_t BUTTON_MASK = std::numeric_limits<uint32_t>::max() - STATE_MASK;
+
+    struct Trigger{
+        Button button;
+        ButtonState onState;
     };
 }
 

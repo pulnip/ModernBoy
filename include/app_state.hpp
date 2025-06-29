@@ -15,6 +15,7 @@
 #include "render/gui.hpp"
 #include "render/system.hpp"
 #include "script/type.hpp"
+#include "script/module.hpp"
 #include "script/invoker.hpp"
 #include "game/game_context.hpp"
 #if defined(USE_DIRECTX)
@@ -79,6 +80,10 @@ namespace ModernBoy
 
         template<typename Resource>
         Resource& get(ResourceHandle);
+        template<typename Resource>
+        Resource& get(const std::string& name);
+        template<typename Resource>
+        ResourceHandle getHandle(const std::string& name);
         template<typename Component>
         std::optional<Component> query(EntityID actor);
     };
