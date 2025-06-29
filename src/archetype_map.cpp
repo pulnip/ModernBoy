@@ -10,6 +10,14 @@ using namespace ModernBoy;
 static size_t bit_size(ArchetypeBit bit);
 static void setChunk(void* dst, const SparseChunk& chunk,
     ArchetypeBit bit);
+static void setChunk(void* dst, const TransformComponent& component,
+    ArchetypeBit bit);
+static void setChunk(void* dst, const CameraComponent& component,
+    ArchetypeBit bit);
+static void setChunk(void* dst, const MeshComponent& component,
+    ArchetypeBit bit);
+static void setChunk(void* dst, const InputComponent& component,
+    ArchetypeBit bit);
 
 void RWPhaseGate::for_each(Reader fn) const{
     on_read_phase();
@@ -53,9 +61,11 @@ void RWPhaseGate::custom_write(Writer fn){
 }
 
 size_t RWPhaseGate::size() const{
+    size_t size;
     on_read_phase();
-    return vec.size();
+    size = vec.size();
     read_phase_end();
+    return size;
 }
 void RWPhaseGate::get(Index i, void* dst) const{
     on_read_phase();
@@ -69,6 +79,13 @@ void RWPhaseGate::free(Index i){
 }
 
 
+
+void* RWPhaseGate::operator[](Index index){
+    return vec[index];
+}
+const void* RWPhaseGate::operator[](Index index) const{
+    return vec[index];
+}
 
 void RWPhaseGate::on_read_phase() const{
     AdaptiveBackoff backoff = {};
@@ -127,6 +144,111 @@ Index ArchetypeMap::insert(ArchetypeBit bit,
     return newIndex;
 }
 
+TransformComponent ArchetypeMap::getTransformComponent(
+    ArchetypeBit bit, Index index
+){
+    auto tc = dangled<TransformComponent>();
+    auto cc = dangled<CameraComponent>();
+    auto mc = dangled<MeshComponent>();
+    auto ic = dangled<InputComponent>();
+    if(bit & TRANSFORM_BIT){
+        auto& vec=archetypeMap.at(bit);
+        vec.on_read_phase();
+        getChunk(&tc, &cc, &mc, &ic, vec[index], bit);
+        vec.read_phase_end();
+    }
+    return tc;
+}
+CameraComponent ArchetypeMap::getCameraComponent(
+    ArchetypeBit bit, Index index
+){
+    auto tc = dangled<TransformComponent>();
+    auto cc = dangled<CameraComponent>();
+    auto mc = dangled<MeshComponent>();
+    auto ic = dangled<InputComponent>();
+    if(bit & TRANSFORM_BIT){
+        auto& vec=archetypeMap.at(bit);
+        vec.on_read_phase();
+        getChunk(&tc, &cc, &mc, &ic, vec[index], bit);
+        vec.read_phase_end();
+    }
+    return cc;
+}
+MeshComponent ArchetypeMap::getMeshComponent(
+    ArchetypeBit bit, Index index
+){
+    auto tc = dangled<TransformComponent>();
+    auto cc = dangled<CameraComponent>();
+    auto mc = dangled<MeshComponent>();
+    auto ic = dangled<InputComponent>();
+    if(bit & TRANSFORM_BIT){
+        auto& vec=archetypeMap.at(bit);
+        vec.on_read_phase();
+        getChunk(&tc, &cc, &mc, &ic, vec[index], bit);
+        vec.read_phase_end();
+    }
+    return mc;
+}
+InputComponent ArchetypeMap::getInputComponent(
+    ArchetypeBit bit, Index index
+){
+    auto tc = dangled<TransformComponent>();
+    auto cc = dangled<CameraComponent>();
+    auto mc = dangled<MeshComponent>();
+    auto ic = dangled<InputComponent>();
+    if(bit & TRANSFORM_BIT){
+        auto& vec=archetypeMap.at(bit);
+        vec.on_read_phase();
+        getChunk(&tc, &cc, &mc, &ic, vec[index], bit);
+        vec.read_phase_end();
+    }
+    return ic;
+}
+void ArchetypeMap::setTransformComponent(
+    const TransformComponent& component,
+    ArchetypeBit bit, Index index
+){
+    if(bit & TRANSFORM_BIT){
+        auto& vec=archetypeMap.at(bit);
+        vec.on_write_phase();
+        setChunk(vec[index], component, bit);
+        vec.write_phase_end();
+    }
+}
+void ArchetypeMap::setCameraComponent(
+    const CameraComponent& component,
+    ArchetypeBit bit, Index index
+){
+    if(bit & CAMERA_BIT){
+        auto& vec=archetypeMap.at(bit);
+        vec.on_write_phase();
+        setChunk(vec[index], component, bit);
+        vec.write_phase_end();
+    }
+}
+void ArchetypeMap::setMeshComponent(
+    const MeshComponent& component,
+    ArchetypeBit bit, Index index
+){
+    if(bit & MESH_BIT){
+        auto& vec=archetypeMap.at(bit);
+        vec.on_write_phase();
+        setChunk(vec[index], component, bit);
+        vec.write_phase_end();
+    }
+}
+void ArchetypeMap::setInputComponent(
+    const InputComponent& component,
+    ArchetypeBit bit, Index index
+){
+    if(bit & INPUT_BIT){
+        auto& vec=archetypeMap.at(bit);
+        vec.on_write_phase();
+        setChunk(vec[index], component, bit);
+        vec.write_phase_end();
+    }
+}
+
 static size_t bit_size(ArchetypeBit bit){
     size_t size = 0;
     if(bit & TRANSFORM_BIT)
@@ -140,6 +262,43 @@ static size_t bit_size(ArchetypeBit bit){
     return size;
 }
 
+static void setChunk(void* dst, const TransformComponent& component,
+    ArchetypeBit bit
+){
+    if(bit & TRANSFORM_BIT)
+        dst = Util::chunkcpy(dst, component);
+}
+static void setChunk(void* dst, const CameraComponent& component,
+    ArchetypeBit bit
+){
+    if(bit & TRANSFORM_BIT)
+        dst = Util::add<TransformComponent>(dst);
+    if(bit & CAMERA_BIT)
+        dst = Util::chunkcpy(dst, component);
+}
+static void setChunk(void* dst, const MeshComponent& component,
+    ArchetypeBit bit
+){
+    if(bit & TRANSFORM_BIT)
+        dst = Util::add<TransformComponent>(dst);
+    if(bit & CAMERA_BIT)
+        dst = Util::add<CameraComponent>(dst);
+    if(bit & MESH_BIT)
+        dst = Util::chunkcpy(dst, component);
+
+}
+static void setChunk(void* dst, const InputComponent& component,
+    ArchetypeBit bit
+){
+    if(bit & TRANSFORM_BIT)
+        dst = Util::add<TransformComponent>(dst);
+    if(bit & CAMERA_BIT)
+        dst = Util::add<CameraComponent>(dst);
+    if(bit & MESH_BIT)
+        dst = Util::add<InputComponent>(dst);
+    if(bit & INPUT_BIT)
+        dst = Util::chunkcpy(dst, component);
+}
 static void setChunk(void* dst, const SparseChunk& chunk,
     ArchetypeBit bit
 ){
@@ -172,7 +331,6 @@ void ModernBoy::getChunk(TransformComponent* tc,
     if(bit & INPUT_BIT)
         src = Util::chunkcpy(ic_tmp, src);
 
-    
     if(tc != nullptr)
         *tc = tc_tmp;
     if(cc != nullptr)

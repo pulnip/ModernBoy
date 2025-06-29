@@ -47,10 +47,15 @@ namespace ModernBoy
         void free(Index i);
 
     private:
+        void* operator[](Index index);
+        const void* operator[](Index index) const;
+
         void on_read_phase() const;
         void read_phase_end() const;
         void on_write_phase();
         void write_phase_end();
+
+        friend ArchetypeMap;
     };
 
     class ArchetypeMap{
@@ -75,8 +80,21 @@ namespace ModernBoy
         const_iterator cbegin() const{ return archetypeMap.cbegin(); }
         const_iterator cend() const{ return archetypeMap.cend(); }
 
+        TransformComponent getTransformComponent(ArchetypeBit bit, Index index);
+        CameraComponent getCameraComponent(ArchetypeBit bit, Index index);
+        MeshComponent getMeshComponent(ArchetypeBit bit, Index index);
+        InputComponent getInputComponent(ArchetypeBit bit, Index index);
+        void setTransformComponent(const TransformComponent& component,
+            ArchetypeBit bit, Index index);
+        void setCameraComponent(const CameraComponent& component,
+            ArchetypeBit bit, Index index);
+        void setMeshComponent(const MeshComponent& component,
+            ArchetypeBit bit, Index index);
+        void setInputComponent(const InputComponent& component,
+            ArchetypeBit bit, Index index);
     };
 
+    // professional only
     void getChunk(TransformComponent* tc,
         CameraComponent* cc, MeshComponent* mc,
         InputComponent* ic, const void* src,
