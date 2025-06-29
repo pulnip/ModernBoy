@@ -7,9 +7,6 @@
 #include "script/type.hpp"
 #include "common/alias.hpp"
 
-class asIScriptEngine;
-class asIScriptContext;
-
 namespace ModernBoy::Script
 {
     using FunctionMap = std::unordered_map<

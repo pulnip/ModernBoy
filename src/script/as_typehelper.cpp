@@ -1,6 +1,7 @@
 #include "raw_resource.hpp"
 #include "script/as_typehelper.hpp"
 #include "common/type.hpp"
+#include <angelscript.h>
 
 using namespace ModernBoy;
 using namespace ModernBoy::Script;

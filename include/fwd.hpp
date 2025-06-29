@@ -127,4 +127,10 @@ namespace ModernBoy
         AppState& app, EntityID actor);
 }
 
+// angelscript
+class asIScriptEngine;
+class asIScriptModule;
+class asIScriptContext;
+
+
 #endif // MODERNBOY_FWD_HPP

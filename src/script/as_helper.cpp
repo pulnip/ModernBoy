@@ -1,4 +1,5 @@
 #include <print>
+#include <angelscript.h>
 #include "script/as_helper.hpp"
 
 void ModernBoy::Script::printExceptionInfo(asIScriptContext *ctx){

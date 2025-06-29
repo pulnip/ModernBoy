@@ -3,9 +3,7 @@
 
 #include <string>
 #include <vector>
-
-class asIScriptModule;
-class asIScriptEngine;
+#include "fwd.hpp"
 
 namespace ModernBoy::Script
 {
