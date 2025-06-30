@@ -15,7 +15,7 @@ namespace ModernBoy::Input
     constexpr uint8_t ACTIVE_FLAG  = 0b01;
     constexpr uint8_t CHANGED_FLAG = 0b10;
 
-    enum ButtonState: uint8_t{
+    enum ButtonState{
         None        = 0b00,
         Held        = ACTIVE_FLAG,
         Released    = CHANGED_FLAG,
@@ -23,8 +23,9 @@ namespace ModernBoy::Input
         STATE_INVALID = 4,
     };
     ButtonState toButtonState(const std::string& text);
+    std::string toText(ButtonState state);
 
-    enum Button: uint8_t{
+    enum Button{
         KEY_0     =  0,
         KEY_1     =  1,
         KEY_2     =  2,
@@ -92,6 +93,7 @@ namespace ModernBoy::Input
     SDL_Scancode convert(Button code);
     Button convert(SDL_Scancode code);
     Button toButton(const std::string& text);
+    std::string toText(Button button);
 
     ButtonState transit(ButtonState state,
         uint8_t current);
@@ -108,7 +110,7 @@ namespace ModernBoy::Input
     struct Trigger{
         Button button;
         ButtonState onState;
-    };
+    }; static_assert(std::is_pod_v<Trigger>);
 }
 
 #endif // MODERNBOY_INPUT_STATE_HPP

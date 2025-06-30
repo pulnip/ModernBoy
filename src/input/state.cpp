@@ -15,7 +15,7 @@ bool ModernBoy::Input::isValid(ButtonState state){
 
 static std::unordered_map<std::string, ButtonState>
 text2state = {
-    {"NONE", ButtonState::None},
+    {"None", ButtonState::None},
     {"HELD", ButtonState::Held},
     {"RELEASED", ButtonState::Released},
     {"PRESSED", ButtonState::Pressed},
@@ -29,6 +29,23 @@ ButtonState ModernBoy::Input::toButtonState(
         return ButtonState::STATE_INVALID;
     }
     return it->second;
+}
+std::string ModernBoy::Input::toText(
+    ButtonState state
+){
+    switch(state){
+    case ButtonState::None:
+        return "None";
+    case ButtonState::Held:
+        return "Held";
+    case ButtonState::Released:
+        return "Released";
+    case ButtonState::Pressed:
+        return "Pressed";
+    case STATE_INVALID: [[fallthrough]];
+    default:
+    }
+    return "UNKNOWN";
 }
 
 SDL_Scancode ModernBoy::Input::convert(Button code){
@@ -233,6 +250,74 @@ Button ModernBoy::Input::toButton(
         return Button::KEY_UNKNOWN;
     }
     return it->second;
+}
+std::string ModernBoy::Input::toText(
+    Button button
+){
+    switch (button) {
+    case Button::KEY_0:     return "0";
+    case Button::KEY_1:     return "1";
+    case Button::KEY_2:     return "2";
+    case Button::KEY_3:     return "3";
+    case Button::KEY_4:     return "4";
+    case Button::KEY_5:     return "5";
+    case Button::KEY_6:     return "6";
+    case Button::KEY_7:     return "7";
+    case Button::KEY_8:     return "8";
+    case Button::KEY_9:     return "9";
+    case Button::KEY_TAB:   return "TAB";
+    case Button::KEY_Q:     return "Q";
+    case Button::KEY_W:     return "W";
+    case Button::KEY_E:     return "E";
+    case Button::KEY_R:     return "R";
+    case Button::KEY_T:     return "T";
+    case Button::KEY_Y:     return "Y";
+    case Button::KEY_U:     return "U";
+    case Button::KEY_I:     return "I";
+    case Button::KEY_O:     return "O";
+    case Button::KEY_P:     return "P";
+    case Button::KEY_A:     return "A";
+    case Button::KEY_S:     return "S";
+    case Button::KEY_D:     return "D";
+    case Button::KEY_F:     return "F";
+    case Button::KEY_G:     return "G";
+    case Button::KEY_H:     return "H";
+    case Button::KEY_J:     return "J";
+    case Button::KEY_K:     return "K";
+    case Button::KEY_L:     return "L";
+    case Button::KEY_Z:     return "Z";
+    case Button::KEY_X:     return "X";
+    case Button::KEY_C:     return "C";
+    case Button::KEY_V:     return "V";
+    case Button::KEY_B:     return "B";
+    case Button::KEY_N:     return "N";
+    case Button::KEY_M:     return "M";
+    case Button::KEY_SHIFT: return "SHIFT";
+    case Button::KEY_CTRL:  return "CTRL";
+    case Button::KEY_ALT:   return "ALT";
+    case Button::KEY_ESC:   return "ESC";
+    case Button::KEY_F1:    return "F1";
+    case Button::KEY_F2:    return "F2";
+    case Button::KEY_F3:    return "F3";
+    case Button::KEY_F4:    return "F4";
+    case Button::KEY_F5:    return "F5";
+    case Button::KEY_F6:    return "F6";
+    case Button::KEY_F7:    return "F7";
+    case Button::KEY_F8:    return "F8";
+    case Button::KEY_F9:    return "F9";
+    case Button::KEY_F10:   return "F10";
+    case Button::KEY_F11:   return "F11";
+    case Button::KEY_F12:   return "F12";
+    case Button::KEY_UP:    return "UP";
+    case Button::KEY_LEFT:  return "LEFT";
+    case Button::KEY_DOWN:  return "DOWN";
+    case Button::KEY_RIGHT: return "RIGHT";
+    case Button::KEY_SPACE: return "SPACE";
+    case Button::KEY_ENTER: return "ENTER";
+    case Button::KEY_UNKNOWN: [[fallthrough]];
+    default:
+    }
+    return "UNKNOWN";
 }
 
 ButtonState ModernBoy::Input::transit(
