@@ -65,7 +65,7 @@ ABNORMAL_FLAG Invoker::invokeInput(const Module& module_,
     FunctionID func_id, EntityID id, Input::Trigger state
 ){
         auto mod = module_.module_;
-    auto funcName = functionMap.at(id);
+    auto funcName = functionMap.at(func_id);
 
     auto* func = mod->GetFunctionByName(funcName.c_str());
     if(func == nullptr){
