@@ -1,3 +1,4 @@
+#include <bit>
 #include <gtest/gtest.h>
 #include "util/dynamic_vector.hpp"
 
@@ -79,6 +80,32 @@ TEST(DynamicVectorValue, Trivlal){
             EXPECT_EQ(val, j);
             ptr2 = Util::add(ptr2, 4);
         }
+    }
+}
+
+TEST(DynamicVectorMemory, Reuse){
+    for(size_t i=2; i<=100; ++i){
+        DynamicVector vec(4);
+        vec.newChunk(2*i);
+
+        for(Index j=0; j<i; ++j)
+            vec.freeChunk(2*j, 1);
+        for(Index j=0; j<i; ++j)
+            vec.newChunk(1);
+
+        EXPECT_EQ(vec.size(), 2*i);
+        EXPECT_EQ(vec.capacity(), std::bit_ceil(2*i));
+    }
+    for(size_t i=2; i<=100; ++i){
+        DynamicVector vec(4, 2*i);
+
+        for(Index j=0; j<i; ++j)
+            vec.freeChunk(2*j, 1);
+        for(Index j=0; j<i; ++j)
+            vec.newChunk(1);
+
+        EXPECT_EQ(vec.size(), 2*i);
+        EXPECT_EQ(vec.capacity(), std::bit_ceil(2*i));
     }
 }
 

@@ -11,10 +11,10 @@ DynamicVector::DynamicVector(size_t CHUNK_SIZE)
 
 DynamicVector::DynamicVector(size_t CHUNK_SIZE, size_t initialSize)
 :data(malloc(CHUNK_SIZE*initialSize)), CHUNK_SIZE(CHUNK_SIZE),
-usedSize(0), allocatedSize(std::bit_ceil(initialSize)),
-maxUsedSize(0)
+usedSize(initialSize), allocatedSize(std::bit_ceil(initialSize)),
+maxUsedSize(initialSize)
 {
-    for(Index i=0; i<allocatedSize; ++i){
+    for(Index i=initialSize; i<allocatedSize; ++i){
         freeSlots.insert(i);
     }
 }
@@ -102,6 +102,7 @@ Index DynamicVector::findContinuousFreeFittedSlot(
 }
 
 void DynamicVector::freeChunk(Index start, size_t numChunk){
+    std::println("{} {}", numChunk, usedSize);
     assert(numChunk <= usedSize);
     for(Index i=0; i<numChunk; ++i)
         freeSlots.insert(start+i);
