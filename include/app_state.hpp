@@ -18,7 +18,7 @@
 #include "script/type.hpp"
 #include "script/module.hpp"
 #include "script/invoker.hpp"
-#include "game/game_context.hpp"
+#include "game/context.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
 #elif defined(USE_METAL)
@@ -69,7 +69,7 @@ namespace ModernBoy
 
         AssetLoader assetLoader;
         // Game State
-        GameContext game_ctx;
+        Game::Context game_ctx;
 
         std::chrono::time_point<std::chrono::high_resolution_clock> last_time;
         Uint64 last_step;

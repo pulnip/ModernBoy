@@ -129,7 +129,7 @@ static SDL_AppResult _handle_key_event([[maybe_unused]] void* ctx,
 
 SDL_AppResult SDL_AppIterate(void* appState){
     AppState& as = *static_cast<AppState*>(appState);
-    GameContext& ctx = as.game_ctx;
+    Game::Context& ctx = as.game_ctx;
 
     using namespace std::chrono;
     auto now = high_resolution_clock::now();
@@ -140,7 +140,6 @@ SDL_AppResult SDL_AppIterate(void* appState){
 
     const Uint64 sdl_now = SDL_GetTicks();
     while((sdl_now - as.last_step) >= STEP_RATE_IN_MILLISECONDS){
-        ctx.shown = !ctx.shown;
         as.last_step += STEP_RATE_IN_MILLISECONDS;
     }
 
