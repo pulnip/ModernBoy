@@ -64,10 +64,8 @@ void System::produceCommand(std::stop_token stoken){
                     textureHandle = renderTask.texHandle;
                     setTexture(textureHandle, stoken);
                 }
-                if(renderTask.meshHandle != meshHandle){
-                    meshHandle = renderTask.meshHandle;
-                    drawMesh(renderTask.transform, meshHandle, stoken);
-                }
+                drawMesh(renderTask.transform,
+                    renderTask.meshHandle, stoken);
             }
         }
         setFrameEnd(commandQueue, stoken);
