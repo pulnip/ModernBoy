@@ -95,13 +95,13 @@
       "name": "GNUC",
       "inherits": "test-base",
       "configurePreset": "GNUC",
-      "configuration": "Release"
+      "configuration": "Debug"
     },
     {
       "name": "Clang",
       "inherits": "test-base",
       "configurePreset": "Clang",
-      "configuration": "Release"
+      "configuration": "Debug"
     }
   ],
   "workflowPresets": [

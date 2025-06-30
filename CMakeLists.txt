@@ -39,3 +39,6 @@ set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON
 
 add_subdirectory(src)
 add_subdirectory(src/network/posix)
+
+enable_testing()
+add_subdirectory(test)

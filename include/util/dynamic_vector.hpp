@@ -10,27 +10,24 @@
 namespace ModernBoy{
     class DynamicVector{
     private:
-        size_t CHUNK_SIZE;
-        size_t maxSize = 0;
-        void* data = nullptr;
-        size_t size_ = 0;
-        size_t freeOnlyIndex=0;
+    void* data = nullptr;
+        const size_t CHUNK_SIZE;
+        size_t usedSize= 0;
+        size_t allocatedSize = 0;
+        size_t maxUsedSize=0;
         std::set<size_t> freeSlots{};
-    #ifdef _DEBUG
-        size_t numChunk_last=0;
-    #endif
 
     public:
         struct Iterator{
             void* const ptr;
             const size_t STRIDE;
             Index index;
-            const Index freeOnlyIndex;
+            const Index maxUsedSize;
             std::set<size_t>::const_iterator it;
             const std::set<size_t>::const_iterator it_end;
 
             Iterator(void* ptr, size_t STRIDE,
-                Index index, Index freeOnlyIndex, 
+                Index index, Index maxUsedSize, 
                 std::set<size_t>::const_iterator it,
                 std::set<size_t>::const_iterator it_end);
 
@@ -44,12 +41,12 @@ namespace ModernBoy{
             const void* const ptr;
             const size_t STRIDE;
             Index index;
-            const Index freeOnlyIndex;
+            const Index maxUsedSize;
             std::set<size_t>::const_iterator it;
             const std::set<size_t>::const_iterator it_end;
 
             ConstIterator(const void* ptr, size_t STRIDE,   
-                Index index, Index freeOnlyIndex, 
+                Index index, Index maxUsedSize, 
                 std::set<size_t>::const_iterator it,
                 std::set<size_t>::const_iterator it_end);
 
@@ -66,7 +63,6 @@ namespace ModernBoy{
         DynamicVector(DynamicVector&& other);
         DynamicVector& operator=(DynamicVector&& other);
 
-        // Start index of Chunk(s).
         Index newChunk(size_t numChunk=1);
         void freeChunk(Index startIndex, size_t numChunk=1);
         size_t getChunkSize() const;
@@ -91,6 +87,9 @@ namespace ModernBoy{
         void moveFrom(DynamicVector&& other);
         Index findContinuousFreeFittedSlot(size_t numChunk);
     };
+
+    bool operator==(const DynamicVector::ConstIterator& lhs, const DynamicVector::Iterator& rhs);
+    bool operator==(const DynamicVector::Iterator& lhs, const DynamicVector::ConstIterator& rhs);
 } // namespace ModernBoy
 
 #endif // MODERNBOY_DYNAMIC_VECTOR_HPP
