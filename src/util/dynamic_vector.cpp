@@ -13,7 +13,7 @@ DynamicVector::DynamicVector(size_t CHUNK_SIZE, size_t initialSize)
 :CHUNK_SIZE(CHUNK_SIZE), maxSize(std::bit_ceil(initialSize)),
 data(malloc(CHUNK_SIZE*maxSize))
 {
-    for(Index i=0; i<=maxSize; ++i){
+    for(Index i=0; i<maxSize; ++i){
         freeSlots.insert(i);
     }
 }
@@ -62,7 +62,7 @@ Index DynamicVector::newChunk(size_t numChunk){
             data = malloc(newMaxSize);
         else
             data = realloc(data, newMaxSize);
-        for(Index i=maxSize+1; i<=newMaxSize; ++i){
+        for(Index i=maxSize+1; i<newMaxSize; ++i){
             freeSlots.insert(i);
         }
         maxSize = newMaxSize;
@@ -80,7 +80,7 @@ Index DynamicVector::newChunk(size_t numChunk){
 Index DynamicVector::findContinuousFreeFittedSlot(
     size_t numChunk
 ){
-    assert((size_+freeSlots.size())==(maxSize+1));
+    assert((size_+freeSlots.size())==maxSize);
     if(maxSize-size_ < numChunk)
         return std::numeric_limits<size_t>::max();
 
@@ -134,11 +134,11 @@ const void* DynamicVector::operator[](Index index) const{
 }
 
 size_t DynamicVector::size() const noexcept{
-    assert(size_+freeSlots.size()==(maxSize+1));
+    assert(size_+freeSlots.size()==maxSize);
     return size_;
 }
 size_t DynamicVector::capacity() const noexcept{
-    assert(size_+freeSlots.size()==(maxSize+1));
+    assert(size_+freeSlots.size()==maxSize);
     return maxSize;
 }
 
@@ -153,51 +153,58 @@ using Iterator = DynamicVector::Iterator;
 using ConstIt = DynamicVector::ConstIterator;
 
 Iterator DynamicVector::begin(){
-    return Iterator(data, 0, CHUNK_SIZE,
-        freeSlots.cbegin());
+    return Iterator(data, CHUNK_SIZE,
+        0, freeOnlyIndex,
+        freeSlots.cbegin(), freeSlots.cend());
 }
 Iterator DynamicVector::begin(Index i){
-    return Iterator(data, i, CHUNK_SIZE,
-        freeSlots.lower_bound(i));
+    return Iterator(data, CHUNK_SIZE,
+        i, freeOnlyIndex,
+        freeSlots.lower_bound(i), freeSlots.cend());
 }
 Iterator DynamicVector::end(){
-    assert(freeSlots.find(freeOnlyIndex)
-        != freeSlots.end());
-    return Iterator(data, size_, CHUNK_SIZE,
-        freeSlots.find(freeOnlyIndex));
+    return Iterator(data, CHUNK_SIZE,
+        freeOnlyIndex, freeOnlyIndex,
+        freeSlots.find(freeOnlyIndex), freeSlots.cend());
 }
 ConstIt DynamicVector::begin() const{
-    return ConstIt(data, 0, CHUNK_SIZE,
-        freeSlots.cbegin());
+    return ConstIt(data, CHUNK_SIZE,
+        0, freeOnlyIndex,
+        freeSlots.cbegin(), freeSlots.cend());
 }
 ConstIt DynamicVector::begin(Index i) const{
-    return ConstIt(data, i, CHUNK_SIZE,
-        freeSlots.lower_bound(i));
+    return ConstIt(data, CHUNK_SIZE,
+        i, freeOnlyIndex,
+        freeSlots.lower_bound(i), freeSlots.cend());
 }
 ConstIt DynamicVector::end() const{
-    assert(freeSlots.find(freeOnlyIndex)
-        != freeSlots.end());
-    return ConstIt(data, 0, CHUNK_SIZE,
-        freeSlots.find(freeOnlyIndex));
+    return ConstIt(data, CHUNK_SIZE,
+        freeOnlyIndex, freeOnlyIndex,
+        freeSlots.find(freeOnlyIndex), freeSlots.cend());
 }
 ConstIt DynamicVector::cbegin() const{
-    return ConstIt(data, 0, CHUNK_SIZE,
-        freeSlots.cbegin());
+    return ConstIt(data, CHUNK_SIZE,
+        0, freeOnlyIndex,
+        freeSlots.cbegin(), freeSlots.cend());
 }
 ConstIt DynamicVector::cbegin(Index i) const{
-    return ConstIt(data, 0, CHUNK_SIZE,
-        freeSlots.lower_bound(i));
+    return ConstIt(data, CHUNK_SIZE,
+        i, freeOnlyIndex,
+        freeSlots.lower_bound(i), freeSlots.cend());
 }
 ConstIt DynamicVector::cend() const{
-    assert(freeSlots.find(freeOnlyIndex)
-        != freeSlots.end());
-    return ConstIt(data, size_, CHUNK_SIZE,
-        freeSlots.find(freeOnlyIndex));
+    return ConstIt(data, CHUNK_SIZE,
+        freeOnlyIndex, freeOnlyIndex,
+        freeSlots.find(freeOnlyIndex), freeSlots.cend());
 }
 
-Iterator::Iterator(void* ptr, Index index, size_t STRIDE,
-    std::set<size_t>::const_iterator it)
-:ptr(ptr),index(index),STRIDE(STRIDE),it(it){}
+Iterator::Iterator(void* ptr, size_t STRIDE,
+    Index index, Index freeOnlyIndex,
+    std::set<size_t>::const_iterator it,
+    std::set<size_t>::const_iterator it_end)
+:ptr(ptr), STRIDE(STRIDE),
+index(index), freeOnlyIndex(freeOnlyIndex),
+it(it), it_end(it_end){}
 
 void* Iterator::operator*(){
     return Util::add(ptr, STRIDE*index);
@@ -206,10 +213,22 @@ const void* Iterator::operator*() const{
     return Util::add(ptr, STRIDE*index);
 }
 Iterator& Iterator::operator++(){
-    do{
-        index += 1;
-    } while(*it < index);
-    ++it;
+    assert(index < freeOnlyIndex);
+    if(it == it_end){
+        ++index;
+        return *this;
+    }
+
+    while(true){
+        ++index;
+        if(index==freeOnlyIndex || index < *it)
+            break;
+        ++it;
+        if(it==it_end)
+            break;
+    }
+
+    assert(index <= freeOnlyIndex);
     return *this;
 }
 bool Iterator::operator!=(const Iterator& other) const{
@@ -219,16 +238,32 @@ bool Iterator::operator==(const Iterator& other) const{
     return (ptr == other.ptr) && (index == other.index);
 }
 
-ConstIt::ConstIterator(const void* ptr, Index index, size_t STRIDE,
-    std::set<size_t>::const_iterator it)
-:ptr(ptr),index(index),STRIDE(STRIDE),it(it){}
+ConstIt::ConstIterator(const void* ptr, size_t STRIDE,
+    Index index, Index freeOnlyIndex,
+    std::set<size_t>::const_iterator it,
+    std::set<size_t>::const_iterator it_end)
+:ptr(ptr), STRIDE(STRIDE),
+index(index), freeOnlyIndex(freeOnlyIndex),
+it(it), it_end(it_end){}
 
 const void* ConstIt::operator*() const{ return Util::add(ptr, STRIDE*index); }
 ConstIt& ConstIt::operator++(){
-    do{
-        index += 1;
-    } while(*it < index);
-    ++it;
+    assert(index < freeOnlyIndex);
+    if(it == it_end){
+        ++index;
+        assert(index==freeOnlyIndex);
+        return *this;
+    }
+
+    while(true){
+        ++index;
+        if(index==freeOnlyIndex || index < *it)
+            break;
+        ++it;
+        if(it==it_end)
+            break;
+    }
+    assert(index <= freeOnlyIndex);
     return *this;
 }
 bool ConstIt::operator!=(const ConstIt& other) const{

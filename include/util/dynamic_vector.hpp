@@ -15,7 +15,6 @@ namespace ModernBoy{
         void* data = nullptr;
         size_t size_ = 0;
         size_t freeOnlyIndex=0;
-        // for practical reason, freeSlots also hold maxSize;
         std::set<size_t> freeSlots{};
     #ifdef _DEBUG
         size_t numChunk_last=0;
@@ -24,12 +23,16 @@ namespace ModernBoy{
     public:
         struct Iterator{
             void* const ptr;
-            Index index;
             const size_t STRIDE;
+            Index index;
+            const Index freeOnlyIndex;
             std::set<size_t>::const_iterator it;
+            const std::set<size_t>::const_iterator it_end;
 
-            Iterator(void* ptr, Index index, size_t STRIDE,
-                std::set<size_t>::const_iterator it);
+            Iterator(void* ptr, size_t STRIDE,
+                Index index, Index freeOnlyIndex, 
+                std::set<size_t>::const_iterator it,
+                std::set<size_t>::const_iterator it_end);
 
             void* operator*();
             const void* operator*() const;
@@ -39,12 +42,16 @@ namespace ModernBoy{
         };
         struct ConstIterator{
             const void* const ptr;
-            Index index;
             const size_t STRIDE;
+            Index index;
+            const Index freeOnlyIndex;
             std::set<size_t>::const_iterator it;
+            const std::set<size_t>::const_iterator it_end;
 
-            ConstIterator(const void* ptr, Index index, size_t STRIDE,
-                std::set<size_t>::const_iterator it);
+            ConstIterator(const void* ptr, size_t STRIDE,   
+                Index index, Index freeOnlyIndex, 
+                std::set<size_t>::const_iterator it,
+                std::set<size_t>::const_iterator it_end);
 
             const void* operator*() const;
             ConstIterator& operator++();
