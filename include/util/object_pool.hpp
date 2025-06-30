@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <ranges>
+#include <print>
 #include <vector>
 #include <unordered_set>
 #include "common/alias.hpp"
@@ -33,11 +34,15 @@ namespace ModernBoy
     public:
         void resize(size_t count){
             assert(size() <= count);
-            pool.resize(count);
-            freeIndexes.reserve(count - size());
+            freeIndexes.reserve(freeIndexes.size() + count-size());
             for(size_t i=size(); i<count; ++i){
                 freeIndexes.emplace(i);
             }
+            pool.resize(count);
+        }
+        void reserve(size_t count){
+            assert(size() <= count);
+            pool.resize(count);
         }
 
         Index newIndex() noexcept{
@@ -52,28 +57,15 @@ namespace ModernBoy
         }
         template<typename Range>
         std::vector<Index> append_range(Range&& ranges) noexcept{
-            size_t size = ranges.size();
-            std::vector<Index> indexes(size);
+            size_t a_size = ranges.size();
+            std::vector<Index> allocatedIndex(a_size);
+            resize(size() + a_size);
             size_t i=0;
-
-            if(freeIndexes.size() <= size){
-                resize(pool.size()+size);
-                for(Index freeIndex: freeIndexes){
-                    indexes[i++] = freeIndex;
-                }
-                i=0;
-                freeIndexes.clear();
-                for(auto&& x: ranges){
-                    pool[indexes[i++]] = std::forward<decltype(x)>(x);
-                }
-            }
-            else{
-                for(auto&& x: ranges){
-                    indexes[i++] = emplace(std::forward<decltype(x)>(x));
-                }
+            for(auto&& x: ranges){
+                allocatedIndex[i++] = emplace(std::forward(x));
             }
 
-            return newIndex;
+            return allocatedIndex;
         }
 
         Index push(const T& x) noexcept{
@@ -82,29 +74,29 @@ namespace ModernBoy
 
             return new_index;
         }
-        void erase(Index index) noexcept{
-            freeIndexes.insert(index);
+        void erase(Index idx) noexcept{
+            freeIndexes.insert(idx);
         }
 
-        T& get(Index index) noexcept{
-            assert(index < pool.size());
-            assert(freeIndexes.find(index) == freeIndexes.end());
-            return pool[index];
+        T& get(Index idx) noexcept{
+            assert(idx < pool.size());
+            assert(freeIndexes.find(idx) == freeIndexes.end());
+            return pool[idx];
         }
-        const T& get(Index index) const noexcept{
-            assert(index < pool.size());
-            assert(freeIndexes.find(index) == freeIndexes.end());
-            return pool[index];
+        const T& get(Index idx) const noexcept{
+            assert(idx < pool.size());
+            assert(freeIndexes.find(idx) == freeIndexes.end());
+            return pool[idx];
         }
-        T& operator[](Index index) noexcept{
-            assert(index < pool.size());
-            assert(freeIndexes.find(index) == freeIndexes.end());
-            return pool[index];
+        T& operator[](Index idx) noexcept{
+            assert(idx < pool.size());
+            assert(freeIndexes.find(idx) == freeIndexes.end());
+            return pool[idx];
         }
-        const T& operator[](Index index) const noexcept{
-            assert(index < pool.size());
-            assert(freeIndexes.find(index) == freeIndexes.end());
-            return pool[index];
+        const T& operator[](Index idx) const noexcept{
+            assert(idx < pool.size());
+            assert(freeIndexes.find(idx) == freeIndexes.end());
+            return pool[idx];
         }
         Ts get() const{ return pool; }
 

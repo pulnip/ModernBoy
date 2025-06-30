@@ -25,4 +25,7 @@ target_link_libraries(${PROJECT_NAME}Test PRIVATE
 )
 
 include(GoogleTest)
-add_test(NAME ${PROJECT_NAME}-Test COMMAND $<TARGET_FILE:${PROJECT_NAME}Test>)
+add_test(
+    NAME ${PROJECT_NAME}-Test
+    COMMAND $<TARGET_FILE:${PROJECT_NAME}Test>
+)

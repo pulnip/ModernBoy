@@ -148,7 +148,7 @@ Index ArchetypeMap::insert(ArchetypeBit bit,
     size_t CHUNK_SIZE = bit_size(bit);
 
     if(archetypeMap.find(bit) == archetypeMap.end())
-        archetypeMap.try_emplace(bit, CHUNK_SIZE, 8);
+        archetypeMap.try_emplace(bit, CHUNK_SIZE);
     auto& vector = archetypeMap.at(bit);
     auto newIndex = vector.mutate<Index>([bit, &chunk](DynamicVector& vec){
         auto newIndex = vec.newChunk(1);
@@ -181,7 +181,7 @@ CameraComponent ArchetypeMap::getCameraComponent(
     auto cc = dangled<CameraComponent>();
     auto mc = dangled<MeshComponent>();
     auto ic = dangled<InputComponent>();
-    if(bit & TRANSFORM_BIT){
+    if(bit & CAMERA_BIT){
         auto& vec=archetypeMap.at(bit);
         vec.on_read_phase();
         getChunk(&tc, &cc, &mc, &ic, vec[index], bit);
@@ -196,7 +196,7 @@ MeshComponent ArchetypeMap::getMeshComponent(
     auto cc = dangled<CameraComponent>();
     auto mc = dangled<MeshComponent>();
     auto ic = dangled<InputComponent>();
-    if(bit & TRANSFORM_BIT){
+    if(bit & MESH_BIT){
         auto& vec=archetypeMap.at(bit);
         vec.on_read_phase();
         getChunk(&tc, &cc, &mc, &ic, vec[index], bit);
@@ -211,7 +211,7 @@ InputComponent ArchetypeMap::getInputComponent(
     auto cc = dangled<CameraComponent>();
     auto mc = dangled<MeshComponent>();
     auto ic = dangled<InputComponent>();
-    if(bit & TRANSFORM_BIT){
+    if(bit & INPUT_BIT){
         auto& vec=archetypeMap.at(bit);
         vec.on_read_phase();
         getChunk(&tc, &cc, &mc, &ic, vec[index], bit);

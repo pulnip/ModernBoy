@@ -102,14 +102,20 @@ Index DynamicVector::findContinuousFreeFittedSlot(
 }
 
 void DynamicVector::freeChunk(Index start, size_t numChunk){
-    std::println("{} {}", numChunk, usedSize);
     assert(numChunk <= usedSize);
-    for(Index i=0; i<numChunk; ++i)
+    for(Index i=0; i<numChunk; ++i){
         freeSlots.insert(start+i);
+    }
     usedSize -= numChunk;
     assert(start+numChunk<=maxUsedSize);
-    if(start+numChunk>=maxUsedSize)
-        maxUsedSize = start;
+    if((start+numChunk) >= maxUsedSize){
+        for(auto it=freeSlots.rbegin(); it!=freeSlots.rend(); ++it){
+            if(maxUsedSize > *it + 1)
+                break;
+            else if(maxUsedSize - *it == 1)
+                --maxUsedSize;
+        }
+    }
 }
 
 size_t DynamicVector::getChunkSize() const{

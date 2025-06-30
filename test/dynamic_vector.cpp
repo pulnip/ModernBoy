@@ -109,3 +109,48 @@ TEST(DynamicVectorMemory, Reuse){
     }
 }
 
+TEST(DynamicVectorIterator, Trivial){
+    for(size_t c=4; c<=100; ++c){
+        DynamicVector vec(4, c);
+
+        for(int32_t i=0; i<vec.size(); ++i)
+            memcpy(vec[i], &i, 4);
+
+        size_t count=0;
+        for(const auto& v: vec){
+            int32_t x = -1;
+            memcpy(&x, v, 4);
+            EXPECT_EQ(x, count++);
+        }
+        EXPECT_EQ(count, vec.size());
+    }
+}
+
+TEST(DynamicVectorIterator, SkipFreed){
+    for(size_t c=4; c<=100; ++c){
+        DynamicVector vec(4, 2*c);
+
+        vec.freeChunk(c, c);
+
+        size_t count=0;
+        for(const auto& _: vec){
+            ++count;
+        }
+
+        EXPECT_EQ(count, c);
+        EXPECT_EQ(vec.size(), c);
+    }
+    for(size_t c=4; c<=100; ++c){
+        DynamicVector vec(4, 2*c);
+
+        for(size_t i=c; i<2*c; ++i)
+            vec.freeChunk(i, 1);
+
+        size_t count=0;
+        for(const auto& _: vec){
+            ++count;
+        }
+
+        EXPECT_EQ(count, c);
+    }
+}
