@@ -26,6 +26,7 @@ namespace ModernBoy
         EntityID actor;
         FunctionID function;
         ModuleHandle handle;
+        Input::Trigger trigger;
     };
 } // namespace ModernBoy::Render
 

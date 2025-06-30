@@ -14,16 +14,16 @@ shader = "default"
 [entities.input]
 [[entities.input.map]]
 trigger = "Keyboard.Up.Pressed"
-action = "default.MoveForward"
+action = "default.onInputEvent"
 [[entities.input.map]]
 trigger = "Keyboard.Left.Pressed"
-action = "default.MoveLeft"
+action = "default.onInputEvent"
 [[entities.input.map]]
 trigger = "Keyboard.Down.Pressed"
-action = "default.MoveBackward"
+action = "default.onInputEvent"
 [[entities.input.map]]
 trigger = "Keyboard.Right.Pressed"
-action = "default.MoveRight"
+action = "default.onInputEvent"
 
 [[entities]]
 name = "Camera0"

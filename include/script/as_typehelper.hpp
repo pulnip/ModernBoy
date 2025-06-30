@@ -6,7 +6,7 @@
 namespace ModernBoy::Script
 {
     int registerTransform(asIScriptEngine* engine);
-    int registerAppState(asIScriptEngine* engine);
+    int registerKeyevent(asIScriptEngine* engine);
     int registerActor(asIScriptEngine* engine);
 
 } // namespace ModernBoy::Script

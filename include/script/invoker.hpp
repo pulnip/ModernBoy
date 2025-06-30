@@ -6,6 +6,7 @@
 #include "fwd.hpp"
 #include "script/type.hpp"
 #include "common/alias.hpp"
+#include "input/state.hpp"
 
 namespace ModernBoy::Script
 {
@@ -22,6 +23,7 @@ namespace ModernBoy::Script
         Invoker& operator=(Invoker&&)=delete;
 
         FunctionID registerFunction(const FuncName& funcName);
+        ABNORMAL_FLAG invokeInput(const Module&, FunctionID, EntityID, Input::Trigger);
         ABNORMAL_FLAG invoke(const Module&, FunctionID, EntityID);
 
     private:

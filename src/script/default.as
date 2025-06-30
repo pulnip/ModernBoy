@@ -1,20 +1,50 @@
-void MoveForward(AppState@ app, EntityID actor){
-    Transform t = app.getTransform(actor);
-    t.position.z += 1;
-    app.setTransform(t, actor);
+void onCreated(Actor@ actor){
+    print("Actor Created!");
 }
-void MoveBackward(AppState@ app, EntityID actor) {
-    Transform t = app.getTransform(actor);
-    t.position.z -= 1;
-    app.setTransform(t, actor);
+
+void onInputEvent(Actor@ actor, Trigger trigger){
+    auto t = actor.getTransform();
+
+    switch(trigger.button){
+    case KEY_UP:
+        switch(trigger.onState){
+        case ButtonState::Pressed:
+            t.position.z += 1;
+            break;
+        }
+        break;
+    case KEY_LEFT:
+        switch(trigger.onState){
+        case ButtonState::Pressed:
+            t.position.x -= 1;
+            break;
+        }
+        break;
+    case KEY_DOWN:
+        switch(trigger.onState){
+        case ButtonState::Pressed:
+            t.position.z -= 1;
+            break;
+        }
+        break;
+    case KEY_RIGHT:
+        switch(trigger.onState){
+        case ButtonState::Pressed:
+            t.position.x += 1;
+            break;
+        }
+        break;
+    default:
+        printInt(trigger.button);
+    }
+
+    actor.setTransform(t);
 }
-void MoveLeft(AppState@ app, EntityID actor) {
-    Transform t = app.getTransform(actor);
-    t.position.x -= 1;
-    app.setTransform(t, actor);
+
+void update(Actor@ actor){
+
 }
-void MoveRight(AppState@ app, EntityID actor) {
-    Transform t = app.getTransform(actor);
-    t.position.x += 1;
-    app.setTransform(t, actor);
+
+void onDestroyed(Actor@ actor){
+    print("Actor Destroyed!");
 }

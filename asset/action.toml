@@ -10,10 +10,10 @@ name="default"
 [[module.file]]
 name = "src/script/default.as"
 [[module.function]]
-name="MoveForward"
+name="onCreated"
 [[module.function]]
-name="MoveBackward"
+name="onInputTrigger"
 [[module.function]]
-name="MoveLeft"
+name="update"
 [[module.function]]
-name="MoveRight"
+name="onDestroyed"

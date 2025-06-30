@@ -23,8 +23,8 @@ void System::update([[maybe_unused]] DeltaTime dt){
 
     for(const auto& task: tasks){
         const auto& module = app.get<Script::Module>(task.handle);
-        app.scriptInvoker.invoke(module, task.function,
-            task.actor);
+        app.scriptInvoker.invokeInput(module, task.function,
+            task.actor, task.trigger);
     }
 }
 
@@ -45,13 +45,14 @@ static InputTasks fetchTask(const ArchetypeMap& map,
             // std::println("actor: {}, num Action: {}", ic.actor, ic.numAction);
 
             for(size_t i=0; i<ic.numAction; ++i){
-                if(inputState.keyState[ic.triggers[i].button]
-                    == ic.triggers[i].onState
-                ){
+                auto button = ic.triggers[i].button;
+                auto onState = ic.triggers[i].onState;
+                if(inputState.keyState[button] == onState){
                     tasks.emplace_back(InputTask{
                         .actor = ic.actor,
                         .function = ic.actions[i].function,
                         .handle = ic.actions[i].moduleHandle,
+                        .trigger = {button, onState}
                     });
                 }
 

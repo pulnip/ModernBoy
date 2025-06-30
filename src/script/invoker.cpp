@@ -13,6 +13,7 @@
 #include "script/as_stream.hpp"
 #include "script/as_typehelper.hpp"
 #include "script/module.hpp"
+#include "game/context.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Script;
@@ -23,6 +24,9 @@ static void print(const std::string& in){
 }
 static void printFloat(float f){
     std::println("{}", f);
+}
+static void printInt(int i){
+    std::println("{}", i);
 }
 
 Invoker::Invoker(AppState& app):app(app),
@@ -36,9 +40,11 @@ context(engine->CreateContext()){
         asFUNCTION(print), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("void printFloat(float)",
         asFUNCTION(printFloat), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("void printInt(int)",
+        asFUNCTION(printInt), asCALL_CDECL); assert( r >= 0 );
 
     Script::registerTransform(engine);
-    Script::registerAppState(engine);
+    Script::registerKeyevent(engine);
     Script::registerActor(engine);
 }
 Invoker::~Invoker(){
@@ -55,8 +61,10 @@ FunctionID Invoker::registerFunction(const FuncName& funcName){
     return newID;
 }
 
-ABNORMAL_FLAG Invoker::invoke(const Module& module_, FunctionID id, EntityID actor){
-    auto mod = module_.module_;
+ABNORMAL_FLAG Invoker::invokeInput(const Module& module_,
+    FunctionID func_id, EntityID id, Input::Trigger state
+){
+        auto mod = module_.module_;
     auto funcName = functionMap.at(id);
 
     auto* func = mod->GetFunctionByName(funcName.c_str());
@@ -67,8 +75,47 @@ ABNORMAL_FLAG Invoker::invoke(const Module& module_, FunctionID id, EntityID act
 
     context->Prepare(func);
 
-    context->SetArgObject(0, &app);
-    context->SetArgDWord(1, actor);
+    Game::Actor actor{
+        .id = id,
+        .context = app.game_ctx,
+        .app = app
+    };
+
+    context->SetArgObject(0, &actor);
+    context->SetArgObject(1, &state);
+
+    auto ret = context->Execute();
+    if(ret != asEXECUTION_FINISHED){
+        if(ret == asEXECUTION_EXCEPTION)
+            std::println("Exception: {} occured",
+                context->GetExceptionString());
+        return true;
+    }
+    return false;
+}
+
+ABNORMAL_FLAG Invoker::invoke(const Module& module_,
+    FunctionID func_id, EntityID id
+){
+    auto mod = module_.module_;
+    auto funcName = functionMap.at(func_id);
+
+    auto* func = mod->GetFunctionByName(funcName.c_str());
+    if(func == nullptr){
+        std::println("No function Name {} exists!", funcName);
+        return true;
+    }
+
+    context->Prepare(func);
+
+    Game::Actor actor{
+        .id = id,
+        .context = app.game_ctx,
+        .app = app
+    };
+
+    context->SetArgObject(0, &actor);
+    context->SetArgDWord(1, id);
 
     auto ret = context->Execute();
     if(ret != asEXECUTION_FINISHED){
