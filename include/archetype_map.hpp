@@ -57,7 +57,6 @@ namespace ModernBoy
     class ArchetypeMap{
     private:
         using ArchetypeIndex = std::pair<ArchetypeBit, Index>;
-        std::unordered_map<EntityID, ArchetypeIndex> actor_info;
         std::unordered_map<ArchetypeBit, RWPhaseGate> archetypeMap;
 
     public:
