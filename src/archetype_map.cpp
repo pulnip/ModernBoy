@@ -54,12 +54,12 @@ void RWPhaseGate::mutate<void>(std::function<void(DynamicVector&)> fn){
 
 void RWPhaseGate::custom_read(Reader fn) const{
     on_read_phase();
-    fn(vec.raw());
+    fn(vec.data());
     read_phase_end();
 }
 void RWPhaseGate::custom_write(Writer fn){
     on_write_phase();
-    fn(vec.raw());
+    fn(vec.data());
     write_phase_end();
 }
 
@@ -72,7 +72,7 @@ size_t RWPhaseGate::size() const{
 }
 void RWPhaseGate::get(Index i, void* dst) const{
     on_read_phase();
-    memcpy(dst, vec[i], vec.getChunkSize());
+    memcpy(dst, vec[i], vec.elmSize());
     read_phase_end();
 }
 void RWPhaseGate::free(Index i){

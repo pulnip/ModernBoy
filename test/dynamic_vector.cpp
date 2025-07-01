@@ -9,8 +9,8 @@ TEST(DynamicVectorMemory, Trivial){
         DynamicVector vec(c);
         const auto& ref = vec;
 
-        EXPECT_EQ(vec.getChunkSize(), c);
-        EXPECT_EQ(ref.getChunkSize(), c);
+        EXPECT_EQ(vec.elmSize(), c);
+        EXPECT_EQ(ref.elmSize(), c);
 
         EXPECT_EQ(vec.size(), 0);
         EXPECT_EQ(ref.size(), 0);
@@ -64,9 +64,10 @@ TEST(DynamicVectorValue, Trivlal){
     for(int32_t i=1; i<=25; ++i){
         DynamicVector vec(4*i);
         const auto& ref = vec;
-        vec.newChunk(1);
+        vec.reserve(1);
 
         auto ptr1 = vec[0];
+
         for(int32_t j=0; j<i; ++j){
             int32_t arr[]={j};
             memcpy(ptr1, arr, 4);
@@ -152,5 +153,115 @@ TEST(DynamicVectorIterator, SkipFreed){
         }
 
         EXPECT_EQ(count, c);
+    }
+}
+
+TEST(DynamicVectorPart, Trivial){
+    uint64_t x = 42;
+    float y = 3.14;
+    double z = 1.414;
+    char w = 'w';
+    constexpr auto elmSize = sizeof(x)+sizeof(y)+sizeof(z)+sizeof(w);
+
+    DynamicVector vec(elmSize, 1);
+    vec.set(0, 0, x, y, z, w);
+
+    uint64_t a = 0;
+    float b = 0;
+    double c = 0;
+    char d = '\0';
+    vec.get(0, 0, a, b, c, d);
+
+    EXPECT_EQ(x, a);
+    EXPECT_EQ(y, b);
+    EXPECT_EQ(z, c);
+    EXPECT_EQ(w, d);
+    EXPECT_ANY_THROW(vec.set(1, 0, x, y, z, w));
+    EXPECT_ANY_THROW(vec.get(1, 0, x, y, z, w));
+
+    a = b = c = d = 0;
+    vec.get(0, 0, a);
+    vec.get(0, sizeof(a), b);
+    vec.get(0, sizeof(a)+sizeof(b), c);
+    vec.get(0, sizeof(a)+sizeof(b)+sizeof(c), d);
+    EXPECT_EQ(x, a);
+    EXPECT_EQ(y, b);
+    EXPECT_EQ(z, c);
+    EXPECT_EQ(w, d);
+}
+
+TEST(DynamicVectorPart, MisPartitioning){
+    uint64_t x = 42;
+    float y = 3.14;
+    double z = 1.414;
+    char w = 'w';
+    constexpr auto elmSize = sizeof(x)+sizeof(y)+sizeof(z)+sizeof(w);
+
+    DynamicVector vec(elmSize, 2);
+    EXPECT_ANY_THROW(vec.set(0, 1, x, y, z, w));
+    EXPECT_ANY_THROW(vec.get(0, 1, x, y, z, w));
+    EXPECT_ANY_THROW(vec.set(1, 1, x, y, z, w));
+    EXPECT_ANY_THROW(vec.get(1, 1, x, y, z, w));
+}
+
+TEST(DynamicVectorPart, InsertMiddle){
+    uint64_t x = 42;
+    float y = 3.14;
+    double z = 1.414;
+    char w = 'w';
+    constexpr auto elmSize = sizeof(x)+sizeof(y)+sizeof(z)+sizeof(w);
+    for(size_t s=1; s<=100; ++s){
+        DynamicVector vec(elmSize, s);
+        for(size_t i=0; i<s; ++i){
+            vec.set(i, 0, x, y, z, w);
+
+            uint64_t a = 0;
+            float b = 0;
+            double c = 0;
+            char d = '\0';
+            vec.get(i, 0, a, b, c, d);
+
+            EXPECT_EQ(x, a);
+            EXPECT_EQ(y, b);
+            EXPECT_EQ(z, c);
+            EXPECT_EQ(w, d);
+
+            vec.remove(i, 1);
+            EXPECT_ANY_THROW(vec.set(i, 0, x, y, z, w));
+            EXPECT_ANY_THROW(vec.get(i, 0, x, y, z, w));
+        }
+    }
+}
+
+TEST(DynamicVectorPart, SparseVector){
+    uint64_t x = 42;
+    float y = 3.14;
+    double z = 1.414;
+    char w = 'w';
+    constexpr auto elmSize = sizeof(x)+sizeof(y)+sizeof(z)+sizeof(w);
+
+    for(size_t s=1; s<=100; ++s){
+        for(size_t i=0; i<s; ++i){
+            DynamicVector vec(elmSize, s);
+
+            if(i > 0)
+                vec.remove(0, i);
+            if(i+1 < s)
+                vec.remove(i+1, s-(i+1));
+            for(size_t j=0; j<s; ++j){
+                if(i==j){
+                    vec.set(j, 0, x, y, z, w);
+                    uint64_t a = 0;
+                    float b = 0;
+                    double c = 0;
+                    char d = '\0';
+                    vec.get(j, 0, a, b, c, d);
+                }
+                else{
+                    EXPECT_ANY_THROW(vec.set(j, 0, x, y, z, w));
+                    EXPECT_ANY_THROW(vec.get(j, 0, x, y, z, w));
+                }
+            }
+        }
     }
 }
