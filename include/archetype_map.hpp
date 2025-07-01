@@ -37,8 +37,6 @@ namespace ModernBoy
             write_phase_end();
             return ret;
         }
-        void custom_read(Reader fn) const;
-        void custom_write(Writer fn);
 
         size_t size() const;
         void get(Index i, void* dst) const;

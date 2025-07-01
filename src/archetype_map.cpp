@@ -42,17 +42,6 @@ void RWPhaseGate::mutate<void>(std::function<void(DynamicVector&)> fn){
     write_phase_end();
 }
 
-void RWPhaseGate::custom_read(Reader fn) const{
-    on_read_phase();
-    fn(vec.data());
-    read_phase_end();
-}
-void RWPhaseGate::custom_write(Writer fn){
-    on_write_phase();
-    fn(vec.data());
-    write_phase_end();
-}
-
 size_t RWPhaseGate::size() const{
     size_t size;
     on_read_phase();
