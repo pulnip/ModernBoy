@@ -151,7 +151,7 @@ Index ArchetypeMap::insert(ArchetypeBit bit,
         archetypeMap.try_emplace(bit, CHUNK_SIZE);
     auto& vector = archetypeMap.at(bit);
     auto newIndex = vector.mutate<Index>([bit, &chunk](DynamicVector& vec){
-        auto newIndex = vec.newChunk(1);
+        auto newIndex = vec.insertRange(1);
         auto mem = vec[newIndex];
         setChunk(mem, chunk, bit);
         return newIndex;

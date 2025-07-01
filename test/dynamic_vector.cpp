@@ -26,7 +26,7 @@ TEST(DynamicVectorMemory, LinearlyGrowth){
         const auto& ref = vec;
 
         for(size_t i=0; i<10; ++i){
-            vec.newChunk(1);
+            vec.insertRange(1);
             EXPECT_EQ(vec.size(), i+1);
             EXPECT_EQ(ref.size(), i+1);
         }
@@ -52,7 +52,7 @@ TEST(DynamicVectorMemory, LinearlyGraduallyGrowth){
 
         size_t sum = 0;
         for(size_t i=1; i<=10; ++i){
-            vec.newChunk(i);
+            vec.insertRange(i);
             sum += i;
             EXPECT_EQ(vec.size(), sum);
             EXPECT_EQ(ref.size(), sum);
@@ -87,12 +87,12 @@ TEST(DynamicVectorValue, Trivlal){
 TEST(DynamicVectorMemory, Reuse){
     for(size_t i=2; i<=100; ++i){
         DynamicVector vec(4);
-        vec.newChunk(2*i);
+        vec.insertRange(2*i);
 
         for(Index j=0; j<i; ++j)
             vec.remove(2*j, 1);
         for(Index j=0; j<i; ++j)
-            vec.newChunk(1);
+            vec.insertRange(1);
 
         EXPECT_EQ(vec.size(), 2*i);
         EXPECT_EQ(vec.capacity(), std::bit_ceil(2*i));
@@ -103,7 +103,7 @@ TEST(DynamicVectorMemory, Reuse){
         for(Index j=0; j<i; ++j)
             vec.remove(2*j, 1);
         for(Index j=0; j<i; ++j)
-            vec.newChunk(1);
+            vec.insertRange(1);
 
         EXPECT_EQ(vec.size(), 2*i);
         EXPECT_EQ(vec.capacity(), std::bit_ceil(2*i));

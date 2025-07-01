@@ -171,18 +171,15 @@ namespace ModernBoy{
         size_t capacity() const noexcept;
 
         void clear() noexcept;
-        Index reserveFreeIndex() noexcept;
-        Index reserveRange(size_t num) noexcept;
+        Index insertRange(size_t num);
         template<typename T>
         Index emplace(T&& val){
             if(sizeof(T) != ELEMENT_SIZE)
                 throw DynamicVectorBadCast(ELEMENT_SIZE, sizeof(T));
-            Index reservedIndex = reserveFreeIndex();
+            Index reservedIndex = insertRange(1);
             (*this)[reservedIndex] = std::move(val);
         }
         void remove(Index pos, size_t num=1);
-
-        Index newChunk(size_t numChunk=1);
 
     private:
         size_t checkSize(size_t elmSize) const;

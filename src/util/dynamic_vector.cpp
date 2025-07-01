@@ -303,12 +303,62 @@ void DynamicVector::clear() noexcept{
         hint = freeIndexes.emplace_hint(hint, i);
 }
 
-Index DynamicVector::reserveFreeIndex() noexcept{
-    if(freeIndexes.size() == 0)
-        reserve(memSize + 1);
-    Index freeIndex = *freeIndexes.cbegin();
-    freeIndexes.erase(freeIndex);
-    return freeIndex;
+Index DynamicVector::insertRange(size_t numElm){
+    assert(numElm > 0);
+    Index start = findContinuousFreeFittedSlot(numElm);
+    // not have free slot.
+    if(start == std::numeric_limits<size_t>::max()){
+        size_t newAllocSize = std::bit_ceil(usedSize+numElm);
+        assert(memSize < newAllocSize);
+        if(numElement == 0)
+            mem = malloc(ELEMENT_SIZE*newAllocSize);
+        else
+            mem = realloc(mem, ELEMENT_SIZE*newAllocSize);
+        for(Index i=usedSize; i<memSize; ++i)
+            freeIndexes.erase(i);
+        memSize = newAllocSize;
+        start = usedSize;
+        numElement += numElm;
+        usedSize += numElm;
+        for(Index i=start+numElm; i<newAllocSize; ++i)
+            freeIndexes.insert(i);
+        return start;
+    }
+
+    for(Index i=0; i<numElm; ++i){
+        freeIndexes.erase(start+i);
+    }
+    numElement += numElm;
+    usedSize = std::max(usedSize, start+numElm);
+    return start;
+}
+
+Index DynamicVector::findContinuousFreeFittedSlot(
+    size_t numElm
+){
+    assert((numElement+freeIndexes.size())==memSize);
+    if(memSize-numElement < numElm)
+        return std::numeric_limits<size_t>::max();
+
+    Index candidateStart = *freeIndexes.begin();;
+    size_t numAvailable = 1;
+
+    for(Index freeIndex: freeIndexes){
+        // Still Continuous
+        if((freeIndex-candidateStart+1) == numAvailable){
+            // find Continuous Chunk!
+            if(numAvailable == numElm){
+                return candidateStart;
+            }
+            ++numAvailable;
+        }
+        else{
+            candidateStart = freeIndex;
+            numAvailable = 1;
+        }
+    }
+
+    return std::numeric_limits<size_t>::max();
 }
 
 void DynamicVector::remove(Index pos, size_t num){
@@ -335,71 +385,3 @@ void DynamicVector::remove(Index pos, size_t num){
                 --usedSize;
         }
 }
-
-
-
-
-
-
-
-
-
-
-Index DynamicVector::newChunk(size_t numChunk){
-    assert(numChunk > 0);
-    Index start = findContinuousFreeFittedSlot(numChunk);
-    // not have free slot.
-    if(start == std::numeric_limits<size_t>::max()){
-        size_t newAllocSize = std::bit_ceil(usedSize+numChunk);
-        assert(memSize < newAllocSize);
-        if(numElement == 0)
-            mem = malloc(ELEMENT_SIZE*newAllocSize);
-        else
-            mem = realloc(mem, ELEMENT_SIZE*newAllocSize);
-        for(Index i=usedSize; i<memSize; ++i)
-            freeIndexes.erase(i);
-        memSize = newAllocSize;
-        start = usedSize;
-        numElement += numChunk;
-        usedSize += numChunk;
-        for(Index i=start+numChunk; i<newAllocSize; ++i)
-            freeIndexes.insert(i);
-        return start;
-    }
-
-    for(Index i=0; i<numChunk; ++i){
-        freeIndexes.erase(start+i);
-    }
-    numElement += numChunk;
-    usedSize = std::max(usedSize, start+numChunk);
-    return start;
-}
-
-Index DynamicVector::findContinuousFreeFittedSlot(
-    size_t numChunk
-){
-    assert((numElement+freeIndexes.size())==memSize);
-    if(memSize-numElement < numChunk)
-        return std::numeric_limits<size_t>::max();
-
-    Index candidateStart = *freeIndexes.begin();;
-    size_t numAvailable = 1;
-
-    for(Index freeIndex: freeIndexes){
-        // Still Continuous
-        if((freeIndex-candidateStart+1) == numAvailable){
-            // find Continuous Chunk!
-            if(numAvailable == numChunk){
-                return candidateStart;
-            }
-            ++numAvailable;
-        }
-        else{
-            candidateStart = freeIndex;
-            numAvailable = 1;
-        }
-    }
-
-    return std::numeric_limits<size_t>::max();
-}
-
