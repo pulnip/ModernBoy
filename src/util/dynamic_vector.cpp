@@ -128,11 +128,6 @@ Iterator DynamicVector::begin(){
         freeIndexes.cbegin(), freeIndexes.cend()
     );
 }
-Iterator DynamicVector::begin(Index i){
-    return Iterator(mem, ELEMENT_SIZE,
-        i, usedSize,
-        freeIndexes.lower_bound(i), freeIndexes.cend());
-}
 Iterator DynamicVector::end(){
     return Iterator(mem, ELEMENT_SIZE,
         usedSize, usedSize,
@@ -160,11 +155,6 @@ ConstIt DynamicVector::begin() const{
         freeIndexes.cbegin(), freeIndexes.cend()
     );
 }
-ConstIt DynamicVector::begin(Index i) const{
-    return ConstIt(mem, ELEMENT_SIZE,
-        i, usedSize,
-        freeIndexes.lower_bound(i), freeIndexes.cend());
-}
 ConstIt DynamicVector::end() const{
     return ConstIt(mem, ELEMENT_SIZE,
         usedSize, usedSize,
@@ -173,9 +163,6 @@ ConstIt DynamicVector::end() const{
 
 ConstIt DynamicVector::cbegin() const{
     return begin();
-}
-ConstIt DynamicVector::cbegin(Index i) const{
-    return begin(i);
 }
 ConstIt DynamicVector::cend() const{
     return end();

@@ -34,16 +34,6 @@ void RWPhaseGate::transform(Writer fn){
         fn(*it);
     write_phase_end();
 }
-void RWPhaseGate::transform_range(
-    Writer fn, Index start, size_t end
-){
-    on_write_phase();
-    auto end_it = vec.begin(end);
-    for(auto it = vec.begin(start); it!=end_it; ++it){
-        fn(*it);
-    }
-    write_phase_end();
-}
 
 template<>
 void RWPhaseGate::mutate<void>(std::function<void(DynamicVector&)> fn){

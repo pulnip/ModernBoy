@@ -30,8 +30,6 @@ namespace ModernBoy
 
         void for_each(Reader fn) const;
         void transform(Writer fn);
-        void transform_range(Writer fn,
-            Index start, Index end);
         template<typename R>
         R mutate(std::function<R(DynamicVector&)> fn){
             on_write_phase();

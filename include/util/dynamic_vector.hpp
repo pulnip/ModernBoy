@@ -155,13 +155,10 @@ namespace ModernBoy{
         };
 
         Iterator begin();
-        Iterator begin(Index i);
         Iterator end();
         ConstIterator begin() const;
-        ConstIterator begin(Index i) const;
         ConstIterator end() const;
         ConstIterator cbegin() const;
-        ConstIterator cbegin(Index i) const;
         ConstIterator cend() const;
 
         size_t empty() const noexcept;
