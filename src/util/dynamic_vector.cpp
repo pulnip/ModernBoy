@@ -17,9 +17,9 @@ DynamicVector::DynamicVector(size_t ELEMENT_SIZE) noexcept
 :ELEMENT_SIZE(ELEMENT_SIZE){}
 
 DynamicVector::DynamicVector(size_t ELEMENT_SIZE, size_t initialSize) noexcept
-:mem(malloc(ELEMENT_SIZE*initialSize)), ELEMENT_SIZE(ELEMENT_SIZE),
-numElement(initialSize), memSize(std::bit_ceil(initialSize)),
-usedSize(initialSize){
+:mem(malloc(ELEMENT_SIZE*std::bit_ceil(initialSize))),
+ELEMENT_SIZE(ELEMENT_SIZE), numElement(initialSize),
+memSize(std::bit_ceil(initialSize)), usedSize(initialSize){
     for(Index i=initialSize; i<memSize; ++i){
         freeIndexes.insert(i);
     }
@@ -145,19 +145,30 @@ Iterator::operator ConstIt(){
 }
 
 ConstIt DynamicVector::begin() const{
-    return static_cast<ConstIt>(
-        const_cast<DynamicVector*>(this)->begin()
+    if(freeIndexes.size()==0 || *freeIndexes.begin()!=0)
+        return Iterator(mem, ELEMENT_SIZE,
+            0, usedSize,
+            freeIndexes.cbegin(), freeIndexes.cend());
+    Index start = 0;
+    auto it = freeIndexes.cbegin();
+    while(it!=freeIndexes.cend() && start != *it){
+        ++start;
+        ++it;
+    }
+    return ConstIt(mem, ELEMENT_SIZE,
+        0, usedSize,
+        freeIndexes.cbegin(), freeIndexes.cend()
     );
 }
 ConstIt DynamicVector::begin(Index i) const{
-    return static_cast<ConstIt>(
-        const_cast<DynamicVector*>(this)->begin(i)
-    );
+    return ConstIt(mem, ELEMENT_SIZE,
+        i, usedSize,
+        freeIndexes.lower_bound(i), freeIndexes.cend());
 }
 ConstIt DynamicVector::end() const{
-    return static_cast<ConstIt>(
-        const_cast<DynamicVector*>(this)->end()
-    );
+    return ConstIt(mem, ELEMENT_SIZE,
+        usedSize, usedSize,
+        freeIndexes.find(usedSize), freeIndexes.cend());
 }
 
 ConstIt DynamicVector::cbegin() const{
@@ -216,7 +227,9 @@ ConstIt::ConstIterator(const void* ptr, size_t STRIDE,
 index(index), indexEnd(usedSize),
 it(it), it_end(it_end){}
 
-const void* ConstIt::operator*() const{ return Util::add(ptr, STRIDE*index); }
+const void* ConstIt::operator*() const{
+    return Util::add(ptr, STRIDE*index);
+}
 ConstIt& ConstIt::operator++(){
     assert(index < indexEnd);
     ++index;
@@ -313,10 +326,15 @@ void DynamicVector::remove(Index pos, size_t num){
             numElement -= 1;
     }
     assert(numElement + freeIndexes.size() == memSize);
-    if(usedSize <= pos+num)
-        usedSize = pos;
+    if(usedSize )
+    if(usedSize >= pos+num)
+        for(auto it=freeIndexes.rbegin(); it!=freeIndexes.rend(); ++it){
+            if(usedSize > *it + 1)
+                break;
+            else if(usedSize - *it == 1)
+                --usedSize;
+        }
 }
-
 
 
 
@@ -385,19 +403,3 @@ Index DynamicVector::findContinuousFreeFittedSlot(
     return std::numeric_limits<size_t>::max();
 }
 
-void DynamicVector::freeChunk(Index start, size_t numChunk){
-    assert(numChunk <= numElement);
-    for(Index i=0; i<numChunk; ++i){
-        freeIndexes.insert(start+i);
-    }
-    numElement -= numChunk;
-    assert(start+numChunk<=usedSize);
-    if((start+numChunk) >= usedSize){
-        for(auto it=freeIndexes.rbegin(); it!=freeIndexes.rend(); ++it){
-            if(usedSize > *it + 1)
-                break;
-            else if(usedSize - *it == 1)
-                --usedSize;
-        }
-    }
-}

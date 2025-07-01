@@ -183,7 +183,6 @@ namespace ModernBoy{
         void remove(Index pos, size_t num=1);
 
         Index newChunk(size_t numChunk=1);
-        void freeChunk(Index startIndex, size_t numChunk=1);
 
     private:
         size_t checkSize(size_t elmSize) const;

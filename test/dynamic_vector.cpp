@@ -90,7 +90,7 @@ TEST(DynamicVectorMemory, Reuse){
         vec.newChunk(2*i);
 
         for(Index j=0; j<i; ++j)
-            vec.freeChunk(2*j, 1);
+            vec.remove(2*j, 1);
         for(Index j=0; j<i; ++j)
             vec.newChunk(1);
 
@@ -101,7 +101,7 @@ TEST(DynamicVectorMemory, Reuse){
         DynamicVector vec(4, 2*i);
 
         for(Index j=0; j<i; ++j)
-            vec.freeChunk(2*j, 1);
+            vec.remove(2*j, 1);
         for(Index j=0; j<i; ++j)
             vec.newChunk(1);
 
@@ -131,7 +131,7 @@ TEST(DynamicVectorIterator, SkipFreed){
     for(size_t c=4; c<=100; ++c){
         DynamicVector vec(4, 2*c);
 
-        vec.freeChunk(c, c);
+        vec.remove(c, c);
 
         size_t count=0;
         for(const auto& _: vec){
@@ -145,7 +145,7 @@ TEST(DynamicVectorIterator, SkipFreed){
         DynamicVector vec(4, 2*c);
 
         for(size_t i=c; i<2*c; ++i)
-            vec.freeChunk(i, 1);
+            vec.remove(i, 1);
 
         size_t count=0;
         for(const auto& _: vec){

@@ -77,7 +77,7 @@ void RWPhaseGate::get(Index i, void* dst) const{
 }
 void RWPhaseGate::free(Index i){
     on_write_phase();
-    vec.freeChunk(i);
+    vec.remove(i);
     write_phase_end();
 }
 
