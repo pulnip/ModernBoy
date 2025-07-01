@@ -22,8 +22,6 @@ using namespace ModernBoy::Metal;
 using namespace ModernBoy::OpenGL;
 #endif
 
-constexpr auto STEP_RATE_IN_MILLISECONDS = 1000;
-
 static SDL_AppResult _handle_key_event(void* ctx, SDL_Scancode key_code);
 
 SDL_AppResult SDL_AppInit(void** appState,
@@ -56,8 +54,9 @@ SDL_AppResult SDL_AppInit(void** appState,
         return SDL_APP_FAILURE;
     }
 
-    AppState* as = new AppState(window);
-    if(!as) return SDL_APP_FAILURE;
+    *appState = new AppState(window);
+    if(!*appState) return SDL_APP_FAILURE;
+    AppState& app = *static_cast<AppState*>(*appState);
 
     // Temporal codes...
 #if defined(USE_DIRECTX)
@@ -78,12 +77,11 @@ SDL_AppResult SDL_AppInit(void** appState,
 #elif defined(USE_OPENGL)
     // TODO
 #endif
-    as->assetLoader.loadScripts("asset/action.toml");
-    as->assetLoader.loadActors("asset/actor.toml");
+    app.assetLoader.loadScripts("asset/action.toml");
+    app.assetLoader.loadActors("asset/actor.toml");
 
-    *appState = as;
+    app.lastTicks = SDL_GetTicks();
 
-    as->last_step = SDL_GetTicks();
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
 
@@ -128,20 +126,21 @@ static SDL_AppResult _handle_key_event([[maybe_unused]] void* ctx,
 }
 
 SDL_AppResult SDL_AppIterate(void* appState){
-    AppState& as = *static_cast<AppState*>(appState);
-    Game::Context& ctx = as.game_ctx;
+    AppState& app = *static_cast<AppState*>(appState);
 
-    using namespace std::chrono;
-    auto now = high_resolution_clock::now();
-    auto dt = (now - as.last_time);
-    auto deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(dt);
+    Uint64 now = SDL_GetTicks();
+    if((now - app.lastTicks) == 0)
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(1));
+    now = SDL_GetTicks();
+    Uint64 deltaTime = now - app.lastTicks;
+    app.lastTicks = now;
+    app.deltaTime = deltaTime;
 
-    as.inputSystem.update(deltaTime);
+    Game::Context& world = app.world;
+    app.inputSystem.update(deltaTime);
 
-    const Uint64 sdl_now = SDL_GetTicks();
-    while((sdl_now - as.last_step) >= STEP_RATE_IN_MILLISECONDS){
-        as.last_step += STEP_RATE_IN_MILLISECONDS;
-    }
+    world.update(deltaTime);
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }

@@ -9,6 +9,7 @@ add_subdirectory(util)
 file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME}
     ${ALL_SOURCES}
+    game/context.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE

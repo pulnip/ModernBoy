@@ -5,6 +5,8 @@
 
 using namespace ModernBoy;
 
+Uint64 AppState::getDeltaTime() const{ return deltaTime; }
+
 AppState::AppState(SDL_Window* window)
 :ui(), window(window), inputDevice(),
 // Important!! Initialize Order

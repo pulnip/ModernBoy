@@ -69,10 +69,11 @@ namespace ModernBoy
 
         AssetLoader assetLoader;
         // Game State
-        Game::Context game_ctx;
+        Game::Context world;
 
-        std::chrono::time_point<std::chrono::high_resolution_clock> last_time;
-        Uint64 last_step;
+        Uint64 lastTicks;
+        Uint64 deltaTime;
+        Uint64 getDeltaTime() const;
 
         AppState(SDL_Window* window);
         ~AppState();

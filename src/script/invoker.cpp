@@ -77,8 +77,8 @@ ABNORMAL_FLAG Invoker::invokeInput(const Module& module_,
 
     Game::Actor actor{
         .id = id,
-        .context = app.game_ctx,
-        .app = app
+        .world = &app.world,
+        .app = &app
     };
 
     context->SetArgObject(0, &actor);
@@ -110,8 +110,8 @@ ABNORMAL_FLAG Invoker::invoke(const Module& module_,
 
     Game::Actor actor{
         .id = id,
-        .context = app.game_ctx,
-        .app = app
+        .world = &app.world,
+        .app = &app
     };
 
     context->SetArgObject(0, &actor);

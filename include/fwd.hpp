@@ -36,7 +36,7 @@ namespace ModernBoy
     struct InputComponent;
     struct SparseChunk;
     // Games
-    using DeltaTime = std::chrono::milliseconds;
+    using DeltaTime = uint64_t;
 
     class AssetLoader;
 

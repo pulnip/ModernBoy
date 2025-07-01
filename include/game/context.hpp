@@ -11,15 +11,18 @@ class CollisionDetector{}; // query nearBy(radius
 namespace ModernBoy::Game
 {
     class Context{
+    public:
+        void update(DeltaTime dt);
+
+    private:
         EventDispatcher eventDispatcher;
-        
     };
 
     struct Actor{
         EntityID id;
-        Context& context;
+        Context* world;
 
-        AppState& app;
+        AppState* app;
     };
 }
 

@@ -13,16 +13,16 @@ texture = "asset/world_map.jpg"
 shader = "default"
 [entities.input]
 [[entities.input.map]]
-trigger = "Keyboard.Up.Pressed"
+trigger = "Keyboard.Up.Held"
 action = "default.onInputEvent"
 [[entities.input.map]]
-trigger = "Keyboard.Left.Pressed"
+trigger = "Keyboard.Left.Held"
 action = "default.onInputEvent"
 [[entities.input.map]]
-trigger = "Keyboard.Down.Pressed"
+trigger = "Keyboard.Down.Held"
 action = "default.onInputEvent"
 [[entities.input.map]]
-trigger = "Keyboard.Right.Pressed"
+trigger = "Keyboard.Right.Held"
 action = "default.onInputEvent"
 
 [[entities]]

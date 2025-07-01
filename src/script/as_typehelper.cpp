@@ -92,19 +92,19 @@ int ModernBoy::Script::registerKeyevent(asIScriptEngine* engine){
 }
 
 static Transform getTransform(Game::Actor* actor){
-    auto it = actor->app.actorTable.find(actor->id);
-    if(it == actor->app.actorTable.end()){
+    auto it = actor->app->actorTable.find(actor->id);
+    if(it == actor->app->actorTable.end()){
         std::println("Actor No.{} not exists.", actor->id);
         return identity();
     }
     auto [_, info] = *it;
-    return actor->app.archetypeMap.getTransformComponent(
+    return actor->app->archetypeMap.getTransformComponent(
         info.bit, info.chunkIndex).value;
 }
 
 static void setTransform(Game::Actor* actor, Transform transform){
-    auto it = actor->app.actorTable.find(actor->id);
-    if(it == actor->app.actorTable.end()){
+    auto it = actor->app->actorTable.find(actor->id);
+    if(it == actor->app->actorTable.end()){
         std::println("Actor No.{} not exists.", actor->id);
         return;
     }
@@ -115,11 +115,28 @@ static void setTransform(Game::Actor* actor, Transform transform){
         .value = transform
     };
     component.value = transform;
-    actor->app.archetypeMap.setTransformComponent(
+    actor->app->archetypeMap.setTransformComponent(
         component, info.bit, info.chunkIndex);
 }
 
 int ModernBoy::Script::registerActor(asIScriptEngine* engine){
+    if(auto ret=engine->RegisterObjectType(
+        "AppState", sizeof(AppState),
+        asOBJ_REF | asOBJ_NOCOUNT ) < 0)
+        return ret;
+    int typeId = engine->GetTypeIdByDecl("uint64");
+    if (typeId < 0)
+        std::println("Angelscript Not Support uint64.");
+    else
+        std::println("Angelscript Supprty uint64, typeId = {}", typeId);
+    if(auto ret=engine->RegisterObjectMethod(
+        "AppState", "uint64 getDeltaTime() const",
+        asMETHOD(AppState, getDeltaTime), asCALL_THISCALL) < 0)
+        return ret;
+    if(auto ret=engine->RegisterObjectType(
+        "Context", sizeof(Game::Context),
+        asOBJ_REF | asOBJ_NOCOUNT ) < 0)
+        return ret;
     if(auto ret=engine->RegisterObjectType(
         "Actor", sizeof(Game::Actor),
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
@@ -131,6 +148,14 @@ int ModernBoy::Script::registerActor(asIScriptEngine* engine){
     if(auto ret=engine->RegisterObjectMethod(
         "Actor", "void setTransform(Transform)",
         asFUNCTION(setTransform), asCALL_CDECL_OBJFIRST) < 0)
+        return ret;
+    if(auto ret=engine->RegisterObjectProperty(
+        "Actor", "AppState@ app",
+        offsetof(Game::Actor, app)) < 0)
+        return ret;
+    if(auto ret=engine->RegisterObjectProperty(
+        "Actor", "Context@ world",
+        offsetof(Game::Actor, world)) < 0)
         return ret;
     return 0;
 }
