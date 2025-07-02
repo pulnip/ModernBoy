@@ -60,6 +60,13 @@ void RWPhaseGate::free(Index i){
     write_phase_end();
 }
 
+DynamicVector& RWPhaseGate::raw(){
+    return vec;
+}
+const DynamicVector& RWPhaseGate::raw() const{
+    return vec;
+}
+
 
 
 void* RWPhaseGate::operator[](Index index){

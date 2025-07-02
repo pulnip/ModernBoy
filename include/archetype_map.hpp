@@ -42,6 +42,9 @@ namespace ModernBoy
         void get(Index i, void* dst) const;
         void free(Index i);
 
+        DynamicVector& raw();
+        const DynamicVector& raw() const;
+
     private:
         void* operator[](Index index);
         const void* operator[](Index index) const;
@@ -88,6 +91,11 @@ namespace ModernBoy
         void setInputComponent(const InputComponent& component,
             ArchetypeBit bit, Index index);
     };
+
+    ArchetypeBit archetype(const TransformComponent*,
+        const CameraComponent*, const MeshComponent*,
+        const InputComponent*
+    );
 
     // professional only
     void getChunk(TransformComponent* tc,
