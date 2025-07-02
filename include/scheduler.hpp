@@ -33,6 +33,9 @@ namespace ModernBoy
 
         std::vector<Generator<void>> generators;
         std::vector<size_t> schedule;
+
+        uint64_t lastTick;
+        uint64_t deltaTime;
     };
 } // namespace ModernBoy
 

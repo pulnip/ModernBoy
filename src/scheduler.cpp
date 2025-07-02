@@ -1,4 +1,5 @@
 #include <numeric>
+#include <SDL3/SDL_timer.h>
 #include "app_state.hpp"
 #include "scheduler.hpp"
 
@@ -10,10 +11,18 @@ void Scheduler::prepareFrame(){
     generators.clear();
     schedule.clear();
 
-    // update timer
+    Uint64 now = SDL_GetTicks();
+    if((now - app.lastTicks) == 0){
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(1));
+        now = SDL_GetTicks();
+    }
+    deltaTime = now - lastTick;
+    lastTick = now;
+
     std::vector<size_t> taskCounts;
 
-    generators.push_back(app.inputSystem.updateV2(Uint64(0)));
+    generators.push_back(app.inputSystem.update(deltaTime));
     taskCounts.push_back(app.inputSystem.yield_count());
 
 
@@ -54,4 +63,13 @@ void Scheduler::updateFrame(){
             }
         }
     } while(!all_done);
+
+    Uint64 now = SDL_GetTicks();
+
+    constexpr auto TARGET_FPS = 60;
+    Uint64 sleepDuration = 1000 / TARGET_FPS - 1;
+    if(now - lastTick <= sleepDuration){
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(sleepDuration));
+    }
 }

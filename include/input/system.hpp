@@ -18,11 +18,8 @@ namespace ModernBoy::Input
         System(AppState& app);
         ~System() = default;
 
-        void update(DeltaTime dt);
-
         size_t yield_count() const noexcept;
-        Generator<void> updateV2(DeltaTime dt);
-
+        Generator<void> update(DeltaTime dt);
 
     private:
         AppState& app;
