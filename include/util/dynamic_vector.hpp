@@ -17,6 +17,47 @@ namespace ModernBoy{
         DynamicVectorBadCast(size_t expected, size_t requested);
         const char* what() const noexcept override;  
     };
+    class DynamicVectorElementBadCast: public std::bad_cast{
+        std::string msg;
+
+    public:
+        DynamicVectorElementBadCast(size_t expected, size_t requested);
+        const char* what() const noexcept override;  
+    };
+
+    struct DynamicVectorElementWrapper{
+        DynamicVectorElementWrapper(void* elmMem,
+            size_t ELM_SIZE);
+
+        template<typename T>
+        T& at(size_t offset){
+            if(sizeof(T)+offset > ELM_SIZE)
+                throw DynamicVectorElementBadCast(ELM_SIZE, sizeof(T));
+            return *static_cast<T*>(
+                Util::add(elmMem, ELM_SIZE*offset));
+        }
+
+    private:
+        void* elmMem = nullptr;
+        const size_t ELM_SIZE;
+    };
+    struct DynamicVectorConstElementWrapper{
+        DynamicVectorConstElementWrapper(const void* elmMem,
+            size_t ELM_SIZE);
+
+        template<typename T>
+        const T& at(size_t offset){
+
+            if(offset+sizeof(T) > ELM_SIZE)
+                throw DynamicVectorElementBadCast(ELM_SIZE, sizeof(T));
+            return *static_cast<const T*>(
+                Util::add(elmMem, offset));
+        }
+
+    private:
+        const void* elmMem = nullptr;
+        const size_t ELM_SIZE;
+    };
 
     class DynamicVector{
     private:
@@ -115,38 +156,48 @@ namespace ModernBoy{
         void* data() noexcept;
 
         struct ConstIterator{
-            const void* const ptr;
-            const size_t STRIDE;
+            const void* ptr;
+            size_t STRIDE;
             Index index;
-            const Index indexEnd;
+            Index indexEnd;
             std::set<size_t>::const_iterator it;
-            const std::set<size_t>::const_iterator it_end;
+            std::set<size_t>::const_iterator it_end;
 
             ConstIterator(const void* ptr, size_t STRIDE,   
                 Index index, Index indexEnd, 
                 std::set<size_t>::const_iterator it,
                 std::set<size_t>::const_iterator it_end);
+            ConstIterator(const ConstIterator&) = default;
+            ConstIterator(ConstIterator&&) = default;
+            ConstIterator& operator=(const ConstIterator&) = default;
+            ConstIterator& operator=(ConstIterator&&) = default;
 
+            DynamicVectorConstElementWrapper wrapped() const;
             const void* operator*() const;
             ConstIterator& operator++();
             bool operator!=(const ConstIterator& other) const;
             bool operator==(const ConstIterator& other) const;
         };
         struct Iterator{
-            void* const ptr;
-            const size_t STRIDE;
+            void* ptr;
+            size_t STRIDE;
             Index index;
-            const Index indexEnd;
+            Index indexEnd;
             std::set<size_t>::const_iterator it;
-            const std::set<size_t>::const_iterator it_end;
+            std::set<size_t>::const_iterator it_end;
 
             Iterator(void* ptr, size_t STRIDE,
                 Index index, Index indexEnd, 
                 std::set<size_t>::const_iterator it,
                 std::set<size_t>::const_iterator it_end);
+            Iterator(const Iterator&) = default;
+            Iterator(Iterator&&) = default;
+            Iterator& operator=(const Iterator&) = default;
+            Iterator& operator=(Iterator&&) = default;
 
             operator ConstIterator();
 
+            DynamicVectorElementWrapper wrapped() const;
             void* operator*();
             const void* operator*() const;
             Iterator& operator++();

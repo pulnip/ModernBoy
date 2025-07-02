@@ -12,6 +12,18 @@ DynamicVectorBadCast::DynamicVectorBadCast(
 ):msg(std::format("bad cast: expected={}bytes, requested={}bytes", expected, requested)){}
 const char* DynamicVectorBadCast::what(
 ) const noexcept{ return msg.c_str(); }
+DynamicVectorElementBadCast::DynamicVectorElementBadCast(
+    size_t expected, size_t requested
+):msg(std::format("bad cast: expected={}bytes, requested={}bytes", expected, requested)){}
+const char* DynamicVectorElementBadCast::what(
+) const noexcept{ return msg.c_str(); }
+
+DynamicVectorElementWrapper::DynamicVectorElementWrapper(
+    void* elmMem, size_t ELM_SIZE)
+:elmMem(elmMem),ELM_SIZE(ELM_SIZE){}
+DynamicVectorConstElementWrapper::DynamicVectorConstElementWrapper(
+    const void* elmMem, size_t ELM_SIZE)
+:elmMem(elmMem),ELM_SIZE(ELM_SIZE){}
 
 DynamicVector::DynamicVector(size_t ELEMENT_SIZE) noexcept
 :ELEMENT_SIZE(ELEMENT_SIZE){}
@@ -176,6 +188,9 @@ Iterator::Iterator(void* ptr, size_t STRIDE,
 index(index), indexEnd(usedSize),
 it(it), it_end(it_end){}
 
+DynamicVectorElementWrapper Iterator::wrapped() const{
+    return {Util::add(ptr, STRIDE*index), STRIDE};
+}
 void* Iterator::operator*(){
     return Util::add(ptr, STRIDE*index);
 }
@@ -213,6 +228,10 @@ ConstIt::ConstIterator(const void* ptr, size_t STRIDE,
 :ptr(ptr), STRIDE(STRIDE),
 index(index), indexEnd(usedSize),
 it(it), it_end(it_end){}
+
+DynamicVectorConstElementWrapper ConstIt::wrapped() const{
+    return {Util::add(ptr, STRIDE*index), STRIDE};
+}
 
 const void* ConstIt::operator*() const{
     return Util::add(ptr, STRIDE*index);
