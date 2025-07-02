@@ -8,6 +8,8 @@
 #include "common/alias.hpp"
 #include "input/device.hpp"
 #include "input/state.hpp"
+#include "util/generator.hpp"
+#include "util/dynamic_vector.hpp"
 
 namespace ModernBoy::Input
 {
@@ -17,6 +19,10 @@ namespace ModernBoy::Input
         ~System() = default;
 
         void update(DeltaTime dt);
+
+        size_t yield_count() const noexcept;
+        Generator<void> updateV2(DeltaTime dt);
+
 
     private:
         AppState& app;

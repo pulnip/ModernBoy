@@ -29,8 +29,14 @@
 #include "backends/opengl/mesh.hpp"
 #endif
 
+#include "scheduler.hpp"
+
 namespace ModernBoy
 {
+    using ModuleManagerV2 = ResourceManagerV2<Script::Module>;
+
+    struct TaskResult{};
+
     // Components
     struct SparseChunk{
         TransformComponent transform;
@@ -46,6 +52,16 @@ namespace ModernBoy
     using EntityTable = std::unordered_map<EntityID, ComponentInfo>;
 
     struct AppState{
+    public:
+        // ArchetypeMapV2& currentMap() noexcept;
+
+        // ModuleManagerV2 moduleManagerV2;
+        Scheduler scheduler;
+
+        // ArchetypeMapV2 archetypeMaps[2];
+        // epoch = 0 is reserved for asset loading
+        uint64_t currentEpoch = 0;
+
     private:
         EntityID id_seed = 0;
         EntityID issueID();
@@ -77,6 +93,11 @@ namespace ModernBoy
 
         AppState(SDL_Window* window);
         ~AppState();
+
+        TaskResult operator()(const InputTaskCommand&);
+        TaskResult operator()(const WorldUpdateCommand&);
+        TaskResult operator()(const PhysicsTaskCommand&);
+        TaskResult operator()(const RenderTaskCommand&);
 
         EntityID createActor(ArchetypeBit bit,
             SparseChunk&& components);

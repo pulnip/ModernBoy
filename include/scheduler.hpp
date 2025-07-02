@@ -1,0 +1,39 @@
+#ifndef MODERNBOY_SCHEDULER_HPP
+#define MODERNBOY_SCHEDULER_HPP
+
+#include <array>
+#include <variant>
+#include <vector>
+#include "fwd.hpp"
+#include "util/generator.hpp"
+
+namespace ModernBoy
+{
+    struct InputTaskCommand{};
+    struct WorldUpdateCommand{};
+    struct PhysicsTaskCommand{};
+    struct RenderTaskCommand{};
+
+    using TaskCommand = std::variant<
+        InputTaskCommand,
+        WorldUpdateCommand,
+        PhysicsTaskCommand,
+        RenderTaskCommand
+    >;
+
+    class Scheduler{
+    public:
+        Scheduler(AppState& app);
+
+        void prepareFrame();
+        void updateFrame();
+
+    private:
+        AppState& app;
+
+        std::vector<Generator<void>> generators;
+        std::vector<size_t> schedule;
+    };
+} // namespace ModernBoy
+
+#endif // MODERNBOY_SCHEDULER_HPP

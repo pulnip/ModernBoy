@@ -39,7 +39,7 @@ shader = "default"
 [[entities]]
 name = "Cuby2"
 [entities.transform]
-position = [1.5, -0.5, 0.0]
+position = [1.5, 0.5, 0.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.model]
@@ -61,12 +61,23 @@ shader = "default"
 [[entities]]
 name = "Cuby4"
 [entities.transform]
-position = [1.0, -0.5, 1.0]
+position = [1.0, 0.5, 1.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.model]
 mesh = "Cube"
 texture = "asset/metal_logo.png"
+shader = "default"
+
+[[entities]]
+name = "Floor"
+[entities.transform]
+position = [0.0, -1.0, 0.0]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [100.0, 1.0, 100.0]
+[entities.model]
+mesh = "Cube"
+texture = "asset/Farback01.png"
 shader = "default"
 
 [[entities]]

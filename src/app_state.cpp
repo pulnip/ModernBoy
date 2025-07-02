@@ -8,7 +8,10 @@ using namespace ModernBoy;
 Uint64 AppState::getDeltaTime() const{ return deltaTime; }
 
 AppState::AppState(SDL_Window* window)
-:ui(), window(window), inputDevice(),
+// :archetypeMaps({ArchetypeMapV2{}, ArchetypeMapV2{}}),
+// moduleManagerV2(*this), scheduler(*this),
+:scheduler(*this),
+ui(), window(window), inputDevice(),
 // Important!! Initialize Order
 meshManager(*this), textureManager(*this),
 shaderManager(*this), moduleManager(*this),

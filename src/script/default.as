@@ -10,6 +10,7 @@ void onInputEvent(Actor@ actor, Trigger trigger){
     case KEY_UP:
         switch(trigger.onState){
         case ButtonState::Held:
+        case ButtonState::Pressed:
             t.position.z += 5 * dt;
             break;
         }
@@ -17,6 +18,7 @@ void onInputEvent(Actor@ actor, Trigger trigger){
     case KEY_LEFT:
         switch(trigger.onState){
         case ButtonState::Held:
+        case ButtonState::Pressed:
             t.position.x -= 5 * dt;
             break;
         }
@@ -24,6 +26,7 @@ void onInputEvent(Actor@ actor, Trigger trigger){
     case KEY_DOWN:
         switch(trigger.onState){
         case ButtonState::Held:
+        case ButtonState::Pressed:
             t.position.z -= 5 * dt;
             break;
         }
@@ -31,6 +34,7 @@ void onInputEvent(Actor@ actor, Trigger trigger){
     case KEY_RIGHT:
         switch(trigger.onState){
         case ButtonState::Held:
+        case ButtonState::Pressed:
             t.position.x += 5 * dt;
             break;
         }

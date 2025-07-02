@@ -137,8 +137,11 @@ SDL_AppResult SDL_AppIterate(void* appState){
     app.lastTicks = now;
     app.deltaTime = deltaTime;
 
-    Game::Context& world = app.world;
-    app.inputSystem.update(deltaTime);
+    app.scheduler.prepareFrame();
+    app.scheduler.updateFrame();
+Game::Context& world = app.world;
+
+    // app.inputSystem.update(deltaTime);
 
     world.update(deltaTime);
 
