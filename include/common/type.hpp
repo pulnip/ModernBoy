@@ -84,6 +84,26 @@ namespace ModernBoy
     bool operator==(const ResourceHandle& lhs, const ResourceHandle& rhs);
     bool operator!=(const ResourceHandle& lhs, const ResourceHandle& rhs);
     bool operator<(const ResourceHandle& lhs, const ResourceHandle& rhs);
+
+    template<typename Slot>
+    struct RefcountHandle{
+    public:
+        RefcountHandle(ResourceType type, Index index,
+            Slot& slot): type(type), index(index),
+            slot(slot){ ++slot.refcount; }
+        RefcountHandle(const RefcountHandle& other)
+        :type(other.type), index(other.index),
+            slot(slot){ ++slot.refcount; }
+        RefcountHandle(RefcountHandle&& other)
+        :type(other.type), index(other.index), slot(slot){}
+        ~RefcountHandle(){ --slot.refcount; }
+    
+        ResourceType type;
+        Index index;
+
+    private:
+        Slot& slot;
+    };
 } // namespace ModernBoy
 
 #endif // MODERNBOY_COMMON_TYPE_HPP
