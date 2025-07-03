@@ -14,8 +14,8 @@ size_t LifespanSystem::yield_count() const noexcept{
     for(const auto& [bit, gate]: app.archetypeMap){
         if(subset(bit_of<LifeSpanComponent>(), bit)){
             auto& vec=gate.raw();
-            for(auto it=vec.cbegin(); it!=vec.cend(); ++it){
-                auto lc = it.wrapped().at<LifeSpanComponent>(
+            for(const auto& chunk: vec){
+                auto lc = chunk.at<LifeSpanComponent>(
                     offset_of<LifeSpanComponent>(bit));
                 if(!lc.isAlive)
                     numTask += 1;
@@ -31,8 +31,8 @@ Generator<void> LifespanSystem::updateTask(DeltaTime) noexcept{
     for(const auto& [bit, gate]: app.archetypeMap){
         if(subset(bit_of<LifeSpanComponent>(), bit)){
             auto& vec=gate.raw();
-            for(auto it=vec.cbegin(); it!=vec.cend(); ++it){
-                auto lc = it.wrapped().at<LifeSpanComponent>(
+            for(const auto& chunk: vec){
+                auto lc = chunk.at<LifeSpanComponent>(
                     offset_of<LifeSpanComponent>(bit));
                 if(!lc.isAlive){
                     // destroy actor from Current epoch archetype map
@@ -49,8 +49,8 @@ Generator<void> LifespanSystem::update(DeltaTime) noexcept{
     for(const auto& [bit, gate]: app.archetypeMap){
         if(subset(bit_of<LifeSpanComponent>(), bit)){
             auto& vec=gate.raw();
-            for(auto it=vec.cbegin(); it!=vec.cend(); ++it){
-                auto lc = it.wrapped().at<LifeSpanComponent>(
+            for(const auto& chunk: vec){
+                auto lc = chunk.at<LifeSpanComponent>(
                     offset_of<LifeSpanComponent>(bit));
                 if(!lc.isAlive){
                     // destroy actor from Previous epoch archetype map

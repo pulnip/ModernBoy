@@ -34,8 +34,8 @@ Generator<void> System::updateTask(DeltaTime){
         if(!subset(bit_of<InputTask>(), bit))
             continue;
         auto& vec=gate.raw();
-        for(auto it=vec.cbegin(); it!=vec.cend(); ++it){
-            auto ic = it.wrapped().at<InputComponent>(
+        for(const auto& chunk: vec){
+            auto ic = chunk.at<InputComponent>(
                 offset_of<InputComponent>(bit)
             );
 

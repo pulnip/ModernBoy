@@ -37,7 +37,7 @@ namespace ModernBoy{
                 Util::add(elmMem, ELM_SIZE*offset));
         }
 
-    private:
+    // private:
         void* elmMem = nullptr;
         const size_t ELM_SIZE;
     };
@@ -46,7 +46,7 @@ namespace ModernBoy{
             size_t ELM_SIZE);
 
         template<typename T>
-        const T& at(size_t offset){
+        const T& at(size_t offset) const{
 
             if(offset+sizeof(T) > ELM_SIZE)
                 throw DynamicVectorElementBadCast(ELM_SIZE, sizeof(T));
@@ -54,7 +54,7 @@ namespace ModernBoy{
                 Util::add(elmMem, offset));
         }
 
-    private:
+    // private:
         const void* elmMem = nullptr;
         const size_t ELM_SIZE;
     };
@@ -172,8 +172,8 @@ namespace ModernBoy{
             ConstIterator& operator=(const ConstIterator&) = default;
             ConstIterator& operator=(ConstIterator&&) = default;
 
-            DynamicVectorConstElementWrapper wrapped() const;
-            const void* operator*() const;
+            // DynamicVectorConstElementWrapper wrapped() const;
+            DynamicVectorConstElementWrapper operator*() const;
             ConstIterator& operator++();
             bool operator!=(const ConstIterator& other) const;
             bool operator==(const ConstIterator& other) const;
@@ -197,9 +197,9 @@ namespace ModernBoy{
 
             operator ConstIterator();
 
-            DynamicVectorElementWrapper wrapped() const;
-            void* operator*();
-            const void* operator*() const;
+            // DynamicVectorElementWrapper wrapped() const;
+            DynamicVectorElementWrapper operator*();
+            DynamicVectorConstElementWrapper operator*() const;
             Iterator& operator++();
             bool operator!=(const Iterator& other) const;
             bool operator==(const Iterator& other) const;

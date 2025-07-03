@@ -25,13 +25,13 @@ static void setChunk(void* dst, const InputComponent& component,
 void RWPhaseGate::for_each(Reader fn) const{
     on_read_phase();
     for(auto it=vec.cbegin(); it!=vec.cend(); ++it)
-        fn(*it);
+        fn((*it).elmMem);
     read_phase_end();
 }
 void RWPhaseGate::transform(Writer fn){
     on_write_phase();
     for(auto it=vec.begin(); it!=vec.end(); ++it)
-        fn(*it);
+        fn((*it).elmMem);
     write_phase_end();
 }
 

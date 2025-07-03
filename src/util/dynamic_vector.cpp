@@ -188,14 +188,11 @@ Iterator::Iterator(void* ptr, size_t STRIDE,
 index(index), indexEnd(usedSize),
 it(it), it_end(it_end){}
 
-DynamicVectorElementWrapper Iterator::wrapped() const{
+DynamicVectorElementWrapper Iterator::operator*(){
     return {Util::add(ptr, STRIDE*index), STRIDE};
 }
-void* Iterator::operator*(){
-    return Util::add(ptr, STRIDE*index);
-}
-const void* Iterator::operator*() const{
-    return Util::add(ptr, STRIDE*index);
+DynamicVectorConstElementWrapper Iterator::operator*() const{
+    return {Util::add(ptr, STRIDE*index), STRIDE};
 }
 Iterator& Iterator::operator++(){
     assert(index < indexEnd);
@@ -229,13 +226,10 @@ ConstIt::ConstIterator(const void* ptr, size_t STRIDE,
 index(index), indexEnd(usedSize),
 it(it), it_end(it_end){}
 
-DynamicVectorConstElementWrapper ConstIt::wrapped() const{
+DynamicVectorConstElementWrapper ConstIt::operator*() const{
     return {Util::add(ptr, STRIDE*index), STRIDE};
 }
 
-const void* ConstIt::operator*() const{
-    return Util::add(ptr, STRIDE*index);
-}
 ConstIt& ConstIt::operator++(){
     assert(index < indexEnd);
     ++index;

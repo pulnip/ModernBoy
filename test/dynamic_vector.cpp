@@ -120,7 +120,7 @@ TEST(DynamicVectorIterator, Trivial){
         size_t count=0;
         for(const auto& v: vec){
             int32_t x = -1;
-            memcpy(&x, v, 4);
+            memcpy(&x, v.elmMem, 4);
             EXPECT_EQ(x, count++);
         }
         EXPECT_EQ(count, vec.size());

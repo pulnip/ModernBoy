@@ -57,10 +57,10 @@ Generator<void> System::updateTask(DeltaTime){
             auto& vec=gate.raw();
             viewTasks.reserve(vec.size());
 
-            for(auto it=vec.cbegin(); it!=vec.cend(); ++it){
-                auto tc = it.wrapped().at<TransformComponent>(
+            for(const auto& chunk: vec){
+                auto tc = chunk.at<TransformComponent>(
                     offset_of<TransformComponent>(bit));
-                auto cc = it.wrapped().at<CameraComponent>(
+                auto cc = chunk.at<CameraComponent>(
                     offset_of<CameraComponent>(bit));
                 assert(tc.actor == cc.actor);
                 if(cc.isActive)
@@ -73,10 +73,10 @@ Generator<void> System::updateTask(DeltaTime){
             auto& vec=gate.raw();
             renderTasks.reserve(vec.size());
 
-            for(auto it=vec.cbegin(); it!=vec.cend(); ++it){
-                auto tc = it.wrapped().at<TransformComponent>(
+            for(const auto& chunk: vec){
+                auto tc = chunk.at<TransformComponent>(
                     offset_of<TransformComponent>(bit));
-                auto mc = it.wrapped().at<MeshComponent>(
+                auto mc = chunk.at<MeshComponent>(
                     offset_of<MeshComponent>(bit));
                 assert(tc.actor == mc.actor);
                 if(mc.isActive)

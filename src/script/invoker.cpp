@@ -133,8 +133,8 @@ size_t Invoker::yield_count() const noexcept{
     for(const auto& [bit, gate]: app.archetypeMap){
         if(subset(bit_of<ScriptComponent>(), bit)){
             auto& vec=gate.raw();
-            for(auto it=vec.cbegin(); it!=vec.cend(); ++it){
-                auto lc = it.wrapped().at<ScriptComponent>(
+            for(const auto& chunk: vec){
+                auto lc = chunk.at<ScriptComponent>(
                     offset_of<ScriptComponent>(bit));
                 if(!lc.isActive)
                     numTask += 1;
