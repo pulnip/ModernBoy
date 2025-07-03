@@ -41,6 +41,12 @@ namespace ModernBoy
         Input::Trigger triggers[16];
         Script::Action actions[16];
     }; static_assert(std::is_pod_v<InputComponent>);
+    struct alignas(COMPONENT_ALIGN) ScriptComponent{
+        EntityID actor;
+
+        bool isActive;
+        ModuleHandle handle;
+    };
     struct alignas(COMPONENT_ALIGN) LifeSpanComponent{
         EntityID actor;
 
@@ -76,18 +82,24 @@ namespace ModernBoy
         CAMERA    = 1,
         MESH      = 2,
         INPUT     = 3,
-        LIFESPAN  = 4,
-        PHYSICS   = 5,
-        ELEMENT   = 6,
-        NUM_COMPONENT = 7,
+        SCRIPT    = 4,
+        LIFESPAN  = 5,
+        PHYSICS   = 6,
+        ELEMENT   = 7,
+        NUM_COMPONENT = 8,
     };
-    constexpr ArchetypeBit TRANSFORM_BIT = (1 << ArchetypeBit(ComponentType::TRANSFORM));
-    constexpr ArchetypeBit CAMERA_BIT    = (1 << ArchetypeBit(ComponentType::CAMERA));
-    constexpr ArchetypeBit MESH_BIT      = (1 << ArchetypeBit(ComponentType::MESH));
-    constexpr ArchetypeBit INPUT_BIT     = (1 << ArchetypeBit(ComponentType::INPUT));
-    constexpr ArchetypeBit LIFESPAN_BIT  = (1 << ArchetypeBit(ComponentType::LIFESPAN));
-    constexpr ArchetypeBit PHYSICS_BIT   = (1 << ArchetypeBit(ComponentType::PHYSICS));
-    constexpr ArchetypeBit ELEMENT_BIT   = (1 << ArchetypeBit(ComponentType::ELEMENT));
+
+    #define DECL_BIT(NAME) constexpr ArchetypeBit NAME##_BIT \
+        = (1 << ArchetypeBit(ComponentType::NAME))
+
+    DECL_BIT(TRANSFORM);
+    DECL_BIT(CAMERA);
+    DECL_BIT(MESH);
+    DECL_BIT(INPUT);
+    DECL_BIT(SCRIPT);
+    DECL_BIT(LIFESPAN);
+    DECL_BIT(PHYSICS);
+    DECL_BIT(ELEMENT);
 
     constexpr auto RENDER_BIT = TRANSFORM_BIT | MESH_BIT;
     constexpr auto VIEW_BIT   = TRANSFORM_BIT | CAMERA_BIT;
@@ -103,6 +115,8 @@ namespace ModernBoy
             return MESH_BIT;
         else if constexpr(std::same_as<T, InputComponent>)
             return INPUT_BIT;
+        else if constexpr(std::same_as<T, ScriptComponent>)
+            return SCRIPT_BIT;
         else if constexpr(std::same_as<T, LifeSpanComponent>)
             return LIFESPAN_BIT;
         else if constexpr(std::same_as<T, PhysicsComponent>)
@@ -120,44 +134,23 @@ namespace ModernBoy
     }
 
     bool subset(ArchetypeBit a, ArchetypeBit b);
+
     template<typename Component>
     size_t offset_of(ArchetypeBit bit){
         size_t offset = 0;
-        if(std::same_as<Component, TransformComponent>)
-            return offset;
-        if(bit & bit_of<TransformComponent>())
-            offset += sizeof(TransformComponent);
-
-        if(std::same_as<Component, CameraComponent>)
-            return offset;
-        if(bit & bit_of<CameraComponent>())
-            offset += sizeof(CameraComponent);
-
-        if(std::same_as<Component, MeshComponent>)
-            return offset;
-        if(bit & bit_of<MeshComponent>())
-            offset += sizeof(MeshComponent);
-
-
-        if(std::same_as<Component, InputComponent>)
-            return offset;
-        if(bit & bit_of<InputComponent>())
-            offset += sizeof(InputComponent);
-
-        if(std::same_as<Component, LifeSpanComponent>)
-            return offset;
-        if(bit & bit_of<LifeSpanComponent>())
-            offset += sizeof(LifeSpanComponent);
-
-        if(std::same_as<Component, PhysicsComponent>)
-            return offset;
-        if(bit & bit_of<PhysicsComponent>())
-            offset += sizeof(PhysicsComponent);
-
-        if(std::same_as<Component, PhysicsComponent>)
-            return offset;
-        if(bit & bit_of<PhysicsComponent>())
-            offset += sizeof(PhysicsComponent);
+        #define COMP_OFFSET(NAME) \
+            if(std::same_as<Component, NAME##Component>) \
+                return offset; \
+            if(bit & bit_of<NAME##Component>()) \
+                offset += sizeof(NAME##Component);
+        COMP_OFFSET(Transform)
+        COMP_OFFSET(Camera)
+        COMP_OFFSET(Mesh)
+        COMP_OFFSET(Input)
+        COMP_OFFSET(Script)
+        COMP_OFFSET(LifeSpan)
+        COMP_OFFSET(Physics)
+        COMP_OFFSET(Element)
         return offset;
     }
 } // namespace ModernBoy

@@ -7,6 +7,7 @@
 #include "script/type.hpp"
 #include "common/alias.hpp"
 #include "input/state.hpp"
+#include "interface.hpp"
 
 namespace ModernBoy::Script
 {
@@ -25,6 +26,10 @@ namespace ModernBoy::Script
         FunctionID registerFunction(const FuncName& funcName);
         ABNORMAL_FLAG invokeInput(const Module&, FunctionID, EntityID, Input::Trigger);
         ABNORMAL_FLAG invoke(const Module&, FunctionID, EntityID);
+
+        size_t yield_count() const noexcept;
+        Generator<void> updateTask(DeltaTime dt) noexcept;
+        Generator<void> update(DeltaTime dt) noexcept;
 
     private:
         FunctionID issueID();

@@ -127,6 +127,32 @@ ABNORMAL_FLAG Invoker::invoke(const Module& module_,
     return false;
 }
 
+size_t Invoker::yield_count() const noexcept{
+    size_t numTask = 0;
+
+    for(const auto& [bit, gate]: app.archetypeMap){
+        if(subset(bit_of<ScriptComponent>(), bit)){
+            auto& vec=gate.raw();
+            for(auto it=vec.cbegin(); it!=vec.cend(); ++it){
+                auto lc = it.wrapped().at<ScriptComponent>(
+                    offset_of<ScriptComponent>(bit));
+                if(!lc.isActive)
+                    numTask += 1;
+            }
+        }
+    }
+
+    return numTask;
+}
+
+Generator<void> Invoker::updateTask(DeltaTime dt) noexcept{
+
+}
+
+Generator<void> Invoker::update(DeltaTime dt) noexcept{
+
+}
+
 FunctionID Invoker::issueID(){ return id_seed++; }
 
 static void messageCallback(const asSMessageInfo* msg,
