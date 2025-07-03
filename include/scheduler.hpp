@@ -31,6 +31,8 @@ namespace ModernBoy
         // entity update phase
         void updateFrame();
 
+        uint64_t getDeltaTime() const;
+
     private:
         AppState& app;
 

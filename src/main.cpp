@@ -80,8 +80,6 @@ SDL_AppResult SDL_AppInit(void** appState,
     app.assetLoader.loadScripts("asset/action.toml");
     app.assetLoader.loadActors("asset/actor.toml");
 
-    app.lastTicks = SDL_GetTicks();
-
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
 
@@ -128,23 +126,12 @@ static SDL_AppResult _handle_key_event([[maybe_unused]] void* ctx,
 SDL_AppResult SDL_AppIterate(void* appState){
     AppState& app = *static_cast<AppState*>(appState);
 
-    Uint64 now = SDL_GetTicks();
-    if((now - app.lastTicks) == 0)
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(1));
-    now = SDL_GetTicks();
-    Uint64 deltaTime = now - app.lastTicks;
-    app.lastTicks = now;
-    app.deltaTime = deltaTime;
-
     app.scheduler.prepareScheduling();
     app.scheduler.prepareFrame();
     app.scheduler.updateFrame();
+
     Game::Context& world = app.world;
-
-    // app.inputSystem.update(deltaTime);
-
-    world.update(deltaTime);
+    world.update(Uint64(0));
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }

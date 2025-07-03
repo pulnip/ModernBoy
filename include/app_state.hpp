@@ -87,8 +87,6 @@ namespace ModernBoy
         // Game State
         Game::Context world;
 
-        Uint64 lastTicks;
-        Uint64 deltaTime;
         Uint64 getDeltaTime() const;
 
         AppState(SDL_Window* window);

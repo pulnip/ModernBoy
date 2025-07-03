@@ -13,7 +13,7 @@ void Scheduler::prepareScheduling(){
     schedule.clear();
 
     Uint64 now = SDL_GetTicks();
-    if((now - app.lastTicks) == 0){
+    if((now - lastTick) == 0){
         std::this_thread::sleep_for(
             std::chrono::milliseconds(1));
         now = SDL_GetTicks();
@@ -95,3 +95,5 @@ void Scheduler::updateFrame(){
             std::chrono::milliseconds(sleepDuration));
     }
 }
+
+uint64_t Scheduler::getDeltaTime() const{ return deltaTime; }

@@ -5,7 +5,7 @@
 
 using namespace ModernBoy;
 
-Uint64 AppState::getDeltaTime() const{ return deltaTime; }
+Uint64 AppState::getDeltaTime() const{ return scheduler.getDeltaTime(); }
 
 AppState::AppState(SDL_Window* window)
 // :archetypeMaps({ArchetypeMapV2{}, ArchetypeMapV2{}}),
