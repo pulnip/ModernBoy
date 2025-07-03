@@ -19,6 +19,7 @@ namespace ModernBoy::Input
         ~System() = default;
 
         size_t yield_count() const noexcept;
+        Generator<void> updateTask(DeltaTime dt);
         Generator<void> update(DeltaTime dt);
 
     private:
@@ -26,6 +27,8 @@ namespace ModernBoy::Input
 
         State state;
         Device device;
+
+        std::vector<InputTask> inputTasks;
     };
 } // namespace ModernBoy::Input
 

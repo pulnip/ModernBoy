@@ -23,12 +23,11 @@ void Scheduler::prepareScheduling(){
 
     std::vector<size_t> taskCounts;
 
-    auto yc1 = app.inputSystem.yield_count();
-    taskCounts.push_back(yc1);
+    taskCounts.push_back(app.inputSystem.yield_count());
+    taskGenerators.push_back(app.inputSystem.updateTask(deltaTime));
     generators.push_back(app.inputSystem.update(deltaTime));
 
-    auto yc2 = app.renderSystem.yield_count();
-    taskCounts.push_back(yc2);
+    taskCounts.push_back(app.renderSystem.yield_count());
     taskGenerators.push_back(app.renderSystem.updateTask(deltaTime));
     generators.push_back(app.renderSystem.update(deltaTime));
 
@@ -56,8 +55,7 @@ void Scheduler::prepareScheduling(){
 
 void Scheduler::prepareFrame(){
     for(auto idx: schedule){
-        if(idx==0)
-            taskGenerators[idx].next();
+        taskGenerators[idx].next();
     }
 
     bool all_done;

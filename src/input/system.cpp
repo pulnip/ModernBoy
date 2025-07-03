@@ -26,8 +26,9 @@ size_t System::yield_count() const noexcept{
     return numTask;
 }
 
-Generator<void> System::update([[maybe_unused]] DeltaTime dt){
+Generator<void> System::updateTask(DeltaTime){
     device.fetch(state);
+    inputTasks.clear();
 
     for(const auto& [bit, gate]: app.archetypeMap){
         if(!subset(bit_of<InputTask>(), bit))
@@ -38,21 +39,34 @@ Generator<void> System::update([[maybe_unused]] DeltaTime dt){
                 offset_of<InputComponent>(bit)
             );
 
+            inputTasks.reserve(inputTasks.size()+ic.numAction);
             for(size_t i=0; i<ic.numAction; ++i){
-                auto button = ic.triggers[i].button;
-                auto onState = ic.triggers[i].onState;
-
-                if(state.keyState[button] == onState){
-                    const auto& module = app.get<Script::Module>(
-                        ic.actions[i].moduleHandle);
-                    app.scriptInvoker.invokeInput(
-                        module, ic.actions[i].function,
-                        ic.actor, {button, onState});
-                }
+                inputTasks.emplace_back(InputTask{
+                    .actor = ic.actor,
+                    .function = ic.actions[i].function,
+                    .handle = ic.actions[i].moduleHandle,
+                    .trigger = ic.triggers[i]
+                });
             }
-
             co_yield 0;
         }
+    }
+    co_return;
+}
+
+Generator<void> System::update(DeltaTime){
+    for(const auto& task: inputTasks){
+        auto button = task.trigger.button;
+        auto onState = task.trigger.onState;
+
+        if(state.keyState[button] == onState){
+            const auto& module = app.get<Script::Module>(
+                task.handle);
+            app.scriptInvoker.invokeInput(
+                module, task.function,
+                task.actor, {button, onState});
+        }
+        co_yield 0;
     }
 
     co_return;
