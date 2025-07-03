@@ -8,6 +8,7 @@
 #include "common/alias.hpp"
 #include "input/state.hpp"
 #include "interface.hpp"
+#include "task.hpp"
 
 namespace ModernBoy::Script
 {
@@ -41,6 +42,8 @@ namespace ModernBoy::Script
 
         FunctionID id_seed = 0;
         FunctionMap functionMap;
+
+        std::vector<ScriptTask> tasks;
 
         friend AssetLoader;
     };

@@ -28,6 +28,11 @@ namespace ModernBoy
         ModuleHandle handle;
         Input::Trigger trigger;
     };
+    struct ScriptTask{
+        EntityID actor;
+        ModuleHandle handle;
+        // FunctionID function;
+    };
 } // namespace ModernBoy::Render
 
 #endif // MODERNBOY_TASK_HPP

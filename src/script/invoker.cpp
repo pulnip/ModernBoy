@@ -130,27 +130,43 @@ ABNORMAL_FLAG Invoker::invoke(const Module& module_,
 size_t Invoker::yield_count() const noexcept{
     size_t numTask = 0;
 
-    for(const auto& [bit, gate]: app.archetypeMap){
-        if(subset(bit_of<ScriptComponent>(), bit)){
-            auto& vec=gate.raw();
-            for(const auto& chunk: vec){
-                auto lc = chunk.at<ScriptComponent>(
-                    offset_of<ScriptComponent>(bit));
-                if(!lc.isActive)
-                    numTask += 1;
-            }
-        }
+    for(const auto& [bit, vec]: app.archetypeMap){
+        if(!subset(bit_of<ScriptComponent>(), bit))
+            continue;
+        vec.for_each([&numTask](const ScriptComponent& sc){
+            if(!sc.isActive)
+                numTask += 1;
+        });
     }
 
     return numTask;
 }
 
-Generator<void> Invoker::updateTask(DeltaTime dt) noexcept{
+Generator<void> Invoker::updateTask(DeltaTime) noexcept{
+    for(const auto& [bit, vec]: app.archetypeMap){
+        if(!subset(bit_of<ScriptComponent>(), bit))
+            continue;
+        tasks.reserve(vec.size());
 
+        vec.for_each([this](const ScriptComponent& sc){
+            if(!sc.isActive)
+                tasks.emplace_back(ScriptTask{
+                    .actor = sc.actor,
+                    .handle = sc.handle
+                });
+        });
+
+        co_yield 0;
+    }
+
+    co_return;
 }
 
 Generator<void> Invoker::update(DeltaTime dt) noexcept{
-
+    for(const auto& task: tasks){
+        co_yield 0;
+    }
+    co_return;
 }
 
 FunctionID Invoker::issueID(){ return id_seed++; }
