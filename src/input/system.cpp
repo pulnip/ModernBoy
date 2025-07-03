@@ -17,7 +17,7 @@ using InputTasks = std::vector<InputTask>;
 size_t System::yield_count() const noexcept{
     size_t numTask = 0;
 
-    for(const auto& [bit, gate]: app.archetypeMap){
+    for(const auto& [bit, vec]: app.archetypeMap){
         if(!subset(bit_of<InputTask>(), bit))
             continue;
         numTask += 1;

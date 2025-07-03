@@ -37,12 +37,11 @@ thread_local RenderEpoch localEpoch = 0;
 size_t System::yield_count() const noexcept{
     size_t numRenderTask = 0, numViewTask = 0;
 
-    for(const auto& [bit, gate]: app.archetypeMap){
-        const auto& vec = gate.raw();
+    for(const auto& [bit, vec]: app.archetypeMap){
         if(subset(bit_of<ViewTask>(), bit))
-            numViewTask += vec.size();
+            numViewTask += 1;
         if(subset(bit_of<RenderTask>(), bit))
-            numRenderTask += vec.size();
+            numRenderTask += 1;
     }
 
     return numViewTask * numRenderTask;
@@ -52,40 +51,36 @@ Generator<void> System::updateTask(DeltaTime){
     viewTasks.clear();
     renderTasks.clear();
 
-    for(const auto& [bit, gate]: app.archetypeMap){
+    for(const auto& [bit, vec]: app.archetypeMap){
         if(subset(bit_of<ViewTask>(), bit)){
-            auto& vec=gate.raw();
             viewTasks.reserve(vec.size());
 
-            for(const auto& chunk: vec){
-                auto tc = chunk.at<TransformComponent>(
-                    offset_of<TransformComponent>(bit));
-                auto cc = chunk.at<CameraComponent>(
-                    offset_of<CameraComponent>(bit));
+            vec.for_each([this](
+                const TransformComponent& tc,
+                const CameraComponent& cc
+            ){
                 assert(tc.actor == cc.actor);
                 if(cc.isActive)
                     viewTasks.emplace_back(ViewTask{
                         tc.value, cc.value});
-                co_yield 0;
-            }
+            });
+            co_yield 0;
         }
         if(subset(bit_of<RenderTask>(), bit)){
-            auto& vec=gate.raw();
             renderTasks.reserve(vec.size());
 
-            for(const auto& chunk: vec){
-                auto tc = chunk.at<TransformComponent>(
-                    offset_of<TransformComponent>(bit));
-                auto mc = chunk.at<MeshComponent>(
-                    offset_of<MeshComponent>(bit));
+            vec.for_each([this](
+                const TransformComponent& tc,
+                const MeshComponent& mc
+            ){
                 assert(tc.actor == mc.actor);
                 if(mc.isActive)
                     renderTasks.emplace_back(RenderTask{
                         tc.value, mc.handle,
                         mc.textureHandle,
                         mc.shaderHandle});
+            });
                 co_yield 0;
-            }
         }
     }
     co_return;
