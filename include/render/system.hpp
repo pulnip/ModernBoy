@@ -18,7 +18,7 @@
 #elif defined(USE_OPENGL)
 #include "backends/opengl/context.hpp"
 #endif
-#include "util/generator.hpp"
+#include "interface.hpp"
 
 namespace ModernBoy::Render
 {
@@ -68,7 +68,7 @@ namespace ModernBoy::Render
 
         // consumer thread
         std::jthread renderThread;
-    };
+    }; static_assert(Schedulable<System>);
 } // namespace ModernBoy::Render
 
 #endif // MODERNBOY_RENDER_SYSTEM_HPP

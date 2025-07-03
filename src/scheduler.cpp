@@ -8,6 +8,7 @@ using namespace ModernBoy;
 Scheduler::Scheduler(AppState& app):app(app){}
 
 void Scheduler::prepareScheduling(){
+    taskCounts.clear();
     taskGenerators.clear();
     generators.clear();
     schedule.clear();
@@ -21,15 +22,9 @@ void Scheduler::prepareScheduling(){
     deltaTime = now - lastTick;
     lastTick = now;
 
-    std::vector<size_t> taskCounts;
-
-    taskCounts.push_back(app.inputSystem.yield_count());
-    taskGenerators.push_back(app.inputSystem.updateTask(deltaTime));
-    generators.push_back(app.inputSystem.update(deltaTime));
-
-    taskCounts.push_back(app.renderSystem.yield_count());
-    taskGenerators.push_back(app.renderSystem.updateTask(deltaTime));
-    generators.push_back(app.renderSystem.update(deltaTime));
+    prepare(app.inputSystem);
+    prepare(app.renderSystem);
+    prepare(app.world);
 
     const size_t totalTasks = std::accumulate(
         taskCounts.cbegin(), taskCounts.cend(), 0);

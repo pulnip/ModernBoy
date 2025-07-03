@@ -130,9 +130,6 @@ SDL_AppResult SDL_AppIterate(void* appState){
     app.scheduler.prepareFrame();
     app.scheduler.updateFrame();
 
-    Game::Context& world = app.world;
-    world.update(Uint64(0));
-
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
 

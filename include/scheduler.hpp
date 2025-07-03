@@ -5,7 +5,7 @@
 #include <variant>
 #include <vector>
 #include "fwd.hpp"
-#include "util/generator.hpp"
+#include "interface.hpp"
 
 namespace ModernBoy
 {
@@ -34,8 +34,15 @@ namespace ModernBoy
         uint64_t getDeltaTime() const;
 
     private:
+        void prepare(Schedulable auto& schedulable){
+            taskCounts.push_back(schedulable.yield_count());
+            taskGenerators.push_back(schedulable.updateTask(deltaTime));
+            generators.push_back(schedulable.update(deltaTime));
+        }
+
         AppState& app;
 
+        std::vector<size_t> taskCounts;
         std::vector<Generator<void>> taskGenerators;
         std::vector<Generator<void>> generators;
         std::vector<size_t> schedule;

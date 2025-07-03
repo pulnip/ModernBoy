@@ -8,7 +8,7 @@
 #include "common/alias.hpp"
 #include "input/device.hpp"
 #include "input/state.hpp"
-#include "util/generator.hpp"
+#include "interface.hpp"
 #include "util/dynamic_vector.hpp"
 
 namespace ModernBoy::Input
@@ -29,7 +29,7 @@ namespace ModernBoy::Input
         Device device;
 
         std::vector<InputTask> inputTasks;
-    };
+    }; static_assert(Schedulable<System>);
 } // namespace ModernBoy::Input
 
 #endif // MODERNBOY_INPUT_SYSTEM_HPP
