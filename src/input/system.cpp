@@ -18,9 +18,9 @@ size_t System::yield_count() const noexcept{
     size_t numTask = 0;
 
     for(const auto& [bit, gate]: app.archetypeMap){
-        if(subset(bit_of<InputTask>(), bit))
-            numTask += 1;
-        // const auto& vec = gate.raw();
+        if(!subset(bit_of<InputTask>(), bit))
+            continue;
+        numTask += 1;
     }
 
     return numTask;
@@ -30,10 +30,10 @@ Generator<void> System::updateTask(DeltaTime){
     device.fetch(state);
     inputTasks.clear();
 
-    for(const auto& [bit, gate]: app.archetypeMap){
+    for(const auto& [bit, vec]: app.archetypeMap){
         if(!subset(bit_of<InputTask>(), bit))
             continue;
-        gate.for_each(
+        vec.for_each(
             [this](const InputComponent& ic){
                 inputTasks.reserve(inputTasks.size()+ic.numAction);
 

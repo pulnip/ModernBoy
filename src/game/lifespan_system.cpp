@@ -11,54 +11,57 @@ LifespanSystem::LifespanSystem(AppState& app)
 size_t LifespanSystem::yield_count() const noexcept{
     size_t numTask = 0;
 
-    for(const auto& [bit, gate]: app.archetypeMap){
-        if(subset(bit_of<LifeSpanComponent>(), bit)){
-            auto& vec=gate.raw();
-            for(const auto& chunk: vec){
-                auto lc = chunk.at<LifeSpanComponent>(
-                    offset_of<LifeSpanComponent>(bit));
-                if(!lc.isAlive)
-                    numTask += 1;
-            }
-        }
+    for(const auto& [bit, vec]: app.archetypeMap){
+        if(!subset(bit_of<LifeSpanComponent>(), bit))
+            continue;
+        vec.for_each([&numTask](const LifeSpanComponent& lc){
+            if(!lc.isAlive)
+                numTask += 1;
+        });
     }
 
+    numDeadActors = numTask;
     return numTask;
 }
 
 Generator<void> LifespanSystem::updateTask(DeltaTime) noexcept{
+    std::vector<EntityID> deadActors;
+    deadActors.reserve(numDeadActors);
 
-    for(const auto& [bit, gate]: app.archetypeMap){
-        if(subset(bit_of<LifeSpanComponent>(), bit)){
-            auto& vec=gate.raw();
-            for(const auto& chunk: vec){
-                auto lc = chunk.at<LifeSpanComponent>(
-                    offset_of<LifeSpanComponent>(bit));
-                if(!lc.isAlive){
-                    // destroy actor from Current epoch archetype map
-                    app.destroyActor(lc.actor);
-                    co_yield 0;
-                }
-            }
-        }
+    // remove actor from current epoch
+    for(const auto& [bit, vec]: app.archetypeMap){
+        if(!subset(bit_of<LifeSpanComponent>(), bit))
+            continue;
+        vec.for_each([&deadActors](const LifeSpanComponent& lc){
+            if(!lc.isAlive)
+                deadActors.emplace_back(lc.actor);
+        });
     }
+    for(const auto& deadActor: deadActors){
+        app.destroyActor(deadActor);
+        co_yield 0;
+    }
+
     co_return;
 }
 
 Generator<void> LifespanSystem::update(DeltaTime) noexcept{
-    for(const auto& [bit, gate]: app.archetypeMap){
-        if(subset(bit_of<LifeSpanComponent>(), bit)){
-            auto& vec=gate.raw();
-            for(const auto& chunk: vec){
-                auto lc = chunk.at<LifeSpanComponent>(
-                    offset_of<LifeSpanComponent>(bit));
-                if(!lc.isAlive){
-                    // destroy actor from Previous epoch archetype map
-                    app.destroyActor(lc.actor);
-                    co_yield 0;
-                }
-            }
-        }
+    std::vector<EntityID> deadActors;
+    deadActors.reserve(numDeadActors);
+
+    // remove actor from next epoch
+    for(const auto& [bit, vec]: app.archetypeMap){
+        if(!subset(bit_of<LifeSpanComponent>(), bit))
+            continue;
+        vec.for_each([&deadActors](const LifeSpanComponent& lc){
+            if(!lc.isAlive)
+                deadActors.emplace_back(lc.actor);
+        });
+    }
+    for(const auto& deadActor: deadActors){
+        app.destroyActor(deadActor);
+    
+        co_yield 0;
     }
 
     co_return;

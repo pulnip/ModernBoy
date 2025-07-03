@@ -30,7 +30,6 @@ namespace ModernBoy
         RWPhaseGate(ArchetypeBit bit, Args&&... args)
         :bit(bit), vec(std::forward<Args>(args)...){}
 
-        // void for_each(Reader fn) const;
         template<typename Fn>
         void for_each(Fn&& fn) const{
             using args = fn_args_t<Fn>;

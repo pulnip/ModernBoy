@@ -16,6 +16,8 @@ namespace ModernBoy::Game
 
     private:
         AppState& app;
+
+        mutable size_t numDeadActors;
     }; static_assert(Schedulable<LifespanSystem>);
 } // namespace ModernBoy::Game
 
