@@ -6,12 +6,14 @@
 #include <unordered_map>
 #include "fwd.hpp"
 #include "util/dynamic_vector.hpp"
+#include "util/func_trait.hpp"
 #include "component.hpp"
 
 namespace ModernBoy
 {
     class RWPhaseGate{
     private:
+        ArchetypeBit bit;
         DynamicVector vec;
 
         mutable std::atomic_uint_fast32_t state = 0;
@@ -25,10 +27,23 @@ namespace ModernBoy
 
     public:
         template<typename... Args>
-        RWPhaseGate(Args&&... args)
-        :vec(std::forward<Args>(args)...){}
+        RWPhaseGate(ArchetypeBit bit, Args&&... args)
+        :bit(bit), vec(std::forward<Args>(args)...){}
 
-        void for_each(Reader fn) const;
+        // void for_each(Reader fn) const;
+        template<typename Fn>
+        void for_each(Fn&& fn) const{
+            using args = fn_args_t<Fn>;
+            using plain_args = fn_decayed_args_t<Fn>;
+
+            on_read_phase();
+            for(const auto& chunk: vec)
+                [&]<std::size_t... I>(std::index_sequence<I...>){
+                    fn(chunk.template at<std::tuple_element_t<I, plain_args>>(
+                        offset_of<std::tuple_element_t<I, plain_args>>(bit))...);
+                }(std::make_index_sequence<std::tuple_size_v<args>>{});
+            read_phase_end();
+        }
         void transform(Writer fn);
         template<typename R>
         R mutate(std::function<R(DynamicVector&)> fn){

@@ -22,12 +22,6 @@ static void setChunk(void* dst, const MeshComponent& component,
 static void setChunk(void* dst, const InputComponent& component,
     ArchetypeBit bit);
 
-void RWPhaseGate::for_each(Reader fn) const{
-    on_read_phase();
-    for(auto it=vec.cbegin(); it!=vec.cend(); ++it)
-        fn((*it).elmMem);
-    read_phase_end();
-}
 void RWPhaseGate::transform(Writer fn){
     on_write_phase();
     for(auto it=vec.begin(); it!=vec.end(); ++it)
@@ -134,7 +128,7 @@ Index ArchetypeMap::insert(ArchetypeBit bit,
     size_t CHUNK_SIZE = bit_size(bit);
 
     if(archetypeMap.find(bit) == archetypeMap.end())
-        archetypeMap.try_emplace(bit, CHUNK_SIZE);
+        archetypeMap.try_emplace(bit, bit, CHUNK_SIZE);
     auto& vector = archetypeMap.at(bit);
     auto newIndex = vector.mutate<Index>([bit, &chunk](DynamicVector& vec){
         auto newIndex = vec.insertRange(1);

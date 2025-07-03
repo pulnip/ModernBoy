@@ -18,9 +18,9 @@ size_t System::yield_count() const noexcept{
     size_t numTask = 0;
 
     for(const auto& [bit, gate]: app.archetypeMap){
-        const auto& vec = gate.raw();
         if(subset(bit_of<InputTask>(), bit))
-            numTask += vec.size();
+            numTask += 1;
+        // const auto& vec = gate.raw();
     }
 
     return numTask;
@@ -33,23 +33,21 @@ Generator<void> System::updateTask(DeltaTime){
     for(const auto& [bit, gate]: app.archetypeMap){
         if(!subset(bit_of<InputTask>(), bit))
             continue;
-        auto& vec=gate.raw();
-        for(const auto& chunk: vec){
-            auto ic = chunk.at<InputComponent>(
-                offset_of<InputComponent>(bit)
-            );
+        gate.for_each(
+            [this](const InputComponent& ic){
+                inputTasks.reserve(inputTasks.size()+ic.numAction);
 
-            inputTasks.reserve(inputTasks.size()+ic.numAction);
-            for(size_t i=0; i<ic.numAction; ++i){
-                inputTasks.emplace_back(InputTask{
-                    .actor = ic.actor,
-                    .function = ic.actions[i].function,
-                    .handle = ic.actions[i].moduleHandle,
-                    .trigger = ic.triggers[i]
-                });
+                for(size_t i=0; i<ic.numAction; ++i){
+                    inputTasks.emplace_back(InputTask{
+                        .actor = ic.actor,
+                        .function = ic.actions[i].function,
+                        .handle = ic.actions[i].moduleHandle,
+                        .trigger = ic.triggers[i]
+                    });
+                }
             }
-            co_yield 0;
-        }
+        );
+        co_yield 0;
     }
     co_return;
 }
