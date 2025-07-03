@@ -7,7 +7,8 @@ using namespace ModernBoy;
 
 Scheduler::Scheduler(AppState& app):app(app){}
 
-void Scheduler::prepareFrame(){
+void Scheduler::prepareScheduling(){
+    taskGenerators.clear();
     generators.clear();
     schedule.clear();
 
@@ -22,9 +23,14 @@ void Scheduler::prepareFrame(){
 
     std::vector<size_t> taskCounts;
 
+    auto yc1 = app.inputSystem.yield_count();
+    taskCounts.push_back(yc1);
     generators.push_back(app.inputSystem.update(deltaTime));
-    taskCounts.push_back(app.inputSystem.yield_count());
 
+    auto yc2 = app.renderSystem.yield_count();
+    taskCounts.push_back(yc2);
+    taskGenerators.push_back(app.renderSystem.updateTask(deltaTime));
+    generators.push_back(app.renderSystem.update(deltaTime));
 
     const size_t totalTasks = std::accumulate(
         taskCounts.cbegin(), taskCounts.cend(), 0);
@@ -48,6 +54,24 @@ void Scheduler::prepareFrame(){
     }
 }
 
+void Scheduler::prepareFrame(){
+    for(auto idx: schedule){
+        if(idx==0)
+            taskGenerators[idx].next();
+    }
+
+    bool all_done;
+    do{
+        all_done = true;
+        for(auto& generator: taskGenerators){
+            if(!generator.done()){
+                generator.next();
+                all_done = false;
+            }
+        }
+    } while(!all_done);
+}
+
 void Scheduler::updateFrame(){
     for(auto idx: schedule){
         generators[idx].next();
@@ -67,7 +91,7 @@ void Scheduler::updateFrame(){
     Uint64 now = SDL_GetTicks();
 
     constexpr auto TARGET_FPS = 60;
-    Uint64 sleepDuration = 1000 / TARGET_FPS - 1;
+    Uint64 sleepDuration = 1000 / TARGET_FPS - 2;
     if(now - lastTick <= sleepDuration){
         std::this_thread::sleep_for(
             std::chrono::milliseconds(sleepDuration));

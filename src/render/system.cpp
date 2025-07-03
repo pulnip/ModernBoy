@@ -11,13 +11,6 @@ using namespace ModernBoy::Render;
 
 System::System(AppState& app)
 :app(app), context(app.window), commandQueue(),
-commandThread(
-    std::jthread(
-        [this](std::stop_token stoken){
-            produceCommand(stoken);
-        }, stsrc.get_token()
-    )
-),
 renderThread(
     std::jthread(
         [this](std::stop_token stoken){
@@ -33,7 +26,6 @@ using Tasks = std::pair<ViewTasks, RenderTasks>;
 using RenderQueue = LockFreeQueue<RenderCommand>;
 using RenderCommands = std::vector<RenderCommand>;
 
-static Tasks fetchTask(const ArchetypeMap& map);
 static void sortTask(RenderTasks& tasks);
 static void setFrameStart(RenderQueue& queue,
     std::stop_token stoken);
@@ -42,39 +34,96 @@ static void setFrameEnd(RenderQueue& queue,
 
 thread_local RenderEpoch localEpoch = 0;
 
-void System::produceCommand(std::stop_token stoken){
-    while(!stoken.stop_requested()){
-        auto [viewTasks, renderTasks] = fetchTask(app.archetypeMap);
-        sortTask(renderTasks);
+size_t System::yield_count() const noexcept{
+    size_t numRenderTask = 0, numViewTask = 0;
 
-        setFrameStart(commandQueue, stoken);
+    for(const auto& [bit, gate]: app.archetypeMap){
+        const auto& vec = gate.raw();
+        if(subset(bit_of<ViewTask>(), bit))
+            numViewTask += vec.size();
+        if(subset(bit_of<RenderTask>(), bit))
+            numRenderTask += vec.size();
+    }
 
-        for(const auto& view: viewTasks){
-            setView(view, stoken);
+    return numViewTask * numRenderTask;
+}
 
-            auto shaderHandle = invalidResourceHandle();
-            auto textureHandle = invalidResourceHandle();
-            auto meshHandle = invalidResourceHandle();
-            for(const auto& renderTask: renderTasks){
-                if(renderTask.shaderHandle != shaderHandle){
-                    shaderHandle = renderTask.shaderHandle;
-                    setShader(shaderHandle, stoken);
-                }
-                if(renderTask.texHandle != textureHandle){
-                    textureHandle = renderTask.texHandle;
-                    setTexture(textureHandle, stoken);
-                }
-                drawMesh(renderTask.transform,
-                    renderTask.meshHandle, stoken);
+Generator<void> System::updateTask(DeltaTime){
+    viewTasks.clear();
+    renderTasks.clear();
+
+    for(const auto& [bit, gate]: app.archetypeMap){
+        if(subset(bit_of<ViewTask>(), bit)){
+            auto& vec=gate.raw();
+            viewTasks.reserve(vec.size());
+
+            for(auto it=vec.cbegin(); it!=vec.cend(); ++it){
+                auto tc = it.wrapped().at<TransformComponent>(
+                    offset_of<TransformComponent>(bit));
+                auto cc = it.wrapped().at<CameraComponent>(
+                    offset_of<CameraComponent>(bit));
+                assert(tc.actor == cc.actor);
+                if(cc.isActive)
+                    viewTasks.emplace_back(ViewTask{
+                        tc.value, cc.value});
+                co_yield 0;
             }
         }
-        setFrameEnd(commandQueue, stoken);
-        lastCompleted.store(localEpoch, std::memory_order_release);
+        if(subset(bit_of<RenderTask>(), bit)){
+            auto& vec=gate.raw();
+            renderTasks.reserve(vec.size());
 
-        localEpoch = (localEpoch+1) < 256 ?
-            localEpoch+1 : 0;
+            for(auto it=vec.cbegin(); it!=vec.cend(); ++it){
+                auto tc = it.wrapped().at<TransformComponent>(
+                    offset_of<TransformComponent>(bit));
+                auto mc = it.wrapped().at<MeshComponent>(
+                    offset_of<MeshComponent>(bit));
+                assert(tc.actor == mc.actor);
+                if(mc.isActive)
+                    renderTasks.emplace_back(RenderTask{
+                        tc.value, mc.handle,
+                        mc.textureHandle,
+                        mc.shaderHandle});
+                co_yield 0;
+            }
+        }
     }
+    co_return;
 }
+
+Generator<void> System::update(DeltaTime){
+    sortTask(renderTasks);
+    setFrameStart(commandQueue, stsrc.get_token());
+    co_yield 0;
+
+    for(const auto& view: viewTasks){
+        setView(view, stsrc.get_token());
+        co_yield 0;
+
+        auto shaderHandle = invalidResourceHandle();
+        auto textureHandle = invalidResourceHandle();
+        for(const auto& renderTask: renderTasks){
+            if(renderTask.shaderHandle != shaderHandle){
+                shaderHandle = renderTask.shaderHandle;
+                setShader(shaderHandle, stsrc.get_token());
+            }
+            if(renderTask.texHandle != textureHandle){
+                textureHandle = renderTask.texHandle;
+                setTexture(textureHandle, stsrc.get_token());
+            }
+            drawMesh(renderTask.transform,
+                renderTask.meshHandle, stsrc.get_token());
+            co_yield 0;
+        }
+    }
+    setFrameEnd(commandQueue, stsrc.get_token());
+    lastCompleted.store(localEpoch, std::memory_order_release);
+
+    localEpoch = (localEpoch+1) < 256 ?
+        localEpoch+1 : 0;
+    co_return;
+}
+
 void System::setView(const ViewTask& task, std::stop_token stoken){
     waitUntilPushed(commandQueue, SetViewCommand{
         .epoch = localEpoch,
@@ -144,17 +193,39 @@ void System::consumeCommand(std::stop_token stoken){
     // ImGui::StyleColorsLight();
     ImGui::StyleColorsDark();
 
+    bool decideToDraw = false;
+
     while(!stoken.stop_requested()){
         RenderCommand cmd;
-        waitUntilPopped(commandQueue, cmd, stoken);
+        // pop until cmd.epoch == localEpoch
+        while(!stoken.stop_requested()){
+            waitUntilPopped(commandQueue, cmd, stoken);
+            if(std::holds_alternative<FrameStartCommand>(cmd)){
+                if(std::get<FrameStartCommand>(cmd).epoch==localEpoch){
+                    decideToDraw = true;
+                    break;
+                }
+                else decideToDraw = false;
+            }
+            else if(decideToDraw) break;
+        }
 
         std::visit(*this, cmd);
+
+        if(std::holds_alternative<FrameEndCommand>(cmd)){
+            // wait until next command is completed
+            while(!stoken.stop_requested()){
+                auto globalEpoch = lastCompleted.load(std::memory_order_acquire);
+                if(localEpoch != globalEpoch){
+                    localEpoch = globalEpoch;
+                    break;
+                }
+            }
+        }
     }
 }
 void System::operator()(const Render::FrameStartCommand& cmd
 ){
-    if(cmd.epoch != localEpoch)
-        return;
     context.onFrameStart(cmd.clearColor);
     ImGui::NewFrame();
     // ImGui::ShowDemoWindow(); // Show demo window! :)
@@ -163,8 +234,6 @@ void System::operator()(const Render::FrameStartCommand& cmd
 }
 void System::operator()(const Render::SetViewCommand& cmd
 ){
-    if(cmd.epoch != localEpoch)
-        return;
     const auto& cameraTransform = cmd.transform;
     const auto& viewPos = cameraTransform.position;
     const auto& viewQuat = cameraTransform.rotation;
@@ -174,74 +243,23 @@ void System::operator()(const Render::SetViewCommand& cmd
 }
 void System::operator()(const Render::SetShaderCommand& cmd
 ){
-    if(cmd.epoch != localEpoch)
-        return;
     assert(cmd.shader != nullptr);
     context.setShader(cmd.shader);
 }
 void System::operator()(const Render::SetTextureCommand& cmd
 ){
-    if(cmd.epoch != localEpoch)
-        return;
     assert(cmd.texture != nullptr);
     context.setTexture(cmd.texture);
 }
 void System::operator()(const Render::DrawMeshCommand& cmd
 ){
-    if(cmd.epoch != localEpoch)
-        return;
-    // auto now = steady_clock::now().time_since_epoch();
-    // float seconds = duration<float>(now).count();
-    // float ry = fmodf(seconds * (float)(std::numbers::pi/2.0), (float)(std::numbers::pi * 2.0));
     context.drawMesh(cmd.transform, cmd.mesh);
 }
 void System::operator()(
     [[maybe_unused]] const Render::FrameEndCommand& cmd
 ){
-    if(cmd.epoch != localEpoch){
-        localEpoch = lastCompleted.load(std::memory_order_acquire);
-        return;
-    }
     ImGui::Render();
     context.onFrameEnd(ImGui::GetDrawData());
-}
-
-static Tasks fetchTask(const ArchetypeMap& map){
-    ViewTasks viewTasks;
-    RenderTasks renderTasks;
-
-    for(const auto& [bit, vec]: map){
-        if(subset(bit_of<ViewTask>(), bit)){
-            viewTasks.reserve(viewTasks.size()+vec.size());
-            vec.for_each([&viewTasks, bit](const void* chunk){
-                TransformComponent tc;
-                CameraComponent cc;
-                getChunk(&tc, &cc, nullptr, nullptr, chunk, bit);
-
-                assert(tc.actor == cc.actor);
-                if(cc.isActive)
-                    viewTasks.emplace_back(ViewTask{
-                        tc.value, cc.value
-                    });
-            });
-        }
-        else if(subset(bit_of<RenderTask>(), bit)){
-            renderTasks.reserve(renderTasks.size()+vec.size());
-            vec.for_each([&renderTasks, bit](const void* chunk){
-                TransformComponent tc;
-                MeshComponent mc;
-                getChunk(&tc, nullptr, &mc, nullptr, chunk, bit);
-
-                assert(tc.actor == mc.actor);
-                renderTasks.emplace_back(RenderTask{
-                    tc.value, mc.handle,
-                    mc.textureHandle,
-                    mc.shaderHandle
-                });
-            });
-        }
-    }
-    return {viewTasks, renderTasks};
 }
 
 static void sortTask(RenderTasks& tasks){

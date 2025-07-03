@@ -18,6 +18,7 @@
 #elif defined(USE_OPENGL)
 #include "backends/opengl/context.hpp"
 #endif
+#include "util/generator.hpp"
 
 namespace ModernBoy::Render
 {
@@ -27,6 +28,11 @@ namespace ModernBoy::Render
         System(AppState& app);
         ~System();
 
+        size_t yield_count() const noexcept;
+        Generator<void> updateTask(DeltaTime dt);
+        Generator<void> update(DeltaTime dt);
+
+        // consume command, public for std::visit
         void operator()(const Render::FrameStartCommand&);
         void operator()(const Render::SetViewCommand&);
         void operator()(const Render::SetShaderCommand&);
@@ -35,9 +41,7 @@ namespace ModernBoy::Render
         void operator()(const Render::FrameEndCommand&);
 
     private:
-        void produceCommand(std::stop_token stoken);
-        void consumeCommand(std::stop_token stoken);
-
+        // produce command
         void setView(const ViewTask& task, std::stop_token stoken);
         void setShader(ShaderHandle handle,
             std::stop_token stoken);
@@ -46,6 +50,8 @@ namespace ModernBoy::Render
         void drawMesh(const Transform& transform,
             MeshHandle handle, std::stop_token stoken);
 
+        void consumeCommand(std::stop_token stoken);
+
     private:
         AppState& app;
 
@@ -53,11 +59,13 @@ namespace ModernBoy::Render
         RenderContext context;
 
     private:
+        std::vector<ViewTask> viewTasks;
+        std::vector<RenderTask> renderTasks;
+
         LockFreeQueue<RenderCommand> commandQueue;
         std::stop_source stsrc;
         std::atomic<RenderEpoch> lastCompleted = 0;
-        // producer thread
-        std::jthread commandThread;
+
         // consumer thread
         std::jthread renderThread;
     };

@@ -25,12 +25,16 @@ namespace ModernBoy
     public:
         Scheduler(AppState& app);
 
+        void prepareScheduling();
+        // task update phase
         void prepareFrame();
+        // entity update phase
         void updateFrame();
 
     private:
         AppState& app;
 
+        std::vector<Generator<void>> taskGenerators;
         std::vector<Generator<void>> generators;
         std::vector<size_t> schedule;
 
