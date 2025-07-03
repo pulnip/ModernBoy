@@ -10,6 +10,7 @@ file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME}
     ${ALL_SOURCES}
     game/context.cpp
+    game/lifespan_system.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE

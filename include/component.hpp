@@ -42,12 +42,16 @@ namespace ModernBoy
         Script::Action actions[16];
     }; static_assert(std::is_pod_v<InputComponent>);
     struct alignas(COMPONENT_ALIGN) LifeSpanComponent{
+        EntityID actor;
+
         bool isAlive;
-    };
+    }; static_assert(std::is_pod_v<LifeSpanComponent>);
     struct alignas(COMPONENT_ALIGN) PhysicsComponent{
+        EntityID actor;
+
         bool useGravity;
         float mass;
-    };
+    }; static_assert(std::is_pod_v<PhysicsComponent>);
     enum class ElementType{
         FIRE,
         EARTH,
@@ -58,8 +62,10 @@ namespace ModernBoy
         ELECTRIC
     };
     struct alignas(COMPONENT_ALIGN) ElementComponent{
+        EntityID actor;
 
-    };
+        ElementType type;
+    };static_assert(std::is_pod_v<ElementComponent>);
 
     template<typename Component, typename ...T>
     Component dangled(T... args);
