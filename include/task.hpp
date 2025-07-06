@@ -9,14 +9,16 @@
 
 namespace ModernBoy
 {
-    struct RenderTask{
+    using FunctionID = ID;
+
+    struct DrawTask{
         Transform transform;
         MeshHandle meshHandle;
         TextureHandle texHandle;
         ShaderHandle shaderHandle;
     };
 
-    bool operator<(const RenderTask& lhs, const RenderTask& rhs);
+    bool operator<(const DrawTask& lhs, const DrawTask& rhs);
 
     struct ViewTask{
         Transform transform;
@@ -24,14 +26,11 @@ namespace ModernBoy
     };
     struct InputTask{
         EntityID actor;
-        FunctionID function;
-        ModuleHandle handle;
-        Input::Trigger trigger;
     };
-    struct ScriptTask{
+    struct ActionTask{
         EntityID actor;
         ModuleHandle handle;
-        // FunctionID function;
+        FunctionID function;
     };
 } // namespace ModernBoy::Render
 

@@ -1,85 +1,73 @@
 #include <optional>
 #include <regex>
+#if defined(USE_DIRECTX)
+#elif defined(USE_METAL)
+#include <SDL3/SDL_metal.h>
+#elif defined(USE_OPENGL)
+#endif
 #include <toml++/toml.h>
 #include "common/type.hpp"
 #include "common/helper.hpp"
 #include "asset_loader.hpp"
 #include "app_state.hpp"
-#include "component.hpp"
+#include "game/component.hpp"
 #include "script/invoker.hpp"
 #include "script/type.hpp"
 
 using namespace ModernBoy;
+using namespace ModernBoy::Game;
 
 AssetLoader::AssetLoader(AppState& app):app(app){}
 
-static std::optional<TransformComponent> parseTransformComponent(
-    const toml::table* table);
-static std::optional<CameraComponent> parseCameraComponent(
-    const toml::table* table);
-static MeshComponent parseMeshComponent(
-    const std::string& meshFile, MeshManager& meshManager,
-    const std::string& textureFile, TextureManager& textureManager,
-    const std::string& shaderFile, ShaderManager& shaderManager,
-    NativePtr layerPtr, UI& gui
-);
-static std::optional<InputComponent> parseInputComponent(
-    const toml::table* table, AppState& app);
+static std::tuple<ArchetypeBit, SparseChunk>
+parseActor(const toml::table* ptr, AppState& app);
+static std::tuple<std::string, std::vector<std::string>>
+parseModule(const toml::table* ptr);
 
-void AssetLoader::loadActors(const std::string& fileName){
-    toml::table tbl = toml::parse_file(fileName);
+template<typename Component>
+static std::optional<Component> parse(
+    const toml::table*, AppState& app);
 
-    auto entities = *tbl["entities"].as_array();
-    for(const auto& entity: entities){
-        const auto& actor = *entity.as_table();
-        // new Actor
-        std::string name = *actor["name"].value<std::string>();
-        ArchetypeBit bit = 0;
-        SparseChunk chunk;
+void AssetLoader::loadAsset(const std::string& fileName){
+    auto table = toml::parse_file(fileName);
 
-        auto tc = parseTransformComponent(actor["transform"].as_table());
-        auto cc = parseCameraComponent(actor["camera"].as_table());
+    auto entities = *table["entities"].as_array();
 
-        if(actor.contains("model")){
-            auto model = actor["model"];
-            auto mc = parseMeshComponent(
-                model["mesh"].value_or("cube"), app.meshManager,
-                model["texture"].value_or("metal_logo.png"), app.textureManager,
-                model["shader"].value_or("default"), app.shaderManager,
-                app.renderSystem.context.metalLayer, app.ui
-            );
+    for(const auto& ntt: entities){
+        const auto& entity = ntt.as_table();
 
-            bit = bit | MESH_BIT;
-            chunk.mesh = mc;
-        }
-        auto ic = parseInputComponent(actor["input"].as_table(), app);
+        auto [bit, chunk] = parseActor(entity, app);
 
-        if(tc.has_value()){
-            bit = bit | TRANSFORM_BIT;
-            chunk.transform = tc.value();
-        }
-        if(cc.has_value()){
-            bit = bit | CAMERA_BIT;
-            chunk.camera = cc.value();
-        }
-        if(ic.has_value()){
-            bit = bit | INPUT_BIT;
-            chunk.input = ic.value();
-        }
-
-        auto actor_id = app.createActor(bit, std::move(chunk));
-        std::println("Actor {}: {}, {}", actor_id, name, bit);
+        app.world.create(bit, std::move(chunk));
     }
 }
 
-static std::optional<TransformComponent> parseTransformComponent(
-    const toml::table* table
+void AssetLoader::loadAction(const std::string& fileName){
+    auto tbl = toml::parse_file(fileName);
+
+    auto modules = *tbl["module"].as_array();
+    for(const auto& md: modules){
+        const auto module_ = md.as_table();
+
+        auto [mdName, funcs] = parseModule(module_);
+
+        auto mdHandle = app.append<Script::Module>(mdName, funcs);
+    }
+}
+
+
+template<>
+std::optional<TransformComponent>
+parse<TransformComponent>(
+    const toml::table* ptr, AppState&
 ){
-    if(table==nullptr)
+    if(ptr == nullptr)
         return std::nullopt;
-    auto p = *(*table)["position"].as_array();
-    auto r = *(*table)["rotation"].as_array();
-    auto s = *(*table)["scale"].as_array();
+    const auto& table = *ptr;
+
+    auto p = *table["position"].as_array();
+    auto r = *table["rotation"].as_array();
+    auto s = *table["scale"].as_array();
 
     Transform transform;
     for(size_t i=0; i<3; ++i)
@@ -91,18 +79,21 @@ static std::optional<TransformComponent> parseTransformComponent(
     return dangled<TransformComponent>(transform);
 }
 
-static std::optional<CameraComponent> parseCameraComponent(
-    const toml::table* table
+template<>
+std::optional<CameraComponent>
+parse<CameraComponent>(
+    const toml::table* ptr, AppState&
 ){
-    if(table==nullptr)
+    if(ptr==nullptr)
         return std::nullopt;
+    const auto& table = *ptr;
 
-    auto typeText = (*table)["type"].value<std::string>().value();
+    auto typeText = table["type"].value<std::string>().value();
     auto type = cameraType(typeText);
-    auto fov = (*table)["fov"].value<double>().value();
-    auto near = (*table)["nearPlane"].value<double>().value();
-    auto far = (*table)["farPlane"].value<double>().value();
-    auto projText = (*table)["projection"].value<std::string>().value();
+    auto fov = table["fov"].value<double>().value();
+    auto near = table["nearPlane"].value<double>().value();
+    auto far = table["farPlane"].value<double>().value();
+    auto projText = table["projection"].value<std::string>().value();
     auto proj = projection(projText);
 
     Camera camera{
@@ -116,20 +107,25 @@ static std::optional<CameraComponent> parseCameraComponent(
     return dangled<CameraComponent>(
         camera, type==CameraType::MainCamera);
 }
-
-static MeshComponent parseMeshComponent(
-    const std::string& meshFile, MeshManager& meshManager,
-    const std::string& textureFile, TextureManager& textureManager,
-    const std::string& shaderFile, ShaderManager& shaderManager,
-    NativePtr metalLayer, UI& gui
+template<>
+std::optional<MeshComponent>
+parse<MeshComponent>(
+    const toml::table* ptr, AppState& app
 ){
-    auto meshHandle = meshManager.emplace(meshFile, metalLayer);
-    auto textureHandle = textureManager.emplace(textureFile, metalLayer);
-    auto shaderHandle = shaderManager.emplace(
+    if(ptr == nullptr)
+         return std::nullopt;
+    const auto& model = *ptr;
+
+    std::string meshFile = model["mesh"].value_or("cube");
+    auto meshHandle = app.append<Mesh>(meshFile);
+
+    std::string textureFile = model["texture"].value_or("metal_logo.png");
+    auto textureHandle = app.append<Texture>(textureFile);
+
+    std::string shaderFile = model["shader"].value_or("default");
+    auto shaderHandle = app.append<Shader>(
         shaderFile.compare("default") != 0 ?
-        shaderFile : "asset/shader/ModernBoy.metallib",
-        metalLayer, &gui
-    );
+            shaderFile : "asset/shader/ModernBoy.metallib");
 
     return dangled<MeshComponent>(meshHandle,
         textureHandle, shaderHandle);
@@ -139,43 +135,83 @@ static std::tuple<std::string, std::string, std::string>
 parseInputTrigger(const std::string& text);
 static std::tuple<std::string, std::string>
 parseInputAction(const std::string& text);
-
-static std::optional<InputComponent> parseInputComponent(
-    const toml::table* table, AppState& app
+template<>
+std::optional<InputComponent>
+parse<InputComponent>(
+    const toml::table* ptr, AppState& app
 ){
-    if(table==nullptr)
+    if(ptr==nullptr)
         return std::nullopt;
+    const auto& script = *ptr;
 
     auto component = dangled<InputComponent>();
 
-    uint8_t i=0;
-    for(const auto& n: *(*table)["map"].as_array()){
+    for(const auto& n: *script["map"].as_array()){
         const auto& input = *n.as_table();
 
         auto triggerText = input["trigger"].value<std::string>().value();
         auto [d, keyText, stateText] = parseInputTrigger(triggerText);
 
-        auto button = Input::toButton(keyText);
-        auto state = Input::toButtonState(stateText);
+        // auto button = Input::toButton(keyText);
+        // auto state = Input::toButtonState(stateText);
 
         auto actionText = input["action"].value<std::string>().value();
         auto [mod, func] = parseInputAction(actionText);
 
-        auto moduleHandle = app.getHandle<Script::Module>(mod);
-        auto func_id = app.scriptInvoker.registerFunction(func);
-
-        component.triggers[i] = {
-            .button = button,
-            .onState = state
-        };
-        component.actions[i] = {
-            .moduleHandle = moduleHandle,
-            .function = func_id
-        };
-        component.numAction = ++i;
+        auto moduleHandle = app.query<Script::Module>(mod);
+        // auto func_id = app.registerFunction(func);
+        component.handle = moduleHandle;
     }
 
     return component;
+}
+
+static std::tuple<ArchetypeBit, SparseChunk>
+parseActor(const toml::table* ptr, AppState& app){
+    if(ptr == nullptr)
+        return {};
+    const auto& actor = *ptr;
+    // new Actor
+    std::string name = *actor["name"].value<std::string>();
+    ArchetypeBit bit = 0;
+    SparseChunk chunk;
+
+    auto tc = parse<TransformComponent>(
+        actor["transform"].as_table(), app);
+    auto cc = parse<CameraComponent>(
+        actor["camera"].as_table(), app);
+
+    std::optional<MeshComponent> mc;
+    if(actor.contains("model")){
+        auto model = actor["model"].as_table();
+
+        mc = parse<MeshComponent>(model, app);
+    }
+
+    auto ic = parse<InputComponent>(
+        actor["script"].as_table(), app);
+    
+
+    if(tc.has_value()){
+        bit = bit | TRANSFORM_BIT;
+        chunk.transform = tc.value();
+    }
+    if(cc.has_value()){
+        bit = bit | CAMERA_BIT;
+        chunk.camera = cc.value();
+    }
+    if(mc.has_value()){
+        bit = bit | MESH_BIT;
+        chunk.mesh = mc.value();
+    }
+    if(ic.has_value()){
+        bit = bit | INPUT_BIT;
+        chunk.input = ic.value();
+    }
+
+    return {bit, chunk};
+    // auto actor_id = app.world.create(bit, std::move(chunk));
+    // std::println("Actor {}: {}, {}", actor_id, name, bit);
 }
 
 static std::tuple<std::string, std::string, std::string>
@@ -205,34 +241,33 @@ parseInputAction(const std::string& text){
     return {result[0], result[1]};
 }
 
-void AssetLoader::loadScripts(const std::string& fileName){
-    toml::table tbl = toml::parse_file(fileName);
+static std::tuple<std::string, std::vector<std::string>>
+parseModule(const toml::table* ptr){
+    if(ptr==nullptr)
+        return {};
+    const auto& module_ = *ptr->as_table();
 
-    auto modules = *tbl["module"].as_array();
-    for(const auto& m: modules){
-        const auto& module_ = m.as_table();
+    const auto moduleName = module_["name"].value<std::string>();
 
-        const auto moduleName = (*module_)["name"].value<std::string>();
+    std::vector<std::string> fileNames;
+    std::vector<std::string> funcNames;
 
-        std::vector<std::string> fileNames;
-        std::vector<std::string> funcNames;
+    const auto files = *module_["file"].as_array();
+    for(const auto& f: files){
+        const auto& file = f.as_table();
 
-        const auto files = *(*module_)["file"].as_array();
-        for(const auto& f: files){
-            const auto& file = f.as_table();
-
-            const auto& fileName = (*file)["name"].value<std::string>();
-            fileNames.push_back(fileName.value());
-        }
-        const auto funcs = *(*module_)["function"].as_array();
-        for(const auto& f: funcs){
-            const auto& func = f.as_table();
-            const auto funcName = (*func)["name"].value<std::string>();
-            funcNames.push_back(funcName.value());
-        }
-
-        [[maybe_unused]] auto mod = app.moduleManager.emplace(
-            moduleName.value(), fileNames,
-            app.scriptInvoker.engine);
+        const auto& fileName = (*file)["name"].value<std::string>();
+        fileNames.push_back(fileName.value());
     }
+    const auto funcs = *module_["function"].as_array();
+    for(const auto& f: funcs){
+        const auto& func = f.as_table();
+        const auto funcName = (*func)["name"].value<std::string>();
+        funcNames.push_back(funcName.value());
+    }
+
+    return {moduleName.value(), fileNames};
+    // [[maybe_unused]] auto mod = app.append<Script::Module>(
+    //     moduleName.value(), fileNames
+    // );
 }

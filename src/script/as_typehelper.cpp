@@ -3,11 +3,13 @@
 #include "common/type.hpp"
 #include "raw_resource.hpp"
 #include "script/as_typehelper.hpp"
-#include "app_state.hpp"
 #include "input/state.hpp"
+#include "game/context.hpp"
+#include "game/component.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Script;
+using namespace ModernBoy::Game;
 
 int ModernBoy::Script::registerTransform(asIScriptEngine* engine){
     // register Vec3
@@ -91,37 +93,34 @@ int ModernBoy::Script::registerKeyevent(asIScriptEngine* engine){
     return 0;
 }
 
-static Transform getTransform(Game::Actor* actor){
-    auto it = actor->app->actorTable.find(actor->id);
-    if(it == actor->app->actorTable.end()){
+static Transform getTransform(Actor* actor){
+    auto comp =  actor->world->query<TransformComponent>(actor->id);
+    if(!comp.has_value()){
         std::println("Actor No.{} not exists.", actor->id);
         return identity();
     }
-    auto [_, info] = *it;
-    return actor->app->archetypeMap.getTransformComponent(
-        info.bit, info.chunkIndex).value;
+    return comp.value().value;
 }
 
-static void setTransform(Game::Actor* actor, Transform transform){
-    auto it = actor->app->actorTable.find(actor->id);
-    if(it == actor->app->actorTable.end()){
+static void setTransform(Actor* actor, Transform transform){
+    auto& world = *(actor->world);
+    auto comp = world.query<TransformComponent>(actor->id);
+    if(!comp.has_value()){
         std::println("Actor No.{} not exists.", actor->id);
         return;
     }
-    auto [_, info] = *it;
-    auto component = TransformComponent{
-        .actor = actor->id,
-        .isActive = true,
-        .value = transform
-    };
+    auto component = comp.value();
     component.value = transform;
-    actor->app->archetypeMap.setTransformComponent(
-        component, info.bit, info.chunkIndex);
+    world.update(actor->id, std::move(component));
+}
+
+static uint64_t getDeltaTime(Context* context){
+    return context->getDeltaTime().count();
 }
 
 int ModernBoy::Script::registerActor(asIScriptEngine* engine){
     if(auto ret=engine->RegisterObjectType(
-        "AppState", sizeof(AppState),
+        "GameContext", sizeof(Game::Context),
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
         return ret;
     int typeId = engine->GetTypeIdByDecl("uint64");
@@ -130,15 +129,15 @@ int ModernBoy::Script::registerActor(asIScriptEngine* engine){
     else
         std::println("Angelscript Supprty uint64, typeId = {}", typeId);
     if(auto ret=engine->RegisterObjectMethod(
-        "AppState", "uint64 getDeltaTime() const",
-        asMETHOD(AppState, getDeltaTime), asCALL_THISCALL) < 0)
+        "GameContext", "uint64 getDeltaTime()",
+        asFUNCTION(getDeltaTime), asCALL_CDECL_OBJFIRST) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectType(
-        "Context", sizeof(Game::Context),
+        "Context", sizeof(Context),
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectType(
-        "Actor", sizeof(Game::Actor),
+        "Actor", sizeof(Actor),
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectMethod(
@@ -150,12 +149,8 @@ int ModernBoy::Script::registerActor(asIScriptEngine* engine){
         asFUNCTION(setTransform), asCALL_CDECL_OBJFIRST) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectProperty(
-        "Actor", "AppState@ app",
-        offsetof(Game::Actor, app)) < 0)
-        return ret;
-    if(auto ret=engine->RegisterObjectProperty(
-        "Actor", "Context@ world",
-        offsetof(Game::Actor, world)) < 0)
+        "Actor", "GameContext@ world",
+        offsetof(Actor, world)) < 0)
         return ret;
     return 0;
 }

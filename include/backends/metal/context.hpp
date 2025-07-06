@@ -5,25 +5,27 @@
 #include <SDL3/SDL_metal.h>
 #include "fwd.hpp"
 
-struct ImDrawData;
-
 namespace ModernBoy::Metal
 {
     struct RenderContext{
         SDL_MetalView view;
         NativePtr metalLayer;
 
-        RenderContext(SDL_Window* window);
+        RenderContext(SDL_Window*);
         ~RenderContext();
 
-        void initialize(SDL_Window* window);
         void onFrameStart(Vec4 clearColor);
         void setView(float fov,
             Vec3 viewPos, Vec4 viewQuat);
         void setShader(NativePtr shader);
         void setTexture(NativePtr texture);
         void drawMesh(Transform transform, NativePtr mesh);
-        void onFrameEnd(ImDrawData* uiDrawData);
+        void onFrameEnd();
+
+        NativePtr getRenderPassDesc();
+        NativePtr getDevice();
+        NativePtr getCommandBuffer();
+        NativePtr getRenderEncoder();
 
     private:
         NativePtr _renderContext;

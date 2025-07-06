@@ -1,50 +1,50 @@
 #include <limits>
 #include <unordered_map>
 #include "common/helper.hpp"
-#include "component.hpp"
+#include "game/component.hpp"
 
-using namespace ModernBoy;
+using namespace ModernBoy::Game;
 
-bool ModernBoy::subset(ArchetypeBit a, ArchetypeBit b){
+bool ModernBoy::Game::subset(ArchetypeBit a, ArchetypeBit b){
     return (a & b) == a;
 }
 
 template<> TransformComponent
-ModernBoy::dangled(Transform transform){
+ModernBoy::Game::dangled(Transform transform){
     return {std::numeric_limits<EntityID>::max(),
         true, transform };
 }
 template<> TransformComponent
-ModernBoy::dangled(){
+ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(),
         false, identity() };
 }
 template<> CameraComponent
-ModernBoy::dangled(Camera camera, bool active){
+ModernBoy::Game::dangled(Camera camera, bool active){
     return {std::numeric_limits<EntityID>::max(),
         active, camera};
 }
 template<> CameraComponent
-ModernBoy::dangled(){
+ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(),
         false, {}};
 }
 template<> MeshComponent
-ModernBoy::dangled(MeshHandle meshHandle,
+ModernBoy::Game::dangled(MeshHandle meshHandle,
     TextureHandle textureHandle, ShaderHandle shaderHandle
 ){
     return {std::numeric_limits<EntityID>::max(),
         true, meshHandle, textureHandle, shaderHandle};
 }
 template<> MeshComponent
-ModernBoy::dangled(){
+ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(), false,
         invalidResourceHandle(),
         invalidResourceHandle(),
         invalidResourceHandle()};
 }
 template<> InputComponent
-ModernBoy::dangled(){
+ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(),
         true, 0, {}, {}};
 }

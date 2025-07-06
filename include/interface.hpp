@@ -12,7 +12,9 @@ namespace ModernBoy
     concept Schedulable = requires (T t, DeltaTime dt){
         { t.yield_count() } -> std::convertible_to<size_t>;
         { t.updateTask(dt) } -> std::convertible_to<Generator<void>>;
-        { t.updateTask(dt) } -> std::convertible_to<Generator<void>>;
+    } || requires(T t, DeltaTime dt){
+        { t.yield_count() } -> std::convertible_to<size_t>;
+        { t.update(dt) } -> std::convertible_to<Generator<void>>;
     };
 }
 

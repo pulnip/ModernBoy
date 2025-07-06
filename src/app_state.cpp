@@ -5,128 +5,121 @@
 
 using namespace ModernBoy;
 
-Uint64 AppState::getDeltaTime() const{ return scheduler.getDeltaTime(); }
+
+DeltaTime AppState::getDeltaTime() const{
+    return scheduler.getDeltaTime();
+}
 
 AppState::AppState(SDL_Window* window)
-// :archetypeMaps({ArchetypeMapV2{}, ArchetypeMapV2{}}),
-// moduleManagerV2(*this), scheduler(*this),
-:scheduler(*this),
-ui(), window(window), inputDevice(),
-// Important!! Initialize Order
+:world(*this), window(window),
+// resource manager
 meshManager(*this), textureManager(*this),
 shaderManager(*this), moduleManager(*this),
-renderSystem(*this), inputSystem(*this),
-scriptInvoker(*this),
+// subsystems
+renderer(*this, window), scriptInvoker(*this),
+userInterface(*this, window),
+// others
+scheduler(*this),
 assetLoader(*this){}
-AppState::~AppState(){}
+AppState::~AppState(){
+    SDL_DestroyWindow(window);
+}
 
 EntityID AppState::issueID(){
     return id_seed++;
 }
 
-static void assignEntityID(SparseChunk& components,
-    EntityID actor);
+template<>
+void AppState::on<Event::OnFrameStart>(){
+    userInterface.onFrameStart();
+}
+template<>
+void AppState::on<Event::OnFrameEnd>(){
+    userInterface.onFrameEnd();
+}
 
-EntityID AppState::createActor(ArchetypeBit bit,
-    SparseChunk&& components
+template<>
+MeshHandle AppState::append<Mesh, std::string&>
+(std::string& meshFile){
+    return meshManager.emplace(
+        meshFile, renderer.context.metalLayer
+    );
+}
+template<>
+MeshHandle AppState::append<Texture, std::string&>
+(std::string& textureFile){
+    return textureManager.emplace(
+        textureFile, renderer.context.metalLayer
+    );
+}
+template<>
+MeshHandle AppState::append<Shader, std::string>
+(std::string&& shaderFile){
+    return shaderManager.emplace(
+        shaderFile, renderer.context.metalLayer
+    );
+}
+template<>
+MeshHandle AppState::append<Script::Module,
+    std::string&, std::vector<std::string>&>
+(std::string& moduleFile, std::vector<std::string>& funcs){
+    
+    return moduleManager.emplace(moduleFile, funcs,
+        scriptInvoker.engine);
+}
+
+
+void AppState::prepare(){
+    scheduler.prepareAllPhase(world);
+    scheduler.prepareUpdatePhase(renderer);
+    scheduler.prepareUpdatePhase(userInterface);
+}
+
+void AppState::update(){
+    scheduler.prepareScheduling();
+    scheduler.prepareFrame();
+    scheduler.updateFrame();
+}
+
+template<> Mesh&
+AppState::query(ResourceHandle handle){
+    return meshManager.get(handle);
+}
+template<> Texture&
+AppState::query(ResourceHandle handle){
+    return textureManager.get(handle);
+}
+template<> Shader&
+AppState::query(ResourceHandle handle){
+    return shaderManager.get(handle);
+}
+template<> Script::Module&
+AppState::query(ResourceHandle handle){
+    return moduleManager.get(handle);
+}
+
+template<> ResourceHandle
+AppState::query<Script::Module>(const std::string& name){
+    return moduleManager.getHandle(name);
+}
+
+FunctionID AppState::registerFunction(
+    const std::string& funcName
 ){
-    EntityID actor_id = issueID();
-    assignEntityID(components, actor_id);
-
-    auto chunkIndex = archetypeMap.insert(
-        bit, components);
-    auto [it, ret] = actorTable.emplace(
-        actor_id, ComponentInfo{bit, chunkIndex});
-    if(!ret){
-        std::string actorInfo = std::format(
-            "Actor{} type:{} Not Created!",
-            actor_id, bit
-        );
-        throw std::runtime_error(actorInfo);
-    }
-    return actor_id;
-}
-void AppState::destroyActor(EntityID actor){
-    ComponentInfo info = actorTable.at(actor);
-    archetypeMap.at(info.bit).free(info.chunkIndex);
-    actorTable.erase(actor);
+    return scriptInvoker.registerFunction(funcName);
 }
 
-static void assignEntityID(SparseChunk& components,
-    EntityID actor
-){
-    components.transform.actor = actor;
-    components.camera.actor = actor;
-    components.mesh.actor = actor;
-    components.input.actor = actor;
+NativePtr AppState::getRenderPassDesc(){
+    return renderer.getRenderPassDesc();
 }
+NativePtr AppState::getDevice(){
+    return renderer.getDevice();
 
-template<> Mesh& AppState::get(ResourceHandle handle
-){ return meshManager.get(handle); }
-template<> Mesh& ModernBoy::get(AppState& app, 
-    ResourceHandle handle
-){ return app.get<Mesh>(handle); }
-
-template<> Texture& AppState::get(ResourceHandle handle
-){ return textureManager.get(handle); }
-template<> Texture& ModernBoy::get(AppState& app,
-    ResourceHandle handle
-){ return app.get<Texture>(handle); }
-
-template<> Shader& AppState::get(ResourceHandle handle
-){ return shaderManager.get(handle); }
-template<> Shader& ModernBoy::get(AppState& app,
-    ResourceHandle handle
-){ return app.get<Shader>(handle); }
-
-template<> Script::Module& AppState::get(
-    ResourceHandle handle
-){ return moduleManager.get(handle); }
-template<> Script::Module& ModernBoy::get(
-    AppState& app, ResourceHandle handle
-){ return app.get<Script::Module>(handle); }
-
-
-template<> Script::Module& AppState::get(
-    const std::string& name
-){ return moduleManager.get(name); }
-template<> Script::Module& ModernBoy::get(
-    AppState& app, const std::string& name
-){ return app.get<Script::Module>(name); }
-template<> ResourceHandle AppState::getHandle<Script::Module>(
-    const std::string& name
-){ return moduleManager.getHandle(name); }
-template<> ResourceHandle ModernBoy::getHandle<Script::Module>(
-    AppState& app, const std::string& name
-){ return app.getHandle<Script::Module>(name); }
-
-
-template<typename Component>
-std::optional<Component> AppState::query(EntityID actor){
-    const auto& comp = actorTable.at(actor);
-    auto querybit = bit_of<Component>;
-    if((comp.bit & querybit) != querybit)
-        return std::nullopt;
-    Component c;
-    archetypeMap.at(comp.bit).get(comp.chunkIndex, &c);
 }
-template<> std::optional<TransformComponent>
-AppState::query<>(EntityID);
-template<> std::optional<CameraComponent> AppState::query<>(EntityID);
-template<> std::optional<MeshComponent>
-AppState::query<>(EntityID);
-template<> std::optional<InputComponent>
-AppState::query<>(EntityID);
+NativePtr AppState::getCommandBuffer(){
+    return renderer.getCommandBuffer();
 
-template<typename Component>
-std::optional<Component> ModernBoy::query(
-    AppState& app, EntityID actor
-){ app.query<Component>(actor); }
-template<> std::optional<TransformComponent>
-ModernBoy::query<>(AppState&, EntityID);
-template<> std::optional<CameraComponent>
-ModernBoy::query<>(AppState&, EntityID);
-template<> std::optional<MeshComponent>
-ModernBoy::query<>(AppState&, EntityID);
-template<> std::optional<InputComponent>
-ModernBoy::query<>(AppState&, EntityID);
+}
+NativePtr AppState::getRenderEncoder(){
+    return renderer.getRenderEncoder();
+}

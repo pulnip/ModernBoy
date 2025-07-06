@@ -4,11 +4,13 @@
 #include <string>
 #include <unordered_map>
 #include "fwd.hpp"
+#include "interface.hpp"
 #include "script/type.hpp"
 #include "common/alias.hpp"
 #include "input/state.hpp"
-#include "interface.hpp"
 #include "task.hpp"
+
+class asIScriptContext;
 
 namespace ModernBoy::Script
 {
@@ -28,10 +30,6 @@ namespace ModernBoy::Script
         ABNORMAL_FLAG invokeInput(const Module&, FunctionID, EntityID, Input::Trigger);
         ABNORMAL_FLAG invoke(const Module&, FunctionID, EntityID);
 
-        size_t yield_count() const noexcept;
-        Generator<void> updateTask(DeltaTime dt) noexcept;
-        Generator<void> update(DeltaTime dt) noexcept;
-
     private:
         FunctionID issueID();
 
@@ -43,9 +41,9 @@ namespace ModernBoy::Script
         FunctionID id_seed = 0;
         FunctionMap functionMap;
 
-        std::vector<ScriptTask> tasks;
+        std::vector<ActionTask> tasks;
 
-        friend AssetLoader;
+        friend class ::ModernBoy::AppState;
     };
 } // namespace ModernBoy::Input
 

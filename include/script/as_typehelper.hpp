@@ -3,6 +3,8 @@
 
 #include "fwd.hpp"
 
+class asIScriptEngine;
+
 namespace ModernBoy::Script
 {
     int registerTransform(asIScriptEngine* engine);

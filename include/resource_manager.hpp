@@ -16,7 +16,6 @@ namespace ModernBoy
     template<typename Resource>
     struct Slot{
         Resource data;
-        uint32_t generation = 0;
         uint32_t refCount = 0;
     };
 
@@ -32,27 +31,17 @@ namespace ModernBoy
         std::unordered_map<std::string, Index> nameToIndex;
         std::unordered_map<Index, std::string> indexToName;
 
-        static ResourceHandle makeHandle(Index index, uint32_t generation);
+        static ResourceHandle makeHandle(Index index);
 
         [[nodiscard]] ResourceHandle load(Resource&& x){
             Index index = pool.newIndex();
 
             ResourceSlot& slot = pool[index];
             slot.data = std::move(x);
-            ++slot.generation;
             slot.refCount = 1;
 
-            return makeHandle(index, slot.generation);
+            return makeHandle(index);
         }
-    private:
-        [[nodiscard]] ResourceHandle link(const std::string& name){
-            Index index = nameToIndex.at(name);
-            ResourceSlot& slot = pool.get(index);
-            ++slot.refCount;
-
-            return makeHandle(index, slot.generation);
-        }
-
     public:
         ResourceManager(AppState& app)
         :app(app){}
@@ -62,12 +51,23 @@ namespace ModernBoy
             return it != nameToIndex.end();
         }
 
+        [[nodiscard]] ResourceHandle link(const std::string& name){
+            Index index = nameToIndex.at(name);
+            ResourceSlot& slot = pool.get(index);
+            ++slot.refCount;
+
+            return makeHandle(index);
+        }
+
         template<typename... Args>
         [[nodiscard]] ResourceHandle emplace(
             const std::string& name, Args... args
         ){
-            if(isExist(name))
+            std::println("try to load: {}", name);
+            if(isExist(name)){
+                std::println("    {} already exists!!!", name);
                 return link(name);
+            }
 
             auto resource = Resource(name,
                 std::forward<Args>(args)...);
@@ -76,6 +76,7 @@ namespace ModernBoy
             nameToIndex.emplace(std::make_pair(name, handle.index));
             indexToName.emplace(std::make_pair(handle.index, name));
 
+            std::println("    successfully loaded: {}", name);
             return handle;
         }
         void unload(ResourceHandle handle){
@@ -95,7 +96,7 @@ namespace ModernBoy
 
             // check if relation between handle and slot is valid
             const ResourceSlot& slot = pool[handle.index];
-            return (slot.refCount > 0) && (slot.generation == handle.generation);
+            return (slot.refCount > 0);
         }
 
         auto& get(ResourceHandle handle){

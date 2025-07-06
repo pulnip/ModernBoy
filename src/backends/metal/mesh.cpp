@@ -1,8 +1,10 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "common/alias.hpp"
 #include "raw_resource.hpp"
 #include "backends/metal/mesh.hpp"
+
 
 #ifdef __cplusplus
 extern "C"{

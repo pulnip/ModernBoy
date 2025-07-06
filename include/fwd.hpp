@@ -2,58 +2,34 @@
 #define MODERNBOY_FWD_HPP
 
 #include <chrono>
-#include <cstdint>
-#include <limits>
-#include <optional>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "common/alias.hpp"
+#include "common/type.hpp"
 
 namespace ModernBoy
 {
-    // Common Types
-    union Vec3;
-    union Vec4;
-    struct Transform;
-    struct Camera;
-    using EntityID = uint32_t;
-    using ArchetypeBit = uint64_t;
-    // for Input-Action
-    using ActionID = uint32_t;
-    // for UI subscription
-    using ObserverID = uint32_t;
-    // for script invoker indexing
-    using FunctionID = uint32_t;
-    // Handles
-    struct Handle;
-    struct ResourceHandle;
-    using MeshHandle = ResourceHandle;
-    using ShaderHandle = ResourceHandle;
-    // Components
-    struct TransformComponent;
-    struct CameraComponent;
-    struct MeshComponent;
-    struct InputComponent;
-    struct SparseChunk;
-    // Games
-    using DeltaTime = uint64_t;
+    using EntityID = ID;
+    using DeltaTime = std::chrono::microseconds;
+    using Timepoint = std::chrono::time_point<
+        std::chrono::steady_clock>;
 
-    class AssetLoader;
+    class AppState;
 
-    // Raw Resource
-    struct RawVertex;
-    using Vertices = std::vector<RawVertex>;
-    using Indices = std::vector<uint32_t>;
-    struct RawMeshPart;
-    using RawMesh = std::vector<RawMeshPart>;
-    struct RawTexture;
-    using RawTextures = std::vector<RawTexture>;
-    // Value Informations
-    enum class Projection;
-    // Resource
-    using TexPath = std::string; // File Name of Texture
-    using TexPaths = std::vector<TexPath>;
+    namespace UI{
+        class UserInterface;
+    }
+
+    using NativePtr = void*;
 #if defined(USE_DIRECTX)
+    namespace DX11{
+        struct Mesh;
+        struct Texture;
+        struct Shader;
+        struct RenderContext;
+    }
+    using Mesh = DX11::Mesh;
+    using Texture = DX11::Texture;
+    using Shader = DX11::Shader;
+    using RenderContext = DX11::RenderContext;
 #elif defined(USE_METAL)
     namespace Metal
     {
@@ -68,69 +44,10 @@ namespace ModernBoy
     using RenderContext = Metal::RenderContext;
 #elif defined(USE_OPENGL)
 #endif
-    struct AppState;
-    class UI;
-    // Handles
-    // Managers
-    template<typename Resource> class ResourceManager;
-    // Loaders
-    class AssetLoader;
-    // Actor
-    constexpr auto INVALID_ENTITY = std::numeric_limits<EntityID>::max();
-    // Tasks
-    struct RenderTask;
-    struct ViewTask;
-    struct InputTask;
-
-    namespace Input
-    {
-        struct State;
-        class Device;
-        class System;
-        class Controller;
-    }
-    namespace Script
-    {
-        struct Module;
-    }
-    namespace Render
-    {
-        struct FrameStartCommand;
-        struct SetViewCommand;
-        struct SetShaderCommand;
-        struct DrawMeshCommand;
-        struct FrameEndCommand;
-        class Renderer;
-    }
-    using NativePtr = void*;
-
-    using MeshManager = ResourceManager<Mesh>;
-    using TextureManager = ResourceManager<Texture>;
-    using ShaderManager = ResourceManager<Shader>;
-    using ShaderHandle = ResourceHandle;
+    using MeshHandle = ResourceHandle;
     using TextureHandle = ResourceHandle;
-    using ModuleManager = ResourceManager<Script::Module>;
+    using ShaderHandle = ResourceHandle;
     using ModuleHandle = ResourceHandle;
-
-    template<typename Resource>
-    Resource& get(
-        AppState& app, ResourceHandle handle);
-    template<typename Resource>
-    Resource& get(
-        AppState& app, const std::string& name);
-    template<typename Resource>
-    ResourceHandle getHandle(
-        AppState& app, const std::string& name);
-
-        template<typename Component>
-    std::optional<Component> query(
-        AppState& app, EntityID actor);
 }
-
-// angelscript
-class asIScriptEngine;
-class asIScriptModule;
-class asIScriptContext;
-
 
 #endif // MODERNBOY_FWD_HPP

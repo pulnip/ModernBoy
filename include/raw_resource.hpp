@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include "common/alias.hpp"
 #include "fwd.hpp"
 
 namespace ModernBoy
@@ -13,6 +14,9 @@ namespace ModernBoy
         float texcoord[2];
         float tangent[3];
     };
+
+    using Vertices = std::vector<RawVertex>;
+    using Indices = std::vector<uint32_t>;
 
     struct RawMeshPart{
         Vertices vertices;
@@ -25,6 +29,7 @@ namespace ModernBoy
         RawMeshPart(size_t numVertices, size_t numIndices)
         :vertices(numVertices), indices(numIndices){}
     };
+    using RawMesh = std::vector<RawMeshPart>;
 
     struct RawTexture{
         int width=0, height=0;

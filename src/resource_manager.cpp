@@ -1,36 +1,24 @@
 #include "resource_manager.hpp"
 #include "fwd.hpp"
-#include "script/module.hpp"
+#include "script/type.hpp"
 
 using namespace ModernBoy;
 
-template<> ResourceHandle
-ResourceManager<Mesh>::makeHandle(
-    Index index, uint32_t generation
-){
-    return MeshHandle{ResourceType::MESH,
-        index, generation};
+template<> MeshHandle
+ResourceManager<Mesh>::makeHandle(Index index){
+    return MeshHandle{ResourceType::MESH, index};
 }
-template<> ResourceHandle
-ResourceManager<Texture>::makeHandle(
-    Index index, uint32_t generation
-){
-    return TextureHandle{ResourceType::TEXTURE,
-        index, generation};
+template<> TextureHandle
+ResourceManager<Texture>::makeHandle(Index index){
+    return TextureHandle{ResourceType::TEXTURE, index};
 }
-template<> ResourceHandle
-ResourceManager<Shader>::makeHandle(
-    Index index, uint32_t generation
-){
-    return ShaderHandle{ResourceType::SHADER,
-        index, generation};
+template<> ShaderHandle
+ResourceManager<Shader>::makeHandle(Index index){
+    return ShaderHandle{ResourceType::SHADER, index};
 }
-template<> ResourceHandle
-ResourceManager<Script::Module>::makeHandle(
-    Index index, uint32_t generation
-){
-    return ShaderHandle{ResourceType::MODULE,
-        index, generation};
+template<> ModuleHandle
+ResourceManager<Script::Module>::makeHandle(Index index){
+    return ModuleHandle{ResourceType::MODULE, index};
 }
 
 template<> ResourceHandle
@@ -41,6 +29,5 @@ ResourceManager<Script::Module>::getHandle(
     return ResourceHandle{
         .type = ResourceType::MODULE,
         .index = slotIndex,
-        .generation = pool[slotIndex].generation
     };
 }

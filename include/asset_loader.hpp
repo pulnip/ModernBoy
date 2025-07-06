@@ -10,11 +10,16 @@ namespace ModernBoy
     public:
         AssetLoader(AppState& app);
 
-        void loadActors(const std::string& fileName);
-        void loadScripts(const std::string& fileName);
+        void loadAsset(const std::string& fileName);
+        void loadAction(const std::string& fileName);
 
     private:
         AppState& app;
+#if defined(USE_DIRECTX)
+#elif defined(USE_METAL)
+        NativePtr metalView;
+#elif defined(USE_OPENGL)
+#endif
     };
 } // namespace ModernBoy
 

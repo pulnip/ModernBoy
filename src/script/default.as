@@ -4,7 +4,7 @@ void onCreated(Actor@ actor){
 
 void onInputEvent(Actor@ actor, Trigger trigger){
     auto t = actor.getTransform();
-    float dt = actor.app.getDeltaTime() / 1000.0f;
+    float dt = actor.world.getDeltaTime() / 1000.0f;
 
     switch(trigger.button){
     case KEY_UP:

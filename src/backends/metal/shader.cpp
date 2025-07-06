@@ -1,5 +1,4 @@
 #include <utility>
-#include "render/gui.hpp"
 #include "backends/metal/shader.hpp"
 
 #ifdef __cplusplus
@@ -24,23 +23,9 @@ extern "C"{
 using namespace ModernBoy::Metal;
 
 Shader::Shader(const std::string& fileName,
-    NativePtr layerPtr, UI* gui)
-:shaderPtr(createShader(fileName.c_str(), layerPtr)), gui(gui){
-    if(gui != nullptr){
-        rp_id = gui->subscriberimPower([this](float rp){
-            Shader_setRimPower(shaderPtr, rp);
-        });
-        rs_id = gui->subscriberimStrength([this](float rs){
-            Shader_setRimStrength(shaderPtr, rs);
-        });
-    }
-}
+    NativePtr layerPtr)
+:shaderPtr(createShader(fileName.c_str(), layerPtr)){}
 Shader::~Shader(){
-    if(gui != nullptr){
-        gui->unsubscriberimPower(rp_id);
-        gui->unsubscriberimStrength(rs_id);
-    }
-
     if(shaderPtr != nullptr){
         destroyShader(shaderPtr);
     }
@@ -52,12 +37,6 @@ Shader& Shader::operator=(Shader&& other){
 }
 void Shader::moveFrom(Shader&& other){
     shaderPtr = other.shaderPtr;
-    gui = other.gui;
-    rp_id = other.rp_id;
-    rs_id = other.rs_id;
 
     other.shaderPtr = nullptr;
-    other.gui = nullptr;
-    other.rp_id = -1;
-    other.rs_id = -1;
 }

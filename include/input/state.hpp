@@ -7,8 +7,8 @@
 #include <unordered_map>
 #include <vector>
 #include <SDL3/SDL_keycode.h>
-#include "fwd.hpp"
 #include "common/type.hpp"
+#include "fwd.hpp"
 
 namespace ModernBoy::Input
 {
@@ -110,7 +110,7 @@ namespace ModernBoy::Input
     struct Trigger{
         Button button;
         ButtonState onState;
-    }; static_assert(std::is_pod_v<Trigger>);
+    }; static_assert(std::is_trivially_copyable_v<Trigger>);
 }
 
 #endif // MODERNBOY_INPUT_STATE_HPP

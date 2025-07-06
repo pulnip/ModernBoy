@@ -1,24 +1,24 @@
-add_subdirectory(common)
 add_subdirectory(${BACKEND_SOURCE_DIR})
+add_subdirectory(common)
+add_subdirectory(game)
 add_subdirectory(input)
 add_subdirectory(render)
 add_subdirectory(shader)
 add_subdirectory(script)
 add_subdirectory(util)
+add_subdirectory(ui)
 
 file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME}
     ${ALL_SOURCES}
-    game/context.cpp
-    game/lifespan_system.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall -Wextra
-    -fsanitize=address
+    # -fsanitize=address
 )
 target_link_options(${PROJECT_NAME} PRIVATE
-    -fsanitize=address
+    # -fsanitize=address
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
@@ -37,11 +37,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
     CommonModule
+    Game
     RenderBackend
     RenderModule
     InputModule
     ScriptModule
     Util
+    UIModule
     # SDL3
     SDL3::SDL3
     # SDL3_image

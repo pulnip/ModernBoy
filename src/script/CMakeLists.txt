@@ -9,7 +9,7 @@ add_library(ScriptModule STATIC
 
 target_compile_options(ScriptModule PRIVATE
     -Wall -Wextra
-    -fsanitize=address
+    # -fsanitize=address
 )
 target_compile_definitions(ScriptModule PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>

@@ -3,7 +3,7 @@ add_library(RenderModule STATIC ${ALL_SOURCES})
 
 target_compile_options(RenderModule PRIVATE
     -Wall -Wextra
-    -fsanitize=address
+    # -fsanitize=address
 )
 target_compile_definitions(RenderModule PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
@@ -11,12 +11,8 @@ target_compile_definitions(RenderModule PRIVATE
 
 target_include_directories(RenderModule PRIVATE
     ${CMAKE_SOURCE_DIR}/include
-    # ImGui
-    ${ImGui_INCLUDE_DIRS}
 )
 target_link_libraries(RenderModule PRIVATE
     # SDL3
     SDL3::SDL3
-    # ImGui
-    ImGui
 )

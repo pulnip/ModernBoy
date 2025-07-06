@@ -11,7 +11,7 @@ namespace ModernBoy::Metal
         ShaderPtr shaderPtr;
 
         Shader(const std::string& fileName,
-            NativePtr layerPtr, UI* gui=nullptr);
+            NativePtr layerPtr);
         ~Shader();
 
         Shader()=default;
@@ -23,10 +23,6 @@ namespace ModernBoy::Metal
     private:
         // Move semantics
         void moveFrom(Shader&&);
-
-        UI* gui = nullptr;
-        ObserverID rp_id = -1;
-        ObserverID rs_id = -1;
     };
 }
 

@@ -5,6 +5,8 @@
 
 namespace ModernBoy::Input
 {
+    struct State;
+
     class Device{
     public:
         Device();

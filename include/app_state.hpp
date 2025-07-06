@@ -1,27 +1,22 @@
 #ifndef MODERNBOY_APP_STATE_HPP
 #define MODERNBOY_APP_STATE_HPP
 
-#include <chrono>
-#include <vector>
-#include <unordered_map>
-#include "resource_manager.hpp"
+#include <SDL3/SDL_video.h>
+#include "common/alias.hpp"
 #include "asset_loader.hpp"
-#include "util/object_pool.hpp"
-#include "util/bit.hpp"
-#include "archetype_map.hpp"
-#include "component.hpp"
-#include "task.hpp"
-#include "input/device.hpp"
-#include "input/system.hpp"
-#include "render/gui.hpp"
-#include "render/system.hpp"
-#include "script/type.hpp"
-#include "script/module.hpp"
-#include "script/invoker.hpp"
 #include "game/context.hpp"
+#include "game/event.hpp"
+#include "resource_manager.hpp"
+#include "render/renderer.hpp"
+#include "script/type.hpp"
+#include "script/invoker.hpp"
+#include "ui/user_interface.hpp"
+#include "scheduler.hpp"
+#include "event.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
 #elif defined(USE_METAL)
+#include "SDL3/SDL_metal.h"
 #include "backends/metal/mesh.hpp"
 #include "backends/metal/texture.hpp"
 #include "backends/metal/shader.hpp"
@@ -29,86 +24,91 @@
 #include "backends/opengl/mesh.hpp"
 #endif
 
-#include "scheduler.hpp"
-
 namespace ModernBoy
 {
-    using ModuleManagerV2 = ResourceManagerV2<Script::Module>;
+    using MeshManager = ResourceManager<Mesh>;
+    using TextureManager = ResourceManager<Texture>;
+    using ShaderManager = ResourceManager<Shader>;
+    using ModuleManager = ResourceManager<Script::Module>;
 
-    struct TaskResult{};
-
-    // Components
-    struct SparseChunk{
-        TransformComponent transform;
-        CameraComponent camera;
-        MeshComponent mesh;
-        InputComponent input;
-    };
-    // Archetype
-    struct ComponentInfo{
-        ArchetypeBit bit;
-        size_t chunkIndex;
-    };
-    using EntityTable = std::unordered_map<EntityID, ComponentInfo>;
-
-    struct AppState{
+    class AppState{
     public:
-        // ArchetypeMapV2& currentMap() noexcept;
+        AppState(SDL_Window* window);
+        ~AppState();
 
-        // ModuleManagerV2 moduleManagerV2;
-        Scheduler scheduler;
+        void prepare();
+        void update();
 
-        // ArchetypeMapV2 archetypeMaps[2];
-        // epoch = 0 is reserved for asset loading
-        uint64_t currentEpoch = 0;
+        EntityID issueID();
+        template<Game::Event event>
+        void on();
+        template<Event event>
+        void on();
+
+        // append by resource construction argument
+        template<typename Resrc, typename... Args>
+        ResourceHandle append(Args&&...);
+        // append by resource filename
+        template<typename Resrc>
+        uint32_t append(const std::string&);
+
+        // get resource from handle
+        template<typename Resrc>
+        Resrc& query(ResourceHandle);
+        template<typename Resrc>
+        const Resrc& query(ResourceHandle) const;
+        // get handle from resource name
+        template<typename Resrc>
+        ResourceHandle query(const std::string&);
+
+        // unlink handle from resource
+        template<typename Resrc>
+        ABNORMAL_FLAG remove(ResourceHandle);
+
+        // get task of Subsystem
+        template<typename Task>
+        const std::vector<Task>& getBuffer() const{
+            return world.getBuffer<Task>();
+        }
+
+        DeltaTime getDeltaTime() const;
+
+        // AssetLoader helper
+        FunctionID registerFunction(const std::string& funcName);
+        // UserInterface helper
+        NativePtr getRenderPassDesc();
+        NativePtr getDevice();
+        NativePtr getCommandBuffer();
+        NativePtr getRenderEncoder();
+
+        Game::Context world;
 
     private:
         EntityID id_seed = 0;
-        EntityID issueID();
-        
-    public:
-        UI ui;
-        SDL_Window* window;
-        Input::Device inputDevice;
 
+        SDL_Window* window;
+#if defined(USE_DIRECTX)
+#elif defined(USE_METAL)
+        NativePtr metalView;
+#elif defined(USE_OPENGL)
+#endif
+        // Resource Managers
         MeshManager meshManager;
         TextureManager textureManager;
         ShaderManager shaderManager;
         ModuleManager moduleManager;
 
-        EntityTable actorTable;
-        ArchetypeMap archetypeMap;
-
-        Render::System renderSystem;
-        Input::System inputSystem;
+        // App Subsystem
+        Render::Renderer renderer;
         Script::Invoker scriptInvoker;
+        UI::UserInterface userInterface;
 
+        Scheduler scheduler;
+
+    public:
         AssetLoader assetLoader;
-        // Game State
-        Game::Context world;
 
-        Uint64 getDeltaTime() const;
-
-        AppState(SDL_Window* window);
-        ~AppState();
-
-        TaskResult operator()(const InputTaskCommand&);
-        TaskResult operator()(const WorldUpdateCommand&);
-        TaskResult operator()(const PhysicsTaskCommand&);
-        TaskResult operator()(const RenderTaskCommand&);
-
-        EntityID createActor(ArchetypeBit bit,
-            SparseChunk&& components);
-        void destroyActor(EntityID ID);
-
-        template<typename Resource>
-        Resource& get(ResourceHandle);
-        template<typename Resource>
-        Resource& get(const std::string& name);
-        template<typename Resource>
-        ResourceHandle getHandle(const std::string& name);
-        template<typename Component>
-        std::optional<Component> query(EntityID actor);
+        friend class AssetLoader;
     };
 }
 

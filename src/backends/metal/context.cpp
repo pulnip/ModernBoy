@@ -1,12 +1,8 @@
 #include <cassert>
-#include <imgui_impl_sdl3.h>
-#define IMGUI_IMPL_METAL_CPP
-#include <imgui_impl_metal.h>
 #include "app_state.hpp"
 #include "render/command.hpp"
 #include "backends/metal/context.hpp"
 #include "backends/metal/mesh.hpp"
-#include "render/gui.hpp"
 
 #ifdef __cplusplus
 extern "C"{
@@ -66,30 +62,17 @@ extern "C"{
 }
 #endif
 
-using namespace ModernBoy::Render;
+using namespace ModernBoy;
 using namespace ModernBoy::Metal;
 
 RenderContext::RenderContext(SDL_Window* window)
 :view(SDL_Metal_CreateView(window)),
-metalLayer(SDL_Metal_GetLayer(view)){}
+metalLayer(SDL_Metal_GetLayer(view)),
+_renderContext(createRenderContext(metalLayer)){}
 
 RenderContext::~RenderContext(){
-    SDL_Metal_DestroyView(view);
     destroyRenderContext(_renderContext);
-}
-
-void RenderContext::initialize(SDL_Window* window){
-    _renderContext = createRenderContext(metalLayer);
-
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplSDL3_InitForMetal(window);
-    auto device = static_cast<MTL::Device*>(
-        RenderContext_getDevice(_renderContext));
-    ImGui_ImplMetal_Init(device);
+    SDL_Metal_DestroyView(view);
 }
 
 void RenderContext::onFrameStart(Vec4 clearColor){
@@ -97,12 +80,6 @@ void RenderContext::onFrameStart(Vec4 clearColor){
     RenderContext_frameStart(_renderContext,
         clearColor.r, clearColor.g, clearColor.b,
         clearColor.a);
-
-    auto renderPassDesc = static_cast<MTL::RenderPassDescriptor*>(
-        RenderContext_getRenderPassDesc(_renderContext));
-    // Start the Dear ImGui frame
-    ImGui_ImplMetal_NewFrame(renderPassDesc);
-    ImGui_ImplSDL3_NewFrame();
 }
 void RenderContext::setView(float fov, Vec3 viewPos,
     Vec4 viewQuat
@@ -136,17 +113,20 @@ void RenderContext::drawMesh(Transform transform,
         scale.x, scale.y, scale.z,
         mesh);
 }
-void RenderContext::onFrameEnd(ImDrawData* uiDrawData){
+void RenderContext::onFrameEnd(){
     assert(_renderContext != nullptr);
-    auto commandBuffer = static_cast<MTL::CommandBuffer*>(
-        RenderContext_getCommandBuffer(_renderContext));
-    auto renderEncoder = static_cast<MTL::RenderCommandEncoder*>(
-        RenderContext_getRenderEncoder(_renderContext));
-
-    ImGui_ImplMetal_RenderDrawData(uiDrawData,
-        commandBuffer, renderEncoder
-    );
-    assert(commandBuffer != nullptr);
-    assert(renderEncoder != nullptr);
     RenderContext_frameEnd(_renderContext);
+}
+
+NativePtr RenderContext::getRenderPassDesc(){
+    return RenderContext_getRenderPassDesc(_renderContext);
+}
+NativePtr RenderContext::getDevice(){
+    return RenderContext_getDevice(_renderContext);
+}
+NativePtr RenderContext::getCommandBuffer(){
+    return RenderContext_getCommandBuffer(_renderContext);
+}
+NativePtr RenderContext::getRenderEncoder(){
+    return RenderContext_getRenderEncoder(_renderContext);
 }

@@ -77,8 +77,8 @@ SDL_AppResult SDL_AppInit(void** appState,
 #elif defined(USE_OPENGL)
     // TODO
 #endif
-    app.assetLoader.loadScripts("asset/action.toml");
-    app.assetLoader.loadActors("asset/actor.toml");
+    app.assetLoader.loadAction("asset/action.toml");
+    app.assetLoader.loadAsset("asset/actor.toml");
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
@@ -126,9 +126,7 @@ static SDL_AppResult _handle_key_event([[maybe_unused]] void* ctx,
 SDL_AppResult SDL_AppIterate(void* appState){
     AppState& app = *static_cast<AppState*>(appState);
 
-    app.scheduler.prepareScheduling();
-    app.scheduler.prepareFrame();
-    app.scheduler.updateFrame();
+    app.update();
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
@@ -136,10 +134,7 @@ SDL_AppResult SDL_AppIterate(void* appState){
 void SDL_AppQuit(void* appState, [[maybe_unused]] SDL_AppResult result){
     if(appState != NULL){
         AppState* as = (AppState*)appState;
-        SDL_Window* window = as->window;
 
         delete as;
-        /* SDL will clean up the window/renderer for us. */
-        SDL_DestroyWindow(window);
     }
 }

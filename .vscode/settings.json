@@ -112,6 +112,7 @@
     "scoped_allocator": "cpp",
     "buffer": "cpp",
     "socket": "cpp",
-    "typeindex": "cpp"
+    "typeindex": "cpp",
+    "cassert": "cpp"
 }
 }

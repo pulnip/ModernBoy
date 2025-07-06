@@ -1,30 +1,34 @@
 #include <numeric>
+#include <thread>
 #include <SDL3/SDL_timer.h>
 #include "app_state.hpp"
 #include "scheduler.hpp"
 
+using namespace std::chrono;
+using namespace std::chrono_literals;
 using namespace ModernBoy;
 
 Scheduler::Scheduler(AppState& app):app(app){}
 
 void Scheduler::prepareScheduling(){
+
     taskCounts.clear();
     taskGenerators.clear();
     generators.clear();
     schedule.clear();
 
-    Uint64 now = SDL_GetTicks();
-    if((now - lastTick) == 0){
+    auto now = steady_clock::now();
+
+    if(now == lastTick){
         std::this_thread::sleep_for(
-            std::chrono::milliseconds(1));
-        now = SDL_GetTicks();
+            milliseconds(1));
+        now = steady_clock::now();
     }
-    deltaTime = now - lastTick;
+    deltaTime = duration_cast<milliseconds>(
+        now - lastTick);
     lastTick = now;
 
-    prepare(app.inputSystem);
-    prepare(app.renderSystem);
-    prepare(app.world);
+    app.prepare();
 
     const size_t totalTasks = std::accumulate(
         taskCounts.cbegin(), taskCounts.cend(), 0);
@@ -81,14 +85,13 @@ void Scheduler::updateFrame(){
         }
     } while(!all_done);
 
-    Uint64 now = SDL_GetTicks();
+    auto now = steady_clock::now();
 
     constexpr auto TARGET_FPS = 60;
-    Uint64 sleepDuration = 1000 / TARGET_FPS - 2;
+    DeltaTime sleepDuration = (1000ms/TARGET_FPS) - 2ms;
     if(now - lastTick <= sleepDuration){
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(sleepDuration));
+        std::this_thread::sleep_for(sleepDuration);
     }
 }
 
-uint64_t Scheduler::getDeltaTime() const{ return deltaTime; }
+DeltaTime Scheduler::getDeltaTime() const{ return deltaTime; }

@@ -1,15 +1,15 @@
-#ifndef MODERNBOY_ARCHETYPE_MAP_HPP
-#define MODERNBOY_ARCHETYPE_MAP_HPP
+#ifndef MODERNBOY_GAME_ARCHETYPE_MAP_HPP
+#define MODERNBOY_GAME_ARCHETYPE_MAP_HPP
 
 #include <atomic>
 #include <functional>
 #include <unordered_map>
-#include "fwd.hpp"
 #include "util/dynamic_vector.hpp"
 #include "util/func_trait.hpp"
-#include "component.hpp"
+#include "game/game_fwd.hpp"
+#include "game/component.hpp"
 
-namespace ModernBoy
+namespace ModernBoy::Game
 {
     class RWPhaseGate{
     private:
@@ -52,8 +52,32 @@ namespace ModernBoy
             return ret;
         }
 
+        void update(Index index, Writer fn);
+
+        template<typename Component>
+        const Component& get(Index index) const{
+            return vec.at<Component>(
+                index, offset_of<Component>(bit)
+            );
+        }
+        template<typename Component>
+        Component& get(Index index){
+            return vec.at<Component>(
+                index, offset_of<Component>(bit)
+            );
+        }
+        template<typename Component>
+        ABNORMAL_FLAG set(Index index, Component&& component){
+            auto& comp = vec.at<Component>(
+                index, offset_of<Component>(bit));
+            comp = std::forward<Component>(component);
+            return false;
+        }
+
         size_t size() const;
-        void get(Index i, void* dst) const;
+        void copy(Index i, void* dst) const;
+        void* get(Index i);
+        const void* get(Index i) const;
         void free(Index i);
 
         DynamicVector& raw();
@@ -92,19 +116,27 @@ namespace ModernBoy
         const_iterator cbegin() const{ return archetypeMap.cbegin(); }
         const_iterator cend() const{ return archetypeMap.cend(); }
 
-        TransformComponent getTransformComponent(ArchetypeBit bit, Index index);
-        CameraComponent getCameraComponent(ArchetypeBit bit, Index index);
-        MeshComponent getMeshComponent(ArchetypeBit bit, Index index);
-        InputComponent getInputComponent(ArchetypeBit bit, Index index);
-        void setTransformComponent(const TransformComponent& component,
-            ArchetypeBit bit, Index index);
-        void setCameraComponent(const CameraComponent& component,
-            ArchetypeBit bit, Index index);
-        void setMeshComponent(const MeshComponent& component,
-            ArchetypeBit bit, Index index);
-        void setInputComponent(const InputComponent& component,
-            ArchetypeBit bit, Index index);
-    };
+        template<typename Component>
+        Component get(ArchetypeBit bit, Index index){
+            const auto& vec = archetypeMap.at(bit);
+            vec.on_read_phase();
+            auto component = vec.get<Component>(index);
+            vec.read_phase_end();
+            return component;
+        }
+        template<typename Component>
+        ABNORMAL_FLAG set(Component&& component,
+            ArchetypeBit bit, Index index
+        ){
+            auto& vec = archetypeMap.at(bit);
+            vec.on_write_phase();
+            vec.set<Component>(
+                index, std::forward<Component>(component));
+            vec.write_phase_end();
+            return false;
+        }
+
+    }; static_assert(std::ranges::range<ArchetypeMap>);
 
     ArchetypeBit archetype(const TransformComponent*,
         const CameraComponent*, const MeshComponent*,
@@ -117,6 +149,6 @@ namespace ModernBoy
         InputComponent* ic, const void* src,
         ArchetypeBit bit
     );
-}
+} // namespace ModernBoy::Game
 
-#endif // MODERNBOY_ARCHETYPE_MAP_HPP
+#endif // MODERNBOY_GAME_ARCHETYPE_MAP_HPP

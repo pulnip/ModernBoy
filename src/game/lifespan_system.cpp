@@ -1,17 +1,19 @@
 #include "game/lifespan_system.hpp"
 #include "task.hpp"
-#include "app_state.hpp"
+#include "game/context.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
-LifespanSystem::LifespanSystem(AppState& app)
-:app(app){}
+LifespanSystem::LifespanSystem(Context& world)
+:world(world){}
 
 size_t LifespanSystem::yield_count() const noexcept{
     size_t numTask = 0;
 
-    for(const auto& [bit, vec]: app.archetypeMap){
+    
+
+    for(const auto& [bit, vec]: world.query<LifeSpanComponent>()){
         if(!subset(bit_of<LifeSpanComponent>(), bit))
             continue;
         vec.for_each([&numTask](const LifeSpanComponent& lc){
@@ -29,7 +31,7 @@ Generator<void> LifespanSystem::updateTask(DeltaTime) noexcept{
     deadActors.reserve(numDeadActors);
 
     // remove actor from current epoch
-    for(const auto& [bit, vec]: app.archetypeMap){
+    for(const auto& [bit, vec]: world.query<LifeSpanComponent>()){
         if(!subset(bit_of<LifeSpanComponent>(), bit))
             continue;
         vec.for_each([&deadActors](const LifeSpanComponent& lc){
@@ -38,7 +40,7 @@ Generator<void> LifespanSystem::updateTask(DeltaTime) noexcept{
         });
     }
     for(const auto& deadActor: deadActors){
-        app.destroyActor(deadActor);
+        world.destroy(deadActor);
         co_yield 0;
     }
 
@@ -50,7 +52,7 @@ Generator<void> LifespanSystem::update(DeltaTime) noexcept{
     deadActors.reserve(numDeadActors);
 
     // remove actor from next epoch
-    for(const auto& [bit, vec]: app.archetypeMap){
+    for(const auto& [bit, vec]: world.query<LifeSpanComponent>()){
         if(!subset(bit_of<LifeSpanComponent>(), bit))
             continue;
         vec.for_each([&deadActors](const LifeSpanComponent& lc){
@@ -59,7 +61,7 @@ Generator<void> LifespanSystem::update(DeltaTime) noexcept{
         });
     }
     for(const auto& deadActor: deadActors){
-        app.destroyActor(deadActor);
+        world.destroy(deadActor);
     
         co_yield 0;
     }

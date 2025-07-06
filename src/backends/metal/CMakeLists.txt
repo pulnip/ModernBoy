@@ -9,10 +9,10 @@ add_library(MetalContext SHARED ${SWIFT_SOURCES})
 
 target_compile_options(RenderBackend PRIVATE
     -Wall -Wextra
-    -fsanitize=address
+    # -fsanitize=address
 )
 target_link_options(RenderBackend PRIVATE
-    -fsanitize=address
+    # -fsanitize=address
 )
 
 target_compile_definitions(RenderBackend PRIVATE
@@ -23,10 +23,6 @@ target_include_directories(RenderBackend PUBLIC
     ${CMAKE_SOURCE_DIR}/include
     # gsl-lite
     ${gsl-lite_INCLUDE_DIRS}
-    # ImGui
-    ${ImGui_INCLUDE_DIRS}
-    # metal-cpp
-    ${CMAKE_SOURCE_DIR}/external/metal-cpp
 )
 target_link_libraries(RenderBackend PRIVATE
     MetalContext
@@ -34,11 +30,4 @@ target_link_libraries(RenderBackend PRIVATE
     SDL3::SDL3
     # SDL3_image
     SDL3_image::SDL3_image
-    # ImGui
-    ImGui
-    # metal-cpp
-    "-framework Metal"
-    "-framework MetalKit"
-    "-framework Foundation"
-    "-framework QuartzCore"
 )

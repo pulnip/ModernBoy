@@ -9,18 +9,6 @@
 
 namespace ModernBoy
 {
-    struct InputTaskCommand{};
-    struct WorldUpdateCommand{};
-    struct PhysicsTaskCommand{};
-    struct RenderTaskCommand{};
-
-    using TaskCommand = std::variant<
-        InputTaskCommand,
-        WorldUpdateCommand,
-        PhysicsTaskCommand,
-        RenderTaskCommand
-    >;
-
     class Scheduler{
     public:
         Scheduler(AppState& app);
@@ -31,24 +19,38 @@ namespace ModernBoy
         // entity update phase
         void updateFrame();
 
-        uint64_t getDeltaTime() const;
+        DeltaTime getDeltaTime() const;
 
-    private:
-        void prepare(Schedulable auto& schedulable){
-            taskCounts.push_back(schedulable.yield_count());
+        void prepareAllPhase(Schedulable auto& schedulable){
+            auto count = schedulable.yield_count();
+
+            taskCounts.push_back(count);
+            updateCounts.push_back(count);
+
             taskGenerators.push_back(schedulable.updateTask(deltaTime));
             generators.push_back(schedulable.update(deltaTime));
         }
+        void prepareTaskPhase(Schedulable auto& schedulable){
+            taskCounts.push_back(schedulable.yield_count());
+            taskGenerators.push_back(schedulable.updateTask(deltaTime));
 
+        }
+        void prepareUpdatePhase(Schedulable auto& schedulable){
+            updateCounts.push_back(schedulable.yield_count());
+            generators.push_back(schedulable.update(deltaTime));
+        }
+
+    private:
         AppState& app;
 
         std::vector<size_t> taskCounts;
+        std::vector<size_t> updateCounts;
         std::vector<Generator<void>> taskGenerators;
         std::vector<Generator<void>> generators;
         std::vector<size_t> schedule;
 
-        uint64_t lastTick;
-        uint64_t deltaTime;
+        Timepoint lastTick;
+        DeltaTime deltaTime;
     };
 } // namespace ModernBoy
 
