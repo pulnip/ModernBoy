@@ -11,12 +11,6 @@ using namespace ModernBoy;
 Scheduler::Scheduler(AppState& app):app(app){}
 
 void Scheduler::prepareScheduling(){
-
-    taskCounts.clear();
-    taskGenerators.clear();
-    generators.clear();
-    schedule.clear();
-
     auto now = steady_clock::now();
 
     if(now == lastTick){
@@ -28,32 +22,72 @@ void Scheduler::prepareScheduling(){
         now - lastTick);
     lastTick = now;
 
+    taskSchedule.clear();
+    updateSchedule.clear();
+    taskGenerators.clear();
+    updateGenerators.clear();
+    taskCounts.clear();
+    updateCounts.clear();
+
     app.prepare();
 
     const size_t totalTasks = std::accumulate(
         taskCounts.cbegin(), taskCounts.cend(), 0);
-    schedule.resize(totalTasks);
+    taskSchedule.resize(totalTasks);
     std::vector<size_t> numScheduled(taskCounts.size(), 0);
 
     // Round-Robin with Proportional Fairness
     for(size_t step=0; step<totalTasks; ++step){
-        double minRatio = double(numScheduled[0]) / taskCounts[0];
-        size_t selectedIndex = 0;
-        for(size_t i=1; i<taskCounts.size(); ++i){
+        double minRatio = 1;
+        int selectedIndex = -1;
+        for(int i=0; i<taskCounts.size(); ++i){
             double ratio = double(numScheduled[i]) / taskCounts[i];
             if(ratio < minRatio){
                 minRatio = ratio;
                 selectedIndex = i;
             }
         }
+        if(selectedIndex == -1)
+            continue;
 
-        schedule.push_back(selectedIndex);
+        taskSchedule.push_back(selectedIndex);
         ++numScheduled[selectedIndex];
     }
+
+    const size_t totalUpdates = std::accumulate(
+        updateCounts.cbegin(), updateCounts.cend(), 0);
+
+    numScheduled.clear();
+    numScheduled.reserve(updateCounts.size());
+    std::fill(numScheduled.begin(), numScheduled.end(), 0);
+
+    // Round-Robin with Proportional Fairness
+    for(size_t step=0; step<totalUpdates; ++step){
+        double minRatio = 1;
+        int selectedIndex = -1;
+        for(int i=0; i<updateCounts.size(); ++i){
+            double ratio = double(numScheduled[i]) / updateCounts[i];
+            if(ratio < minRatio){
+                minRatio = ratio;
+                selectedIndex = i;
+            }
+        }
+        if(selectedIndex == -1)
+            continue;
+
+        updateSchedule.push_back(selectedIndex);
+        ++numScheduled[selectedIndex];
+    }
+    AppInfo("Scheduling   E.U.P., Max Idx: {}, total Task: {}",
+        updateGenerators.size(), numScheduled.size(), totalUpdates);
 }
 
 void Scheduler::prepareFrame(){
-    for(auto idx: schedule){
+    AppInfo("T.U.P., Num Generators: {}, Num Scheduled: {}",
+        taskGenerators.size(), taskSchedule.size());
+    for(auto idx: taskSchedule){
+        if(taskGenerators[idx].done())
+            continue;
         taskGenerators[idx].next();
     }
 
@@ -70,14 +104,19 @@ void Scheduler::prepareFrame(){
 }
 
 void Scheduler::updateFrame(){
-    for(auto idx: schedule){
-        generators[idx].next();
+    AppInfo("E.U.P., Num Generators: {}, Num Scheduled: {}",
+        updateGenerators.size(), updateSchedule.size());
+
+    for(auto idx: updateSchedule){
+        if(updateGenerators[idx].done())
+            continue;
+        updateGenerators[idx].next();
     }
 
     bool all_done;
     do{
         all_done = true;
-        for(auto& generator: generators){
+        for(auto& generator: updateGenerators){
             if(!generator.done()){
                 generator.next();
                 all_done = false;

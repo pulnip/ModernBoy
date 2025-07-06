@@ -51,11 +51,11 @@ namespace ModernBoy
 
     template<typename... Args>
     inline void LogTrace(LogCategory category, std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, category, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Debug, category, std::move(msg), std::forward(args)...);
     }
     template<typename... Args>
     inline void LogDebug(LogCategory category, std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, category, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Debug, category, std::move(msg), std::forward(args)...);
     }
     template<typename... Args>
     inline void LogInfo(LogCategory category, std::format_string<Args...>&& msg, Args&&... args){
@@ -63,24 +63,24 @@ namespace ModernBoy
     }
     template<typename... Args>
     inline void LogWarn(LogCategory category, std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Warn, category, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Warn, category, std::move(msg), std::forward<Args>(args)...);
     }
     template<typename... Args>
     inline void LogError(LogCategory category, std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Error, category, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Error, category, std::move(msg), std::forward<Args>(args)...);
     }
     template<typename... Args>
     inline void LogCritical(LogCategory category, std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Critical, category, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Critical, category, std::move(msg), std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     inline void AppTrace(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, LogCategory::Application, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Debug, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
     }
     template<typename... Args>
     inline void AppDebug(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, LogCategory::Application, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Debug, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
     }
     template<typename... Args>
     inline void AppInfo(std::format_string<Args...>&& msg, Args&&... args){
@@ -88,24 +88,24 @@ namespace ModernBoy
     }
     template<typename... Args>
     inline void AppWarn(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Warn, LogCategory::Application, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Warn, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
     }
     template<typename... Args>
     inline void AppError(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Error, LogCategory::Application, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Error, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
     }
     template<typename... Args>
     inline void AppCritical(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Critical, LogCategory::Application, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Critical, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     inline void RenderTrace(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, LogCategory::Render, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Debug, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
     }
     template<typename... Args>
     inline void RenderDebug(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, LogCategory::Render, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Debug, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
     }
     template<typename... Args>
     inline void RenderInfo(std::format_string<Args...>&& msg, Args&&... args){
@@ -113,15 +113,15 @@ namespace ModernBoy
     }
     template<typename... Args>
     inline void RenderWarn(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Warn, LogCategory::Render, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Warn, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
     }
     template<typename... Args>
     inline void RenderError(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Error, LogCategory::Render, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Error, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
     }
     template<typename... Args>
     inline void RenderCritical(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Critical, LogCategory::Render, std::forward(msg), std::forward(args)...);
+        logger.log(LogLevel::Critical, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
     }
 } // namespace ModernBoy
 

@@ -28,7 +28,7 @@ namespace ModernBoy
             updateCounts.push_back(count);
 
             taskGenerators.push_back(schedulable.updateTask(deltaTime));
-            generators.push_back(schedulable.update(deltaTime));
+            updateGenerators.push_back(schedulable.update(deltaTime));
         }
         void prepareTaskPhase(Schedulable auto& schedulable){
             taskCounts.push_back(schedulable.yield_count());
@@ -37,7 +37,7 @@ namespace ModernBoy
         }
         void prepareUpdatePhase(Schedulable auto& schedulable){
             updateCounts.push_back(schedulable.yield_count());
-            generators.push_back(schedulable.update(deltaTime));
+            updateGenerators.push_back(schedulable.update(deltaTime));
         }
 
     private:
@@ -46,8 +46,9 @@ namespace ModernBoy
         std::vector<size_t> taskCounts;
         std::vector<size_t> updateCounts;
         std::vector<Generator<void>> taskGenerators;
-        std::vector<Generator<void>> generators;
-        std::vector<size_t> schedule;
+        std::vector<Generator<void>> updateGenerators;
+        std::vector<size_t> taskSchedule;
+        std::vector<size_t> updateSchedule;
 
         Timepoint lastTick;
         DeltaTime deltaTime;
