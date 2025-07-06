@@ -10,6 +10,7 @@
 #include "common/type.hpp"
 #include "fwd.hpp"
 #include "util/object_pool.hpp"
+#include "log.hpp"
 
 namespace ModernBoy
 {
@@ -63,9 +64,9 @@ namespace ModernBoy
         [[nodiscard]] ResourceHandle emplace(
             const std::string& name, Args... args
         ){
-            std::println("try to load: {}", name);
+            AppInfo("try to load: {}", name);
             if(isExist(name)){
-                std::println("    {} already exists!!!", name);
+                AppInfo("    already loaded.", name);
                 return link(name);
             }
 
@@ -76,7 +77,7 @@ namespace ModernBoy
             nameToIndex.emplace(std::make_pair(name, handle.index));
             indexToName.emplace(std::make_pair(handle.index, name));
 
-            std::println("    successfully loaded: {}", name);
+            AppInfo("    successfully loaded.", name);
             return handle;
         }
         void unload(ResourceHandle handle){

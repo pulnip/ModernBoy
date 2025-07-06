@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <SDL3/SDL_log.h>
+#include "log.hpp"
 #include "render/renderer.hpp"
 #include "app_state.hpp"
 #include "task.hpp"
@@ -90,6 +90,7 @@ void Renderer::setTexture(TextureHandle handle){
 void Renderer::drawMesh(
     const Transform& transform, MeshHandle handle
 ){
+    RenderInfo("draw type: {}, index: {}", static_cast<int>(handle.type), handle.index);
     const auto& mesh = app.query<Mesh>(handle);
 
     for(const auto partPtr: mesh.meshPtr){
