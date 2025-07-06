@@ -3,6 +3,10 @@
 
 using namespace ModernBoy;
 
+Logger::Logger(){
+    SDL_SetLogPriorities(SDL_LOG_PRIORITY_TRACE);
+}
+
 static SDL_LogPriority convertToSDL(LogLevel level){
     switch (level){
     case LogLevel::Trace:

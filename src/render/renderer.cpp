@@ -33,11 +33,9 @@ size_t Renderer::yield_count(){
     return numViewTask * numDrawTask + 2;
 }
 
-Generator<void> Renderer::update(DeltaTime){
+Generator<void> Renderer::updateTask(DeltaTime){
     auto drawTasks = app.getBuffer<DrawTask>();
     sortTask(drawTasks);
-
-    setFrameStart();
     co_yield 0;
 
     for(const auto& view: app.getBuffer<ViewTask>()){
@@ -59,16 +57,13 @@ Generator<void> Renderer::update(DeltaTime){
             co_yield 0;
         }
     }
-
-    setFrameEnd();
     co_return;
 }
 
-void Renderer::setFrameStart(){
+void Renderer::onFrameStart(){
+    RenderDebug("Frame Start");
     context.onFrameStart(
         {.r=0.0f, .g=0.0f, .b=0.0f, .a=0.5f});
-
-    app.on<Event::OnFrameStart>();
 }
 
 void Renderer::setView(const ViewTask& task){
@@ -76,29 +71,33 @@ void Renderer::setView(const ViewTask& task){
     const auto& viewPos = cameraTransform.position;
     const auto& viewQuat = cameraTransform.rotation;
     const auto& camera = task.camera;
+    RenderDebug("Set View, pos: {}, {}, {}",
+        viewPos.x, viewPos.y, viewPos.z);
 
     context.setView(camera.fov, viewPos, viewQuat);
 }
 void Renderer::setShader(ShaderHandle handle){
+    RenderDebug("Set Shader");
     const auto& shader = app.query<Shader>(handle);
     context.setShader(shader.shaderPtr);
 }
 void Renderer::setTexture(TextureHandle handle){
+    RenderDebug("Set Texture");
     const auto& texture = app.query<Texture>(handle);
     context.setShader(texture.texture);
 }
 void Renderer::drawMesh(
     const Transform& transform, MeshHandle handle
 ){
-    RenderInfo("draw type: {}, index: {}", static_cast<int>(handle.type), handle.index);
+    RenderDebug("draw type: {}, index: {}", static_cast<int>(handle.type), handle.index);
     const auto& mesh = app.query<Mesh>(handle);
 
     for(const auto partPtr: mesh.meshPtr){
         context.drawMesh(transform, partPtr);
     }
 }
-void Renderer::setFrameEnd(){
-    app.on<Event::OnFrameEnd>();
+void Renderer::onFrameEnd(){
+    RenderDebug("Frame End");
 
     context.onFrameEnd();
 }

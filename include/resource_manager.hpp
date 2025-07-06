@@ -64,9 +64,9 @@ namespace ModernBoy
         [[nodiscard]] ResourceHandle emplace(
             const std::string& name, Args... args
         ){
-            AppInfo("try to load: {}", name);
+            AppDebug("try to load: {}", name);
             if(isExist(name)){
-                AppInfo("    already loaded.", name);
+                AppDebug("    already loaded.", name);
                 return link(name);
             }
 
@@ -77,7 +77,7 @@ namespace ModernBoy
             nameToIndex.emplace(std::make_pair(name, handle.index));
             indexToName.emplace(std::make_pair(handle.index, name));
 
-            AppInfo("    successfully loaded.", name);
+            AppDebug("    successfully loaded.", name);
             return handle;
         }
         void unload(ResourceHandle handle){

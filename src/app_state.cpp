@@ -31,11 +31,14 @@ EntityID AppState::issueID(){
 
 template<>
 void AppState::on<Event::OnFrameStart>(){
+    renderer.onFrameStart();
     userInterface.onFrameStart();
+
 }
 template<>
 void AppState::on<Event::OnFrameEnd>(){
     userInterface.onFrameEnd();
+    renderer.onFrameEnd();
 }
 
 template<>
@@ -70,9 +73,9 @@ MeshHandle AppState::append<Script::Module,
 
 
 void AppState::prepare(){
-    scheduler.prepareAllPhase(world);
-    scheduler.prepareUpdatePhase(renderer);
-    scheduler.prepareUpdatePhase(userInterface);
+    scheduler.prepareTaskPhase(renderer);
+    scheduler.prepareTaskPhase(userInterface);
+    scheduler.prepareUpdatePhase(world);
 }
 
 void AppState::update(){

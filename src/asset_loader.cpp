@@ -8,6 +8,7 @@
 #include <toml++/toml.h>
 #include "common/type.hpp"
 #include "common/helper.hpp"
+#include "log.hpp"
 #include "asset_loader.hpp"
 #include "app_state.hpp"
 #include "game/component.hpp"
@@ -29,6 +30,7 @@ static std::optional<Component> parse(
     const toml::table*, AppState& app);
 
 void AssetLoader::loadAsset(const std::string& fileName){
+    GameDebug("Load Asset: {}", fileName);
     auto table = toml::parse_file(fileName);
 
     auto entities = *table["entities"].as_array();
@@ -43,6 +45,7 @@ void AssetLoader::loadAsset(const std::string& fileName){
 }
 
 void AssetLoader::loadAction(const std::string& fileName){
+    GameDebug("Load Action: {}", fileName);
     auto tbl = toml::parse_file(fileName);
 
     auto modules = *tbl["module"].as_array();
@@ -51,7 +54,7 @@ void AssetLoader::loadAction(const std::string& fileName){
 
         auto [mdName, funcs] = parseModule(module_);
 
-        auto mdHandle = app.append<Script::Module>(mdName, funcs);
+        [[maybe_unused]] auto mdHandle = app.append<Script::Module>(mdName, funcs);
     }
 }
 
@@ -210,8 +213,8 @@ parseActor(const toml::table* ptr, AppState& app){
     }
 
     return {bit, chunk};
-    // auto actor_id = app.world.create(bit, std::move(chunk));
-    // std::println("Actor {}: {}, {}", actor_id, name, bit);
+    auto actor_id = app.world.create(bit, std::move(chunk));
+    GameDebug("Actor loaded, id: {}, name: {}, archetype: {}", actor_id, name, bit);
 }
 
 static std::tuple<std::string, std::string, std::string>

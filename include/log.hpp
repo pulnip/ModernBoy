@@ -30,7 +30,7 @@ namespace ModernBoy
 
     class Logger{
     public:
-        Logger() = default;
+        Logger();
         ~Logger() = default;
 
         template<typename... Args>
@@ -44,7 +44,10 @@ namespace ModernBoy
         void log(LogLevel level, LogCategory category, std::string msg);
         void setCategoryLevel(LogCategory category, LogLevel level);
 
-        LogLevel levels[NUM_LOG_CATEGORY];
+        LogLevel levels[NUM_LOG_CATEGORY] = {
+            LogLevel::Trace, LogLevel::Trace, LogLevel::Trace, LogLevel::Trace,
+            LogLevel::Trace, LogLevel::Trace, LogLevel::Trace
+        };
     };
 
     inline Logger logger;
@@ -122,6 +125,31 @@ namespace ModernBoy
     template<typename... Args>
     inline void RenderCritical(std::format_string<Args...> msg, Args&&... args){
         logger.log(LogLevel::Critical, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    inline void GameTrace(std::format_string<Args...> msg, Args&&... args){
+        logger.log(LogLevel::Debug, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
+    }
+    template<typename... Args>
+    inline void GameDebug(std::format_string<Args...> msg, Args&&... args){
+        logger.log(LogLevel::Debug, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
+    }
+    template<typename... Args>
+    inline void GameInfo(std::format_string<Args...>&& msg, Args&&... args){
+        logger.log(LogLevel::Info, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
+    }
+    template<typename... Args>
+    inline void GameWarn(std::format_string<Args...> msg, Args&&... args){
+        logger.log(LogLevel::Warn, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
+    }
+    template<typename... Args>
+    inline void GameError(std::format_string<Args...> msg, Args&&... args){
+        logger.log(LogLevel::Error, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
+    }
+    template<typename... Args>
+    inline void GameCritical(std::format_string<Args...> msg, Args&&... args){
+        logger.log(LogLevel::Critical, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
     }
 } // namespace ModernBoy
 

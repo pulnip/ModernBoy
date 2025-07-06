@@ -28,21 +28,22 @@ namespace ModernBoy::Render
         ~Renderer();
 
         size_t yield_count();
-        Generator<void> update(DeltaTime);
+        void onFrameStart();
+        Generator<void> updateTask(DeltaTime);
+        void onFrameEnd();
 
         NativePtr getRenderPassDesc();
         NativePtr getDevice();
         NativePtr getCommandBuffer();
         NativePtr getRenderEncoder();
 
+
     private:
-        void setFrameStart();
         void setView(const ViewTask& task);
         void setShader(ShaderHandle handle);
         void setTexture(TextureHandle handle);
         void drawMesh(const Transform& transform,
             MeshHandle handle);
-        void setFrameEnd();
 
     private:
         AppState& app;

@@ -10,14 +10,12 @@ draw(*this), script(*this),
 physics(*this), lifespan(*this){}
 
 size_t Context::yield_count() const noexcept{
-    return 0;
-}
-
-Generator<void> Context::updateTask(DeltaTime){
-    co_return;
+    return 1;
 }
 
 Generator<void> Context::update(DeltaTime){
+    GameDebug("update something");
+
     co_return;
 }
 

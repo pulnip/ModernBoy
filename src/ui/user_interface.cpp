@@ -55,7 +55,7 @@ void UserInterface::onFrameStart(){
 
     ImGui::NewFrame();
 }
-Generator<void> UserInterface::update(DeltaTime dt){
+Generator<void> UserInterface::updateTask(DeltaTime dt){
     // ImGui::ShowDemoWindow(); // Show demo window! :)s
     for(auto& [id, ctrller]: controllers){
         std::visit([dt](auto& controller){

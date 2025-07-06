@@ -28,7 +28,6 @@ namespace ModernBoy::Game
 
         size_t yield_count() const noexcept;
 
-        Generator<void> updateTask(DeltaTime dt);
         Generator<void> update(DeltaTime dt);
 
         uint32_t issueID();
@@ -85,7 +84,9 @@ namespace ModernBoy::Game
         InputSystem script;
         PhysicsSystem physics;
         LifespanSystem lifespan;
-    }; static_assert(Schedulable<Context>);
+
+        friend class AppState;
+    };
 
     struct Actor{
         EntityID id;

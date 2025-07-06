@@ -34,7 +34,7 @@ namespace ModernBoy::UI
         size_t yield_count() const noexcept;
 
         void onFrameStart();
-        Generator<void> update(DeltaTime);
+        Generator<void> updateTask(DeltaTime);
         void onFrameEnd();
 
         void handleEvent(Event event);
