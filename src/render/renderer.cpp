@@ -77,14 +77,15 @@ void Renderer::setView(const ViewTask& task){
     context.setView(camera.fov, viewPos, viewQuat);
 }
 void Renderer::setShader(ShaderHandle handle){
-    RenderDebug("Set Shader");
+    RenderDebug("Set Shader, index: {}", handle.index);
     const auto& shader = app.query<Shader>(handle);
     context.setShader(shader.shaderPtr);
 }
 void Renderer::setTexture(TextureHandle handle){
-    RenderDebug("Set Texture");
+    RenderDebug("Set Texture, Index: {}", handle.index);
     const auto& texture = app.query<Texture>(handle);
-    context.setShader(texture.texture);
+    RenderTrace("  Texture Ptr: {}", texture.texture);
+    context.setTexture(texture.texture);
 }
 void Renderer::drawMesh(
     const Transform& transform, MeshHandle handle

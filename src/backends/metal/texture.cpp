@@ -1,6 +1,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "log.hpp"
 #include "backends/metal/texture.hpp"
 #include "app_state.hpp"
 
@@ -29,10 +30,14 @@ void Texture::moveFrom(Texture&& other){
     other.texture = nullptr;
 }
 Texture::~Texture(){
-    if(texture != nullptr)
+    if(texture != nullptr){
+        AppTrace("  Texture {} destroyed", texture);
         destroyTexture(texture);
+    }
 }
 
 Texture::Texture(const std::string& fileName,
             NativePtr layerPtr)
-:texture(createTexture(fileName.c_str(), layerPtr)){}
+:texture(createTexture(fileName.c_str(), layerPtr)){
+    AppTrace("  Texture: Ptr: {}", texture);
+}

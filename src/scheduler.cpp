@@ -1,3 +1,4 @@
+#include <limits>
 #include <numeric>
 #include <thread>
 #include <SDL3/SDL_timer.h>
@@ -39,15 +40,15 @@ void Scheduler::prepareScheduling(){
     // Round-Robin with Proportional Fairness
     for(size_t step=0; step<totalTasks; ++step){
         double minRatio = 1;
-        int selectedIndex = -1;
-        for(int i=0; i<taskCounts.size(); ++i){
+        size_t selectedIndex = std::numeric_limits<size_t>::max();
+        for(size_t i=0; i<taskCounts.size(); ++i){
             double ratio = double(numScheduled[i]) / taskCounts[i];
             if(ratio < minRatio){
                 minRatio = ratio;
                 selectedIndex = i;
             }
         }
-        if(selectedIndex == -1)
+        if(selectedIndex == std::numeric_limits<size_t>::max())
             continue;
 
         taskSchedule.push_back(selectedIndex);
@@ -67,15 +68,15 @@ void Scheduler::prepareScheduling(){
     // Round-Robin with Proportional Fairness
     for(size_t step=0; step<totalUpdates; ++step){
         double minRatio = 1;
-        int selectedIndex = -1;
-        for(int i=0; i<updateCounts.size(); ++i){
+        size_t selectedIndex = std::numeric_limits<size_t>::max();
+        for(size_t i=0; i<updateCounts.size(); ++i){
             double ratio = double(numScheduled[i]) / updateCounts[i];
             if(ratio < minRatio){
                 minRatio = ratio;
                 selectedIndex = i;
             }
         }
-        if(selectedIndex == -1)
+        if(selectedIndex == std::numeric_limits<size_t>::max())
             continue;
 
         updateSchedule.push_back(selectedIndex);

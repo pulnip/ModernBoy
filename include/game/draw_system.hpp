@@ -16,10 +16,7 @@ namespace ModernBoy::Game
 
         size_t yield_count() const noexcept;
 
-        Generator<void> updateTask(DeltaTime dt);
         Generator<void> update(DeltaTime dt);
-
-
 
     private:
         Context& world;

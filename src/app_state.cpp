@@ -75,12 +75,14 @@ MeshHandle AppState::append<Script::Module,
 void AppState::prepare(){
     scheduler.prepareTaskPhase(renderer);
     scheduler.prepareTaskPhase(userInterface);
-    scheduler.prepareUpdatePhase(world);
 }
 
 void AppState::update(){
     scheduler.prepareScheduling();
+
     scheduler.prepareFrame();
+
+    world.update(getDeltaTime());
     scheduler.updateFrame();
 }
 

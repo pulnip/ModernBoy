@@ -1,6 +1,10 @@
 #ifndef MODERNBOY_GAME_SCHEDULER_HPP
 #define MODERNBOY_GAME_SCHEDULER_HPP
 
+#include <vector>
+#include "util/generator.hpp"
+#include "interface.hpp"
+#include "fwd.hpp"
 #include "game/game_fwd.hpp"
 
 namespace ModernBoy::Game
@@ -9,11 +13,21 @@ namespace ModernBoy::Game
     public:
         Scheduler(Context& world);
 
-        void prepareScheduling();
+        void prepareScheduling(DeltaTime);
         void startUpdate();
+
+        void prepare(Schedulable auto& system){
+            numYield.push_back(system.yield_count());
+            generators.push_back(system.update(deltaTime));
+        }
 
     private:
         Context& world;
+
+        std::vector<size_t> numYield;
+        std::vector<Generator<void>> generators;
+
+        DeltaTime deltaTime;
     };
 }
 

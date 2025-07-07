@@ -1,3 +1,4 @@
+#include "log.hpp"
 #include "app_state.hpp"
 #include "game/context.hpp"
 
@@ -7,16 +8,15 @@ using namespace ModernBoy::Game;
 Context::Context(AppState& app)
 :app(app), archetypeMap(), actorTable(),
 draw(*this), script(*this),
-physics(*this), lifespan(*this){}
+physics(*this), lifespan(*this),
+scheduler(*this){}
 
-size_t Context::yield_count() const noexcept{
-    return 1;
-}
 
-Generator<void> Context::update(DeltaTime){
+void Context::update(DeltaTime dt){
     GameDebug("update something");
 
-    co_return;
+    scheduler.prepareScheduling(dt);
+    scheduler.startUpdate();
 }
 
 uint32_t Context::issueID(){
@@ -34,6 +34,7 @@ EntityID Context::create(
     ArchetypeBit bit, SparseChunk&& chunk
 ){
     EntityID actor_id = issueID();
+    GameTrace("  Actor ID issued: {}, archetype: {}", actor_id, bit);
     assignEntityID(chunk, actor_id);
 
     auto chunkIndex = archetypeMap.insert(
@@ -71,5 +72,13 @@ const std::vector<ViewTask>& Context::getBuffer() const{
 template<>
 const std::vector<DrawTask>& Context::getBuffer() const{
     return draw.drawTasks;
+}
+
+DeltaTime Context::getDeltaTime() const{
+    return app.getDeltaTime();
+}
+
+void Context::prepareScheduling(){
+    scheduler.prepare(draw);
 }
 

@@ -30,7 +30,7 @@ static std::optional<Component> parse(
     const toml::table*, AppState& app);
 
 void AssetLoader::loadAsset(const std::string& fileName){
-    GameDebug("Load Asset: {}", fileName);
+    AppDebug("Load Asset: {}", fileName);
     auto table = toml::parse_file(fileName);
 
     auto entities = *table["entities"].as_array();
@@ -45,7 +45,7 @@ void AssetLoader::loadAsset(const std::string& fileName){
 }
 
 void AssetLoader::loadAction(const std::string& fileName){
-    GameDebug("Load Action: {}", fileName);
+    AppDebug("Load Action: {}", fileName);
     auto tbl = toml::parse_file(fileName);
 
     auto modules = *tbl["module"].as_array();
@@ -193,7 +193,6 @@ parseActor(const toml::table* ptr, AppState& app){
 
     auto ic = parse<InputComponent>(
         actor["script"].as_table(), app);
-    
 
     if(tc.has_value()){
         bit = bit | TRANSFORM_BIT;
@@ -212,9 +211,8 @@ parseActor(const toml::table* ptr, AppState& app){
         chunk.input = ic.value();
     }
 
+    GameDebug("Actor loaded, name: {}, archetype: {}", name, bit);
     return {bit, chunk};
-    auto actor_id = app.world.create(bit, std::move(chunk));
-    GameDebug("Actor loaded, id: {}, name: {}, archetype: {}", actor_id, name, bit);
 }
 
 static std::tuple<std::string, std::string, std::string>

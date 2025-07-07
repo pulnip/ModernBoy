@@ -7,11 +7,30 @@ using namespace ModernBoy::Game;
 Scheduler::Scheduler(Context& world)
 :world(world){}
 
-void Scheduler::prepareScheduling(){
+void Scheduler::prepareScheduling(DeltaTime dt){
+    deltaTime = dt;
+    generators.clear();
+
+    world.prepareScheduling();
     GameDebug("prepareScheduling");
 }
 void Scheduler::startUpdate(){
-    GameDebug("startUpdate");
+    GameDebug("GameUpdate, Num Generators: {}",
+        generators.size());
+
+    while(true){
+        bool allDone = true;
+
+        for(auto& generator: generators){
+            if(generator.done())
+                continue;
+            generator.next();
+            allDone = false;
+        }
+
+        if(allDone)
+            break;
+    }
 }
 
 

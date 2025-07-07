@@ -10,6 +10,7 @@
 #include "game/input_system.hpp"
 #include "game/physics_system.hpp"
 #include "game/lifespan_system.hpp"
+#include "game/scheduler.hpp"
 #include "game/event.hpp"
 #include "util/generator.hpp"
 
@@ -26,9 +27,7 @@ namespace ModernBoy::Game
     public:
         Context(AppState& app);
 
-        size_t yield_count() const noexcept;
-
-        Generator<void> update(DeltaTime dt);
+        void update(DeltaTime dt);
 
         uint32_t issueID();
         DeltaTime getDeltaTime();
@@ -74,6 +73,10 @@ namespace ModernBoy::Game
         template<typename Task>
         const std::vector<Task>& getBuffer() const;
 
+        DeltaTime getDeltaTime() const;
+
+        void prepareScheduling();
+
     private:
         AppState& app;
 
@@ -84,6 +87,8 @@ namespace ModernBoy::Game
         InputSystem script;
         PhysicsSystem physics;
         LifespanSystem lifespan;
+
+        Scheduler scheduler;
 
         friend class AppState;
     };

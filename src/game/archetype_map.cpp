@@ -1,6 +1,7 @@
 #include <format>
 #include <stdexcept>
 #include <thread>
+#include "log.hpp"
 #include "util/bit.hpp"
 #include "util/thread_backoff.hpp"
 #include "app_state.hpp"
@@ -124,8 +125,10 @@ Index ArchetypeMap::insert(ArchetypeBit bit,
 ){
     size_t CHUNK_SIZE = bit_size(bit);
 
-    if(archetypeMap.find(bit) == archetypeMap.end())
-        archetypeMap.try_emplace(bit, bit, CHUNK_SIZE);
+    if(archetypeMap.find(bit) == archetypeMap.end()){
+        auto [it, ret] = archetypeMap.try_emplace(bit, bit, CHUNK_SIZE);
+        GameDebug("    No Archetype: {} in map. emplace new. Result: {}", bit, ret);
+    }
     auto& vector = archetypeMap.at(bit);
     auto newIndex = vector.mutate<Index>([bit, &chunk](DynamicVector& vec){
         auto newIndex = vec.insertRange(1);
