@@ -13,8 +13,6 @@ scheduler(*this){}
 
 
 void Context::update(DeltaTime dt){
-    GameDebug("update something");
-
     scheduler.prepareScheduling(dt);
     scheduler.startUpdate();
 }

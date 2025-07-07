@@ -1,10 +1,15 @@
+#include <print>
 #include <SDL3/SDL_log.h>
 #include "log.hpp"
 
 using namespace ModernBoy;
 
-Logger::Logger(){
-    SDL_SetLogPriorities(SDL_LOG_PRIORITY_TRACE);
+Logger::Logger():levels{
+    LogLevel::Debug, LogLevel::Debug, LogLevel::Debug,
+    LogLevel::Debug, LogLevel::Debug, LogLevel::Debug,
+    LogLevel::Debug
+        }{
+    SDL_SetLogPriorities(SDL_LOG_PRIORITY_DEBUG);
 }
 
 static SDL_LogPriority convertToSDL(LogLevel level){
@@ -28,7 +33,7 @@ static SDL_LogPriority convertToSDL(LogLevel level){
 }
 static int convertToInt(LogCategory category){
     switch(category){
-        case LogCategory::Application: return 0;
+        case LogCategory::App:         return 0;
         case LogCategory::Render:      return 1;
         case LogCategory::Input:       return 2;
         case LogCategory::Script:      return 3;
@@ -39,7 +44,7 @@ static int convertToInt(LogCategory category){
 }
 static int convertToSDL(LogCategory category){
     switch(category){
-    case LogCategory::Application:
+    case LogCategory::App:
         return SDL_LOG_CATEGORY_APPLICATION;
     case LogCategory::Render:
         return SDL_LOG_CATEGORY_RENDER;
@@ -62,7 +67,7 @@ void Logger::log(LogLevel level, LogCategory category, std::string message){
     auto sdlCategory = convertToSDL(category);
 
     LogLevel minLevel = levels[convertToInt(category)];
-    if(level < minLevel)
+    if(int(level) < int(minLevel))
         return;
 
     static constexpr const char* prefix[] = {

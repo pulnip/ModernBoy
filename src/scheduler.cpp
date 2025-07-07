@@ -55,7 +55,7 @@ void Scheduler::prepareScheduling(){
         ++numScheduled[selectedIndex];
     }
 
-    AppDebug("Scheduling   T.U.P., Num: {}, total   Tasks: {}",
+    AppTrace("Scheduling   T.U.P., Num: {}, total   Tasks: {}",
         updateGenerators.size(), numScheduled.size(), totalTasks);
 
     const size_t totalUpdates = std::accumulate(
@@ -82,12 +82,12 @@ void Scheduler::prepareScheduling(){
         updateSchedule.push_back(selectedIndex);
         ++numScheduled[selectedIndex];
     }
-    AppDebug("Scheduling   E.U.P., Num: {}, total Updates: {}",
+    AppTrace("Scheduling   E.U.P., Num: {}, total Updates: {}",
         updateGenerators.size(), numScheduled.size(), totalUpdates);
 }
 
 void Scheduler::prepareFrame(){
-    AppDebug("T.U.P., Num Generators: {}, Num Scheduled: {}",
+    AppTrace("T.U.P., Num Generators: {}, Num Scheduled: {}",
         taskGenerators.size(), taskSchedule.size());
     app.on<Event::OnFrameStart>();
 
@@ -109,11 +109,11 @@ void Scheduler::prepareFrame(){
     } while(!all_done);
 
     app.on<Event::OnFrameEnd>();
-    AppDebug("T.U.P., Finished");
+    AppTrace("T.U.P., Finished");
 }
 
 void Scheduler::updateFrame(){
-    AppDebug("E.U.P., Num Generators: {}, Num Scheduled: {}",
+    AppTrace("E.U.P., Num Generators: {}, Num Scheduled: {}",
         updateGenerators.size(), updateSchedule.size());
 
     for(auto idx: updateSchedule){
@@ -140,7 +140,7 @@ void Scheduler::updateFrame(){
     if(now - lastTick <= sleepDuration){
         std::this_thread::sleep_for(sleepDuration);
     }
-    AppDebug("E.U.P., Finished");
+    AppTrace("E.U.P., Finished");
 }
 
 DeltaTime Scheduler::getDeltaTime() const{ return deltaTime; }

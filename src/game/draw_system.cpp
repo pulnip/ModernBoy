@@ -28,7 +28,7 @@ size_t DrawSystem::yield_count() const noexcept{
             numDrawTask += 1;
     }
 
-    GameDebug("Num View Task: {}, Num Draw Task: {}",
+    GameTrace("Num View Task: {}, Num Draw Task: {}",
         numViewTask, numDrawTask);
 
     return 1 * numDrawTask;
@@ -51,7 +51,6 @@ Generator<void> DrawSystem::update(DeltaTime){
             const TransformComponent& tc,
             const CameraComponent& cc
         ){
-            GameDebug("ViewTask Actors");
             assert(tc.actor == cc.actor);
             if(cc.isActive)
                 viewTasks.emplace_back(ViewTask{
@@ -74,7 +73,6 @@ Generator<void> DrawSystem::update(DeltaTime){
                 const TransformComponent& tc,
                 const MeshComponent& mc
             ){
-                GameDebug("DrawTask Actors");
                 assert(tc.actor == mc.actor);
                 if(mc.isActive)
                     drawTasks.emplace_back(DrawTask{

@@ -12,10 +12,9 @@ void Scheduler::prepareScheduling(DeltaTime dt){
     generators.clear();
 
     world.prepareScheduling();
-    GameDebug("prepareScheduling");
 }
 void Scheduler::startUpdate(){
-    GameDebug("GameUpdate, Num Generators: {}",
+    GameTrace("GameUpdate, Num Generators: {}",
         generators.size());
 
     while(true){

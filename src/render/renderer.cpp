@@ -61,7 +61,7 @@ Generator<void> Renderer::updateTask(DeltaTime){
 }
 
 void Renderer::onFrameStart(){
-    RenderDebug("Frame Start");
+    RenderTrace("Frame Start");
     context.onFrameStart(
         {.r=0.0f, .g=0.0f, .b=0.0f, .a=0.5f});
 }
@@ -71,18 +71,18 @@ void Renderer::setView(const ViewTask& task){
     const auto& viewPos = cameraTransform.position;
     const auto& viewQuat = cameraTransform.rotation;
     const auto& camera = task.camera;
-    RenderDebug("Set View, pos: {}, {}, {}",
+    RenderTrace("Set View, pos: {}, {}, {}",
         viewPos.x, viewPos.y, viewPos.z);
 
     context.setView(camera.fov, viewPos, viewQuat);
 }
 void Renderer::setShader(ShaderHandle handle){
-    RenderDebug("Set Shader, index: {}", handle.index);
+    RenderTrace("Set Shader, index: {}", handle.index);
     const auto& shader = app.query<Shader>(handle);
     context.setShader(shader.shaderPtr);
 }
 void Renderer::setTexture(TextureHandle handle){
-    RenderDebug("Set Texture, Index: {}", handle.index);
+    RenderTrace("Set Texture, Index: {}", handle.index);
     const auto& texture = app.query<Texture>(handle);
     RenderTrace("  Texture Ptr: {}", texture.texture);
     context.setTexture(texture.texture);
@@ -90,7 +90,7 @@ void Renderer::setTexture(TextureHandle handle){
 void Renderer::drawMesh(
     const Transform& transform, MeshHandle handle
 ){
-    RenderDebug("draw type: {}, index: {}", static_cast<int>(handle.type), handle.index);
+    RenderTrace("draw type: {}, index: {}", static_cast<int>(handle.type), handle.index);
     const auto& mesh = app.query<Mesh>(handle);
 
     for(const auto partPtr: mesh.meshPtr){
@@ -98,7 +98,7 @@ void Renderer::drawMesh(
     }
 }
 void Renderer::onFrameEnd(){
-    RenderDebug("Frame End");
+    RenderTrace("Frame End");
 
     context.onFrameEnd();
 }

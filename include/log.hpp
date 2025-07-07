@@ -18,7 +18,7 @@ namespace ModernBoy
         None        = 6
     };
     enum class LogCategory{
-        Application = SDL_LOG_CATEGORY_APPLICATION,
+        App         = SDL_LOG_CATEGORY_APPLICATION,
         Render      = SDL_LOG_CATEGORY_RENDER,
         Input       = SDL_LOG_CATEGORY_INPUT,
         Script      = SDL_LOG_CATEGORY_CUSTOM,
@@ -44,113 +44,46 @@ namespace ModernBoy
         void log(LogLevel level, LogCategory category, std::string msg);
         void setCategoryLevel(LogCategory category, LogLevel level);
 
-        LogLevel levels[NUM_LOG_CATEGORY] = {
-            LogLevel::Trace, LogLevel::Trace, LogLevel::Trace, LogLevel::Trace,
-            LogLevel::Trace, LogLevel::Trace, LogLevel::Trace
-        };
+        LogLevel levels[NUM_LOG_CATEGORY];
     };
 
     inline Logger logger;
 
-    template<typename... Args>
-    inline void LogTrace(LogCategory category, std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, category, std::move(msg), std::forward(args)...);
+    #define DECL_LOG_FUNC(level) template<typename...Args> \
+    inline void Log##level(LogCategory category, \
+        std::format_string<Args...> msg, Args&&... args \
+    ){ \
+        logger.log(LogLevel::level, category, std::move(msg), \
+        std::forward(args)...); \
     }
-    template<typename... Args>
-    inline void LogDebug(LogCategory category, std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, category, std::move(msg), std::forward(args)...);
-    }
-    template<typename... Args>
-    inline void LogInfo(LogCategory category, std::format_string<Args...>&& msg, Args&&... args){
-        logger.log(LogLevel::Info, category, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void LogWarn(LogCategory category, std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Warn, category, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void LogError(LogCategory category, std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Error, category, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void LogCritical(LogCategory category, std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Critical, category, std::move(msg), std::forward<Args>(args)...);
+    DECL_LOG_FUNC(Trace)
+    DECL_LOG_FUNC(Debug)
+    DECL_LOG_FUNC(Info)
+    DECL_LOG_FUNC(Warn)
+    DECL_LOG_FUNC(Error)
+    DECL_LOG_FUNC(Critical)
+
+    #define DECL_DOMAIN_LEVEL_LOG_FUNC(category, level) template<typename... Args> \
+    inline void category##level(std::format_string<Args...> msg, Args&&... args){ \
+        logger.log(LogLevel::level, LogCategory::category, std::move(msg), \
+        std::forward<Args>(args)...); \
     }
 
-    template<typename... Args>
-    inline void AppTrace(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void AppDebug(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void AppInfo(std::format_string<Args...>&& msg, Args&&... args){
-        logger.log(LogLevel::Info, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void AppWarn(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Warn, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void AppError(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Error, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void AppCritical(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Critical, LogCategory::Application, std::move(msg), std::forward<Args>(args)...);
-    }
+    #define DECL_DOMAIN_LOG_FUNC(category) \
+        DECL_DOMAIN_LEVEL_LOG_FUNC(category, Trace) \
+        DECL_DOMAIN_LEVEL_LOG_FUNC(category, Debug) \
+        DECL_DOMAIN_LEVEL_LOG_FUNC(category, Info) \
+        DECL_DOMAIN_LEVEL_LOG_FUNC(category, Warn) \
+        DECL_DOMAIN_LEVEL_LOG_FUNC(category, Error) \
+        DECL_DOMAIN_LEVEL_LOG_FUNC(category, Critical)
+    DECL_DOMAIN_LOG_FUNC(App)
+    DECL_DOMAIN_LOG_FUNC(Render)
+    DECL_DOMAIN_LOG_FUNC(Input)
+    DECL_DOMAIN_LOG_FUNC(Script)
+    DECL_DOMAIN_LOG_FUNC(Game)
+    DECL_DOMAIN_LOG_FUNC(Network)
+    DECL_DOMAIN_LOG_FUNC(UI)
 
-    template<typename... Args>
-    inline void RenderTrace(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void RenderDebug(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void RenderInfo(std::format_string<Args...>&& msg, Args&&... args){
-        logger.log(LogLevel::Info, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void RenderWarn(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Warn, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void RenderError(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Error, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void RenderCritical(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Critical, LogCategory::Render, std::move(msg), std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
-    inline void GameTrace(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void GameDebug(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Debug, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void GameInfo(std::format_string<Args...>&& msg, Args&&... args){
-        logger.log(LogLevel::Info, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void GameWarn(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Warn, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void GameError(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Error, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
-    }
-    template<typename... Args>
-    inline void GameCritical(std::format_string<Args...> msg, Args&&... args){
-        logger.log(LogLevel::Critical, LogCategory::Game, std::move(msg), std::forward<Args>(args)...);
-    }
 } // namespace ModernBoy
 
 
