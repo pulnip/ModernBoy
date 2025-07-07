@@ -38,7 +38,20 @@ UserInterface::UserInterface(AppState& app,
         app.getDevice());
     ImGui_ImplMetal_Init(device);
 
-    emplace<MenuController>();
+    // move to somewhere
+    auto id = emplace<MenuController>();
+
+    using namespace std::string_literals;
+
+    emplace<CheckBox>(id, "WireFrame"s, false);
+    emplace<SameLine>(id);
+    emplace<CheckBox>(id, "DrawNormal"s, false);
+    emplace<CheckBox>(id, "usePerspective"s, false);
+    emplace<Slider>(id, "Normal Scale"s, 0.0f, 1.0f, 0.5f);
+    emplace<RadioButton>(id, std::vector{
+        "DirLight"s, "PointLight"s, "SpotLight"s}, 0);
+    emplace<Slider>(id, "Rim Power"s, 0.0f, 10.0f, 0.0f);
+    emplace<Slider>(id, "Rim Strength"s, 0.0f, 1.0f, 0.0f);
 }
 
 size_t UserInterface::yield_count() const noexcept{

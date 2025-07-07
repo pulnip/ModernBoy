@@ -18,7 +18,8 @@ namespace ModernBoy::UI
 
         template<typename Control, typename ...Args>
         ControlID emplace(ControlID id, Args&&... args){
-            controls.emplace(id, Control(
+            id2index.emplace(id, controls.size());
+            controls.emplace_back(Control(
                 std::forward<Args>(args)...));
             return id;
         }
@@ -28,7 +29,8 @@ namespace ModernBoy::UI
         void OnEvent(Event event);
 
     private:
-        std::unordered_map<ControlID, Control> controls;
+        std::vector<Control> controls;
+        std::unordered_map<ControlID, Index> id2index;
     };
 
     using Controller = std::variant<

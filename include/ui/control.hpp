@@ -30,10 +30,14 @@ namespace ModernBoy::UI
         void draw();
         void OnEvent(Event);
     };
+    struct SameLine{
+        void draw();
+        void OnEvent(Event);
+    };
 
     using Control = std::variant<
         CheckBox, RadioButton,
-        Slider
+        Slider, SameLine
     >;
 } // namespace ModernBoy::UI
 

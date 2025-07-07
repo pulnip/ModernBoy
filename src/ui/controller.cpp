@@ -5,7 +5,9 @@
 using namespace ModernBoy;
 using namespace ModernBoy::UI;
 
-MenuController::MenuController()=default;
+MenuController::MenuController(){
+    
+}
 
 void MenuController::update(DeltaTime){
     // ImGui::ShowDemoWindow(); // Show demo window! :)
@@ -13,20 +15,21 @@ void MenuController::update(DeltaTime){
     ImGui::Begin("Scene Control");
     ImGui::Text("%.2f FPS", ImGui::GetIO().Framerate);
 
-    for(auto& [id, ctrl]: controls){
+    for(auto& control: controls){
         std::visit([](auto& control){
             control.draw();
-        }, ctrl);
+        }, control);
     }
 
     ImGui::End();
 }
 
 void MenuController::OnEvent(Event event){
-    auto it = controls.find(event.id);
-    if(it == controls.end())
+    auto it = id2index.find(event.id);
+    if(it == id2index.end())
         return;
+    
     std::visit([&](auto& control){
         control.OnEvent(event);
-    }, it->second);
+    }, controls[it->second]);
 }

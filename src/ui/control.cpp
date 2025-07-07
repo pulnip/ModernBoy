@@ -18,11 +18,11 @@ void CheckBox::OnEvent(Event event){
 }
 
 void RadioButton::draw(){
-    size_t i=0;
-    for(const auto& label: labels){
-        if(!ImGui::RadioButton(label.c_str(), i++==0)){
-            continue;
-        }
+    for(int i=0; i<labels.size(); ++i){
+        if(ImGui::RadioButton(labels[i].c_str(), index==i))
+            index = i;
+        if(i != labels.size()-1)
+            ImGui::SameLine();
     }
 }
 void RadioButton::OnEvent(Event event){
@@ -49,3 +49,8 @@ void Slider::OnEvent(Event event){
     default:
     }
 }
+
+void SameLine::draw(){
+    ImGui::SameLine();
+}
+void SameLine::OnEvent(Event event){}

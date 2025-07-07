@@ -21,13 +21,15 @@ namespace ModernBoy::UI
             ));
             return id;
         }
-        template<typename ControlType, typename... Args>
+        template<typename Control, typename... Args>
         ControlID emplace(ControllerID id, Args&&... args) {
             auto ctrlID = issueID();
 
-            controllers.at(id).emplace(ctrlID,
-                std::forward<Args>(args)...);
-            control2Controller.emplace(id, ctrlID);
+            std::visit([&](auto& controller){
+                controller.template emplace<Control>(
+                    ctrlID, std::forward<Args>(args)...);
+            }, controllers.at(id));
+            control2Controller.emplace(ctrlID, id);
             return ctrlID;
         }
 
