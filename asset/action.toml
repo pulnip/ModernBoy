@@ -12,8 +12,6 @@ name = "src/script/default.as"
 [[module.function]]
 name="onCreated"
 [[module.function]]
-name="onInputTrigger"
-[[module.function]]
 name="update"
 [[module.function]]
 name="onDestroyed"

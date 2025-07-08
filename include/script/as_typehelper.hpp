@@ -7,9 +7,20 @@ class asIScriptEngine;
 
 namespace ModernBoy::Script
 {
-    int registerTransform(asIScriptEngine* engine);
-    int registerKeyevent(asIScriptEngine* engine);
-    int registerActor(asIScriptEngine* engine);
+    class TypeHelper{
+    public:
+        TypeHelper(asIScriptEngine* engine, 
+            Input::Chord& chord);
+
+        int registerTransform();
+        int registerKeyevent();
+        int registerActor();
+        int registerGlobalProperty();
+
+    private:
+        asIScriptEngine* engine;
+        Input::Chord& chord;
+    };
 
 } // namespace ModernBoy::Script
 

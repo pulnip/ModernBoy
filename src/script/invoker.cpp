@@ -30,7 +30,9 @@ static void printInt(int i){
     std::println("{}", i);
 }
 
-Invoker::Invoker(Game::Context& world):world(world),
+Invoker::Invoker(Game::Context& world,
+    Input::Chord& chord
+):world(world),
 engine(asCreateScriptEngine()),
 context(engine->CreateContext()){
     int r = engine->SetMessageCallback(asFUNCTION(messageCallback), 0, asCALL_CDECL);
@@ -44,9 +46,11 @@ context(engine->CreateContext()){
     r = engine->RegisterGlobalFunction("void printInt(int)",
         asFUNCTION(printInt), asCALL_CDECL); assert( r >= 0 );
 
-    Script::registerTransform(engine);
-    Script::registerKeyevent(engine);
-    Script::registerActor(engine);
+    TypeHelper typeHelper(engine, chord);
+    typeHelper.registerTransform();
+    typeHelper.registerKeyevent();
+    typeHelper.registerActor();
+    typeHelper.registerGlobalProperty();
 }
 Invoker::~Invoker(){
     context->Release();

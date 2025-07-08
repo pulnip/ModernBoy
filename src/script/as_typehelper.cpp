@@ -3,6 +3,8 @@
 #include "common/type.hpp"
 #include "raw_resource.hpp"
 #include "script/as_typehelper.hpp"
+#include "script/invoker.hpp"
+#include "input/chord.hpp"
 #include "input/state.hpp"
 #include "game/context.hpp"
 #include "game/component.hpp"
@@ -11,7 +13,27 @@ using namespace ModernBoy;
 using namespace ModernBoy::Script;
 using namespace ModernBoy::Game;
 
-int ModernBoy::Script::registerTransform(asIScriptEngine* engine){
+TypeHelper::TypeHelper(asIScriptEngine* engine,
+    Input::Chord& chord)
+:engine(engine), chord(chord){}
+
+int TypeHelper::registerGlobalProperty(){
+    if(auto ret=engine->RegisterObjectType(
+        "Input", sizeof(Input::Chord),
+        asOBJ_REF | asOBJ_NOCOUNT ) < 0)
+        return ret;
+    if(auto ret=engine->RegisterGlobalProperty(
+        "Input@ input", &chord) < 0)
+        return ret;
+    if(auto ret=engine->RegisterObjectMethod(
+        "Input", "bool query(Button button, ButtonState state)",
+        asMETHOD(Input::Chord, query), asCALL_THISCALL) < 0)
+        return ret;
+    
+    return 0;
+}
+
+int TypeHelper::registerTransform(){
     // register Vec3
     if(auto ret=engine->RegisterObjectType(
         "Vec3", sizeof(Vec3),
@@ -60,7 +82,7 @@ int ModernBoy::Script::registerTransform(asIScriptEngine* engine){
     return 0;
 }
 
-int ModernBoy::Script::registerKeyevent(asIScriptEngine* engine){
+int TypeHelper::registerKeyevent(){
     using namespace ModernBoy::Input;
     // register ButtonState
     if(auto ret=engine->RegisterEnum("ButtonState") < 0)
@@ -118,7 +140,7 @@ static uint64_t getDeltaTime(Context* context){
     return context->getDeltaTime().count();
 }
 
-int ModernBoy::Script::registerActor(asIScriptEngine* engine){
+int TypeHelper::registerActor(){
     if(auto ret=engine->RegisterObjectType(
         "GameContext", sizeof(Game::Context),
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
