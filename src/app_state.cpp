@@ -17,8 +17,10 @@ meshManager(), textureManager(),
 shaderManager(), moduleManager(),
 // subsystems
 renderer(window, meshManager, textureManager,
-    shaderManager, world), scriptInvoker(world),
+    shaderManager, world),
 userInterface(window, renderer, *this),
+inputChord(),
+scriptInvoker(world, inputChord),
 // others
 scheduler(*this), world(*this),
 assetLoader(*this){}

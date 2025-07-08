@@ -19,7 +19,8 @@ namespace ModernBoy::Script
 
     class Invoker{
     public:
-        Invoker(Game::Context& world);
+        Invoker(Game::Context& world,
+            Input::Chord& chord);
         ~Invoker();
         Invoker(const Invoker& other)=delete;
         Invoker(Invoker&&)=delete;

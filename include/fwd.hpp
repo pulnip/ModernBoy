@@ -21,6 +21,10 @@ namespace ModernBoy
         class UserInterface;
     }
 
+    namespace Input{
+        class Chord;
+    }
+
     using NativePtr = void*;
 #if defined(USE_DIRECTX)
     namespace DX11{
@@ -49,6 +53,7 @@ namespace ModernBoy
 #endif
     namespace Script{
         struct Module;
+        class Invoker;
     }
     using Module = Script::Module;
 

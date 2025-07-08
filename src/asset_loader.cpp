@@ -152,22 +152,10 @@ parse<InputComponent>(
 
     auto component = dangled<InputComponent>();
 
-    for(const auto& n: *script["map"].as_array()){
-        const auto& input = *n.as_table();
+    auto moduleName = *script["module"].value<std::string>();
+    auto moduleHandle = app.query<Script::Module>(moduleName);
 
-        auto triggerText = input["trigger"].value<std::string>().value();
-        auto [d, keyText, stateText] = parseInputTrigger(triggerText);
-
-        // auto button = Input::toButton(keyText);
-        // auto state = Input::toButtonState(stateText);
-
-        auto actionText = input["action"].value<std::string>().value();
-        auto [mod, func] = parseInputAction(actionText);
-
-        auto moduleHandle = app.query<Script::Module>(mod);
-        // auto func_id = app.registerFunction(func);
-        component.handle = moduleHandle;
-    }
+    component.handle = moduleHandle;
 
     return component;
 }
@@ -271,7 +259,4 @@ parseModule(const toml::table* ptr){
     }
 
     return {moduleName.value(), fileNames};
-    // [[maybe_unused]] auto mod = app.append<Script::Module>(
-    //     moduleName.value(), fileNames
-    // );
 }

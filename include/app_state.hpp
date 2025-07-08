@@ -7,9 +7,10 @@
 #include "game/context.hpp"
 #include "game/event.hpp"
 #include "resource_manager.hpp"
-#include "render/renderer.hpp"
 #include "script/type.hpp"
 #include "script/invoker.hpp"
+#include "input/chord.hpp"
+#include "render/renderer.hpp"
 #include "ui/user_interface.hpp"
 #include "scheduler.hpp"
 #include "event.hpp"
@@ -98,8 +99,9 @@ namespace ModernBoy
 
         // App Subsystem
         Render::Renderer renderer;
-        Script::Invoker scriptInvoker;
         UI::UserInterface userInterface;
+        Input::Chord inputChord;
+        Script::Invoker scriptInvoker;
 
         Scheduler scheduler;
         Game::Context world;
