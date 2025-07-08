@@ -26,7 +26,7 @@ int TypeHelper::registerGlobalProperty(){
         "Input@ input", &chord) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectMethod(
-        "Input", "bool query(Button button, ButtonState state)",
+        "Input", "bool query(KeyCode keyCode, KeyState keyState)",
         asMETHOD(Input::Chord, query), asCALL_THISCALL) < 0)
         return ret;
     
@@ -84,20 +84,20 @@ int TypeHelper::registerTransform(){
 
 int TypeHelper::registerKeyevent(){
     using namespace ModernBoy::Input;
-    // register ButtonState
-    if(auto ret=engine->RegisterEnum("ButtonState") < 0)
+    // register KeyState
+    if(auto ret=engine->RegisterEnum("KeyState") < 0)
         return ret;
     for(size_t i=0; i<STATE_INVALID; ++i){
-        if(auto ret=engine->RegisterEnumValue("ButtonState",
-            toText(static_cast<ButtonState>(i)).c_str(), i))
+        if(auto ret=engine->RegisterEnumValue("KeyState",
+            toText(static_cast<KeyState>(i)).c_str(), i))
             return ret;
     }
-    // register Button
-    if(auto ret=engine->RegisterEnum("Button") < 0)
+    // register Key
+    if(auto ret=engine->RegisterEnum("KeyCode") < 0)
         return ret;
     for(size_t i=0; i<KEY_UNKNOWN; ++i){
-        auto text = std::format("KEY_{}", toText(static_cast<Button>(i)));
-        if(auto ret=engine->RegisterEnumValue("Button",
+        auto text = std::format("KEY_{}", toText(static_cast<KeyCode>(i)));
+        if(auto ret=engine->RegisterEnumValue("KeyCode",
             text.c_str(), i))
             return ret;
     }
@@ -107,10 +107,10 @@ int TypeHelper::registerKeyevent(){
         asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CDAK) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectProperty("Trigger",
-        "Button button", asOFFSET(Trigger, button)) < 0)
+        "KeyCode keyCode", asOFFSET(Trigger, keyCode)) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectProperty("Trigger",
-        "ButtonState onState", asOFFSET(Trigger, onState)) < 0)
+        "KeyState keyState", asOFFSET(Trigger, keyState)) < 0)
         return ret;
     return 0;
 }

@@ -8,8 +8,7 @@ namespace ModernBoy::Input
 {
     class Chord{
     public:
-        bool query(Button button,
-            ButtonState state);
+        bool query(KeyCode, KeyState);
 
     public:
         State state;

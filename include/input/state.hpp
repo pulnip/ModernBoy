@@ -15,17 +15,17 @@ namespace ModernBoy::Input
     constexpr uint8_t ACTIVE_FLAG  = 0b01;
     constexpr uint8_t CHANGED_FLAG = 0b10;
 
-    enum ButtonState{
+    enum KeyState{
         None        = 0b00,
         Held        = ACTIVE_FLAG,
         Released    = CHANGED_FLAG,
         Pressed     = CHANGED_FLAG | ACTIVE_FLAG,
         STATE_INVALID = 4,
     };
-    ButtonState toButtonState(const std::string& text);
-    std::string toText(ButtonState state);
+    KeyState toKeyState(const std::string& text);
+    std::string toText(KeyState state);
 
-    enum Button{
+    enum KeyCode{
         KEY_0     =  0,
         KEY_1     =  1,
         KEY_2     =  2,
@@ -87,29 +87,29 @@ namespace ModernBoy::Input
         KEY_ENTER = 58,
         KEY_UNKNOWN = 59,
     };
-    bool isValid(Button button);
-    bool isValid(ButtonState state);
+    bool isValid(KeyCode keyCode);
+    bool isValid(KeyState keyState);
 
-    SDL_Scancode convert(Button code);
-    Button convert(SDL_Scancode code);
-    Button toButton(const std::string& text);
-    std::string toText(Button button);
+    SDL_Scancode convert(KeyCode code);
+    KeyCode convert(SDL_Scancode code);
+    KeyCode toKey(const std::string& text);
+    std::string toText(KeyCode keyCode);
 
-    ButtonState transit(ButtonState state,
+    KeyState transit(KeyState keyState,
         uint8_t current);
 
-    using KeyState = std::array<ButtonState, KEY_UNKNOWN>;
+    using Keyboard = std::array<KeyState, KEY_UNKNOWN>;
     
     struct State{
-        KeyState keyState;
+        Keyboard keyboard;
     };
 
     constexpr uint32_t STATE_MASK = 0b11;
-    constexpr uint32_t BUTTON_MASK = std::numeric_limits<uint32_t>::max() - STATE_MASK;
+    constexpr uint32_t KEY_MASK = std::numeric_limits<uint32_t>::max() - STATE_MASK;
 
     struct Trigger{
-        Button button;
-        ButtonState onState;
+        KeyCode keyCode;
+        KeyState keyState;
     }; static_assert(std::is_trivially_copyable_v<Trigger>);
 }
 

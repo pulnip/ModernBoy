@@ -3,8 +3,7 @@
 using namespace ModernBoy;
 using namespace ModernBoy::Input;
 
-bool Chord::query(Button button,
-    ButtonState state
+bool Chord::query(KeyCode keyCode, KeyState keyState
 ){
-
+    return state.keyboard[keyCode] == keyState;
 }

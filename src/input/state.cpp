@@ -6,41 +6,41 @@
 
 using namespace ModernBoy::Input;
 
-bool ModernBoy::Input::isValid(Button button){
-    return button != Button::KEY_UNKNOWN;
+bool ModernBoy::Input::isValid(KeyCode keyCode){
+    return keyCode != KeyCode::KEY_UNKNOWN;
 }
-bool ModernBoy::Input::isValid(ButtonState state){
-    return state != ButtonState::STATE_INVALID;
+bool ModernBoy::Input::isValid(KeyState state){
+    return state != KeyState::STATE_INVALID;
 }
 
-static std::unordered_map<std::string, ButtonState>
+static std::unordered_map<std::string, KeyState>
 text2state = {
-    {"None", ButtonState::None},
-    {"HELD", ButtonState::Held},
-    {"RELEASED", ButtonState::Released},
-    {"PRESSED", ButtonState::Pressed},
+    {"None", KeyState::None},
+    {"HELD", KeyState::Held},
+    {"RELEASED", KeyState::Released},
+    {"PRESSED", KeyState::Pressed},
 };
-ButtonState ModernBoy::Input::toButtonState(
+KeyState ModernBoy::Input::toKeyState(
     const std::string& text
 ){
     auto upper = toUpper(text);
     auto it = text2state.find(upper);
     if (it == text2state.end()){
-        return ButtonState::STATE_INVALID;
+        return KeyState::STATE_INVALID;
     }
     return it->second;
 }
 std::string ModernBoy::Input::toText(
-    ButtonState state
+    KeyState state
 ){
     switch(state){
-    case ButtonState::None:
+    case KeyState::None:
         return "None";
-    case ButtonState::Held:
+    case KeyState::Held:
         return "Held";
-    case ButtonState::Released:
+    case KeyState::Released:
         return "Released";
-    case ButtonState::Pressed:
+    case KeyState::Pressed:
         return "Pressed";
     case STATE_INVALID: [[fallthrough]];
     default:
@@ -48,7 +48,7 @@ std::string ModernBoy::Input::toText(
     return "UNKNOWN";
 }
 
-SDL_Scancode ModernBoy::Input::convert(Button code){
+SDL_Scancode ModernBoy::Input::convert(KeyCode code){
     switch(code){
     case KEY_0:    return SDL_SCANCODE_0;
     case KEY_1:    return SDL_SCANCODE_1;
@@ -112,7 +112,7 @@ SDL_Scancode ModernBoy::Input::convert(Button code){
     default:       return SDL_SCANCODE_UNKNOWN;
     }
 }
-Button ModernBoy::Input::convert(SDL_Scancode code){
+KeyCode ModernBoy::Input::convert(SDL_Scancode code){
     switch(code){
     case SDL_SCANCODE_0:        return KEY_0;
     case SDL_SCANCODE_1:        return KEY_1;
@@ -179,150 +179,150 @@ Button ModernBoy::Input::convert(SDL_Scancode code){
     default:                    return KEY_UNKNOWN;
     }
 }
-static std::unordered_map<std::string, Button>
-text2button = {
-    {"0"        , Button::KEY_0},
-    {"1"        , Button::KEY_1},
-    {"2"        , Button::KEY_2},
-    {"3"        , Button::KEY_3},
-    {"4"        , Button::KEY_4},
-    {"5"        , Button::KEY_5},
-    {"6"        , Button::KEY_6},
-    {"7"        , Button::KEY_7},
-    {"8"        , Button::KEY_8},
-    {"9"        , Button::KEY_9},
-    {"TAB"      , Button::KEY_TAB},
-    {"Q"        , Button::KEY_Q},
-    {"W"        , Button::KEY_W},
-    {"E"        , Button::KEY_E},
-    {"R"        , Button::KEY_R},
-    {"T"        , Button::KEY_T},
-    {"Y"        , Button::KEY_Y},
-    {"U"        , Button::KEY_U},
-    {"I"        , Button::KEY_I},
-    {"O"        , Button::KEY_O},
-    {"P"        , Button::KEY_P},
-    {"A"        , Button::KEY_A},
-    {"S"        , Button::KEY_S},
-    {"D"        , Button::KEY_D},
-    {"F"        , Button::KEY_F},
-    {"G"        , Button::KEY_G},
-    {"H"        , Button::KEY_H},
-    {"J"        , Button::KEY_J},
-    {"K"        , Button::KEY_K},
-    {"L"        , Button::KEY_L},
-    {"Z"        , Button::KEY_Z},
-    {"X"        , Button::KEY_X},
-    {"C"        , Button::KEY_C},
-    {"V"        , Button::KEY_V},
-    {"B"        , Button::KEY_B},
-    {"N"        , Button::KEY_N},
-    {"M"        , Button::KEY_M},
-    {"SHIFT"    , Button::KEY_SHIFT},
-    {"CTRL"     , Button::KEY_CTRL},
-    {"ALT"      , Button::KEY_ALT},
-    {"ESC"      , Button::KEY_ESC},
-    {"F1"       , Button::KEY_F1},
-    {"F2"       , Button::KEY_F2},
-    {"F3"       , Button::KEY_F3},
-    {"F4"       , Button::KEY_F4},
-    {"F5"       , Button::KEY_F5},
-    {"F6"       , Button::KEY_F6},
-    {"F7"       , Button::KEY_F7},
-    {"F8"       , Button::KEY_F8},
-    {"F9"       , Button::KEY_F9},
-    {"F10"      , Button::KEY_F10},
-    {"F11"      , Button::KEY_F11},
-    {"F12"      , Button::KEY_F12},
-    {"UP"       , Button::KEY_UP},
-    {"LEFT"     , Button::KEY_LEFT},
-    {"DOWN"     , Button::KEY_DOWN},
-    {"RIGHT"    , Button::KEY_RIGHT},
-    {"SPACE"    , Button::KEY_SPACE},
-    {"ENTER"    , Button::KEY_ENTER}
+static std::unordered_map<std::string, KeyCode>
+text2keyCode = {
+    {"0"        , KeyCode::KEY_0},
+    {"1"        , KeyCode::KEY_1},
+    {"2"        , KeyCode::KEY_2},
+    {"3"        , KeyCode::KEY_3},
+    {"4"        , KeyCode::KEY_4},
+    {"5"        , KeyCode::KEY_5},
+    {"6"        , KeyCode::KEY_6},
+    {"7"        , KeyCode::KEY_7},
+    {"8"        , KeyCode::KEY_8},
+    {"9"        , KeyCode::KEY_9},
+    {"TAB"      , KeyCode::KEY_TAB},
+    {"Q"        , KeyCode::KEY_Q},
+    {"W"        , KeyCode::KEY_W},
+    {"E"        , KeyCode::KEY_E},
+    {"R"        , KeyCode::KEY_R},
+    {"T"        , KeyCode::KEY_T},
+    {"Y"        , KeyCode::KEY_Y},
+    {"U"        , KeyCode::KEY_U},
+    {"I"        , KeyCode::KEY_I},
+    {"O"        , KeyCode::KEY_O},
+    {"P"        , KeyCode::KEY_P},
+    {"A"        , KeyCode::KEY_A},
+    {"S"        , KeyCode::KEY_S},
+    {"D"        , KeyCode::KEY_D},
+    {"F"        , KeyCode::KEY_F},
+    {"G"        , KeyCode::KEY_G},
+    {"H"        , KeyCode::KEY_H},
+    {"J"        , KeyCode::KEY_J},
+    {"K"        , KeyCode::KEY_K},
+    {"L"        , KeyCode::KEY_L},
+    {"Z"        , KeyCode::KEY_Z},
+    {"X"        , KeyCode::KEY_X},
+    {"C"        , KeyCode::KEY_C},
+    {"V"        , KeyCode::KEY_V},
+    {"B"        , KeyCode::KEY_B},
+    {"N"        , KeyCode::KEY_N},
+    {"M"        , KeyCode::KEY_M},
+    {"SHIFT"    , KeyCode::KEY_SHIFT},
+    {"CTRL"     , KeyCode::KEY_CTRL},
+    {"ALT"      , KeyCode::KEY_ALT},
+    {"ESC"      , KeyCode::KEY_ESC},
+    {"F1"       , KeyCode::KEY_F1},
+    {"F2"       , KeyCode::KEY_F2},
+    {"F3"       , KeyCode::KEY_F3},
+    {"F4"       , KeyCode::KEY_F4},
+    {"F5"       , KeyCode::KEY_F5},
+    {"F6"       , KeyCode::KEY_F6},
+    {"F7"       , KeyCode::KEY_F7},
+    {"F8"       , KeyCode::KEY_F8},
+    {"F9"       , KeyCode::KEY_F9},
+    {"F10"      , KeyCode::KEY_F10},
+    {"F11"      , KeyCode::KEY_F11},
+    {"F12"      , KeyCode::KEY_F12},
+    {"UP"       , KeyCode::KEY_UP},
+    {"LEFT"     , KeyCode::KEY_LEFT},
+    {"DOWN"     , KeyCode::KEY_DOWN},
+    {"RIGHT"    , KeyCode::KEY_RIGHT},
+    {"SPACE"    , KeyCode::KEY_SPACE},
+    {"ENTER"    , KeyCode::KEY_ENTER}
 };
-Button ModernBoy::Input::toButton(
+KeyCode ModernBoy::Input::toKey(
     const std::string& text
 ){
     auto upper = toUpper(text);
-    auto it = text2button.find(upper);
-    if (it == text2button.end()){
-        return Button::KEY_UNKNOWN;
+    auto it = text2keyCode.find(upper);
+    if (it == text2keyCode.end()){
+        return KeyCode::KEY_UNKNOWN;
     }
     return it->second;
 }
 std::string ModernBoy::Input::toText(
-    Button button
+    KeyCode keyCode
 ){
-    switch (button) {
-    case Button::KEY_0:     return "0";
-    case Button::KEY_1:     return "1";
-    case Button::KEY_2:     return "2";
-    case Button::KEY_3:     return "3";
-    case Button::KEY_4:     return "4";
-    case Button::KEY_5:     return "5";
-    case Button::KEY_6:     return "6";
-    case Button::KEY_7:     return "7";
-    case Button::KEY_8:     return "8";
-    case Button::KEY_9:     return "9";
-    case Button::KEY_TAB:   return "TAB";
-    case Button::KEY_Q:     return "Q";
-    case Button::KEY_W:     return "W";
-    case Button::KEY_E:     return "E";
-    case Button::KEY_R:     return "R";
-    case Button::KEY_T:     return "T";
-    case Button::KEY_Y:     return "Y";
-    case Button::KEY_U:     return "U";
-    case Button::KEY_I:     return "I";
-    case Button::KEY_O:     return "O";
-    case Button::KEY_P:     return "P";
-    case Button::KEY_A:     return "A";
-    case Button::KEY_S:     return "S";
-    case Button::KEY_D:     return "D";
-    case Button::KEY_F:     return "F";
-    case Button::KEY_G:     return "G";
-    case Button::KEY_H:     return "H";
-    case Button::KEY_J:     return "J";
-    case Button::KEY_K:     return "K";
-    case Button::KEY_L:     return "L";
-    case Button::KEY_Z:     return "Z";
-    case Button::KEY_X:     return "X";
-    case Button::KEY_C:     return "C";
-    case Button::KEY_V:     return "V";
-    case Button::KEY_B:     return "B";
-    case Button::KEY_N:     return "N";
-    case Button::KEY_M:     return "M";
-    case Button::KEY_SHIFT: return "SHIFT";
-    case Button::KEY_CTRL:  return "CTRL";
-    case Button::KEY_ALT:   return "ALT";
-    case Button::KEY_ESC:   return "ESC";
-    case Button::KEY_F1:    return "F1";
-    case Button::KEY_F2:    return "F2";
-    case Button::KEY_F3:    return "F3";
-    case Button::KEY_F4:    return "F4";
-    case Button::KEY_F5:    return "F5";
-    case Button::KEY_F6:    return "F6";
-    case Button::KEY_F7:    return "F7";
-    case Button::KEY_F8:    return "F8";
-    case Button::KEY_F9:    return "F9";
-    case Button::KEY_F10:   return "F10";
-    case Button::KEY_F11:   return "F11";
-    case Button::KEY_F12:   return "F12";
-    case Button::KEY_UP:    return "UP";
-    case Button::KEY_LEFT:  return "LEFT";
-    case Button::KEY_DOWN:  return "DOWN";
-    case Button::KEY_RIGHT: return "RIGHT";
-    case Button::KEY_SPACE: return "SPACE";
-    case Button::KEY_ENTER: return "ENTER";
-    case Button::KEY_UNKNOWN: [[fallthrough]];
+    switch (keyCode) {
+    case KeyCode::KEY_0:     return "0";
+    case KeyCode::KEY_1:     return "1";
+    case KeyCode::KEY_2:     return "2";
+    case KeyCode::KEY_3:     return "3";
+    case KeyCode::KEY_4:     return "4";
+    case KeyCode::KEY_5:     return "5";
+    case KeyCode::KEY_6:     return "6";
+    case KeyCode::KEY_7:     return "7";
+    case KeyCode::KEY_8:     return "8";
+    case KeyCode::KEY_9:     return "9";
+    case KeyCode::KEY_TAB:   return "TAB";
+    case KeyCode::KEY_Q:     return "Q";
+    case KeyCode::KEY_W:     return "W";
+    case KeyCode::KEY_E:     return "E";
+    case KeyCode::KEY_R:     return "R";
+    case KeyCode::KEY_T:     return "T";
+    case KeyCode::KEY_Y:     return "Y";
+    case KeyCode::KEY_U:     return "U";
+    case KeyCode::KEY_I:     return "I";
+    case KeyCode::KEY_O:     return "O";
+    case KeyCode::KEY_P:     return "P";
+    case KeyCode::KEY_A:     return "A";
+    case KeyCode::KEY_S:     return "S";
+    case KeyCode::KEY_D:     return "D";
+    case KeyCode::KEY_F:     return "F";
+    case KeyCode::KEY_G:     return "G";
+    case KeyCode::KEY_H:     return "H";
+    case KeyCode::KEY_J:     return "J";
+    case KeyCode::KEY_K:     return "K";
+    case KeyCode::KEY_L:     return "L";
+    case KeyCode::KEY_Z:     return "Z";
+    case KeyCode::KEY_X:     return "X";
+    case KeyCode::KEY_C:     return "C";
+    case KeyCode::KEY_V:     return "V";
+    case KeyCode::KEY_B:     return "B";
+    case KeyCode::KEY_N:     return "N";
+    case KeyCode::KEY_M:     return "M";
+    case KeyCode::KEY_SHIFT: return "SHIFT";
+    case KeyCode::KEY_CTRL:  return "CTRL";
+    case KeyCode::KEY_ALT:   return "ALT";
+    case KeyCode::KEY_ESC:   return "ESC";
+    case KeyCode::KEY_F1:    return "F1";
+    case KeyCode::KEY_F2:    return "F2";
+    case KeyCode::KEY_F3:    return "F3";
+    case KeyCode::KEY_F4:    return "F4";
+    case KeyCode::KEY_F5:    return "F5";
+    case KeyCode::KEY_F6:    return "F6";
+    case KeyCode::KEY_F7:    return "F7";
+    case KeyCode::KEY_F8:    return "F8";
+    case KeyCode::KEY_F9:    return "F9";
+    case KeyCode::KEY_F10:   return "F10";
+    case KeyCode::KEY_F11:   return "F11";
+    case KeyCode::KEY_F12:   return "F12";
+    case KeyCode::KEY_UP:    return "UP";
+    case KeyCode::KEY_LEFT:  return "LEFT";
+    case KeyCode::KEY_DOWN:  return "DOWN";
+    case KeyCode::KEY_RIGHT: return "RIGHT";
+    case KeyCode::KEY_SPACE: return "SPACE";
+    case KeyCode::KEY_ENTER: return "ENTER";
+    case KeyCode::KEY_UNKNOWN: [[fallthrough]];
     default:
     }
     return "UNKNOWN";
 }
 
-ButtonState ModernBoy::Input::transit(
-    ButtonState state, uint8_t current
+KeyState ModernBoy::Input::transit(
+    KeyState state, uint8_t current
 ){
     uint8_t changed = ((state & ACTIVE_FLAG) ^ current) << 1;
-    return static_cast<ButtonState>(changed | current);
+    return static_cast<KeyState>(changed | current);
 }

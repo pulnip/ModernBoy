@@ -21,7 +21,7 @@ namespace ModernBoy::Input
     private:
         void moveFrom(Device&& other);
 
-        const bool* sdl_key = nullptr;
+        const bool* sdlKeyboard = nullptr;
     };
 }
 
