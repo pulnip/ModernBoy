@@ -14,6 +14,9 @@ namespace ModernBoy
 
     class AppState;
 
+    namespace Render{
+        class Renderer;
+    }
     namespace UI{
         class UserInterface;
     }
@@ -44,10 +47,28 @@ namespace ModernBoy
     using RenderContext = Metal::RenderContext;
 #elif defined(USE_OPENGL)
 #endif
+    namespace Script{
+        struct Module;
+    }
+    using Module = Script::Module;
+
+    namespace Game{
+        class Context;
+    }
+    using World = Game::Context;
+
     using MeshHandle = ResourceHandle;
     using TextureHandle = ResourceHandle;
     using ShaderHandle = ResourceHandle;
     using ModuleHandle = ResourceHandle;
+
+    template<typename Resource>
+    class ResourceManager;
+
+    using MeshManager = ResourceManager<Mesh>;
+    using TextureManager = ResourceManager<Texture>;
+    using ShaderManager = ResourceManager<Shader>;
+    using ModuleManager = ResourceManager<Module>;
 }
 
 #endif // MODERNBOY_FWD_HPP

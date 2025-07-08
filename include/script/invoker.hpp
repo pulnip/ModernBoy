@@ -3,12 +3,12 @@
 
 #include <string>
 #include <unordered_map>
-#include "fwd.hpp"
 #include "interface.hpp"
-#include "script/type.hpp"
 #include "common/alias.hpp"
+#include "script/type.hpp"
 #include "input/state.hpp"
 #include "task.hpp"
+#include "game/game_fwd.hpp"
 
 class asIScriptContext;
 
@@ -19,7 +19,7 @@ namespace ModernBoy::Script
 
     class Invoker{
     public:
-        Invoker(AppState& app);
+        Invoker(Game::Context& world);
         ~Invoker();
         Invoker(const Invoker& other)=delete;
         Invoker(Invoker&&)=delete;
@@ -33,7 +33,7 @@ namespace ModernBoy::Script
     private:
         FunctionID issueID();
 
-        AppState& app;
+        Game::Context& world;
 
         asIScriptEngine* engine;
         asIScriptContext* context;

@@ -30,7 +30,7 @@ static void printInt(int i){
     std::println("{}", i);
 }
 
-Invoker::Invoker(AppState& app):app(app),
+Invoker::Invoker(Game::Context& world):world(world),
 engine(asCreateScriptEngine()),
 context(engine->CreateContext()){
     int r = engine->SetMessageCallback(asFUNCTION(messageCallback), 0, asCALL_CDECL);
@@ -78,7 +78,7 @@ ABNORMAL_FLAG Invoker::invokeInput(const Module& module_,
 
     Game::Actor actor{
         .id = id,
-        .world = &app.world,
+        .world = &world,
     };
 
     context->SetArgObject(0, &actor);
@@ -110,7 +110,7 @@ ABNORMAL_FLAG Invoker::invoke(const Module& module_,
 
     Game::Actor actor{
         .id = id,
-        .world = &app.world,
+        .world = &world,
     };
 
     context->SetArgObject(0, &actor);

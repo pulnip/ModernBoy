@@ -4,15 +4,17 @@
 #include <imgui_impl_sdl3.h>
 #define IMGUI_IMPL_METAL_CPP
 #include <imgui_impl_metal.h>
+#include "render/renderer.hpp"
 #include "ui/user_interface.hpp"
 #include "app_state.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::UI;
 
-UserInterface::UserInterface(AppState& app,
-    SDL_Window* window
-):app(app){
+UserInterface::UserInterface(SDL_Window* window,
+    Render::Renderer& renderer,
+    AppState& app
+):renderer(renderer), app(app){
     int w, h;
     if(!SDL_GetWindowSize(window, &w, &h)){
         SDL_Log("SDL_GetWindowSize Failed: %s", SDL_GetError());
@@ -35,7 +37,7 @@ UserInterface::UserInterface(AppState& app,
     // Setup Platform/Renderer backends
     ImGui_ImplSDL3_InitForMetal(window);
     auto device = static_cast<MTL::Device*>(
-        app.getDevice());
+        renderer.getDevice());
     ImGui_ImplMetal_Init(device);
 
     // move to somewhere
@@ -60,7 +62,7 @@ size_t UserInterface::yield_count() const noexcept{
 
 void UserInterface::onFrameStart(){
     auto renderPassDesc = static_cast<MTL::RenderPassDescriptor*>(
-        app.getRenderPassDesc()
+        renderer.getRenderPassDesc()
     );
     // Start the Dear ImGui frame
     ImGui_ImplMetal_NewFrame(renderPassDesc);
@@ -82,8 +84,8 @@ void UserInterface::onFrameEnd(){
     ImGui::EndFrame();
     ImGui::Render();
 
-    auto commandBuffer = app.getCommandBuffer();
-    auto renderEncoder = app.getRenderEncoder();
+    auto commandBuffer = renderer.getCommandBuffer();
+    auto renderEncoder = renderer.getRenderEncoder();
 
     assert(commandBuffer != nullptr);
     assert(renderEncoder != nullptr);

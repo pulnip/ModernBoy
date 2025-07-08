@@ -11,7 +11,9 @@ namespace ModernBoy::UI
 
     class UserInterface{
     public:
-        UserInterface(AppState& app, SDL_Window* window);
+        UserInterface(SDL_Window* window,
+            Render::Renderer& renderer,
+            AppState& app);
 
         template<typename ControllerType, typename ...Args>
         ControllerID emplace(Args&&... args){
@@ -44,6 +46,7 @@ namespace ModernBoy::UI
     private:
         uint32_t issueID() const noexcept;
 
+        Render::Renderer& renderer;
         AppState& app;
 
         std::unordered_map<ControllerID, Controller> controllers;

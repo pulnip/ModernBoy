@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "log.hpp"
+#include "resource_manager.hpp"
 #include "render/renderer.hpp"
 #include "app_state.hpp"
 #include "task.hpp"
@@ -8,8 +9,12 @@
 using namespace ModernBoy;
 using namespace ModernBoy::Render;
 
-Renderer::Renderer(AppState& app, SDL_Window* window)
-:app(app), context(window){}
+Renderer::Renderer(SDL_Window* window,
+    MeshManager& meshManager, TextureManager& textureManager,
+    ShaderManager& shaderManager, World& world)
+:context(window), meshManager(meshManager),
+textureManager(textureManager), shaderManager(shaderManager),
+world(world){}
 Renderer::~Renderer(){}
 
 using ViewTasks = std::vector<ViewTask>;
@@ -23,10 +28,10 @@ static void sortTask(DrawTasks& tasks);
 size_t Renderer::yield_count(){
     size_t numViewTask=0, numDrawTask=0;
 
-    for(const auto& _: app.getBuffer<ViewTask>()){
+    for(const auto& _: world.getBuffer<ViewTask>()){
         ++numViewTask;
     }
-    for(const auto& _: app.getBuffer<DrawTask>()){
+    for(const auto& _: world.getBuffer<DrawTask>()){
         ++numDrawTask;
     }
 
@@ -34,11 +39,11 @@ size_t Renderer::yield_count(){
 }
 
 Generator<void> Renderer::updateTask(DeltaTime){
-    auto drawTasks = app.getBuffer<DrawTask>();
+    auto drawTasks = world.getBuffer<DrawTask>();
     sortTask(drawTasks);
     co_yield 0;
 
-    for(const auto& view: app.getBuffer<ViewTask>()){
+    for(const auto& view: world.getBuffer<ViewTask>()){
         setView(view);
         co_yield 0;
 
@@ -78,12 +83,12 @@ void Renderer::setView(const ViewTask& task){
 }
 void Renderer::setShader(ShaderHandle handle){
     RenderTrace("Set Shader, index: {}", handle.index);
-    const auto& shader = app.query<Shader>(handle);
+    const auto& shader = shaderManager.get(handle);
     context.setShader(shader.shaderPtr);
 }
 void Renderer::setTexture(TextureHandle handle){
     RenderTrace("Set Texture, Index: {}", handle.index);
-    const auto& texture = app.query<Texture>(handle);
+    const auto& texture = textureManager.get(handle);
     RenderTrace("  Texture Ptr: {}", texture.texture);
     context.setTexture(texture.texture);
 }
@@ -91,7 +96,7 @@ void Renderer::drawMesh(
     const Transform& transform, MeshHandle handle
 ){
     RenderTrace("draw type: {}, index: {}", static_cast<int>(handle.type), handle.index);
-    const auto& mesh = app.query<Mesh>(handle);
+    const auto& mesh = meshManager.get(handle);
 
     for(const auto partPtr: mesh.meshPtr){
         context.drawMesh(transform, partPtr);

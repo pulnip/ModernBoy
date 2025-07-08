@@ -56,7 +56,6 @@ SDL_AppResult SDL_AppInit(void** appState,
 
     *appState = new AppState(window);
     if(!*appState) return SDL_APP_FAILURE;
-    AppState& app = *static_cast<AppState*>(*appState);
 
     // Temporal codes...
 #if defined(USE_DIRECTX)
@@ -77,8 +76,6 @@ SDL_AppResult SDL_AppInit(void** appState,
 #elif defined(USE_OPENGL)
     // TODO
 #endif
-    app.assetLoader.loadAction("asset/action.toml");
-    app.assetLoader.loadAsset("asset/actor.toml");
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }

@@ -81,8 +81,6 @@ namespace ModernBoy
         NativePtr getCommandBuffer();
         NativePtr getRenderEncoder();
 
-        Game::Context world;
-
     private:
         EntityID id_seed = 0;
 
@@ -104,10 +102,10 @@ namespace ModernBoy
         UI::UserInterface userInterface;
 
         Scheduler scheduler;
-
-    public:
+        Game::Context world;
         AssetLoader assetLoader;
 
+    public:
         friend class AssetLoader;
     };
 }

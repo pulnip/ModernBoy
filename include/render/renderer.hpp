@@ -24,7 +24,9 @@ namespace ModernBoy::Render
 {
     class Renderer{
     public:
-        Renderer(AppState& app, SDL_Window*);
+        Renderer(SDL_Window*, MeshManager&,
+            TextureManager&, ShaderManager&,
+            World&);
         ~Renderer();
 
         size_t yield_count();
@@ -45,11 +47,15 @@ namespace ModernBoy::Render
         void drawMesh(const Transform& transform,
             MeshHandle handle);
 
-    private:
-        AppState& app;
-
     public:
         RenderContext context;
+
+    private:
+        MeshManager& meshManager;
+        TextureManager& textureManager;
+        ShaderManager& shaderManager;
+        World& world;
+
     };
 } // namespace ModernBoy::Render
 

@@ -18,7 +18,10 @@
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
-AssetLoader::AssetLoader(AppState& app):app(app){}
+AssetLoader::AssetLoader(AppState& app):app(app){
+    loadAction("asset/action.toml");
+    loadAsset("asset/actor.toml");
+}
 
 static std::tuple<ArchetypeBit, SparseChunk>
 parseActor(const toml::table* ptr, AppState& app);

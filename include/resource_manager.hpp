@@ -25,8 +25,6 @@ namespace ModernBoy
     private:
         using ResourceSlot = Slot<Resource>;
 
-        AppState& app;
-
         ObjectPool<ResourceSlot> pool;
         // check if Named Resource is already Loaded.
         std::unordered_map<std::string, Index> nameToIndex;
@@ -44,8 +42,7 @@ namespace ModernBoy
             return makeHandle(index);
         }
     public:
-        ResourceManager(AppState& app)
-        :app(app){}
+        ResourceManager(){}
 
         bool isExist(const std::string& name){
             auto it = nameToIndex.find(name);

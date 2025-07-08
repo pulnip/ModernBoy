@@ -11,15 +11,16 @@ DeltaTime AppState::getDeltaTime() const{
 }
 
 AppState::AppState(SDL_Window* window)
-:world(*this), window(window),
+:window(window),
 // resource manager
-meshManager(*this), textureManager(*this),
-shaderManager(*this), moduleManager(*this),
+meshManager(), textureManager(),
+shaderManager(), moduleManager(),
 // subsystems
-renderer(*this, window), scriptInvoker(*this),
-userInterface(*this, window),
+renderer(window, meshManager, textureManager,
+    shaderManager, world), scriptInvoker(world),
+userInterface(window, renderer, *this),
 // others
-scheduler(*this),
+scheduler(*this), world(*this),
 assetLoader(*this){}
 AppState::~AppState(){
     SDL_DestroyWindow(window);
