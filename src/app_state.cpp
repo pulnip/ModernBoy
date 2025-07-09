@@ -89,7 +89,7 @@ void AppState::update(){
     deltaTime = lastTick - now;
     lastTick = now;
 
-    inputChord.update(now);
+    inputChord.update(deltaTime);
 
     world.update(deltaTime);
 
