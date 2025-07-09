@@ -1,8 +1,11 @@
 #include <cassert>
+#include <chrono>
 #include <format>
 #include <vector>
 #include "app_state.hpp"
 
+using namespace std::chrono;
+using namespace std::chrono_literals;
 using namespace ModernBoy;
 
 
@@ -23,7 +26,7 @@ inputChord(),
 scriptInvoker(world, inputChord),
 // others
 scheduler(*this), world(*this),
-assetLoader(*this){}
+assetLoader(*this), generators(){}
 AppState::~AppState(){
     SDL_DestroyWindow(window);
 }
@@ -81,12 +84,31 @@ void AppState::prepare(){
 }
 
 void AppState::update(){
+    Timepoint now = std::chrono::time_point_cast<
+        std::chrono::microseconds>(steady_clock::now());
+    deltaTime = lastTick - now;
+    lastTick = now;
+
+    inputChord.update(now);
+
+    world.update(deltaTime);
+
+    // userInterface.update(now);
+    // renderer.update(now);
+
     scheduler.prepareScheduling();
 
     scheduler.prepareFrame();
 
-    world.update(getDeltaTime());
     scheduler.updateFrame();
+
+    constexpr auto TARGET_FPS = 60;
+    constexpr auto frameTime = (1000ms/TARGET_FPS) - 2ms;
+    auto proceedTime = steady_clock::now() - now;
+
+    if(proceedTime <= frameTime){
+        std::this_thread::sleep_for(frameTime - proceedTime);
+    }
 }
 
 template<> Mesh&

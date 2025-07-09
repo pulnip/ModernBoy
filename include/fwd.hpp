@@ -10,7 +10,9 @@ namespace ModernBoy
     using EntityID = ID;
     using DeltaTime = std::chrono::microseconds;
     using Timepoint = std::chrono::time_point<
-        std::chrono::steady_clock>;
+        std::chrono::steady_clock, DeltaTime>;
+
+    using TaskTime = std::chrono::microseconds;
 
     class AppState;
 

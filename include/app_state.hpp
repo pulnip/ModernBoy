@@ -107,6 +107,12 @@ namespace ModernBoy
         Game::Context world;
         AssetLoader assetLoader;
 
+        Timepoint lastTick;
+        DeltaTime deltaTime;
+        static constexpr auto NUM_SCHEDULING = 4;
+        std::vector<Generator<void>> generators;
+        std::vector<Index> schedule;
+
     public:
         friend class AssetLoader;
     };

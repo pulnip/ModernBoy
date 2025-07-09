@@ -12,12 +12,14 @@ using namespace ModernBoy;
 Scheduler::Scheduler(AppState& app):app(app){}
 
 void Scheduler::prepareScheduling(){
-    auto now = steady_clock::now();
+    auto now = std::chrono::time_point_cast<
+        std::chrono::microseconds>(steady_clock::now());
 
     if(now == lastTick){
         std::this_thread::sleep_for(
             milliseconds(1));
-        now = steady_clock::now();
+        now = std::chrono::time_point_cast<
+            std::chrono::microseconds>(steady_clock::now());
     }
     deltaTime = duration_cast<milliseconds>(
         now - lastTick);
