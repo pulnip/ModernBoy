@@ -152,12 +152,14 @@ static size_t bit_size(ArchetypeBit bit){
     return size;
 }
 
+[[deprecated, maybe_unused]]
 static void setChunk(void* dst, const TransformComponent& component,
     ArchetypeBit bit
 ){
     if(bit & TRANSFORM_BIT)
         dst = Util::chunkcpy(dst, component);
 }
+[[deprecated, maybe_unused]]
 static void setChunk(void* dst, const CameraComponent& component,
     ArchetypeBit bit
 ){
@@ -166,6 +168,7 @@ static void setChunk(void* dst, const CameraComponent& component,
     if(bit & CAMERA_BIT)
         dst = Util::chunkcpy(dst, component);
 }
+[[deprecated, maybe_unused]]
 static void setChunk(void* dst, const MeshComponent& component,
     ArchetypeBit bit
 ){
@@ -177,6 +180,7 @@ static void setChunk(void* dst, const MeshComponent& component,
         dst = Util::chunkcpy(dst, component);
 
 }
+[[deprecated, maybe_unused]]
 static void setChunk(void* dst, const InputComponent& component,
     ArchetypeBit bit
 ){
@@ -189,6 +193,7 @@ static void setChunk(void* dst, const InputComponent& component,
     if(bit & INPUT_BIT)
         dst = Util::chunkcpy(dst, component);
 }
+[[deprecated]]
 static void setChunk(void* dst, const SparseChunk& chunk,
     ArchetypeBit bit
 ){
