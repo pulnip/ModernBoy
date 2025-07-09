@@ -6,6 +6,7 @@
 #include "task.hpp"
 #include "render/command.hpp"
 
+using namespace std::chrono_literals;
 using namespace ModernBoy;
 using namespace ModernBoy::Render;
 
@@ -14,7 +15,7 @@ Renderer::Renderer(SDL_Window* window,
     ShaderManager& shaderManager, World& world)
 :context(window), meshManager(meshManager),
 textureManager(textureManager), shaderManager(shaderManager),
-world(world){}
+world(world), ema(0ms){}
 Renderer::~Renderer(){}
 
 using ViewTasks = std::vector<ViewTask>;
@@ -25,20 +26,9 @@ using RenderCommands = std::vector<RenderCommand>;
 
 static void sortTask(DrawTasks& tasks);
 
-size_t Renderer::yield_count(){
-    size_t numViewTask=0, numDrawTask=0;
+Generator<void> Renderer::update(DeltaTime){
+    auto started = std::chrono::steady_clock::now();
 
-    for(const auto& _: world.getBuffer<ViewTask>()){
-        ++numViewTask;
-    }
-    for(const auto& _: world.getBuffer<DrawTask>()){
-        ++numDrawTask;
-    }
-
-    return numViewTask * numDrawTask + 2;
-}
-
-Generator<void> Renderer::updateTask(DeltaTime){
     auto drawTasks = world.getBuffer<DrawTask>();
     sortTask(drawTasks);
     co_yield 0;
@@ -62,6 +52,9 @@ Generator<void> Renderer::updateTask(DeltaTime){
             co_yield 0;
         }
     }
+
+    auto elapsed = std::chrono::steady_clock::now() - started;
+    updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
     co_return;
 }
 
@@ -69,6 +62,12 @@ void Renderer::onFrameStart(){
     RenderTrace("Frame Start");
     context.onFrameStart(
         {.r=0.0f, .g=0.0f, .b=0.0f, .a=0.5f});
+}
+
+void Renderer::updateEMA(TaskTime elapsed){
+    auto alpha = 1.0 / policy.effective_window_size;
+    long long blended = (1-alpha)*ema.count() + alpha*elapsed.count();
+    ema = TaskTime(blended);
 }
 
 void Renderer::setView(const ViewTask& task){

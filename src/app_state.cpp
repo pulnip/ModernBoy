@@ -10,7 +10,7 @@ using namespace ModernBoy;
 
 
 DeltaTime AppState::getDeltaTime() const{
-    return scheduler.getDeltaTime();
+    return deltaTime;
 }
 
 AppState::AppState(SDL_Window* window)
@@ -25,7 +25,7 @@ userInterface(window, renderer, *this),
 inputChord(),
 scriptInvoker(world, inputChord),
 // others
-scheduler(*this), world(*this),
+world(*this),
 assetLoader(*this), generators(){}
 AppState::~AppState(){
     SDL_DestroyWindow(window);
@@ -78,29 +78,26 @@ MeshHandle AppState::append<Script::Module,
 }
 
 
-void AppState::prepare(){
-    scheduler.prepareTaskPhase(renderer);
-    scheduler.prepareTaskPhase(userInterface);
-}
-
 void AppState::update(){
     Timepoint now = std::chrono::time_point_cast<
         std::chrono::microseconds>(steady_clock::now());
     deltaTime = lastTick - now;
     lastTick = now;
 
-    inputChord.update(deltaTime);
+    auto gen1 = inputChord.update(deltaTime);
+    while(!gen1.done())
+        gen1.next();
 
     world.update(deltaTime);
 
-    // userInterface.update(now);
-    // renderer.update(now);
-
-    scheduler.prepareScheduling();
-
-    scheduler.prepareFrame();
-
-    scheduler.updateFrame();
+    on<Event::OnFrameStart>();
+    auto gen3 = userInterface.update(deltaTime);
+    while(!gen3.done())
+        gen3.next();
+    auto gen4 = renderer.update(deltaTime);
+    while(!gen4.done())
+        gen4.next();
+    on<Event::OnFrameEnd>();
 
     constexpr auto TARGET_FPS = 60;
     constexpr auto frameTime = (1000ms/TARGET_FPS) - 2ms;

@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <SDL3/SDL_video.h>
+#include "interface.hpp"
 #include "ui/controller.hpp"
 
 namespace ModernBoy::UI
@@ -14,6 +15,13 @@ namespace ModernBoy::UI
         UserInterface(SDL_Window* window,
             Render::Renderer& renderer,
             AppState& app);
+
+        TaskTime expectedExecTime();
+        void onFrameStart();
+        Generator<void> update(DeltaTime);
+        void onFrameEnd();
+
+        void handleEvent(Event event);
 
         template<typename ControllerType, typename ...Args>
         ControllerID emplace(Args&&... args){
@@ -35,15 +43,15 @@ namespace ModernBoy::UI
             return ctrlID;
         }
 
-        size_t yield_count() const noexcept;
-
-        void onFrameStart();
-        Generator<void> updateTask(DeltaTime);
-        void onFrameEnd();
-
-        void handleEvent(Event event);
+        const TaskPolicy policy{
+            .effective_window_size = 10,
+            .min_interval = std::chrono::microseconds(1000/60),
+            .patience = std::chrono::milliseconds(0)
+        };
 
     private:
+        void updateEMA(TaskTime);
+
         uint32_t issueID() const noexcept;
 
         Render::Renderer& renderer;
@@ -51,6 +59,8 @@ namespace ModernBoy::UI
 
         std::unordered_map<ControllerID, Controller> controllers;
         std::unordered_map<ControlID, ControllerID> control2Controller;
+
+        TaskTime ema;
     };
 } // namespace ModernBoy::UI
 

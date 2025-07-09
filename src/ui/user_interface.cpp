@@ -8,13 +8,14 @@
 #include "ui/user_interface.hpp"
 #include "app_state.hpp"
 
+using namespace std::chrono_literals;
 using namespace ModernBoy;
 using namespace ModernBoy::UI;
 
 UserInterface::UserInterface(SDL_Window* window,
     Render::Renderer& renderer,
     AppState& app
-):renderer(renderer), app(app){
+):renderer(renderer), app(app), ema(0ms){
     int w, h;
     if(!SDL_GetWindowSize(window, &w, &h)){
         SDL_Log("SDL_GetWindowSize Failed: %s", SDL_GetError());
@@ -56,8 +57,20 @@ UserInterface::UserInterface(SDL_Window* window,
     emplace<Slider>(id, "Rim Strength"s, 0.0f, 1.0f, 0.0f);
 }
 
-size_t UserInterface::yield_count() const noexcept{
-    return controllers.size();
+Generator<void> UserInterface::update(DeltaTime dt){
+    auto started = std::chrono::steady_clock::now();
+
+    // ImGui::ShowDemoWindow(); // Show demo window! :)s
+    for(auto& [id, ctrller]: controllers){
+        std::visit([dt](auto& controller){
+            controller.update(dt);
+        }, ctrller);
+        co_yield 0;
+    }
+
+    auto elapsed = std::chrono::steady_clock::now() - started;
+    updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
+    co_return;
 }
 
 void UserInterface::onFrameStart(){
@@ -69,16 +82,6 @@ void UserInterface::onFrameStart(){
     ImGui_ImplSDL3_NewFrame();
 
     ImGui::NewFrame();
-}
-Generator<void> UserInterface::updateTask(DeltaTime dt){
-    // ImGui::ShowDemoWindow(); // Show demo window! :)s
-    for(auto& [id, ctrller]: controllers){
-        std::visit([dt](auto& controller){
-            controller.update(dt);
-        }, ctrller);
-        co_yield 0;
-    }
-    co_return;
 }
 void UserInterface::onFrameEnd(){
     ImGui::EndFrame();
@@ -104,6 +107,12 @@ void UserInterface::handleEvent(Event event){
     std::visit([&](auto& controller){
         controller.OnEvent(event);
     }, controllers.at(ctrllerID));
+}
+
+void UserInterface::updateEMA(TaskTime elapsed){
+    auto alpha = 1.0 / policy.effective_window_size;
+    long long blended = (1-alpha)*ema.count() + alpha*elapsed.count();
+    ema = TaskTime(blended);
 }
 
 uint32_t UserInterface::issueID() const noexcept{

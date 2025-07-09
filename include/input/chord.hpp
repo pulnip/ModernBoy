@@ -9,6 +9,8 @@ namespace ModernBoy::Input
 {
     class Chord{
     public:
+        Chord();
+
         TaskTime expectedExecTime();
         Generator<void> update(DeltaTime deltatime);
 

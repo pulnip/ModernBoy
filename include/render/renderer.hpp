@@ -9,6 +9,7 @@
 #include "fwd.hpp"
 #include "task.hpp"
 #include "common/alias.hpp"
+#include "interface.hpp"
 #include "util/lock_free_queue.hpp"
 #include "util/generator.hpp"
 #include "render/command.hpp"
@@ -29,9 +30,9 @@ namespace ModernBoy::Render
             World&);
         ~Renderer();
 
-        size_t yield_count();
+        TaskTime expectedExecTime();
         void onFrameStart();
-        Generator<void> updateTask(DeltaTime);
+        Generator<void> update(DeltaTime);
         void onFrameEnd();
 
         NativePtr getRenderPassDesc();
@@ -39,8 +40,15 @@ namespace ModernBoy::Render
         NativePtr getCommandBuffer();
         NativePtr getRenderEncoder();
 
+        const TaskPolicy policy{
+            .effective_window_size = 10,
+            .min_interval = std::chrono::microseconds(1000/60),
+            .patience = std::chrono::milliseconds(0)
+        };
 
     private:
+        void updateEMA(TaskTime);
+
         void setView(const ViewTask& task);
         void setShader(ShaderHandle handle);
         void setTexture(TextureHandle handle);
@@ -56,6 +64,7 @@ namespace ModernBoy::Render
         ShaderManager& shaderManager;
         World& world;
 
+        TaskTime ema;
     };
 } // namespace ModernBoy::Render
 

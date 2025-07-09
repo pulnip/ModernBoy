@@ -1,7 +1,10 @@
 #include "input/chord.hpp"
 
+using namespace std::chrono_literals;
 using namespace ModernBoy;
 using namespace ModernBoy::Input;
+
+Chord::Chord():ema(0ms){}
 
 TaskTime Chord::expectedExecTime(){
     return ema;

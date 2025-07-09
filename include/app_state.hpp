@@ -37,7 +37,6 @@ namespace ModernBoy
         AppState(SDL_Window* window);
         ~AppState();
 
-        void prepare();
         void update();
 
         EntityID issueID();
@@ -103,7 +102,6 @@ namespace ModernBoy
         Input::Chord inputChord;
         Script::Invoker scriptInvoker;
 
-        Scheduler scheduler;
         Game::Context world;
         AssetLoader assetLoader;
 

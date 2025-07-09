@@ -32,8 +32,6 @@ void Scheduler::prepareScheduling(){
     taskCounts.clear();
     updateCounts.clear();
 
-    app.prepare();
-
     const size_t totalTasks = std::accumulate(
         taskCounts.cbegin(), taskCounts.cend(), 0);
     taskSchedule.resize(totalTasks);
