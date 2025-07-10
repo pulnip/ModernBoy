@@ -75,8 +75,6 @@ namespace ModernBoy::Game
 
         DeltaTime getDeltaTime() const;
 
-        void prepareScheduling();
-
     private:
         AppState& app;
 
@@ -87,8 +85,6 @@ namespace ModernBoy::Game
         ActionSystem action;
         PhysicsSystem physics;
         LifespanSystem lifespan;
-
-        Scheduler scheduler;
 
         friend class AppState;
     };

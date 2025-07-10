@@ -8,13 +8,13 @@ using namespace ModernBoy::Game;
 Context::Context(AppState& app)
 :app(app), archetypeMap(), actorTable(),
 draw(*this), action(*this, app.scriptInvoker),
-physics(*this), lifespan(*this),
-scheduler(*this){}
+physics(*this), lifespan(*this){}
 
 
 void Context::update(DeltaTime dt){
-    scheduler.prepareScheduling(dt);
-    scheduler.startUpdate();
+    auto drawFut = draw.update(dt);
+    while(!drawFut.done())
+        drawFut.next();
 }
 
 uint32_t Context::issueID(){
@@ -74,9 +74,5 @@ const std::vector<DrawTask>& Context::getBuffer() const{
 
 DeltaTime Context::getDeltaTime() const{
     return app.getDeltaTime();
-}
-
-void Context::prepareScheduling(){
-    scheduler.prepare(draw);
 }
 

@@ -11,7 +11,7 @@ void Scheduler::prepareScheduling(DeltaTime dt){
     deltaTime = dt;
     generators.clear();
 
-    world.prepareScheduling();
+    // world.prepareScheduling();
 }
 void Scheduler::startUpdate(){
     GameTrace("GameUpdate, Num Generators: {}",
