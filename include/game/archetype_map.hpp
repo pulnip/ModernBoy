@@ -142,13 +142,6 @@ namespace ModernBoy::Game
         const CameraComponent*, const MeshComponent*,
         const InputComponent*
     );
-
-    // professional only
-    void getChunk(TransformComponent* tc,
-        CameraComponent* cc, MeshComponent* mc,
-        InputComponent* ic, const void* src,
-        ArchetypeBit bit
-    );
 } // namespace ModernBoy::Game
 
 #endif // MODERNBOY_GAME_ARCHETYPE_MAP_HPP

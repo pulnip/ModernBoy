@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include <thread>
 #include "log.hpp"
-#include "util/bit.hpp"
 #include "util/thread_backoff.hpp"
 #include "app_state.hpp"
 #include "game/game_fwd.hpp"
@@ -12,18 +11,6 @@
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
-
-static size_t bit_size(ArchetypeBit bit);
-static void setChunk(void* dst, const SparseChunk& chunk,
-    ArchetypeBit bit);
-static void setChunk(void* dst, const TransformComponent& component,
-    ArchetypeBit bit);
-static void setChunk(void* dst, const CameraComponent& component,
-    ArchetypeBit bit);
-static void setChunk(void* dst, const MeshComponent& component,
-    ArchetypeBit bit);
-static void setChunk(void* dst, const InputComponent& component,
-    ArchetypeBit bit);
 
 void RWPhaseGate::transform(Writer fn){
     on_write_phase();
@@ -123,9 +110,10 @@ const RWPhaseGate& ArchetypeMap::at(ArchetypeBit bit) const{
 Index ArchetypeMap::insert(ArchetypeBit bit,
     const SparseChunk& chunk
 ){
-    size_t CHUNK_SIZE = bit_size(bit);
+    size_t CHUNK_SIZE = size_of(bit);
 
     if(archetypeMap.find(bit) == archetypeMap.end()){
+
         auto [it, ret] = archetypeMap.try_emplace(bit, bit, CHUNK_SIZE);
         GameDebug("    No Archetype: {} in map. emplace new. Result: {}", bit, ret);
     }
@@ -137,101 +125,4 @@ Index ArchetypeMap::insert(ArchetypeBit bit,
         return newIndex;
     });
     return newIndex;
-}
-
-static size_t bit_size(ArchetypeBit bit){
-    size_t size = 0;
-    if(bit & TRANSFORM_BIT)
-        size += sizeof(TransformComponent);
-    if(bit & CAMERA_BIT)
-        size += sizeof(CameraComponent);
-    if(bit & MESH_BIT)
-        size += sizeof(MeshComponent);
-    if(bit & INPUT_BIT)
-        size += sizeof(InputComponent);
-    return size;
-}
-
-[[deprecated, maybe_unused]]
-static void setChunk(void* dst, const TransformComponent& component,
-    ArchetypeBit bit
-){
-    if(bit & TRANSFORM_BIT)
-        dst = Util::chunkcpy(dst, component);
-}
-[[deprecated, maybe_unused]]
-static void setChunk(void* dst, const CameraComponent& component,
-    ArchetypeBit bit
-){
-    if(bit & TRANSFORM_BIT)
-        dst = Util::add<TransformComponent>(dst);
-    if(bit & CAMERA_BIT)
-        dst = Util::chunkcpy(dst, component);
-}
-[[deprecated, maybe_unused]]
-static void setChunk(void* dst, const MeshComponent& component,
-    ArchetypeBit bit
-){
-    if(bit & TRANSFORM_BIT)
-        dst = Util::add<TransformComponent>(dst);
-    if(bit & CAMERA_BIT)
-        dst = Util::add<CameraComponent>(dst);
-    if(bit & MESH_BIT)
-        dst = Util::chunkcpy(dst, component);
-
-}
-[[deprecated, maybe_unused]]
-static void setChunk(void* dst, const InputComponent& component,
-    ArchetypeBit bit
-){
-    if(bit & TRANSFORM_BIT)
-        dst = Util::add<TransformComponent>(dst);
-    if(bit & CAMERA_BIT)
-        dst = Util::add<CameraComponent>(dst);
-    if(bit & MESH_BIT)
-        dst = Util::add<InputComponent>(dst);
-    if(bit & INPUT_BIT)
-        dst = Util::chunkcpy(dst, component);
-}
-[[deprecated]]
-static void setChunk(void* dst, const SparseChunk& chunk,
-    ArchetypeBit bit
-){
-    if(bit & TRANSFORM_BIT)
-        dst = Util::chunkcpy(dst, chunk.transform);
-    if(bit & CAMERA_BIT)
-        dst = Util::chunkcpy(dst, chunk.camera);
-    if(bit & MESH_BIT)
-        dst = Util::chunkcpy(dst, chunk.mesh);
-    if(bit & INPUT_BIT)
-        dst = Util::chunkcpy(dst, chunk.input);
-}
-
-void ModernBoy::Game::getChunk(TransformComponent* tc,
-    CameraComponent* cc, MeshComponent* mc,
-    InputComponent* ic, const void* src,
-    ArchetypeBit bit
-){
-    TransformComponent tc_tmp;
-    CameraComponent cc_tmp;
-    MeshComponent mc_tmp;
-    InputComponent ic_tmp;
-
-    if(bit & TRANSFORM_BIT)
-        src = Util::chunkcpy(tc_tmp, src);
-    if(bit & CAMERA_BIT)
-        src = Util::chunkcpy(cc_tmp, src);
-    if(bit & MESH_BIT)
-        src = Util::chunkcpy(mc_tmp, src);
-    if(bit & INPUT_BIT)
-        src = Util::chunkcpy(ic_tmp, src);
-
-    if(tc != nullptr)
-        *tc = tc_tmp;
-    if(cc != nullptr)
-        *cc = cc_tmp;
-    if(mc != nullptr)
-        *mc = mc_tmp;
-    if(ic != nullptr)
-        *ic = ic_tmp;
 }

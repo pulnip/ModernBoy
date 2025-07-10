@@ -82,6 +82,9 @@ namespace ModernBoy::Game
         InputComponent input;
     };
 
+    void setChunk(void* dst, const SparseChunk& chunk,
+        ArchetypeBit bit);
+
     template<typename Component, typename ...T>
     Component dangled(T... args);
 
@@ -104,14 +107,16 @@ namespace ModernBoy::Game
     DECL_BIT(TRANSFORM);
     DECL_BIT(CAMERA);
     DECL_BIT(MESH);
+    DECL_BIT(ACTION);
     DECL_BIT(INPUT);
     DECL_BIT(LIFESPAN);
     DECL_BIT(PHYSICS);
     DECL_BIT(ELEMENT);
-    DECL_BIT(ACTION);
 
     constexpr auto DRAW_BIT   = TRANSFORM_BIT | MESH_BIT;
     constexpr auto VIEW_BIT   = TRANSFORM_BIT | CAMERA_BIT;
+
+    size_t size_of(ArchetypeBit bit);
 
     template<typename T>
     consteval ArchetypeBit bit_of(){
