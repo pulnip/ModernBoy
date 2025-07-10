@@ -7,7 +7,7 @@ using namespace ModernBoy::Game;
 
 Context::Context(AppState& app)
 :app(app), archetypeMap(), actorTable(),
-draw(*this), script(*this),
+draw(*this), action(*this, app.scriptInvoker),
 physics(*this), lifespan(*this),
 scheduler(*this){}
 

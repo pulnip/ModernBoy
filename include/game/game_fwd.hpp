@@ -10,6 +10,9 @@ namespace ModernBoy::Game
     using ArchetypeBit = uint64_t;
 
     class Context;
+
+    struct ActionComponent;
+    struct SparseChunk;
 } // namespace ModernBoy::Game
 
 #endif // MODERNBOY_GAME_FWD_HPP

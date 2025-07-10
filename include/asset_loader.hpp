@@ -1,11 +1,21 @@
 #ifndef MODERNBOY_ASSET_LOADER_HPP
 #define MODERNBOY_ASSET_LOADER_HPP
 
+#include <expected>
 #include <string>
 #include "fwd.hpp"
+#include "game/game_fwd.hpp"
 
 namespace ModernBoy
 {
+    enum class parse_error{
+        invalid_table,
+        omitted_column
+    };
+    struct ScriptSection{
+        std::string moduleName;
+    };
+
     class AssetLoader{
     public:
         AssetLoader(AppState& app);
@@ -14,6 +24,9 @@ namespace ModernBoy
         void loadAction(const std::string& fileName);
 
     private:
+        std::expected<Game::ActionComponent, parse_error>
+            makeActionComponent(const ScriptSection& section);
+
         AppState& app;
 #if defined(USE_DIRECTX)
 #elif defined(USE_METAL)

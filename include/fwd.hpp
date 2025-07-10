@@ -58,6 +58,7 @@ namespace ModernBoy
         class Invoker;
     }
     using Module = Script::Module;
+    using ScriptInvoker = Script::Invoker;
 
     namespace Game{
         class Context;

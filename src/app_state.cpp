@@ -23,7 +23,7 @@ renderer(window, meshManager, textureManager,
     shaderManager, world),
 userInterface(window, renderer, *this),
 inputChord(),
-scriptInvoker(world, inputChord),
+scriptInvoker(world, moduleManager, inputChord),
 // others
 world(*this),
 assetLoader(*this), generators(){}

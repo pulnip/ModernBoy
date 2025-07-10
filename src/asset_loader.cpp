@@ -22,30 +22,15 @@ AssetLoader::AssetLoader(AppState& app):app(app){
     loadAction("asset/action.toml");
     loadAsset("asset/actor.toml");
 }
+static std::expected<ScriptSection, parse_error>
+parseScriptSection(const toml::table*);
 
-static std::tuple<ArchetypeBit, SparseChunk>
-parseActor(const toml::table* ptr, AppState& app);
+
 static std::tuple<std::string, std::vector<std::string>>
 parseModule(const toml::table* ptr);
-
 template<typename Component>
 static std::optional<Component> parse(
     const toml::table*, AppState& app);
-
-void AssetLoader::loadAsset(const std::string& fileName){
-    AppDebug("Load Asset: {}", fileName);
-    auto table = toml::parse_file(fileName);
-
-    auto entities = *table["entities"].as_array();
-
-    for(const auto& ntt: entities){
-        const auto& entity = ntt.as_table();
-
-        auto [bit, chunk] = parseActor(entity, app);
-
-        app.world.create(bit, std::move(chunk));
-    }
-}
 
 void AssetLoader::loadAction(const std::string& fileName){
     AppDebug("Load Action: {}", fileName);
@@ -137,10 +122,33 @@ parse<MeshComponent>(
         textureHandle, shaderHandle);
 }
 
-static std::tuple<std::string, std::string, std::string>
-parseInputTrigger(const std::string& text);
-static std::tuple<std::string, std::string>
-parseInputAction(const std::string& text);
+static std::expected<ScriptSection, parse_error>
+parseScriptSection(const toml::table* ptr){
+    if(ptr == nullptr)
+        return std::unexpected(parse_error::invalid_table);
+    const auto& table = *ptr;
+
+    auto moduleName = *table["module"].value<std::string>();
+
+    return ScriptSection{
+        .moduleName = moduleName
+    };
+}
+
+std::expected<ActionComponent, parse_error> 
+AssetLoader::makeActionComponent(
+    const ScriptSection& section
+){
+    auto component = dangled<ActionComponent>(
+        app.moduleManager.getHandle(
+            section.moduleName),
+        app.scriptInvoker.registerFunction(
+            section.moduleName)
+    );
+
+    return component;
+}
+
 template<>
 std::optional<InputComponent>
 parse<InputComponent>(
@@ -158,79 +166,6 @@ parse<InputComponent>(
     component.handle = moduleHandle;
 
     return component;
-}
-
-static std::tuple<ArchetypeBit, SparseChunk>
-parseActor(const toml::table* ptr, AppState& app){
-    if(ptr == nullptr)
-        return {};
-    const auto& actor = *ptr;
-    // new Actor
-    std::string name = *actor["name"].value<std::string>();
-    ArchetypeBit bit = 0;
-    SparseChunk chunk;
-
-    auto tc = parse<TransformComponent>(
-        actor["transform"].as_table(), app);
-    auto cc = parse<CameraComponent>(
-        actor["camera"].as_table(), app);
-
-    std::optional<MeshComponent> mc;
-    if(actor.contains("model")){
-        auto model = actor["model"].as_table();
-
-        mc = parse<MeshComponent>(model, app);
-    }
-
-    auto ic = parse<InputComponent>(
-        actor["script"].as_table(), app);
-
-    if(tc.has_value()){
-        bit = bit | TRANSFORM_BIT;
-        chunk.transform = tc.value();
-    }
-    if(cc.has_value()){
-        bit = bit | CAMERA_BIT;
-        chunk.camera = cc.value();
-    }
-    if(mc.has_value()){
-        bit = bit | MESH_BIT;
-        chunk.mesh = mc.value();
-    }
-    if(ic.has_value()){
-        bit = bit | INPUT_BIT;
-        chunk.input = ic.value();
-    }
-
-    GameDebug("Actor loaded, name: {}, archetype: {}", name, bit);
-    return {bit, chunk};
-}
-
-static std::tuple<std::string, std::string, std::string>
-parseInputTrigger(const std::string& text){
-    std::regex re(R"(\.)");
-    std::sregex_token_iterator iter(text.begin(), text.end(), re, -1);
-    std::sregex_token_iterator end;
-
-    std::array<std::string, 3> result;
-    for(size_t i=0; i<3; ++i){
-        result[i] = (iter++)->str();
-    }
-
-    return {result[0], result[1], result[2]};
-}
-static std::tuple<std::string, std::string>
-parseInputAction(const std::string& text){
-    std::regex re(R"(\.)");
-    std::sregex_token_iterator iter(text.begin(), text.end(), re, -1);
-    std::sregex_token_iterator end;
-
-    std::array<std::string, 2> result;
-    for(size_t i=0; i<2; ++i){
-        result[i] = (iter++)->str();
-    }
-
-    return {result[0], result[1]};
 }
 
 static std::tuple<std::string, std::vector<std::string>>
@@ -259,4 +194,67 @@ parseModule(const toml::table* ptr){
     }
 
     return {moduleName.value(), fileNames};
+}
+
+void AssetLoader::loadAsset(const std::string& fileName){
+    AppDebug("Load Asset: {}", fileName);
+    auto table = toml::parse_file(fileName);
+
+    auto entities = *table["entities"].as_array();
+
+    for(const auto& ntt: entities){
+        const auto& entity = *ntt.as_table();
+
+        std::string name = entity["name"].value<std::string>().value();
+        // new Actor
+        ArchetypeBit bit = 0;
+        SparseChunk chunk;
+
+        auto tc = parse<TransformComponent>(
+            entity["transform"].as_table(), app);
+        auto cc = parse<CameraComponent>(
+            entity["camera"].as_table(), app);
+
+        std::optional<MeshComponent> mc;
+        if(entity.contains("model")){
+            auto model = entity["model"].as_table();
+
+            mc = parse<MeshComponent>(model, app);
+        }
+
+        auto ac = parseScriptSection(
+            entity["script"].as_table()
+        ).and_then([this](auto&& val){
+            return makeActionComponent(val); 
+        });
+
+        auto ic = parse<InputComponent>(
+            entity["script"].as_table(), app);
+
+        if(tc.has_value()){
+            bit = bit | TRANSFORM_BIT;
+            chunk.transform = tc.value();
+        }
+        if(cc.has_value()){
+            bit = bit | CAMERA_BIT;
+            chunk.camera = cc.value();
+        }
+        if(mc.has_value()){
+            bit = bit | MESH_BIT;
+            chunk.mesh = mc.value();
+        }
+        if(ac.has_value()){
+            bit = bit | ACTION_BIT;
+            chunk.action = ac.value();
+        }
+        if(ic.has_value()){
+            bit = bit | INPUT_BIT;
+            chunk.input = ic.value();
+        }
+
+        GameDebug("Actor loaded, name: {}, archetype: {}",
+            name, bit);
+
+        app.world.create(bit, std::move(chunk));
+    }
 }

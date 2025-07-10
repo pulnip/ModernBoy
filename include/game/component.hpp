@@ -32,6 +32,13 @@ namespace ModernBoy::Game
         TextureHandle textureHandle;
         ShaderHandle shaderHandle;
     }; static_assert(std::is_trivially_copyable_v<MeshComponent>);
+    struct alignas(COMPONENT_ALIGN) ActionComponent{
+        EntityID actor;
+
+        bool isActive;
+        ModuleHandle moduleHandle;
+        FunctionID updateFunc;
+    }; static_assert(std::is_trivially_copyable_v<ActionComponent>); 
     struct alignas(COMPONENT_ALIGN) InputComponent{
         EntityID actor;
 
@@ -71,6 +78,7 @@ namespace ModernBoy::Game
         TransformComponent transform;
         CameraComponent camera;
         MeshComponent mesh;
+        ActionComponent action;
         InputComponent input;
     };
 
@@ -82,11 +90,12 @@ namespace ModernBoy::Game
         TRANSFORM = 0,
         CAMERA    = 1,
         MESH      = 2,
-        INPUT     = 3,
-        LIFESPAN  = 4,
-        PHYSICS   = 5,
-        ELEMENT   = 6,
-        NUM_COMPONENT = 7,
+        ACTION    = 3,
+        INPUT     = 4,
+        LIFESPAN  = 5,
+        PHYSICS   = 6,
+        ELEMENT   = 7,
+        NUM_COMPONENT = 8,
     };
 
     #define DECL_BIT(NAME) constexpr ArchetypeBit NAME##_BIT \
@@ -99,10 +108,10 @@ namespace ModernBoy::Game
     DECL_BIT(LIFESPAN);
     DECL_BIT(PHYSICS);
     DECL_BIT(ELEMENT);
+    DECL_BIT(ACTION);
 
     constexpr auto DRAW_BIT   = TRANSFORM_BIT | MESH_BIT;
     constexpr auto VIEW_BIT   = TRANSFORM_BIT | CAMERA_BIT;
-    constexpr auto ACTION_BIT = INPUT_BIT;
 
     template<typename T>
     consteval ArchetypeBit bit_of(){
@@ -112,6 +121,8 @@ namespace ModernBoy::Game
             return CAMERA_BIT;
         else if constexpr(std::same_as<T, MeshComponent>)
             return MESH_BIT;
+        else if constexpr(std::same_as<T, ActionComponent>)
+            return ACTION_BIT;
         else if constexpr(std::same_as<T, InputComponent>)
             return INPUT_BIT;
         else if constexpr(std::same_as<T, LifeSpanComponent>)
@@ -147,6 +158,7 @@ namespace ModernBoy::Game
         COMP_OFFSET(Transform)
         COMP_OFFSET(Camera)
         COMP_OFFSET(Mesh)
+        COMP_OFFSET(Action)
         COMP_OFFSET(Input)
         COMP_OFFSET(LifeSpan)
         COMP_OFFSET(Physics)

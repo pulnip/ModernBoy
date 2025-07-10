@@ -6,8 +6,8 @@
 #include "interface.hpp"
 #include "game/archetype_map.hpp"
 #include "game/component.hpp"
+#include "game/action_system.hpp"
 #include "game/draw_system.hpp"
-#include "game/input_system.hpp"
 #include "game/physics_system.hpp"
 #include "game/lifespan_system.hpp"
 #include "game/scheduler.hpp"
@@ -84,7 +84,7 @@ namespace ModernBoy::Game
         EntityTable actorTable;
 
         DrawSystem draw;
-        InputSystem script;
+        ActionSystem action;
         PhysicsSystem physics;
         LifespanSystem lifespan;
 

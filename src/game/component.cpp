@@ -43,9 +43,17 @@ ModernBoy::Game::dangled(){
         invalidResourceHandle(),
         invalidResourceHandle()};
 }
+template<> ActionComponent
+ModernBoy::Game::dangled(ModuleHandle handle, FunctionID id){
+    return {std::numeric_limits<EntityID>::max(),
+        true, handle, id
+    };
+}
 template<> InputComponent
 ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(),
-        true, 0, {}, {}};
+        true, 0, {}, {},
+        invalidResourceHandle()
+    };
 }
 

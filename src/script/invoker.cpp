@@ -31,8 +31,9 @@ static void printInt(int i){
 }
 
 Invoker::Invoker(Game::Context& world,
+    ModuleManager& moduleManager,
     Input::Chord& chord
-):world(world),
+):moduleManager(moduleManager), world(world),
 engine(asCreateScriptEngine()),
 context(engine->CreateContext()){
     int r = engine->SetMessageCallback(asFUNCTION(messageCallback), 0, asCALL_CDECL);
@@ -58,10 +59,16 @@ Invoker::~Invoker(){
 }
 
 FunctionID Invoker::registerFunction(const FuncName& funcName){
-    auto newID = issueID();
-    auto [it, ret] = functionMap.try_emplace(newID, funcName);
+    auto it = funcNameToID.find(funcName);
+    if(it != funcNameToID.end()){
+        return it->second;
+    }
 
-    if(!ret)
+    auto newID = issueID();
+    auto [_1, ret1] = functionMap.try_emplace(newID, funcName);
+    auto [_2, ret2] = funcNameToID.try_emplace(funcName, newID);
+
+    if((!ret1) || (!ret2))
         return std::numeric_limits<FunctionID>::max();
     return newID;
 }
@@ -98,13 +105,13 @@ ABNORMAL_FLAG Invoker::invokeInput(const Module& module_,
     return false;
 }
 
-ABNORMAL_FLAG Invoker::invoke(const Module& module_,
+ABNORMAL_FLAG Invoker::invoke(ModuleHandle handle,
     FunctionID func_id, EntityID id
 ){
-    auto mod = module_.module_;
+    auto module_ = moduleManager.get(handle).module_;
     auto funcName = functionMap.at(func_id);
 
-    auto* func = mod->GetFunctionByName(funcName.c_str());
+    auto* func = module_->GetFunctionByName(funcName.c_str());
     if(func == nullptr){
         std::println("No function Name {} exists!", funcName);
         return true;
