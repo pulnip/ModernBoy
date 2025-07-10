@@ -35,20 +35,20 @@ namespace ModernBoy::Game
             using args = fn_args_t<Fn>;
             using plain_args = fn_decayed_args_t<Fn>;
 
-            on_read_phase();
+            // on_read_phase();
             for(const auto& chunk: vec)
                 [&]<std::size_t... I>(std::index_sequence<I...>){
                     fn(chunk.template at<std::tuple_element_t<I, plain_args>>(
                         offset_of<std::tuple_element_t<I, plain_args>>(bit))...);
                 }(std::make_index_sequence<std::tuple_size_v<args>>{});
-            read_phase_end();
+            // read_phase_end();
         }
         void transform(Writer fn);
         template<typename R>
         R mutate(std::function<R(DynamicVector&)> fn){
-            on_write_phase();
+            // on_write_phase();
             auto ret = fn(vec);
-            write_phase_end();
+            // write_phase_end();
             return ret;
         }
 
@@ -83,14 +83,14 @@ namespace ModernBoy::Game
         DynamicVector& raw();
         const DynamicVector& raw() const;
 
-    private:
-        void* operator[](Index index);
-        const void* operator[](Index index) const;
-
         void on_read_phase() const;
         void read_phase_end() const;
         void on_write_phase();
         void write_phase_end();
+
+    private:
+        void* operator[](Index index);
+        const void* operator[](Index index) const;
 
         friend class ArchetypeMap;
     };
@@ -119,9 +119,9 @@ namespace ModernBoy::Game
         template<typename Component>
         Component get(ArchetypeBit bit, Index index){
             const auto& vec = archetypeMap.at(bit);
-            vec.on_read_phase();
+            // vec.on_read_phase();
             auto component = vec.get<Component>(index);
-            vec.read_phase_end();
+            // vec.read_phase_end();
             return component;
         }
         template<typename Component>
@@ -129,10 +129,10 @@ namespace ModernBoy::Game
             ArchetypeBit bit, Index index
         ){
             auto& vec = archetypeMap.at(bit);
-            vec.on_write_phase();
+            // vec.on_write_phase();
             vec.set<Component>(
                 index, std::forward<Component>(component));
-            vec.write_phase_end();
+            // vec.write_phase_end();
             return false;
         }
 
