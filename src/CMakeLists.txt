@@ -53,3 +53,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     # Assimp
     assimp::assimp
 )
+
+if(APPLE AND (CMAKE_GENERATOR MATCHES "Ninja"))
+    find_program(DSYMUTIL_EXECUTABLE dsymutil)
+    if(DSYMUTIL_EXECUTABLE)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${DSYMUTIL_EXECUTABLE} $<TARGET_FILE:${PROJECT_NAME}>
+            COMMENT "Generating dSYM for $<TARGET_FILE_NAME:${PROJECT_NAME}>"
+            VERBATIM)
+    endif()
+endif()
