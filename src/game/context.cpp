@@ -12,6 +12,10 @@ physics(*this), lifespan(*this){}
 
 
 void Context::update(DeltaTime dt){
+    auto actionFut = action.update(dt);
+    while(!actionFut.done())
+        actionFut.next();
+
     auto drawFut = draw.update(dt);
     while(!drawFut.done())
         drawFut.next();
@@ -32,7 +36,7 @@ EntityID Context::create(
     ArchetypeBit bit, SparseChunk&& chunk
 ){
     EntityID actor_id = issueID();
-    GameTrace("  Actor ID issued: {}, archetype: {}", actor_id, bit);
+    GameDebug("  Actor ID issued: {}, archetype: {}", actor_id, bit);
     assignEntityID(chunk, actor_id);
 
     auto chunkIndex = archetypeMap.insert(
@@ -54,6 +58,7 @@ static void assignEntityID(SparseChunk& chunk,
     chunk.transform.actor = actor;
     chunk.camera.actor = actor;
     chunk.mesh.actor = actor;
+    chunk.action.actor = actor;
     chunk.input.actor = actor;
 }
 

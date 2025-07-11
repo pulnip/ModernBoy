@@ -23,7 +23,7 @@ int TypeHelper::registerGlobalProperty(){
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
         return ret;
     if(auto ret=engine->RegisterGlobalProperty(
-        "Input@ input", &chord) < 0)
+        "Input input", &chord) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectMethod(
         "Input", "bool query(KeyCode keyCode, KeyState keyState)",
@@ -101,17 +101,6 @@ int TypeHelper::registerKeyevent(){
             text.c_str(), i))
             return ret;
     }
-    // register Trigger
-    if(auto ret=engine->RegisterObjectType(
-        "Trigger", sizeof(Trigger),
-        asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CDAK) < 0)
-        return ret;
-    if(auto ret=engine->RegisterObjectProperty("Trigger",
-        "KeyCode keyCode", asOFFSET(Trigger, keyCode)) < 0)
-        return ret;
-    if(auto ret=engine->RegisterObjectProperty("Trigger",
-        "KeyState keyState", asOFFSET(Trigger, keyState)) < 0)
-        return ret;
     return 0;
 }
 
@@ -137,7 +126,9 @@ static void setTransform(Actor* actor, Transform transform){
 }
 
 static uint64_t getDeltaTime(Context* context){
-    return context->getDeltaTime().count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        context->getDeltaTime()
+    ).count();
 }
 
 int TypeHelper::registerActor(){

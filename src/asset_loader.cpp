@@ -143,7 +143,7 @@ AssetLoader::makeActionComponent(
         app.moduleManager.getHandle(
             section.moduleName),
         app.scriptInvoker.registerFunction(
-            section.moduleName)
+            "update")
     );
 
     return component;

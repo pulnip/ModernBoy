@@ -125,7 +125,7 @@ ABNORMAL_FLAG Invoker::invoke(ModuleHandle handle,
     };
 
     context->SetArgObject(0, &actor);
-    context->SetArgDWord(1, id);
+    // context->SetArgDWord(1, id);
 
     auto ret = context->Execute();
     if(ret != asEXECUTION_FINISHED){

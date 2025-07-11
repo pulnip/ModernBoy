@@ -27,7 +27,7 @@ namespace ModernBoy::Input
         void swapState();
 
         State state[2];
-        std::atomic<int> readIndex;
+        std::atomic<int> readIndex = 0;
         Device device;
 
         // exponential moving average
