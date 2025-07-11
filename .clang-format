@@ -1,0 +1,12 @@
+BasedOnStyle: LLVM
+ColumnLimit: 80
+NamespaceComment: true
+
+BraceWrapping:
+  AfterFunction: false
+  AfterClass: false
+  AfterEnum: false
+  AfterStruct: false
+  AfterNamespace: false
+  BeforeCatch: false
+  BeforeElse: false
