@@ -81,7 +81,7 @@ MeshHandle AppState::append<Script::Module,
 void AppState::update(){
     Timepoint now = std::chrono::time_point_cast<
         std::chrono::microseconds>(steady_clock::now());
-    deltaTime = lastTick - now;
+    deltaTime = now - lastTick;
     lastTick = now;
 
     auto gen1 = inputChord.update(deltaTime);
