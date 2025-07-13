@@ -23,10 +23,6 @@ namespace ModernBoy
         struct{ float r, g, b, a; };
     }; static_assert(std::is_trivially_copyable_v<Vec4>);
 
-    Vec3 zeros();
-    Vec3 ones();
-    Vec4 unitQuat();
-
     Vec2 operator+(Vec2, Vec2);
     Vec2 operator-(Vec2, Vec2);
     Vec2 operator-(Vec2);
@@ -36,6 +32,24 @@ namespace ModernBoy
 
     float dot(Vec2, Vec2);
     float cross(Vec2, Vec2);
+
+    Vec3 zeros();
+    Vec3 ones();
+    Vec4 unitQuat();
+
+    Vec3 operator+(Vec3, Vec3);
+    Vec3& operator+=(Vec3&, Vec3);
+    Vec3 operator-(Vec3, Vec3);
+    Vec3 operator-(Vec3);
+    Vec3 operator*(Vec3, float);
+    Vec3& operator*=(Vec3&, float);
+    Vec3 operator/(Vec3, float);
+    Vec3 cross(Vec3, Vec3);
+
+    bool operator==(Vec3, Vec3);
+
+    float dot(Vec3, Vec3);
+    float norm_squared(Vec3);
 
     struct Transform{
         Vec3 position;

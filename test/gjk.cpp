@@ -78,10 +78,7 @@ TEST(GJK, EdgeCase){
 TEST(GJK, Touching){
     Vec2 touching_square[4] = {{{1, -1}}, {{3, -1}}, {{3, 1}}, {{1, 1}}};
 
-    // depends on implementation
-    bool result = gjk(square1, 4, touching_square, 4);
-    // maybe true
-    EXPECT_TRUE(result == true || result == false);
+    EXPECT_TRUE(gjk(square1, 4, touching_square, 4));
 }
 
 TEST(GJK, TinyShape){
