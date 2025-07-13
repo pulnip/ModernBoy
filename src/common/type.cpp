@@ -15,6 +15,30 @@ Vec4 ModernBoy::unitQuat(){
     return {.v={0.0f, 0.0f, 0.0f, 1.0f}};
 }
 
+Vec2 ModernBoy::operator+(Vec2 lhs, Vec2 rhs){
+    return {{lhs.x+rhs.x, lhs.y+rhs.y}};
+}
+Vec2 ModernBoy::operator-(Vec2 lhs, Vec2 rhs){
+    return {{lhs.x-rhs.x, lhs.y-rhs.y}};
+}
+Vec2 ModernBoy::operator-(Vec2 v){
+    return {{-v.x, -v.y}};
+}
+Vec2 ModernBoy::operator/(Vec2 v, float f){
+    return {{v.x/f, v.y/f}};
+}
+
+bool ModernBoy::operator==(Vec2 lhs, Vec2 rhs){
+    return (lhs.x==rhs.x) && (lhs.y==rhs.y);
+}
+
+float ModernBoy::dot(  Vec2 lhs, Vec2 rhs){
+    return lhs.x*rhs.x + lhs.y*rhs.y;
+}
+float ModernBoy::cross(Vec2 lhs, Vec2 rhs){
+    return lhs.x*rhs.y - lhs.y*rhs.x;
+}
+
 Transform ModernBoy::identity(){
     return{ zeros(), unitQuat(), ones() };
 }

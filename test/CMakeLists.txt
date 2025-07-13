@@ -2,6 +2,7 @@ find_package(GTest CONFIG REQUIRED)
 file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME}Test
     ${ALL_SOURCES}
+    ${CMAKE_SOURCE_DIR}/src/physics.cpp
 )
 
 target_compile_options(${PROJECT_NAME}Test PRIVATE
@@ -19,6 +20,7 @@ target_include_directories(${PROJECT_NAME}Test PRIVATE
     ${CMAKE_SOURCE_DIR}/include
 )
 target_link_libraries(${PROJECT_NAME}Test PRIVATE
+    CommonModule
     Util
     GTest::gtest_main
     GTest::gmock_main
