@@ -53,12 +53,13 @@ namespace ModernBoy::Game
 
         bool isAlive;
     }; static_assert(std::is_trivially_copyable_v<LifeSpanComponent>);
-    struct alignas(COMPONENT_ALIGN) PhysicsComponent{
+    struct alignas(COMPONENT_ALIGN) RigidbodyComponent{
         EntityID actor;
 
+        Vec3 velocity;
         bool useGravity;
         float mass;
-    }; static_assert(std::is_trivially_copyable_v<PhysicsComponent>);
+    }; static_assert(std::is_trivially_copyable_v<RigidbodyComponent>);
     enum class ElementType{
         FIRE,
         EARTH,
@@ -72,7 +73,31 @@ namespace ModernBoy::Game
         EntityID actor;
 
         ElementType type;
-    };static_assert(std::is_trivially_copyable_v<ElementComponent>);
+    }; static_assert(std::is_trivially_copyable_v<ElementComponent>);
+    struct PhysicsMaterial{
+        float bounciness;
+        float friction;
+    };
+    struct SphereColliderComponent{
+        EntityID actor;
+
+        Vec3 position;
+        float radius;
+        PhysicsMaterial material;
+    }; static_assert(std::is_trivially_copyable_v<SphereColliderComponent>);
+    struct FixedBoxColliderComponent{
+        EntityID actor;
+
+        Vec3 position;
+        Vec3 scale;
+        PhysicsMaterial material;
+    }; static_assert(std::is_trivially_copyable_v<FixedBoxColliderComponent>);
+    struct BoxColliderComponent{
+        EntityID actor;
+
+        Transform transform;
+        PhysicsMaterial material;
+    }; static_assert(std::is_trivially_copyable_v<BoxColliderComponent>);
 
     struct SparseChunk{
         TransformComponent transform;
@@ -96,7 +121,7 @@ namespace ModernBoy::Game
         ACTION    = 3,
         INPUT     = 4,
         LIFESPAN  = 5,
-        PHYSICS   = 6,
+        RIGIDBODY = 6,
         ELEMENT   = 7,
         NUM_COMPONENT = 8,
     };
@@ -110,11 +135,12 @@ namespace ModernBoy::Game
     DECL_BIT(ACTION);
     DECL_BIT(INPUT);
     DECL_BIT(LIFESPAN);
-    DECL_BIT(PHYSICS);
+    DECL_BIT(RIGIDBODY);
     DECL_BIT(ELEMENT);
 
-    constexpr auto DRAW_BIT   = TRANSFORM_BIT | MESH_BIT;
-    constexpr auto VIEW_BIT   = TRANSFORM_BIT | CAMERA_BIT;
+    constexpr auto DRAW_BIT    = TRANSFORM_BIT | MESH_BIT;
+    constexpr auto VIEW_BIT    = TRANSFORM_BIT | CAMERA_BIT;
+    constexpr auto PHYSICS_BIT = TRANSFORM_BIT | RIGIDBODY_BIT;
 
     size_t size_of(ArchetypeBit bit);
 
@@ -132,8 +158,8 @@ namespace ModernBoy::Game
             return INPUT_BIT;
         else if constexpr(std::same_as<T, LifeSpanComponent>)
             return LIFESPAN_BIT;
-        else if constexpr(std::same_as<T, PhysicsComponent>)
-            return PHYSICS_BIT;
+        else if constexpr(std::same_as<T, RigidbodyComponent>)
+            return RIGIDBODY_BIT;
         else if constexpr(std::same_as<T, ElementComponent>)
             return ELEMENT_BIT;
         else if constexpr(std::same_as<T, DrawTask>)
@@ -166,7 +192,7 @@ namespace ModernBoy::Game
         COMP_OFFSET(Action)
         COMP_OFFSET(Input)
         COMP_OFFSET(LifeSpan)
-        COMP_OFFSET(Physics)
+        COMP_OFFSET(Rigidbody)
         COMP_OFFSET(Element)
         return offset;
     }

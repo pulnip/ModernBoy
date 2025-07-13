@@ -68,6 +68,8 @@ scale    = [100.0, 1.0, 100.0]
 mesh = "Cube"
 texture = "asset/Farback01.png"
 shader = "default"
+[[entities.collider]]
+type="Box"
 
 [[entities]]
 name = "Camera0"
