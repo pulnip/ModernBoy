@@ -24,6 +24,9 @@ namespace ModernBoy::Game
         bool isActive;
         Camera value;
     }; static_assert(std::is_trivially_copyable_v<CameraComponent>);
+    struct alignas(COMPONENT_ALIGN) ColorComponent{
+        Vec4 color;
+    }; static_assert(std::is_trivially_copyable_v<ColorComponent>);
     struct alignas(COMPONENT_ALIGN) MeshComponent{
         EntityID actor;
 
@@ -107,95 +110,95 @@ namespace ModernBoy::Game
         InputComponent input;
     };
 
-    void setChunk(void* dst, const SparseChunk& chunk,
-        ArchetypeBit bit);
+    // Entity-to-Entity Event Component
+    struct PhysicalCollision{
+        Vec3 force;
+    }; static_assert(std::is_trivially_copyable_v<PhysicalCollision>);
 
-    template<typename Component, typename ...T>
-    Component dangled(T... args);
+    #define ARCHETYPES \
+        X(       TRANSFORM) \
+        X(          CAMERA) \
+        X(            MESH) \
+        X(          ACTION) \
+        X(           INPUT) \
+        X(        LIFESPAN) \
+        X(       RIGIDBODY) \
+        X(         ELEMENT) \
+        X(  SPHERECOLLIDER) \
+        X(FIXEDBOXCOLLIDER) \
+        X(     BOXCOLLIDER) \
+        X(       COLLISION)
+    #define ARCHETYPE_PAIRS \
+        X(       TransformComponent,        TRANSFORM) \
+        X(          CameraComponent,           CAMERA) \
+        X(            MeshComponent,             MESH) \
+        X(          ActionComponent,           ACTION) \
+        X(           InputComponent,            INPUT) \
+        X(        LifeSpanComponent,         LIFESPAN) \
+        X(       RigidbodyComponent,        RIGIDBODY) \
+        X(         ElementComponent,          ELEMENT) \
+        X(  SphereColliderComponent,   SPHERECOLLIDER) \
+        X(FixedBoxColliderComponent, FIXEDBOXCOLLIDER) \
+        X(     BoxColliderComponent,      BOXCOLLIDER) \
+        X(        PhysicalCollision,        COLLISION)
+    #define COMPOSIT_PAIRS \
+        X(                 DrawTask,             DRAW) \
+        X(                 ViewTask,             VIEW) \
+        X(               ActionTask,           ACTION)
 
-        enum class ComponentType{
-        INVALID   = -1,
-        TRANSFORM = 0,
-        CAMERA    = 1,
-        MESH      = 2,
-        ACTION    = 3,
-        INPUT     = 4,
-        LIFESPAN  = 5,
-        RIGIDBODY = 6,
-        ELEMENT   = 7,
-        NUM_COMPONENT = 8,
+    enum{
+        #define NAME_INDEX(name) name##_INDEX,
+        #define X NAME_INDEX
+        ARCHETYPES
+        #undef X
+        NUM_ARCHETYPES
     };
 
-    #define DECL_BIT(NAME) constexpr ArchetypeBit NAME##_BIT \
-        = (1 << ArchetypeBit(ComponentType::NAME))
-
-    DECL_BIT(TRANSFORM);
-    DECL_BIT(CAMERA);
-    DECL_BIT(MESH);
-    DECL_BIT(ACTION);
-    DECL_BIT(INPUT);
-    DECL_BIT(LIFESPAN);
-    DECL_BIT(RIGIDBODY);
-    DECL_BIT(ELEMENT);
-
-    constexpr auto DRAW_BIT    = TRANSFORM_BIT | MESH_BIT;
-    constexpr auto VIEW_BIT    = TRANSFORM_BIT | CAMERA_BIT;
+    #define DECL_BIT(name) constexpr ArchetypeBit \
+        name##_BIT = (1 << name##_INDEX);
+    #define X DECL_BIT
+    ARCHETYPES
+    #undef X
+    constexpr auto DRAW_BIT    = TRANSFORM_BIT |      MESH_BIT;
+    constexpr auto VIEW_BIT    = TRANSFORM_BIT |    CAMERA_BIT;
     constexpr auto PHYSICS_BIT = TRANSFORM_BIT | RIGIDBODY_BIT;
 
     size_t size_of(ArchetypeBit bit);
 
     template<typename T>
-    consteval ArchetypeBit bit_of(){
-        if constexpr(std::same_as<T, TransformComponent>)
-            return TRANSFORM_BIT;
-        else if constexpr(std::same_as<T, CameraComponent>)
-            return CAMERA_BIT;
-        else if constexpr(std::same_as<T, MeshComponent>)
-            return MESH_BIT;
-        else if constexpr(std::same_as<T, ActionComponent>)
-            return ACTION_BIT;
-        else if constexpr(std::same_as<T, InputComponent>)
-            return INPUT_BIT;
-        else if constexpr(std::same_as<T, LifeSpanComponent>)
-            return LIFESPAN_BIT;
-        else if constexpr(std::same_as<T, RigidbodyComponent>)
-            return RIGIDBODY_BIT;
-        else if constexpr(std::same_as<T, ElementComponent>)
-            return ELEMENT_BIT;
-        else if constexpr(std::same_as<T, DrawTask>)
-            return DRAW_BIT;
-        else if constexpr(std::same_as<T, ViewTask>)
-            return VIEW_BIT;
-        else if constexpr(std::same_as<T, ActionTask>)
-            return ACTION_BIT;
-        else
-            return static_cast<ArchetypeBit>(0);
-    }
+    consteval ArchetypeBit bit_of();
     template<typename... Ts>
     consteval ArchetypeBit bits_of(){
         return (... | bit_of<Ts>());
     }
+    #define TYPE_TO_BIT(type, name) template<> \
+        consteval ArchetypeBit bit_of<type>(){ return name##_BIT; }
+    #define X TYPE_TO_BIT
+    ARCHETYPE_PAIRS
+    COMPOSIT_PAIRS
+    #undef X
 
     bool subset(ArchetypeBit a, ArchetypeBit b);
 
     template<typename Component>
     size_t offset_of(ArchetypeBit bit){
-        size_t offset = 0;
-        #define COMP_OFFSET(NAME) \
-            if(std::same_as<Component, NAME##Component>) \
+        #define COMP_OFFSET(type, name) \
+            if(std::same_as<Component, type>) \
                 return offset; \
-            if(bit & bit_of<NAME##Component>()) \
-                offset += sizeof(NAME##Component);
-        COMP_OFFSET(Transform)
-        COMP_OFFSET(Camera)
-        COMP_OFFSET(Mesh)
-        COMP_OFFSET(Action)
-        COMP_OFFSET(Input)
-        COMP_OFFSET(LifeSpan)
-        COMP_OFFSET(Rigidbody)
-        COMP_OFFSET(Element)
+            if(bit & bit_of<type>()) \
+                offset += sizeof(type);
+        size_t offset = 0;
+        #define X COMP_OFFSET
+        ARCHETYPE_PAIRS
+        #undef X
         return offset;
     }
+
+    void setChunk(void* dst, const SparseChunk& chunk,
+        ArchetypeBit bit);
+
+    template<typename Component, typename ...T>
+    Component dangled(T... args);
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_COMPONENT_HPP
