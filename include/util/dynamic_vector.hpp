@@ -32,7 +32,7 @@ namespace ModernBoy{
         template<typename T>
         T& at(size_t offset){
             if(sizeof(T)+offset > ELM_SIZE)
-                throw DynamicVectorElementBadCast(ELM_SIZE, sizeof(T));
+                throw DynamicVectorElementBadCast(ELM_SIZE, offset + sizeof(T));
             return *static_cast<std::remove_reference_t<T>*>(
                 Util::add(elmMem, ELM_SIZE*offset));
         }
@@ -49,7 +49,7 @@ namespace ModernBoy{
         const T& at(size_t offset) const{
 
             if(offset+sizeof(T) > ELM_SIZE)
-                throw DynamicVectorElementBadCast(ELM_SIZE, sizeof(T));
+                throw DynamicVectorElementBadCast(ELM_SIZE, offset + sizeof(T));
             return *static_cast<const T*>(
                 Util::add(elmMem, offset));
         }

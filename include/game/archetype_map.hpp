@@ -43,19 +43,6 @@ namespace ModernBoy::Game
                 }(std::make_index_sequence<std::tuple_size_v<args>>{});
             // read_phase_end();
         }
-        template<typename Fn>
-        void transform(Fn&& fn){
-            using args = fn_args_t<Fn>;
-            using plain_args = fn_decayed_args_t<Fn>;
-
-            // on_write_phase();
-            for(auto chunk: vec)
-                [&]<std::size_t... I>(std::index_sequence<I...>){
-                    fn(chunk.template at<std::tuple_element_t<I, args>>(
-                        offset_of<std::tuple_element_t<I, plain_args>>(bit))...);
-                }(std::make_index_sequence<std::tuple_size_v<args>>{});
-            // write_phase_end();
-        }
         void transform(Writer fn);
         template<typename R>
         R mutate(std::function<R(DynamicVector&)> fn){

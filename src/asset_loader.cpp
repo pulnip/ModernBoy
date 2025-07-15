@@ -22,6 +22,7 @@ AssetLoader::AssetLoader(AppState& app):app(app){
     loadAction("asset/action.toml");
     loadAsset("asset/actor.toml");
 }
+
 static std::expected<ScriptSection, parse_error>
 parseScriptSection(const toml::table*);
 
@@ -31,6 +32,29 @@ parseModule(const toml::table* ptr);
 template<typename Component>
 static std::optional<Component> parse(
     const toml::table*, AppState& app);
+
+template<>
+std::expected<RigidbodyComponent, parse_error>
+AssetLoader::parse<toml::table, RigidbodyComponent>(
+    const toml::table* ptr
+){
+    if(ptr == nullptr)
+        return std::unexpected(parse_error::invalid_table);
+    const auto& table = *ptr;
+    auto comp = dangled<RigidbodyComponent>();
+
+    if(auto vel = table["velocity"].as_array()){
+        for(size_t i=0; i<3; ++i){
+            comp.velocity.v[i] = *(*vel)[i].value<double>();
+
+            std::println("as: {}", comp.velocity.v[i]);
+        }
+    }
+    comp.useGravity = table["useGravity"].value_or<bool>(false);
+    comp.mass = table["mass"].value_or<double>(1);
+
+    return comp;
+}
 
 void AssetLoader::loadAction(const std::string& fileName){
     AppDebug("Load Action: {}", fileName);
@@ -210,16 +234,16 @@ void AssetLoader::loadAsset(const std::string& fileName){
         ArchetypeBit bit = 0;
         SparseChunk chunk;
 
-        auto tc = parse<TransformComponent>(
+        auto tc = ::parse<TransformComponent>(
             entity["transform"].as_table(), app);
-        auto cc = parse<CameraComponent>(
+        auto cc = ::parse<CameraComponent>(
             entity["camera"].as_table(), app);
 
         std::optional<MeshComponent> mc;
         if(entity.contains("model")){
             auto model = entity["model"].as_table();
 
-            mc = parse<MeshComponent>(model, app);
+            mc = ::parse<MeshComponent>(model, app);
         }
 
         auto ac = parseScriptSection(
@@ -228,8 +252,11 @@ void AssetLoader::loadAsset(const std::string& fileName){
             return makeActionComponent(val); 
         });
 
-        auto ic = parse<InputComponent>(
+        auto ic = ::parse<InputComponent>(
             entity["script"].as_table(), app);
+
+        auto rc = parse<toml::table, RigidbodyComponent>(
+            entity["rigidbody"].as_table());
 
         if(tc.has_value()){
             bit = bit | TRANSFORM_BIT;
@@ -250,6 +277,10 @@ void AssetLoader::loadAsset(const std::string& fileName){
         if(ic.has_value()){
             bit = bit | INPUT_BIT;
             chunk.input = ic.value();
+        }
+        if(rc.has_value()){
+            bit = bit | RIGIDBODY_BIT;
+            chunk.rigidbody = rc.value();
         }
 
         GameDebug("Actor loaded, name: {}, archetype: {}",

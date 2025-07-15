@@ -16,6 +16,10 @@ void Context::update(DeltaTime dt){
     while(!actionFut.done())
         actionFut.next();
 
+    auto physicsFut = physics.update(dt);
+    while(!physicsFut.done())
+        physicsFut.next();
+
     auto drawFut = draw.update(dt);
     while(!drawFut.done())
         drawFut.next();
@@ -60,6 +64,7 @@ static void assignEntityID(SparseChunk& chunk,
     chunk.mesh.actor = actor;
     chunk.action.actor = actor;
     chunk.input.actor = actor;
+    chunk.rigidbody.actor = actor;
 }
 
 void Context::destroy(EntityID actor){

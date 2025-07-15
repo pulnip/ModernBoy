@@ -108,6 +108,7 @@ namespace ModernBoy::Game
         MeshComponent mesh;
         ActionComponent action;
         InputComponent input;
+        RigidbodyComponent rigidbody;
     };
 
     // Entity-to-Entity Event Component

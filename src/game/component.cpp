@@ -19,6 +19,8 @@ void ModernBoy::Game::setChunk(void* dst,
         dst = Util::chunkcpy(dst, chunk.action);
     if(bit & INPUT_BIT)
         dst = Util::chunkcpy(dst, chunk.input);
+    if(bit & RIGIDBODY_BIT)
+        dst = Util::chunkcpy(dst, chunk.rigidbody);
 }
 
 
@@ -34,6 +36,9 @@ size_t ModernBoy::Game::size_of(ArchetypeBit bit){
         size += sizeof(ActionComponent);
     if(bit & INPUT_BIT)
         size += sizeof(InputComponent);
+    if(bit & RIGIDBODY_BIT)
+        size += sizeof(RigidbodyComponent);
+
     return size;
 }
 
@@ -86,6 +91,13 @@ ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(),
         true, 0, {}, {},
         invalidResourceHandle()
+    };
+}
+
+template<> RigidbodyComponent
+ModernBoy::Game::dangled(){
+    return {std::numeric_limits<EntityID>::max(),
+        zeros(), false, 1
     };
 }
 

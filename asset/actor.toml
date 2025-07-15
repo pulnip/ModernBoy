@@ -13,6 +13,16 @@ texture = "asset/world_map.jpg"
 shader = "default"
 [entities.script]
 module="default"
+[entities.rigidbody]
+velocity = [0.0, 1.0, 0.0]
+useGravity = false
+mass = 1
+[entities.sphereCollider]
+position = [0.0, 0.0, 0.0]
+radius = 1
+    [entities.rigidbody.material]
+    bounciness = 1.0
+    friction = 0
 
 [[entities]]
 name = "Cuby1"
@@ -68,8 +78,6 @@ scale    = [100.0, 1.0, 100.0]
 mesh = "Cube"
 texture = "asset/Farback01.png"
 shader = "default"
-[[entities.collider]]
-type="Box"
 
 [[entities]]
 name = "Camera0"

@@ -26,6 +26,9 @@ namespace ModernBoy
     private:
         std::expected<Game::ActionComponent, parse_error>
             makeActionComponent(const ScriptSection& section);
+        template<typename File, typename Component>
+        std::expected<Component, parse_error> parse(
+            const File* file);
 
         AppState& app;
 #if defined(USE_DIRECTX)

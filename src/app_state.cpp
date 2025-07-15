@@ -26,7 +26,9 @@ inputChord(),
 scriptInvoker(world, moduleManager, inputChord),
 // others
 world(*this),
-assetLoader(*this), generators(){}
+assetLoader(*this), lastTick(std::chrono::time_point_cast<
+    std::chrono::microseconds>(steady_clock::now())),
+generators(){}
 AppState::~AppState(){
     SDL_DestroyWindow(window);
 }
