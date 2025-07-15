@@ -45,6 +45,8 @@ namespace ModernBoy::Util
         dst = *static_cast<const T*>(src);
         return add<T>(src);
     }
+
+    void* chunkcpy(void* dst, const void* src, size_t size);
 }
 
 #endif // MODERNBOY_UTIL_BIT_HPP

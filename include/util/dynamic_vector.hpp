@@ -33,7 +33,7 @@ namespace ModernBoy{
         T& at(size_t offset){
             if(sizeof(T)+offset > ELM_SIZE)
                 throw DynamicVectorElementBadCast(ELM_SIZE, sizeof(T));
-            return *static_cast<T*>(
+            return *static_cast<std::remove_reference_t<T>*>(
                 Util::add(elmMem, ELM_SIZE*offset));
         }
 

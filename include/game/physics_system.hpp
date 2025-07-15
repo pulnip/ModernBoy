@@ -12,14 +12,11 @@ namespace ModernBoy::Game
     public:
         PhysicsSystem(Context& world);
 
-        size_t yield_count() const noexcept;
-
-        Generator<void> updateTask(DeltaTime dt);
         Generator<void> update(DeltaTime dt);
 
     private:
         Context& world;
-    }; static_assert(Schedulable<PhysicsSystem>);
+    };
 } // namespace ModernBoy::Game
 
 #endif // MODERNBOY_GAME_PHYSICS_SYSTEM_HPP
