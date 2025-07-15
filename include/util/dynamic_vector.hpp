@@ -238,6 +238,114 @@ namespace ModernBoy{
 
     bool operator==(const DynamicVector::ConstIterator& lhs, const DynamicVector::Iterator& rhs);
     bool operator==(const DynamicVector::Iterator& lhs, const DynamicVector::ConstIterator& rhs);
+
+
+    template<typename T1, typename... TN>
+    void emplace(void* dst, T1&& t1, TN&&... tn){
+        *static_cast<T1*>(dst) = std::forward<T1>(t1);
+        emplace(Util::add<T1>(dst), std::forward<TN>(tn)...);
+    }
+    template<typename T>
+    void emplace(void* dst, T&& t){
+        *static_cast<T*>(dst) = std::forward<T>(t);
+    }
+
+    template<typename... T>
+    constexpr size_t sum_sizeof(){
+        return (size_t{0} + ... + sizeof(T));
+    }
+
+    class DynamicVectorV2{
+    private:
+        void* mem = nullptr;
+        const size_t CHUNK_SIZE;
+        size_t size_ = 0;
+        size_t cap_ = 0;
+
+    public:
+        DynamicVectorV2() = delete;
+        ~DynamicVectorV2();
+        DynamicVectorV2(size_t CHUNK_SIZE);
+        DynamicVectorV2(size_t CHUNK_SIZE, size_t initial_size);
+        DynamicVectorV2(const DynamicVector&) = delete;
+        DynamicVectorV2(DynamicVector&&) = delete;
+        DynamicVectorV2& operator=(const DynamicVectorV2&) = delete;
+        DynamicVectorV2& operator=(DynamicVector&&) = delete;
+
+        class ConstIterator;
+
+        class Iterator{
+        private:
+            void* const mem;
+            const size_t CHUNK_SIZE;
+            Index pos;
+
+            friend ConstIterator;
+
+        public:
+            Iterator(void* mem, size_t CHUNK_SIZE, Index pos);
+            Iterator(const Iterator&) = default;
+            Iterator(Iterator&&) = default;
+            Iterator& operator=(const Iterator&) = delete;
+            Iterator& operator=(Iterator&&) = delete;
+
+            void* operator*();
+            const void* operator*() const;
+            Iterator& operator++();
+            bool operator!=(const Iterator& other) const;
+            bool operator==(const Iterator& other) const;
+            bool operator!=(const ConstIterator& other) const;
+            bool operator==(const ConstIterator& other) const;
+        };
+        class ConstIterator{
+        private:
+            void* mem;
+            size_t CHUNK_SIZE;
+            Index pos;
+
+            friend Iterator;
+
+        public:
+            ConstIterator(void* mem, size_t CHUNK_SIZE, Index pos);
+            ConstIterator(const ConstIterator&) = default;
+            ConstIterator(ConstIterator&&) = default;
+            ConstIterator& operator=(const ConstIterator&) = default;
+            ConstIterator& operator=(ConstIterator&&) = default;
+
+            void* operator*();
+            const void* operator*() const;
+            ConstIterator& operator++();
+            bool operator!=(const ConstIterator& other) const;
+            bool operator==(const ConstIterator& other) const;
+            bool operator!=(const Iterator& other) const;
+            bool operator==(const Iterator& other) const;
+        };
+
+        void* operator[](Index index);
+        const void* operator[](Index index) const;
+        Iterator begin();
+        Iterator end();
+        ConstIterator begin() const;
+        ConstIterator end() const;
+        ConstIterator cbegin() const;
+        ConstIterator cend() const;
+
+        size_t size() const;
+        size_t capacity() const;
+        void resize(size_t new_size);
+        void reserve(size_t new_cap);
+
+        template<typename... T>
+        void emplace(T&&... t){
+            assert(sum_sizeof<T...>() == CHUNK_SIZE);
+            if(size_ == cap_)
+                resize(size_ + 1);
+
+            auto dst = Util::add(mem, size_*CHUNK_SIZE);
+            emplace(dst, std::forward<T>(t)...);
+        }
+        void swap_remove(Index index);
+    };
 } // namespace ModernBoy
 
 #endif // MODERNBOY_DYNAMIC_VECTOR_HPP

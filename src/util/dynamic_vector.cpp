@@ -385,3 +385,119 @@ void DynamicVector::remove(Index pos, size_t num){
                 --usedSize;
         }
 }
+
+
+DynamicVectorV2::~DynamicVectorV2(){
+    free(mem);
+}
+DynamicVectorV2::DynamicVectorV2(size_t CHUNK_SIZE)
+:CHUNK_SIZE(CHUNK_SIZE){}
+DynamicVectorV2::DynamicVectorV2(size_t CHUNK_SIZE, size_t initial_cap)
+:CHUNK_SIZE(CHUNK_SIZE), cap_(initial_cap){
+    mem = malloc(CHUNK_SIZE*initial_cap);
+}
+
+DynamicVectorV2::Iterator::Iterator(void* mem, size_t CHUNK_SIZE, Index pos)
+:mem(mem), CHUNK_SIZE(CHUNK_SIZE), pos(pos){}
+void* DynamicVectorV2::Iterator::operator*(){
+    return Util::add(mem, CHUNK_SIZE*pos);
+}
+const void* DynamicVectorV2::Iterator::operator*() const{
+    return Util::add(mem, CHUNK_SIZE*pos);
+}
+DynamicVectorV2::Iterator& DynamicVectorV2::Iterator::operator++(){
+    ++pos;
+    return *this;
+}
+bool DynamicVectorV2::Iterator::operator!=(const DynamicVectorV2::Iterator& other) const{
+    assert(mem == other.mem);
+    return pos != other.pos;
+}
+bool DynamicVectorV2::Iterator::operator==(const DynamicVectorV2::Iterator& other) const{
+    assert(mem == other.mem);
+    return pos == other.pos;
+}
+bool DynamicVectorV2::Iterator::operator!=(const DynamicVectorV2::ConstIterator& other) const{
+    assert(mem == other.mem);
+    return pos != other.pos;
+}
+bool DynamicVectorV2::Iterator::operator==(const DynamicVectorV2::ConstIterator& other) const{
+    assert(mem == other.mem);
+    return pos == other.pos;
+}
+DynamicVectorV2::ConstIterator::ConstIterator(void* mem, size_t CHUNK_SIZE, Index pos)
+:mem(mem), CHUNK_SIZE(CHUNK_SIZE), pos(pos){}
+void* DynamicVectorV2::ConstIterator::operator*(){
+    return Util::add(mem, CHUNK_SIZE*pos);
+}
+const void* DynamicVectorV2::ConstIterator::operator*() const{
+    return Util::add(mem, CHUNK_SIZE*pos);
+}
+DynamicVectorV2::ConstIterator& DynamicVectorV2::ConstIterator::operator++(){
+    ++pos;
+    return *this;
+}
+bool DynamicVectorV2::ConstIterator::operator!=(const DynamicVectorV2::ConstIterator& other) const{
+    assert(mem == other.mem);
+    return pos != other.pos;
+}
+bool DynamicVectorV2::ConstIterator::operator==(const DynamicVectorV2::ConstIterator& other) const{
+    assert(mem == other.mem);
+    return pos == other.pos;
+}
+bool DynamicVectorV2::ConstIterator::operator!=(const DynamicVectorV2::Iterator& other) const{
+    assert(mem == other.mem);
+    return pos != other.pos;
+}
+bool DynamicVectorV2::ConstIterator::operator==(const DynamicVectorV2::Iterator& other) const{
+    assert(mem == other.mem);
+    return pos == other.pos;
+}
+
+void* DynamicVectorV2::operator[](Index index){
+    assert(index < size_);
+    return Util::add(mem, CHUNK_SIZE*index);
+}
+const void* DynamicVectorV2::operator[](Index index) const{
+    assert(index < size_);
+    return Util::add(mem, CHUNK_SIZE*index);
+}
+DynamicVectorV2::Iterator DynamicVectorV2::begin(){
+    return DynamicVectorV2::Iterator(mem, CHUNK_SIZE, 0);
+}
+DynamicVectorV2::Iterator DynamicVectorV2::end(){
+    return DynamicVectorV2::Iterator(mem, CHUNK_SIZE, size_);
+}
+DynamicVectorV2::ConstIterator DynamicVectorV2::begin() const{
+    return DynamicVectorV2::ConstIterator(mem, CHUNK_SIZE, 0);
+}
+DynamicVectorV2::ConstIterator DynamicVectorV2::end() const{
+    return DynamicVectorV2::ConstIterator(mem, CHUNK_SIZE, size_);
+}
+DynamicVectorV2::ConstIterator DynamicVectorV2::cbegin() const{
+    return DynamicVectorV2::ConstIterator(mem, CHUNK_SIZE, 0);
+}
+DynamicVectorV2::ConstIterator DynamicVectorV2::cend() const{
+    return DynamicVectorV2::ConstIterator(mem, CHUNK_SIZE, size_);
+}
+
+size_t DynamicVectorV2::size() const{ return size_; }
+size_t DynamicVectorV2::capacity() const{ return cap_; }
+void DynamicVectorV2::resize(size_t new_size){
+    if(new_size <= size_)
+        return;
+    size_ = new_size;
+    reserve(std::bit_ceil(new_size));
+}
+
+void DynamicVectorV2::reserve(size_t new_cap){
+    if(new_cap <= cap_)
+        return;
+    cap_ = new_cap;
+    mem = realloc(mem, new_cap);
+}
+
+void DynamicVectorV2::swap_remove(Index index){
+    --size_;
+    memcpy((*this)[index], Util::add(mem, size_*CHUNK_SIZE), CHUNK_SIZE);
+}
