@@ -5,7 +5,7 @@
 #include <functional>
 #include <unordered_map>
 #include "util/dynamic_vector.hpp"
-#include "util/func_trait.hpp"
+#include "util/type_traits.hpp"
 #include "game/game_fwd.hpp"
 #include "game/component.hpp"
 

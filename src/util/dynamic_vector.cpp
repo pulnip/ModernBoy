@@ -388,13 +388,15 @@ void DynamicVector::remove(Index pos, size_t num){
 
 
 DynamicVectorV2::~DynamicVectorV2(){
-    free(mem);
+    if(mem != nullptr)
+        free(mem);
 }
 DynamicVectorV2::DynamicVectorV2(size_t CHUNK_SIZE)
 :CHUNK_SIZE(CHUNK_SIZE){}
 DynamicVectorV2::DynamicVectorV2(size_t CHUNK_SIZE, size_t initial_cap)
 :CHUNK_SIZE(CHUNK_SIZE), cap_(initial_cap){
-    mem = malloc(CHUNK_SIZE*initial_cap);
+    if(CHUNK_SIZE != 0 && initial_cap != 0)
+        mem = malloc(CHUNK_SIZE*initial_cap);
 }
 
 DynamicVectorV2::Iterator::Iterator(void* mem, size_t CHUNK_SIZE, Index pos)
@@ -403,6 +405,7 @@ void* DynamicVectorV2::Iterator::operator*(){
     return Util::add(mem, CHUNK_SIZE*pos);
 }
 const void* DynamicVectorV2::Iterator::operator*() const{
+    assert((CHUNK_SIZE!=0 || mem != nullptr) && "CHUNK_SIZE==0, intentional crash");
     return Util::add(mem, CHUNK_SIZE*pos);
 }
 DynamicVectorV2::Iterator& DynamicVectorV2::Iterator::operator++(){
@@ -427,10 +430,11 @@ bool DynamicVectorV2::Iterator::operator==(const DynamicVectorV2::ConstIterator&
 }
 DynamicVectorV2::ConstIterator::ConstIterator(void* mem, size_t CHUNK_SIZE, Index pos)
 :mem(mem), CHUNK_SIZE(CHUNK_SIZE), pos(pos){}
-void* DynamicVectorV2::ConstIterator::operator*(){
+const void* DynamicVectorV2::ConstIterator::operator*(){
     return Util::add(mem, CHUNK_SIZE*pos);
 }
 const void* DynamicVectorV2::ConstIterator::operator*() const{
+    assert((CHUNK_SIZE!=0 || mem != nullptr) && "CHUNK_SIZE==0, intentional crash");
     return Util::add(mem, CHUNK_SIZE*pos);
 }
 DynamicVectorV2::ConstIterator& DynamicVectorV2::ConstIterator::operator++(){
@@ -456,10 +460,12 @@ bool DynamicVectorV2::ConstIterator::operator==(const DynamicVectorV2::Iterator&
 
 void* DynamicVectorV2::operator[](Index index){
     assert(index < size_);
+    assert(!(CHUNK_SIZE==0 && "CHUNK_SIZE==0, intentional crash"));
     return Util::add(mem, CHUNK_SIZE*index);
 }
 const void* DynamicVectorV2::operator[](Index index) const{
     assert(index < size_);
+    assert(!(CHUNK_SIZE==0 && "CHUNK_SIZE==0, intentional crash"));
     return Util::add(mem, CHUNK_SIZE*index);
 }
 DynamicVectorV2::Iterator DynamicVectorV2::begin(){
@@ -484,20 +490,33 @@ DynamicVectorV2::ConstIterator DynamicVectorV2::cend() const{
 size_t DynamicVectorV2::size() const{ return size_; }
 size_t DynamicVectorV2::capacity() const{ return cap_; }
 void DynamicVectorV2::resize(size_t new_size){
-    if(new_size <= size_)
-        return;
+    if(new_size > cap_){
+        reserve(std::bit_ceil(new_size));
+    }
     size_ = new_size;
-    reserve(std::bit_ceil(new_size));
 }
 
 void DynamicVectorV2::reserve(size_t new_cap){
     if(new_cap <= cap_)
         return;
+
+    if(CHUNK_SIZE != 0){
+        auto new_mem = realloc(mem, CHUNK_SIZE*new_cap);
+        if(new_mem == nullptr)
+            throw std::runtime_error("realloc failed!");
+        mem = new_mem;
+    }
     cap_ = new_cap;
-    mem = realloc(mem, new_cap);
+    assert(cap_ >= size_);
+}
+
+void DynamicVectorV2::clear(){
+    size_ = 0;
 }
 
 void DynamicVectorV2::swap_remove(Index index){
+    assert(index < size_ && "swap_remove out of range");
+    if(index < size_ - 1 && CHUNK_SIZE > 0)
+        std::memmove((*this)[index], (*this)[size_-1], CHUNK_SIZE);
     --size_;
-    memcpy((*this)[index], Util::add(mem, size_*CHUNK_SIZE), CHUNK_SIZE);
 }
