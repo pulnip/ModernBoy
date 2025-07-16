@@ -1,11 +1,11 @@
+#include <optional>
+#include <vector>
 #include <gtest/gtest.h>
 #include "util/dynamic_vector.hpp"
-#include <vector>
-#include <optional>
 
 using namespace ModernBoy;
 
-TEST(DynamicVectorV2, ZeroChunkBehaviors) {
+TEST(DynamicVectorV2, ZeroChunkBehaviors){
     DynamicVectorV2 vec(0);
     EXPECT_EQ(vec.size(), 0u);
     EXPECT_EQ(vec.capacity(), 0u);
@@ -15,7 +15,7 @@ TEST(DynamicVectorV2, ZeroChunkBehaviors) {
     EXPECT_DEATH(vec[0], "");
 }
 
-TEST(DynamicVectorV2, ReserveAndResize) {
+TEST(DynamicVectorV2, ReserveAndResize){
     DynamicVectorV2 vec(sizeof(int));
     EXPECT_EQ(vec.size(), 0u);
     EXPECT_EQ(vec.capacity(), 0u);
@@ -28,7 +28,7 @@ TEST(DynamicVectorV2, ReserveAndResize) {
     EXPECT_GE(vec.capacity(), 4u);
 }
 
-TEST(DynamicVectorV2, EmplaceAndAccess) {
+TEST(DynamicVectorV2, EmplaceAndAccess){
     DynamicVectorV2 vec(sizeof(int));
     vec.emplace(10);
     vec.emplace(20);
@@ -40,7 +40,7 @@ TEST(DynamicVectorV2, EmplaceAndAccess) {
     EXPECT_EQ(*p1, 20);
 }
 
-TEST(DynamicVectorV2, SwapRemoveShrinksAndMoves) {
+TEST(DynamicVectorV2, SwapRemoveShrinksAndMoves){
     DynamicVectorV2 vec(sizeof(int));
     vec.emplace(1);
     vec.emplace(2);
@@ -54,7 +54,7 @@ TEST(DynamicVectorV2, SwapRemoveShrinksAndMoves) {
     EXPECT_EQ(*p1, 3);
 }
 
-TEST(DynamicVectorV2, ClearResetsSize) {
+TEST(DynamicVectorV2, ClearResetsSize){
     DynamicVectorV2 vec(sizeof(int));
     vec.emplace(5);
     vec.emplace(6);
@@ -65,7 +65,7 @@ TEST(DynamicVectorV2, ClearResetsSize) {
     EXPECT_GE(vec.capacity(), 2u);
 }
 
-TEST(DynamicVectorV2, Iterator) {
+TEST(DynamicVectorV2, Iterator){
     DynamicVectorV2 vec(sizeof(int));
     vec.emplace(7);
     vec.emplace(8);
@@ -73,7 +73,7 @@ TEST(DynamicVectorV2, Iterator) {
     ASSERT_EQ(vec.size(), 3u);
 
     std::vector<int> results;
-    for (auto it = vec.begin(); it != vec.end(); ++it) {
+    for (auto it = vec.begin(); it != vec.end(); ++it){
         void* raw = *it;
         int value = *static_cast<int*>(raw);
         results.push_back(value);
@@ -85,7 +85,7 @@ TEST(DynamicVectorV2, Iterator) {
 
 
 // Composite chunk (int, float, char[4]) tests
-TEST(DynamicVectorV2, CompositeChunkSingleElement) {
+TEST(DynamicVectorV2, CompositeChunkSingleElement){
     size_t chunkSize = sizeof(int) + sizeof(float) + 4 * sizeof(char);
     DynamicVectorV2 vec(chunkSize);
     vec.emplace(42, 2.718f, 'h', 'e', 'l', 'o');
@@ -104,7 +104,7 @@ TEST(DynamicVectorV2, CompositeChunkSingleElement) {
     EXPECT_EQ(chars[3], 'o');
 }
 
-TEST(DynamicVectorV2, CompositeChunkMultipleElements) {
+TEST(DynamicVectorV2, CompositeChunkMultipleElements){
     size_t chunkSize = sizeof(int) + sizeof(float) + 4 * sizeof(char);
     DynamicVectorV2 vec(chunkSize);
     vec.reserve(3);
@@ -113,7 +113,7 @@ TEST(DynamicVectorV2, CompositeChunkMultipleElements) {
     vec.emplace(3, 3.3f, 'i', 'j', 'k', 'l');
     ASSERT_EQ(vec.size(), 3u);
 
-    for (size_t idx = 0; idx < vec.size(); ++idx) {
+    for (size_t idx = 0; idx < vec.size(); ++idx){
         void* raw = vec[idx];
         int expected_i = static_cast<int>(idx) + 1;
         float expected_f = expected_i * 1.1f;
@@ -130,7 +130,7 @@ TEST(DynamicVectorV2, CompositeChunkMultipleElements) {
     }
 }
 
-TEST(DynamicVectorV2, CompositeChunkSwapRemove) {
+TEST(DynamicVectorV2, CompositeChunkSwapRemove){
     size_t chunkSize = sizeof(int) + sizeof(float) + 4 * sizeof(char);
     DynamicVectorV2 vec(chunkSize);
     vec.emplace(10, 10.1f, 'x', 'y', 'z', 'w');
@@ -154,7 +154,7 @@ TEST(DynamicVectorV2, CompositeChunkSwapRemove) {
     EXPECT_EQ(chars[3], 't');
 }
 
-TEST(DynamicVectorV2, PointerEmplaceAllNonNull) {
+TEST(DynamicVectorV2, PointerEmplaceAllNonNull){
     size_t chunkSize = sizeof(int) * 2;
     DynamicVectorV2 vec(chunkSize);
     int a = 100, b = 200;
@@ -166,7 +166,7 @@ TEST(DynamicVectorV2, PointerEmplaceAllNonNull) {
     EXPECT_EQ(data[1], b);
 }
 
-TEST(DynamicVectorV2, PointerEmplaceSkipFirst) {
+TEST(DynamicVectorV2, PointerEmplaceSkipFirst){
     size_t chunkSize = sizeof(int) * 2;
     DynamicVectorV2 vec(chunkSize);
     int a = 100, b = 200;
@@ -178,7 +178,7 @@ TEST(DynamicVectorV2, PointerEmplaceSkipFirst) {
     EXPECT_EQ(data[1], b);
 }
 
-TEST(DynamicVectorV2, OptionalEmplaceAllPresent) {
+TEST(DynamicVectorV2, OptionalEmplaceAllPresent){
     size_t chunkSize = sizeof(int) * 2;
     DynamicVectorV2 vec(chunkSize);
     std::optional<int> a = 300, b = 400;
@@ -190,7 +190,7 @@ TEST(DynamicVectorV2, OptionalEmplaceAllPresent) {
     EXPECT_EQ(data[1], *b);
 }
 
-TEST(DynamicVectorV2, OptionalEmplaceSkipSecond) {
+TEST(DynamicVectorV2, OptionalEmplaceSkipSecond){
     size_t chunkSize = sizeof(int) * 2;
     DynamicVectorV2 vec(chunkSize);
     std::optional<int> a = 300, b = 400, x = std::nullopt;

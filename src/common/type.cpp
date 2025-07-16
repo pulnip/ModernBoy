@@ -83,6 +83,10 @@ bool ModernBoy::operator==(Vec3 lhs, Vec3 rhs){
     return lhs.x==rhs.x && lhs.y==rhs.y && lhs.z==rhs.z;
 }
 
+bool ModernBoy::operator==(Vec4 lhs, Vec4 rhs){
+    return lhs.x==rhs.x && lhs.y==rhs.y && lhs.z==rhs.z && lhs.w==rhs.w;
+}
+
 Transform ModernBoy::identity(){
     return{ zeros(), unitQuat(), ones() };
 }

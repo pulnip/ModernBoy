@@ -35,7 +35,6 @@ namespace ModernBoy
 
     Vec3 zeros();
     Vec3 ones();
-    Vec4 unitQuat();
 
     Vec3 operator+(Vec3, Vec3);
     Vec3& operator+=(Vec3&, Vec3);
@@ -50,6 +49,10 @@ namespace ModernBoy
 
     float dot(Vec3, Vec3);
     float norm_squared(Vec3);
+
+    Vec4 unitQuat();
+
+    bool operator==(Vec4, Vec4);
 
     struct Transform{
         Vec3 position;

@@ -119,6 +119,7 @@ namespace ModernBoy::Game
     #define ARCHETYPES \
         X(       TRANSFORM) \
         X(          CAMERA) \
+        X(           COLOR) \
         X(            MESH) \
         X(          ACTION) \
         X(           INPUT) \
@@ -132,6 +133,7 @@ namespace ModernBoy::Game
     #define ARCHETYPE_PAIRS \
         X(       TransformComponent,        TRANSFORM) \
         X(          CameraComponent,           CAMERA) \
+        X(           ColorComponent,            COLOR) \
         X(            MeshComponent,             MESH) \
         X(          ActionComponent,           ACTION) \
         X(           InputComponent,            INPUT) \

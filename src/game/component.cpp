@@ -30,6 +30,8 @@ size_t ModernBoy::Game::size_of(ArchetypeBit bit){
         size += sizeof(TransformComponent);
     if(bit & CAMERA_BIT)
         size += sizeof(CameraComponent);
+    if(bit & COLOR_BIT)
+        size += sizeof(ColorComponent);
     if(bit & MESH_BIT)
         size += sizeof(MeshComponent);
     if(bit & ACTION_BIT)
