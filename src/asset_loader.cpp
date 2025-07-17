@@ -46,8 +46,6 @@ AssetLoader::parse<toml::table, RigidbodyComponent>(
     if(auto vel = table["velocity"].as_array()){
         for(size_t i=0; i<3; ++i){
             comp.velocity.v[i] = *(*vel)[i].value<double>();
-
-            std::println("as: {}", comp.velocity.v[i]);
         }
     }
     comp.useGravity = table["useGravity"].value_or<bool>(false);

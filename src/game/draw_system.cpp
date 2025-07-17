@@ -15,12 +15,12 @@ size_t DrawSystem::yield_count() noexcept{
     size_t numViewTask = 0;
     size_t numDrawTask = 0;
 
-    for(const auto [_1, _2]: registry.query<
+    for(const auto _: registry.query<
         TransformComponent, CameraComponent>()
     ){
         numViewTask += 1;
     }
-    for(const auto [_1, _2]: registry.query<
+    for(const auto _: registry.query<
         TransformComponent, MeshComponent>()
     ){    
         numDrawTask += 1;
