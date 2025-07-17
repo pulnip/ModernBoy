@@ -9,7 +9,6 @@ using namespace ModernBoy::Input;
 
 Device::Device()
 :sdlKeyboard(SDL_GetKeyboardState(nullptr)){}
-Device::~Device(){}
 Device::Device(Device&& other){
     moveFrom(std::move(other)); }
 Device& Device::operator=(Device&& other){

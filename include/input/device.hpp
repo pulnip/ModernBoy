@@ -10,7 +10,7 @@ namespace ModernBoy::Input
     class Device{
     public:
         Device();
-        ~Device();
+        ~Device() = default;
         Device(const Device& other)=delete;
         Device(Device&&);
         Device& operator=(const Device& other)=delete;

@@ -28,7 +28,7 @@ namespace ModernBoy::Render
         Renderer(SDL_Window*, MeshManager&,
             TextureManager&, ShaderManager&,
             World&);
-        ~Renderer();
+        ~Renderer() = default;
 
         TaskTime expectedExecTime();
         void onFrameStart();

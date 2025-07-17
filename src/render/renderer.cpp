@@ -16,7 +16,6 @@ Renderer::Renderer(SDL_Window* window,
 :context(window), meshManager(meshManager),
 textureManager(textureManager), shaderManager(shaderManager),
 world(world), ema(0ms){}
-Renderer::~Renderer(){}
 
 using ViewTasks = std::vector<ViewTask>;
 using DrawTasks = std::vector<DrawTask>;

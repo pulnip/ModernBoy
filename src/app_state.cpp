@@ -2,12 +2,41 @@
 #include <chrono>
 #include <format>
 #include <vector>
+#include <SDL3/SDL_init.h>
 #include "app_state.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
 using namespace ModernBoy;
 
+AppState ModernBoy::createAppState(){
+    if(!SDL_SetAppMetadata("ModernBoy", "1.0", "com.example.game0")){
+        throw SDL_APP_FAILURE;
+    }
+    if(!SDL_Init(SDL_INIT_VIDEO)){
+        SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
+        throw SDL_APP_FAILURE;
+    }
+
+    SDL_WindowFlags flags = SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS;
+
+#if defined(USE_OPENGL)
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+    flags |= SDL_WINDOW_OPENGL;
+#endif
+
+    auto window = SDL_CreateWindow("examples/demo/game0", 800, 600, flags);
+    if(window == nullptr){
+        SDL_Log("Couldn't create window: %s", SDL_GetError());
+        throw SDL_APP_FAILURE;
+    }
+
+    return AppState(window);
+}
 
 DeltaTime AppState::getDeltaTime() const{
     return deltaTime;
@@ -29,8 +58,10 @@ world(*this),
 assetLoader(*this), lastTick(std::chrono::time_point_cast<
     std::chrono::microseconds>(steady_clock::now())),
 generators(){}
-AppState::~AppState(){
+
+void AppState::shutdown(){
     SDL_DestroyWindow(window);
+    window = nullptr;
 }
 
 EntityID AppState::issueID(){

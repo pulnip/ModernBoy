@@ -19,6 +19,12 @@ namespace ModernBoy
     concept AllOptional = (OptionalType<Ts> && ...);
     template <typename... Ts>
     concept AllValue = (ValueType<Ts> && ...);
+
+    template<typename T>
+    concept HasShutdown = requires(T t) {
+        { t.shutdown() } -> std::same_as<void>; } &&
+        std::is_trivially_destructible_v<T> &&
+        std::is_destructible_v<T>;
 } // namespace ModernBoy
 
 #endif // MODERNBOY_CONCEPTS_HPP

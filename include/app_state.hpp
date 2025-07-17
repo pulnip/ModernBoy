@@ -35,7 +35,8 @@ namespace ModernBoy
     class AppState{
     public:
         AppState(SDL_Window* window);
-        ~AppState();
+        ~AppState() = default;
+        void shutdown();
 
         void update();
 
@@ -115,6 +116,8 @@ namespace ModernBoy
         friend AssetLoader;
         friend Game::Context;
     };
+
+    AppState createAppState();
 }
 
 #endif // MODERNBOY_APP_STATE_HPP
