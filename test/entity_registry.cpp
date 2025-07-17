@@ -6,20 +6,176 @@ using namespace ModernBoy::Game;
 
 TEST(ArchetypeView, SimpleQuery){
     EntityRegistry registry;
-    Vec4 testColor{{0.1, 0.2, 0.3, 0.5}};
-    
-    constexpr auto size = sizeof(TransformComponent) + sizeof(ColorComponent);
-    constexpr auto bit = bits_of<TransformComponent, ColorComponent>();
-    registry.createEntity(bit,
-        dangled<TransformComponent>(identity()),
-        ColorComponent{.color = testColor}
-    );
+    Vec4 testColors[] = {
+        {{0.1, 0.2, 0.3, 0.5}},
+        {{0.3, 0.7, 0.2, 0.1}},
+        {{0.6, 0.9, 0.1, 0.2}}
+    };
 
+    for(size_t i=0; i<3; ++i){
+        registry.createEntity(
+            ColorComponent{.color = testColors[i]}
+        );
+    }
+
+    size_t i=0;
+    for(auto [cc]: registry.query<ColorComponent>()){
+        EXPECT_EQ(cc.color, testColors[i]);
+        ++i;
+    }
+}
+
+TEST(ArchetypeView, ComplexQuery){
+    EntityRegistry registry;
+    Vec4 testColors[] = {
+        {{0.1, 0.2, 0.3, 0.5}},
+        {{0.4, 0.3, 0.9, 1.0}},
+        {{0.5, 0.1, 0.0, 0.5}}
+    };
+
+    for(size_t i=0; i<3; ++i){
+        registry.createEntity(
+            dangled<TransformComponent>(identity()),
+            ColorComponent{.color = testColors[i]}
+        );
+    }
+
+    size_t i=0;
     for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
         EXPECT_EQ(tc.value.position,    zeros());
         EXPECT_EQ(tc.value.rotation, unitQuat());
         EXPECT_EQ(   tc.value.scale,     ones());
 
-        EXPECT_EQ(cc.color, testColor);
+        EXPECT_EQ(cc.color, testColors[i]);
+        ++i;
     }
+}
+
+TEST(ArchetypeView, EmplaceOrder){
+    EntityRegistry registry;
+    Vec4 testColors[] = {
+        {{0.1, 0.2, 0.3, 0.5}},
+        {{0.4, 0.3, 0.9, 1.0}},
+        {{0.5, 0.1, 0.0, 0.5}}
+    };
+
+    for(size_t i=0; i<3; ++i){
+        if(i % 2 == 1){
+            registry.createEntity(
+                dangled<TransformComponent>(identity()),
+                ColorComponent{.color = testColors[i]}
+            );
+        }
+        else{
+            registry.createEntity(
+                ColorComponent{.color = testColors[i]},
+                dangled<TransformComponent>(identity())
+            );
+        }
+    }
+
+    size_t i=0;
+    for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+        EXPECT_EQ(tc.value.position,    zeros());
+        EXPECT_EQ(tc.value.rotation, unitQuat());
+        EXPECT_EQ(   tc.value.scale,     ones());
+
+        EXPECT_EQ(cc.color, testColors[i]);
+        ++i;
+    }
+}
+
+TEST(ArchetypeView, AppendComponent){
+    EntityRegistry registry;
+    Vec4 testColors[] = {
+        {{0.1, 0.2, 0.3, 0.5}},
+        {{0.4, 0.3, 0.9, 1.0}},
+        {{0.5, 0.1, 0.0, 0.5}}
+    };
+    auto colorTest = [&testColors](Vec4 color){
+        for(size_t i=0; i<3; ++i){
+            if(testColors[i] == color)
+                return i;
+        }
+        return size_t(10000);
+    };
+    EntityID entities[3];
+
+    for(size_t i=0; i<3; ++i){
+        entities[i] = registry.createEntity(
+            ColorComponent{.color = testColors[i]},
+            dangled<TransformComponent>(identity())
+        );
+    }
+
+    registry.appendComponent(entities[1], ElementComponent{
+        .actor = entities[1], .type = ElementType::FIRE
+    });
+
+    auto testVal = 0;
+    auto count = 0;
+    for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+        EXPECT_EQ(tc.value.position,    zeros());
+        EXPECT_EQ(tc.value.rotation, unitQuat());
+        EXPECT_EQ(   tc.value.scale,     ones());
+
+        // cannot predict query order.
+        testVal += colorTest(cc.color);
+        ++count;
+    }
+    EXPECT_EQ(testVal, 0+1+2);
+    EXPECT_EQ(count, 3);
+
+    count = 0;
+    for(auto [ec]: registry.query<ElementComponent>()){
+        EXPECT_EQ(ec.type, ElementType::FIRE);
+        ++count;
+    }
+    EXPECT_EQ(count, 1);
+}
+
+TEST(ArchetypeView, RemoveComponent){
+    EntityRegistry registry;
+    Vec4 testColors[] = {
+        {{0.1, 0.2, 0.3, 0.5}},
+        {{0.4, 0.3, 0.9, 1.0}},
+        {{0.5, 0.1, 0.0, 0.5}}
+    };
+    auto colorTest = [&testColors](Vec4 color){
+        for(size_t i=0; i<3; ++i){
+            if(testColors[i] == color)
+                return i;
+        }
+        return size_t(10000);
+    };
+    EntityID entities[3];
+
+    for(size_t i=0; i<3; ++i){
+        entities[i] = registry.createEntity(
+            ColorComponent{.color = testColors[i]},
+            dangled<TransformComponent>(identity())
+        );
+    }
+
+    registry.removeComponent<ColorComponent>(entities[1]);
+
+    auto testVal = 0;
+    auto count = 0;
+    for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+        EXPECT_EQ(tc.value.position,    zeros());
+        EXPECT_EQ(tc.value.rotation, unitQuat());
+        EXPECT_EQ(   tc.value.scale,     ones());
+
+        // cannot predict query order.
+        testVal += colorTest(cc.color);
+        ++count;
+    }
+    EXPECT_EQ(testVal, 0+2);
+    EXPECT_EQ(count, 2);
+
+    count = 0;
+    for(auto [_]: registry.query<TransformComponent>()){
+        ++count;
+    }
+    EXPECT_EQ(count, 3);
 }

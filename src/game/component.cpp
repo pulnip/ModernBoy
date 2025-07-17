@@ -40,6 +40,8 @@ size_t ModernBoy::Game::size_of(ArchetypeBit bit){
         size += sizeof(InputComponent);
     if(bit & RIGIDBODY_BIT)
         size += sizeof(RigidbodyComponent);
+    if(bit & ELEMENT_BIT)
+        size += sizeof(ElementComponent);
 
     return size;
 }
