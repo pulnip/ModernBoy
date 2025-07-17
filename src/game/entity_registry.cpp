@@ -30,3 +30,46 @@ void EntityRegistry::destroyEntity(EntityID id){
 EntityID EntityRegistry::issueID(){
     return id_seed++;
 }
+
+DynamicVectorV2& EntityRegistry::getVector(ArchetypeBit bit){
+    auto it = archetypeMap.find(bit);
+    if(it != archetypeMap.end())
+        return it->second;
+
+    auto[new_it, _] = archetypeMap.try_emplace(bit, size_of(bit));
+    return new_it->second;
+}
+
+EntityRegistry::EntityTable::iterator
+EntityRegistry::findEntityFromProperty(ArchetypeBit bit, Index chunkIndex){
+    // TODO. might be replace to entity tag component
+    auto it = std::find_if(entityTable.begin(), entityTable.end(),
+        [bit, chunkIndex](const auto& pair){
+            const EntityInfo& info = pair.second;
+            return info.bit == bit && info.chunkIndex == chunkIndex;
+        }
+    );
+    if(it == entityTable.end()){
+#ifndef MODERNBOY_TEST
+        GameCritical("Entity with archetype {}, index {} not in entity table!", bit, chunkIndex);
+#endif
+    }
+    return it;
+}
+
+void EntityRegistry::updateEntityInfo(EntityInfo& updated, DynamicVectorV2& swapped,
+    ArchetypeBit updated_bit, Index updated_index
+){
+    if(swapped.size() > 0){
+        auto it = findEntityFromProperty(updated.bit, swapped.size());
+
+        if(it == entityTable.end()){
+            throw std::runtime_error("Entity Table integrity Broken!");
+        }
+
+        auto& swapped_entity = it->second;
+        swapped_entity.chunkIndex = updated.chunkIndex;
+    }
+    updated.bit = updated_bit;
+    updated.chunkIndex = updated_index;
+}

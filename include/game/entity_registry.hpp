@@ -13,7 +13,7 @@
 
 namespace ModernBoy::Game
 {
-    struct ComponentInfo{
+    struct EntityInfo{
         ArchetypeBit bit;
         Index chunkIndex;
     };
@@ -118,8 +118,11 @@ namespace ModernBoy::Game
 
     class EntityRegistry{
     private:
-        std::unordered_map<ArchetypeBit, DynamicVectorV2> archetypeMap;
-        std::unordered_map<EntityID, ComponentInfo> entityTable;
+        using ArchetypeMap = std::unordered_map<ArchetypeBit, DynamicVectorV2>;
+        using EntityTable = std::unordered_map<EntityID, EntityInfo>;
+
+        ArchetypeMap archetypeMap;
+        EntityTable entityTable;
 
         EntityID id_seed = 0;
 
@@ -147,7 +150,7 @@ namespace ModernBoy::Game
             // vector.emplace(std::forward<Args>(args)...);
 
             auto entity_id = issueID();
-            entityTable.emplace(entity_id, ComponentInfo{
+            entityTable.emplace(entity_id, EntityInfo{
                 .bit = bit, .chunkIndex = index
             });
             return entity_id;
@@ -178,60 +181,11 @@ namespace ModernBoy::Game
                 return;
             }
 
-            auto new_bit = info.bit | bit_of<Component>();
+            auto [new_index, old_vec] = moveChunk(info, std::forward<Component>(component));
 
-            auto arch_it = archetypeMap.find(info.bit);
-            if(arch_it == archetypeMap.end()){
-#ifndef MODERNBOY_TEST
-                GameWarn("Wrong Archetype: {}", info.bit);
-#endif
-                return;
-            }
-
-            auto& vec = arch_it->second;
-            auto chunk = vec[info.chunkIndex];
-
-            // 1. copy and emplace new chunk
-            if(archetypeMap.find(new_bit) == archetypeMap.end())
-                archetypeMap.emplace(new_bit, size_of(new_bit));
-            auto& tgt_vector = archetypeMap.at(new_bit);
-            tgt_vector.resize(tgt_vector.size() + 1);
-            auto new_index = tgt_vector.size() - 1;
-            auto dst = tgt_vector[new_index];
-
-            // copy chunk before component
-            Util::chunkcpy(dst, chunk, offset_of<Component>(info.bit));
-            chunk = Util::add(        chunk, offset_of<Component>(info.bit));
-            // copy component
-            Util::chunkcpy(dst, std::forward<Component>(component));
-            // copy chunk after component
-            Util::chunkcpy(dst, chunk, size_of(info.bit) - offset_of<Component>(info.bit));
-
-            // 2. remove old chunk
-            vec.swap_remove(info.chunkIndex);
-
-            // 3. update swapped entity info
-            if(vec.size() > 0){
-                // TODO. might be replace to entity tag component
-                auto swapped_it = std::find_if(entityTable.begin(), entityTable.end(),
-                    [bit = info.bit, idx = vec.size()-1]
-                    (const auto& pair){
-                        const ComponentInfo& info = pair.second;
-                        return info.bit == bit && info.chunkIndex == idx;
-                    });
-                if(swapped_it == entityTable.end()){
-#ifndef MODERNBOY_TEST
-                    GameCritical("swapped index {} not in entity table!", info.chunkIndex);
-#endif
-                }
-                else{
-                    swapped_it->second.chunkIndex = info.chunkIndex;
-                }
-            }
-
-            // 4. update entity info
-            info.bit = new_bit;
-            info.chunkIndex = new_index;
+            updateEntityInfo(info, old_vec,
+                info.bit | bit_of<Component>(), new_index
+            );
         }
         template<typename Component>
         void removeComponent(EntityID id){
@@ -274,7 +228,7 @@ namespace ModernBoy::Game
             tgt_vector.resize(tgt_vector.size() + 1);
             auto new_index = tgt_vector.size() - 1;
             auto dst = tgt_vector[new_index];
-    
+
             // copy chunk before component
             Util::chunkcpy(dst, chunk, offset_of<Component>(info.bit));
             // skip target component
@@ -287,21 +241,13 @@ namespace ModernBoy::Game
 
             // 3. update swapped entity info
             if(vec.size() > 0){
-                // TODO. might be replace to entity tag component
-                auto swapped_it = std::find_if(entityTable.begin(), entityTable.end(),
-                    [bit = info.bit, idx = vec.size()-1]
-                    (const auto& pair){
-                        const ComponentInfo& info = pair.second;
-                        return info.bit == bit && info.chunkIndex == idx;
-                    });
-                if(swapped_it == entityTable.end()){
-#ifndef MODERNBOY_TEST
-                    GameCritical("swapped index {} not in entity table!", info.chunkIndex);
-#endif
+                auto swapped = findEntityFromProperty(info.bit, vec.size());
+                if(swapped == entityTable.end()){
+                    throw std::runtime_error("Entity Table integrity Broken!");
                 }
-                else{
-                    swapped_it->second.chunkIndex = info.chunkIndex;
-                }
+
+                auto& info_swapped = swapped->second;
+                info_swapped.chunkIndex = info.chunkIndex;
             }
 
             // 4. update entity info
@@ -311,6 +257,39 @@ namespace ModernBoy::Game
 
     private:
         EntityID issueID();
+
+        DynamicVectorV2& getVector(ArchetypeBit);
+        template<typename Component>
+        std::tuple<Index, DynamicVectorV2&> moveChunk(EntityInfo& info, Component&& component){
+            auto& old_vec = archetypeMap.at(info.bit);
+            auto old_index = info.chunkIndex;
+            auto chunk = old_vec[old_index];
+
+            auto new_bit = info.bit | bit_of<Component>();
+            auto& new_vec = getVector(new_bit);
+
+            new_vec.resize(new_vec.size() + 1);
+            auto new_index = new_vec.size() - 1;
+            auto dst = new_vec[new_index];
+
+            // 1. copy new chunk
+            // copy chunk before component
+            Util::chunkcpy(dst, chunk, offset_of<Component>(info.bit));
+            chunk = Util::add(        chunk, offset_of<Component>(info.bit));
+            // copy component
+            Util::chunkcpy(dst, std::forward<Component>(component));
+            // copy chunk after component
+            Util::chunkcpy(dst, chunk, size_of(info.bit) - offset_of<Component>(info.bit));
+
+            // 2. remove old chunk
+            old_vec.swap_remove(info.chunkIndex);
+
+            return {new_index, old_vec};
+        }
+        void updateEntityInfo(EntityInfo& updated, DynamicVectorV2& swapped,
+            ArchetypeBit updated_bit, Index updated_index);
+
+        EntityTable::iterator findEntityFromProperty(ArchetypeBit bit, Index chunkIndex);
     };
 } // namespace ModernBoy::Game
 
