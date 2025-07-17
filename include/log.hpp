@@ -8,6 +8,7 @@
 
 namespace ModernBoy
 {
+#ifndef DISABLE_LOG
     enum class LogLevel{
         Trace       = 0,
         Debug       = 1,
@@ -83,7 +84,50 @@ namespace ModernBoy
     DECL_DOMAIN_LOG_FUNC(Game)
     DECL_DOMAIN_LOG_FUNC(Network)
     DECL_DOMAIN_LOG_FUNC(UI)
-
+#else
+    #define AppTrace(...)
+    #define AppDebug(...)
+    #define AppInfo(...)
+    #define AppWarn(...)
+    #define AppError(...)
+    #define AppCritical(...)
+    #define RenderTrace(...)
+    #define RenderDebug(...)
+    #define RenderInfo(...)
+    #define RenderWarn(...)
+    #define RenderError(...)
+    #define RenderCritical(...)
+    #define InputTrace(...)
+    #define InputDebug(...)
+    #define InputInfo(...)
+    #define InputWarn(...)
+    #define InputError(...)
+    #define InputCritical(...)
+    #define ScriptTrace(...)
+    #define ScriptDebug(...)
+    #define ScriptInfo(...)
+    #define ScriptWarn(...)
+    #define ScriptError(...)
+    #define ScriptCritical(...)
+    #define GameTrace(...)
+    #define GameDebug(...)
+    #define GameInfo(...)
+    #define GameWarn(...)
+    #define GameError(...)
+    #define GameCritical(...)
+    #define NetworkTrace(...)
+    #define NetworkDebug(...)
+    #define NetworkInfo(...)
+    #define NetworkWarn(...)
+    #define NetworkError(...)
+    #define NetworkCritical(...)
+    #define UITrace(...)
+    #define UIDebug(...)
+    #define UIInfo(...)
+    #define UIWarn(...)
+    #define UIError(...)
+    #define UICritical(...)
+#endif
 } // namespace ModernBoy
 
 

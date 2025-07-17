@@ -16,7 +16,7 @@ target_link_options(${PROJECT_NAME}Test PRIVATE
 )
 target_compile_definitions(${PROJECT_NAME}Test PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
-    MODERNBOY_TEST
+    DISABLE_LOG
 )
 
 target_include_directories(${PROJECT_NAME}Test PRIVATE

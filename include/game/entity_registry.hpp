@@ -4,9 +4,7 @@
 #include <ranges>
 #include <tuple>
 #include <unordered_map>
-#ifndef MODERNBOY_TEST
 #include "log.hpp"
-#endif
 #include "util/dynamic_vector.hpp"
 #include "game/game_fwd.hpp"
 #include "game/component.hpp"
@@ -165,19 +163,15 @@ namespace ModernBoy::Game
         void appendComponent(EntityID id, Component&& component){
             auto entity_it = entityTable.find(id);
             if(entity_it == entityTable.end()){
-#ifndef MODERNBOY_TEST
                 GameWarn("Entity {} not exist. component cannot be added", id);
-#endif
                 return;
             }
 
             auto& info = entity_it->second;
 
             if(subset(bit_of<Component>(), info.bit)){
-#ifndef MODERNBOY_TEST
                 GameWarn("Component {} already exist. (entity: {}, archetype: {})",
                     bit_of<Component>(), id, info.bit);
-#endif
                 return;
             }
 
@@ -191,19 +185,15 @@ namespace ModernBoy::Game
         void removeComponent(EntityID id){
             auto entity_it = entityTable.find(id);
             if(entity_it == entityTable.end()){
-#ifndef MODERNBOY_TEST
                 GameWarn("Entity {} not exist. component cannot be added", id);
-#endif
                 return;
             }
 
             auto& info = entity_it->second;
 
             if(!subset(bit_of<Component>(), info.bit)){
-#ifndef MODERNBOY_TEST
                 GameWarn("Component {} not exist. (entity: {}, archetype: {})",
                     bit_of<Component>(), id, info.bit);
-#endif
                 return;
             }
 
