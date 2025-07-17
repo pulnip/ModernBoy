@@ -6,9 +6,9 @@ using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
 Context::Context(AppState& app)
-:app(app), archetypeMap(), actorTable(),
-draw(*this), action(*this, app.scriptInvoker),
-physics(*this), lifespan(*this){}
+:app(app),
+draw(registry), action(registry, app.scriptInvoker),
+physics(registry), lifespan(registry){}
 
 
 void Context::update(DeltaTime dt){
@@ -33,29 +33,6 @@ DeltaTime Context::getDeltaTime(){
     return app.getDeltaTime();
 }
 
-static void assignEntityID(SparseChunk& components,
-    EntityID actor);
-
-EntityID Context::create(
-    ArchetypeBit bit, SparseChunk&& chunk
-){
-    EntityID actor_id = issueID();
-    GameDebug("  Actor ID issued: {}, archetype: {}", actor_id, bit);
-    assignEntityID(chunk, actor_id);
-
-    auto chunkIndex = archetypeMap.insert(
-        bit, chunk);
-    auto [it, ret] = actorTable.emplace(
-        actor_id, ComponentInfo{bit, chunkIndex});
-    if(!ret){
-        std::string actorInfo = std::format(
-            "Actor{} type:{} Not Created!",
-            actor_id, bit
-        );
-        throw std::runtime_error(actorInfo);
-    }
-    return actor_id;
-}
 static void assignEntityID(SparseChunk& chunk,
     EntityID actor
 ){
@@ -65,12 +42,6 @@ static void assignEntityID(SparseChunk& chunk,
     chunk.action.actor = actor;
     chunk.input.actor = actor;
     chunk.rigidbody.actor = actor;
-}
-
-void Context::destroy(EntityID actor){
-    auto info = actorTable.at(actor);
-    archetypeMap.at(info.bit).free(info.chunkIndex);
-    actorTable.erase(actor);
 }
 
 template<>

@@ -1,25 +1,19 @@
 #include "game/lifespan_system.hpp"
 #include "task.hpp"
-#include "game/context.hpp"
+#include "game/entity_registry.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
-LifespanSystem::LifespanSystem(Context& world)
-:world(world){}
+LifespanSystem::LifespanSystem(EntityRegistry& registry)
+:registry(registry){}
 
 size_t LifespanSystem::yield_count() const noexcept{
     size_t numTask = 0;
 
-    
-
-    for(const auto& [bit, vec]: world.query<LifeSpanComponent>()){
-        if(!subset(bit_of<LifeSpanComponent>(), bit))
-            continue;
-        vec.for_each([&numTask](const LifeSpanComponent& lc){
-            if(!lc.isAlive)
-                numTask += 1;
-        });
+    for(const auto [lc]: registry.query<LifeSpanComponent>()){
+        if(!lc.isAlive)
+            numTask += 1;
     }
 
     numDeadActors = numTask;
@@ -31,16 +25,12 @@ Generator<void> LifespanSystem::updateTask(DeltaTime) noexcept{
     deadActors.reserve(numDeadActors);
 
     // remove actor from current epoch
-    for(const auto& [bit, vec]: world.query<LifeSpanComponent>()){
-        if(!subset(bit_of<LifeSpanComponent>(), bit))
-            continue;
-        vec.for_each([&deadActors](const LifeSpanComponent& lc){
-            if(!lc.isAlive)
-                deadActors.emplace_back(lc.actor);
-        });
+    for(const auto [lc]: registry.query<LifeSpanComponent>()){
+        if(!lc.isAlive)
+            deadActors.emplace_back(lc.actor);
     }
     for(const auto& deadActor: deadActors){
-        world.destroy(deadActor);
+        registry.destroyEntity(deadActor);
         co_yield 0;
     }
 
@@ -52,16 +42,12 @@ Generator<void> LifespanSystem::update(DeltaTime) noexcept{
     deadActors.reserve(numDeadActors);
 
     // remove actor from next epoch
-    for(const auto& [bit, vec]: world.query<LifeSpanComponent>()){
-        if(!subset(bit_of<LifeSpanComponent>(), bit))
-            continue;
-        vec.for_each([&deadActors](const LifeSpanComponent& lc){
-            if(!lc.isAlive)
-                deadActors.emplace_back(lc.actor);
-        });
+    for(const auto [lc]: registry.query<LifeSpanComponent>()){
+        if(!lc.isAlive)
+            deadActors.emplace_back(lc.actor);
     }
     for(const auto& deadActor: deadActors){
-        world.destroy(deadActor);
+        registry.destroyEntity(deadActor);
     
         co_yield 0;
     }

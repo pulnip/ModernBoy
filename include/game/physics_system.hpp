@@ -10,12 +10,12 @@ namespace ModernBoy::Game
 {
     class PhysicsSystem{
     public:
-        PhysicsSystem(Context& world);
+        PhysicsSystem(EntityRegistry& registry);
 
         Generator<void> update(DeltaTime dt);
 
     private:
-        Context& world;
+        EntityRegistry& registry;
     };
 } // namespace ModernBoy::Game
 

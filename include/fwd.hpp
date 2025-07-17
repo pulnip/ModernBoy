@@ -15,6 +15,7 @@ namespace ModernBoy
     using TaskTime = std::chrono::microseconds;
 
     class AppState;
+    class AssetLoader;
 
     namespace Render{
         class Renderer;

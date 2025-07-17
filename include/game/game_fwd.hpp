@@ -10,6 +10,7 @@ namespace ModernBoy::Game
     using ArchetypeBit = uint64_t;
 
     class Context;
+    class EntityRegistry;
 
     struct ActionComponent;
     struct SparseChunk;

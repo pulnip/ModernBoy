@@ -11,14 +11,14 @@ namespace ModernBoy::Game
 {
     class ActionSystem{
     public:
-        ActionSystem(Context& game,
+        ActionSystem(EntityRegistry& registry,
             Script::Invoker& invoker);
 
         TaskTime expectedExecTime();
         Generator<void> update(DeltaTime dt);
 
     private:
-        Context& world;
+        EntityRegistry& registry;
         Script::Invoker& invoker;
 
         std::vector<ActionTask> actionTasks;

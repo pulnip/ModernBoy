@@ -23,7 +23,7 @@ AssetLoader::AssetLoader(AppState& app):app(app){
     loadAsset("asset/actor.toml");
 }
 
-static std::expected<ScriptSection, parse_error>
+static std::optional<ScriptSection>
 parseScriptSection(const toml::table*);
 
 
@@ -34,12 +34,12 @@ static std::optional<Component> parse(
     const toml::table*, AppState& app);
 
 template<>
-std::expected<RigidbodyComponent, parse_error>
+std::optional<RigidbodyComponent>
 AssetLoader::parse<toml::table, RigidbodyComponent>(
     const toml::table* ptr
 ){
     if(ptr == nullptr)
-        return std::unexpected(parse_error::invalid_table);
+        return std::nullopt;
     const auto& table = *ptr;
     auto comp = dangled<RigidbodyComponent>();
 
@@ -146,10 +146,10 @@ parse<MeshComponent>(
         textureHandle, shaderHandle);
 }
 
-static std::expected<ScriptSection, parse_error>
+static std::optional<ScriptSection>
 parseScriptSection(const toml::table* ptr){
     if(ptr == nullptr)
-        return std::unexpected(parse_error::invalid_table);
+        return std::nullopt;
     const auto& table = *ptr;
 
     auto moduleName = *table["module"].value<std::string>();
@@ -159,7 +159,7 @@ parseScriptSection(const toml::table* ptr){
     };
 }
 
-std::expected<ActionComponent, parse_error> 
+std::optional<ActionComponent> 
 AssetLoader::makeActionComponent(
     const ScriptSection& section
 ){
@@ -229,10 +229,8 @@ void AssetLoader::loadAsset(const std::string& fileName){
     for(const auto& ntt: entities){
         const auto& entity = *ntt.as_table();
 
-        std::string name = entity["name"].value<std::string>().value();
         // new Actor
-        ArchetypeBit bit = 0;
-        SparseChunk chunk;
+        std::string name = entity["name"].value<std::string>().value();
 
         auto tc = ::parse<TransformComponent>(
             entity["transform"].as_table(), app);
@@ -258,34 +256,8 @@ void AssetLoader::loadAsset(const std::string& fileName){
         auto rc = parse<toml::table, RigidbodyComponent>(
             entity["rigidbody"].as_table());
 
-        if(tc.has_value()){
-            bit = bit | TRANSFORM_BIT;
-            chunk.transform = tc.value();
-        }
-        if(cc.has_value()){
-            bit = bit | CAMERA_BIT;
-            chunk.camera = cc.value();
-        }
-        if(mc.has_value()){
-            bit = bit | MESH_BIT;
-            chunk.mesh = mc.value();
-        }
-        if(ac.has_value()){
-            bit = bit | ACTION_BIT;
-            chunk.action = ac.value();
-        }
-        if(ic.has_value()){
-            bit = bit | INPUT_BIT;
-            chunk.input = ic.value();
-        }
-        if(rc.has_value()){
-            bit = bit | RIGIDBODY_BIT;
-            chunk.rigidbody = rc.value();
-        }
+        GameDebug("Actor loaded, name: {}", name);
 
-        GameDebug("Actor loaded, name: {}, archetype: {}",
-            name, bit);
-
-        app.world.create(bit, std::move(chunk));
+        app.world.registry.createEntity(tc, cc, mc, ac, ic, rc);
     }
 }

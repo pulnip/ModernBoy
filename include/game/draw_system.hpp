@@ -12,14 +12,14 @@ namespace ModernBoy::Game
 {
     class DrawSystem{
     public:
-        DrawSystem(Context& world);
+        DrawSystem(EntityRegistry& registry);
 
-        size_t yield_count() const noexcept;
+        size_t yield_count() noexcept;
 
         Generator<void> update(DeltaTime dt);
 
     private:
-        Context& world;
+        EntityRegistry& registry;
 
         std::vector<ViewTask> viewTasks;
         std::vector<DrawTask> drawTasks;

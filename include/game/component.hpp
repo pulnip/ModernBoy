@@ -25,6 +25,8 @@ namespace ModernBoy::Game
         Camera value;
     }; static_assert(std::is_trivially_copyable_v<CameraComponent>);
     struct alignas(COMPONENT_ALIGN) ColorComponent{
+        EntityID actor;
+
         Vec4 color;
     }; static_assert(std::is_trivially_copyable_v<ColorComponent>);
     struct alignas(COMPONENT_ALIGN) MeshComponent{

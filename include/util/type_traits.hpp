@@ -31,13 +31,16 @@ namespace ModernBoy
     template<typename T>
     inline constexpr bool is_std_optional_v = is_std_optional<std::remove_cv_t<T>>::value;
 
-    template<typename U>
-    struct remove_optional{ using type = void; };
+    template<typename T>
+    struct remove_optional{ using type = T; };
     template<typename T>
     struct remove_optional<std::optional<T>>{ using type = T; };
 
     template<typename T>
     using remove_optional_t = typename remove_optional<T>::type;
+
+    static_assert(std::same_as<int, remove_optional_t<std::optional<int>>>);
+    static_assert(std::same_as<int, remove_optional_t<int>>);
 } // namespace ModernBoy
 
 #endif // MODERNBOY_TYPE_TRAITS_HPP

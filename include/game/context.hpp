@@ -4,7 +4,7 @@
 #include <ranges>
 #include "fwd.hpp"
 #include "interface.hpp"
-#include "game/archetype_map.hpp"
+#include "game/entity_registry.hpp"
 #include "game/component.hpp"
 #include "game/action_system.hpp"
 #include "game/draw_system.hpp"
@@ -32,41 +32,6 @@ namespace ModernBoy::Game
         uint32_t issueID();
         DeltaTime getDeltaTime();
 
-        template<typename Component>
-        std::optional<Component> query(EntityID actor){
-            const auto& info = actorTable.at(actor);
-            auto querybit = bit_of<Component>();
-            if((info.bit & querybit) != querybit)
-                return std::nullopt;
-
-            return archetypeMap.get<Component>(
-                info.bit, info.chunkIndex);
-        }
-        template<typename Component>
-        ABNORMAL_FLAG update(EntityID actor, Component&& component){
-            const auto& info = actorTable.at(actor);
-            auto querybit = bit_of<Component>();
-            if((info.bit & querybit) != querybit)
-                return true;
-            archetypeMap.set(std::forward<Component>(component),
-                info.bit, info.chunkIndex);
-            return false;
-        }
-
-        EntityID create(ArchetypeBit bit, SparseChunk&& chunk);
-        void destroy(EntityID actor);
-
-        template<typename... Component>
-        auto query(){
-            return archetypeMap
-            | std::views::filter(
-                [](auto&& pair){
-                    return subset(bits_of<Component...>(),
-                        pair.first);
-                }
-            );
-        }
-
         template<Event event>
         void on();
 
@@ -78,15 +43,15 @@ namespace ModernBoy::Game
     private:
         AppState& app;
 
-        ArchetypeMap archetypeMap;
-        EntityTable actorTable;
-
+    public:
+        EntityRegistry registry;
+    private:
         DrawSystem draw;
         ActionSystem action;
         PhysicsSystem physics;
         LifespanSystem lifespan;
 
-        friend class AppState;
+        friend class ModernBoy::AssetLoader;
     };
 
     struct Actor{

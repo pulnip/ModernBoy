@@ -96,22 +96,115 @@ namespace ModernBoy::Game
     };
 
     template<ValueType T>
-    void emplace_component(void* chunk, ArchetypeBit bit, T&& t){
+    void emplace_component(EntityID id, void* chunk, ArchetypeBit bit, T&& t){
         using U = std::remove_cvref_t<T>;
 
         auto offset = offset_of<U>(bit);
         auto dst = Util::add(chunk, offset);
         *static_cast<U*>(dst) = std::forward<T>(t);
+        static_cast<U*>(dst)->actor = id;
     }
     template<ValueType T1, AllValue... TN>
-    void emplace_component(void* chunk, ArchetypeBit bit, T1&& t1, TN&&... tn){
+    void emplace_component(EntityID id, void* chunk, ArchetypeBit bit,
+        T1&& t1, TN&&... tn
+    ){
         using U = std::remove_cvref_t<T1>;
 
         auto offset = offset_of<U>(bit);
         auto dst = Util::add(chunk, offset);
         *static_cast<U*>(dst) = std::forward<T1>(t1);
+        static_cast<U*>(dst)->actor = id;
 
-        emplace_component(chunk, bit, std::forward<TN>(tn)...);
+        emplace_component(id, chunk, bit, std::forward<TN>(tn)...);
+    }
+    template<PointerType T>
+    void emplace_component(EntityID id, void* chunk, ArchetypeBit bit, const T t){
+        using U = std::remove_pointer_t<std::remove_cvref_t<T>>;
+
+        auto offset = offset_of<U>(bit);
+        auto dst = Util::add(chunk, offset);
+        *static_cast<U>(dst) = *t;
+        static_cast<U>(dst)->actor = id;
+    }
+    template<PointerType T1, AllPointer... TN>
+    void emplace_component(EntityID id, void* chunk, ArchetypeBit bit,
+        const T1 t1, const TN... tn
+    ){
+        using U = std::remove_pointer_t<std::remove_cvref_t<T1>>;
+
+        auto offset = offset_of<U>(bit);
+        auto dst = Util::add(chunk, offset);
+        *static_cast<U>(dst) = *t1;
+        static_cast<U>(dst)->actor = id;
+
+        emplace_component(id, chunk, bit, tn...);
+    }
+    template<OptionalType T>
+    void emplace_component(EntityID id, void* chunk, ArchetypeBit bit, T&& t){
+        using U = remove_optional_t<std::remove_cvref_t<T>>;
+
+        if(t.has_value()){
+            auto offset = offset_of<U>(bit);
+            auto dst = Util::add(chunk, offset);
+            *static_cast<U*>(dst) = t.value();
+            static_cast<U*>(dst)->actor = id;
+        }
+    }
+    template<OptionalType T1, AllOptional... TN>
+    void emplace_component(EntityID id, void* chunk, ArchetypeBit bit,
+        const T1 t1, const TN... tn
+    ){
+        using U = remove_optional_t<std::remove_cvref_t<T1>>;
+
+        if(t1.has_value()){
+            auto offset = offset_of<U>(bit);
+            auto dst = Util::add(chunk, offset);
+            *static_cast<U*>(dst) = t1.value();
+            static_cast<U*>(dst)->actor = id;
+        }
+
+        emplace_component(id, chunk, bit, tn...);
+    }
+
+    template<ValueType T>
+    ArchetypeBit bits_of(T){
+        using U = std::remove_cvref_t<T>;
+
+        return bit_of<U>();
+    }
+    template<ValueType T1, AllValue... TN>
+    ArchetypeBit bits_of(T1, TN... tn){
+        using U = std::remove_cvref_t<T1>;
+
+        return bit_of<U>() + bits_of(tn...);
+    }
+
+    template<PointerType T>
+    ArchetypeBit bits_of(T t){
+        using U = std::remove_pointer_t<std::remove_cvref_t<T>>;
+
+        return t != nullptr ? bit_of<U>() : 0;
+    }
+    template<PointerType T1, AllPointer... TN>
+    ArchetypeBit bits_of(T1 t1, TN... tn){
+        using U = std::remove_pointer_t<std::remove_cvref_t<T1>>;
+        auto bit = bits_of(tn...);
+
+        return bit + (t1 != nullptr ? bit_of<U>() : 0);
+    }
+
+    template<OptionalType T>
+    ArchetypeBit bits_of(const T& t){
+        using U = remove_optional_t<std::remove_cvref_t<T>>;
+
+        return t.has_value() ? bit_of<U>() : 0;
+    }
+    template<OptionalType T1, AllOptional... TN>
+    ArchetypeBit bits_of(const T1& t1, const TN&... tn){
+        using U = remove_optional_t<std::remove_cvref_t<T1>>;
+        auto bit = bits_of(tn...);
+
+        return bit + (t1.has_value() ? bit_of<U>() : 0);
     }
 
     class EntityRegistry{
@@ -134,7 +227,8 @@ namespace ModernBoy::Game
 
         template<typename... Args>
         EntityID createEntity(Args&&... args){
-            auto bit = bits_of<Args...>();
+            auto bit = bits_of(args...);
+            // auto bit = bits_of<remove_optional_t<std::remove_cvref_t<Args>>...>();
 
             if(archetypeMap.find(bit) == archetypeMap.end())
                 archetypeMap.emplace(bit, size_of(bit));
@@ -144,13 +238,12 @@ namespace ModernBoy::Game
             auto index = vector.size() - 1;
             auto chunk = vector[index];
 
-            emplace_component(chunk, bit, std::forward<Args>(args)...);
-            // vector.emplace(std::forward<Args>(args)...);
-
             auto entity_id = issueID();
             entityTable.emplace(entity_id, EntityInfo{
                 .bit = bit, .chunkIndex = index
             });
+            emplace_component(entity_id, chunk, bit, std::forward<Args>(args)...);
+
             return entity_id;
         }
         void destroyEntity(EntityID);
@@ -158,6 +251,18 @@ namespace ModernBoy::Game
         template<typename... Component>
         auto query(){
             return ArchetypeView<Component...>(archetypeMap);
+        }
+        template<typename... Component>
+        std::tuple<Component&...> query(EntityID id){
+            const auto& info = entityTable.at(id);
+            auto& vec = archetypeMap.at(info.bit);
+            auto chunk = vec[info.chunkIndex];
+
+            return std::forward_as_tuple(
+                *static_cast<Component*>(
+                    Util::add(chunk, offset_of<Component>(info.bit))
+                )...
+            );
         }
         template<typename Component>
         void appendComponent(EntityID id, Component&& component){

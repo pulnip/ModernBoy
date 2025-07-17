@@ -105,24 +105,15 @@ int TypeHelper::registerKeyevent(){
 }
 
 static Transform getTransform(Actor* actor){
-    auto comp =  actor->world->query<TransformComponent>(actor->id);
-    if(!comp.has_value()){
-        std::println("Actor No.{} not exists.", actor->id);
-        return identity();
-    }
-    return comp.value().value;
+    auto [tc] =  actor->world->registry.query<TransformComponent>(actor->id);
+    return tc.value;
 }
 
 static void setTransform(Actor* actor, Transform transform){
     auto& world = *(actor->world);
-    auto comp = world.query<TransformComponent>(actor->id);
-    if(!comp.has_value()){
-        std::println("Actor No.{} not exists.", actor->id);
-        return;
-    }
-    auto component = comp.value();
-    component.value = transform;
-    world.update(actor->id, std::move(component));
+    auto [tc] = world.registry.query<TransformComponent>(actor->id);
+
+    tc.value = transform;
 }
 
 static uint64_t getDeltaTime(Context* context){

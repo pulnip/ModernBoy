@@ -1,26 +1,22 @@
 #include <cassert>
 #include "script/invoker.hpp"
 #include "game/context.hpp"
-#include "game/action_system.hpp"
+#include "game/entity_registry.hpp"
 #include "game/component.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
-ActionSystem::ActionSystem(Game::Context& world,
+ActionSystem::ActionSystem(EntityRegistry& registry,
     Script::Invoker& invoker)
-:world(world), invoker(invoker){}
+:registry(registry), invoker(invoker){}
 
 Generator<void> ActionSystem::update(DeltaTime){
-    for(const auto& [bit, vec]: world.query<ActionComponent>()){
-        if(!subset(bit_of<ActionTask>(), bit))
+    for(const auto [ac]: registry.query<ActionComponent>()){
+        if(!ac.isActive)
             continue;
-        vec.for_each([this](const ActionComponent& ac){
-            if(!ac.isActive)
-                return;
-            invoker.invoke(ac.moduleHandle,
-                ac.updateFunc, ac.actor);
-        });
+        invoker.invoke(ac.moduleHandle,
+            ac.updateFunc, ac.actor);
         co_yield 0;
     }
 

@@ -1,7 +1,6 @@
 #ifndef MODERNBOY_ASSET_LOADER_HPP
 #define MODERNBOY_ASSET_LOADER_HPP
 
-#include <expected>
 #include <string>
 #include "fwd.hpp"
 #include "game/game_fwd.hpp"
@@ -24,10 +23,10 @@ namespace ModernBoy
         void loadAction(const std::string& fileName);
 
     private:
-        std::expected<Game::ActionComponent, parse_error>
+        std::optional<Game::ActionComponent>
             makeActionComponent(const ScriptSection& section);
         template<typename File, typename Component>
-        std::expected<Component, parse_error> parse(
+        std::optional<Component> parse(
             const File* file);
 
         AppState& app;

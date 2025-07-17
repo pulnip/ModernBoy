@@ -10,7 +10,7 @@ namespace ModernBoy::Game
 {
     class LifespanSystem{
     public:
-        LifespanSystem(Context& world);
+        LifespanSystem(EntityRegistry& registry);
 
         size_t yield_count() const noexcept;
 
@@ -18,7 +18,7 @@ namespace ModernBoy::Game
         Generator<void> update(DeltaTime dt) noexcept; 
 
     private:
-        Context& world;
+        EntityRegistry& registry;
 
         mutable size_t numDeadActors;
 
