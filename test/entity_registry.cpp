@@ -14,7 +14,7 @@ TEST(ArchetypeView, SimpleQuery){
 
     for(size_t i=0; i<3; ++i){
         registry.createEntity(
-            ColorComponent{.color = testColors[i]}
+            dangled<ColorComponent>(testColors[i])
         );
     }
 
@@ -35,16 +35,16 @@ TEST(ArchetypeView, ComplexQuery){
 
     for(size_t i=0; i<3; ++i){
         registry.createEntity(
-            dangled<TransformComponent>(identity()),
-            ColorComponent{.color = testColors[i]}
+            dangled<TransformComponent>(),
+            dangled<ColorComponent>(testColors[i])
         );
     }
 
     size_t i=0;
     for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
-        EXPECT_EQ(tc.value.position,    zeros());
-        EXPECT_EQ(tc.value.rotation, unitQuat());
-        EXPECT_EQ(   tc.value.scale,     ones());
+        EXPECT_EQ(tc.position,    zeros());
+        EXPECT_EQ(tc.rotation, unitQuat());
+        EXPECT_EQ(   tc.scale,     ones());
 
         EXPECT_EQ(cc.color, testColors[i]);
         ++i;
@@ -62,23 +62,23 @@ TEST(ArchetypeView, EmplaceOrder){
     for(size_t i=0; i<3; ++i){
         if(i % 2 == 1){
             registry.createEntity(
-                dangled<TransformComponent>(identity()),
-                ColorComponent{.color = testColors[i]}
+                dangled<TransformComponent>(),
+            dangled<ColorComponent>(testColors[i])
             );
         }
         else{
             registry.createEntity(
-                ColorComponent{.color = testColors[i]},
-                dangled<TransformComponent>(identity())
+            dangled<ColorComponent>(testColors[i]),
+                dangled<TransformComponent>()
             );
         }
     }
 
     size_t i=0;
     for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
-        EXPECT_EQ(tc.value.position,    zeros());
-        EXPECT_EQ(tc.value.rotation, unitQuat());
-        EXPECT_EQ(   tc.value.scale,     ones());
+        EXPECT_EQ(tc.position,    zeros());
+        EXPECT_EQ(tc.rotation, unitQuat());
+        EXPECT_EQ(   tc.scale,     ones());
 
         EXPECT_EQ(cc.color, testColors[i]);
         ++i;
@@ -103,8 +103,8 @@ TEST(ArchetypeView, AppendComponent){
 
     for(size_t i=0; i<3; ++i){
         entities[i] = registry.createEntity(
-            ColorComponent{.color = testColors[i]},
-            dangled<TransformComponent>(identity())
+            dangled<ColorComponent>(testColors[i]),
+            dangled<TransformComponent>()
         );
     }
 
@@ -115,9 +115,9 @@ TEST(ArchetypeView, AppendComponent){
     auto testVal = 0;
     auto count = 0;
     for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
-        EXPECT_EQ(tc.value.position,    zeros());
-        EXPECT_EQ(tc.value.rotation, unitQuat());
-        EXPECT_EQ(   tc.value.scale,     ones());
+        EXPECT_EQ(tc.position,    zeros());
+        EXPECT_EQ(tc.rotation, unitQuat());
+        EXPECT_EQ(   tc.scale,     ones());
 
         // cannot predict query order.
         testVal += colorTest(cc.color);
@@ -152,8 +152,8 @@ TEST(ArchetypeView, RemoveComponent){
 
     for(size_t i=0; i<3; ++i){
         entities[i] = registry.createEntity(
-            ColorComponent{.color = testColors[i]},
-            dangled<TransformComponent>(identity())
+            dangled<ColorComponent>(testColors[i]),
+            dangled<TransformComponent>()
         );
     }
 
@@ -162,9 +162,9 @@ TEST(ArchetypeView, RemoveComponent){
     auto testVal = 0;
     auto count = 0;
     for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
-        EXPECT_EQ(tc.value.position,    zeros());
-        EXPECT_EQ(tc.value.rotation, unitQuat());
-        EXPECT_EQ(   tc.value.scale,     ones());
+        EXPECT_EQ(tc.position,    zeros());
+        EXPECT_EQ(tc.rotation, unitQuat());
+        EXPECT_EQ(   tc.scale,     ones());
 
         // cannot predict query order.
         testVal += colorTest(cc.color);
