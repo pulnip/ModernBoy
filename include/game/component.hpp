@@ -16,7 +16,7 @@ namespace ModernBoy::Game
         EntityID actor;
 
         bool isActive;
-        Transform value;
+        DEFINE_TRANSFORM;
     }; static_assert(std::is_trivially_copyable_v<TransformComponent>);
     struct alignas(COMPONENT_ALIGN) CameraComponent{
         EntityID actor;
@@ -100,7 +100,6 @@ namespace ModernBoy::Game
     struct BoxColliderComponent{
         EntityID actor;
 
-        Transform transform;
         PhysicsMaterial material;
     }; static_assert(std::is_trivially_copyable_v<BoxColliderComponent>);
 

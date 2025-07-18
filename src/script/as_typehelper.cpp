@@ -66,19 +66,19 @@ int TypeHelper::registerTransform(){
         "float w", asOFFSET(Vec4, w)) < 0)
         return ret;
     // register Transform
-    if(auto ret=engine->RegisterObjectType(
-        "Transform", sizeof(Transform),
-        asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CDAK) < 0)
-        return ret;
-    if(auto ret=engine->RegisterObjectProperty("Transform",
-        "Vec3 position", asOFFSET(Transform, position)) < 0)
-        return ret;
-    if(auto ret=engine->RegisterObjectProperty("Transform",
-        "Vec4 rotation", asOFFSET(Transform, rotation)) < 0)
-        return ret;
-    if(auto ret=engine->RegisterObjectProperty("Transform",
-        "Vec3 scale", asOFFSET(Transform, scale)) < 0)
-        return ret;
+    // if(auto ret=engine->RegisterObjectType(
+    //     "Transform", sizeof(Transform),
+    //     asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CDAK) < 0)
+    //     return ret;
+    // if(auto ret=engine->RegisterObjectProperty("Transform",
+    //     "Vec3 position", asOFFSET(Transform, position)) < 0)
+    //     return ret;
+    // if(auto ret=engine->RegisterObjectProperty("Transform",
+    //     "Vec4 rotation", asOFFSET(Transform, rotation)) < 0)
+    //     return ret;
+    // if(auto ret=engine->RegisterObjectProperty("Transform",
+    //     "Vec3 scale", asOFFSET(Transform, scale)) < 0)
+    //     return ret;
     return 0;
 }
 
@@ -104,17 +104,17 @@ int TypeHelper::registerKeyevent(){
     return 0;
 }
 
-static Transform getTransform(Actor* actor){
-    auto [tc] =  actor->world->registry.query<TransformComponent>(actor->id);
-    return tc.value;
-}
+// static Transform getTransform(Actor* actor){
+//     auto [tc] =  actor->world->registry.query<TransformComponent>(actor->id);
+//     return tc.value;
+// }
 
-static void setTransform(Actor* actor, Transform transform){
-    auto& world = *(actor->world);
-    auto [tc] = world.registry.query<TransformComponent>(actor->id);
+// static void setTransform(Actor* actor, Transform transform){
+//     auto& world = *(actor->world);
+//     auto [tc] = world.registry.query<TransformComponent>(actor->id);
 
-    tc.value = transform;
-}
+//     tc.value = transform;
+// }
 
 static uint64_t getDeltaTime(Context* context){
     return std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -141,20 +141,65 @@ int TypeHelper::registerActor(){
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectType(
-        "Actor", sizeof(Actor),
+        "Entity", sizeof(Entity),
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
         return ret;
-    if(auto ret=engine->RegisterObjectMethod(
-        "Actor", "Transform getTransform()",
-        asFUNCTION(getTransform), asCALL_CDECL_OBJFIRST) < 0)
-        return ret;
-    if(auto ret=engine->RegisterObjectMethod(
-        "Actor", "void setTransform(Transform)",
-        asFUNCTION(setTransform), asCALL_CDECL_OBJFIRST) < 0)
-        return ret;
-    if(auto ret=engine->RegisterObjectProperty(
-        "Actor", "GameContext@ world",
-        offsetof(Actor, world)) < 0)
-        return ret;
+    // if(auto ret=engine->RegisterObjectMethod(
+    //     "Actor", "Transform getTransform()",
+    //     asFUNCTION(getTransform), asCALL_CDECL_OBJFIRST) < 0)
+    //     return ret;
+    // if(auto ret=engine->RegisterObjectMethod(
+    //     "Actor", "void setTransform(Transform)",
+    //     asFUNCTION(setTransform), asCALL_CDECL_OBJFIRST) < 0)
+    //     return ret;
+    // if(auto ret=engine->RegisterObjectProperty(
+    //     "Actor", "GameContext@ world",
+    //     offsetof(Actor, world)) < 0)
+    //     return ret;
     return 0;
+}
+
+
+
+template<typename T>
+static T* findComponent(Entity* entity){
+    if(entity == nullptr)
+        return nullptr;
+    if(!subset(bit_of<T>(), entity->bit))
+        return nullptr;
+
+    return static_cast<T*>(Util::add(
+        entity->chunk, offset_of<T>(entity->bit)
+    ));
+}
+
+static void* GetComponentByClassName(Entity* entity, const std::string& name){
+    if(entity == nullptr)
+        return nullptr;
+
+    if(name == "Transform")
+        return findComponent<TransformComponent>(entity);
+    return nullptr;
+    // other components...
+}
+
+int TypeHelper::registerComponent(){
+    if(auto ret=engine->RegisterObjectType(
+        "TransformComponent@", sizeof(TransformComponent),
+        asOBJ_REF | asOBJ_NOCOUNT) < 0)
+        return ret;
+    if(auto ret=engine->RegisterObjectProperty("TransformComponent",
+        "Vec3 position", asOFFSET(TransformComponent, position)) < 0)
+        return ret;
+    if(auto ret=engine->RegisterObjectProperty("TransformComponent",
+        "Vec4 rotation", asOFFSET(TransformComponent, rotation)) < 0)
+        return ret;
+    if(auto ret=engine->RegisterObjectProperty("TransformComponent",
+        "Vec3 scale", asOFFSET(TransformComponent, scale)) < 0)
+        return ret;
+    
+    if(auto ret=engine->RegisterObjectMethod(
+        "Component", "Component@ GetComponentByClassName(const string& in)",
+        asFUNCTION(GetComponentByClassName), asCALL_CDECL_OBJFIRST) < 0)
+        return ret;
 }

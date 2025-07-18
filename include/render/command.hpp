@@ -18,7 +18,7 @@ namespace ModernBoy::Render
     };
     struct SetViewCommand{
         RenderEpoch epoch;
-        Transform transform;
+        DEFINE_TRANSFORM;
         Camera camera;
     };
     struct SetShaderCommand{
@@ -31,7 +31,7 @@ namespace ModernBoy::Render
     };
     struct DrawMeshCommand{
         RenderEpoch epoch;
-        Transform transform;
+        DEFINE_TRANSFORM;
         NativePtr mesh;
     };
     struct FrameEndCommand{

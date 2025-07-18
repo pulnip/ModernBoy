@@ -47,7 +47,8 @@ Generator<void> Renderer::update(DeltaTime){
                 textureHandle = draw.texHandle;
                 setTexture(textureHandle);
             }
-            drawMesh(draw.transform, draw.meshHandle);
+            drawMesh(draw.position, draw.rotation,
+                draw.scale, draw.meshHandle);
             co_yield 0;
         }
     }
@@ -70,9 +71,8 @@ void Renderer::updateEMA(TaskTime elapsed){
 }
 
 void Renderer::setView(const ViewTask& task){
-    const auto& cameraTransform = task.transform;
-    const auto& viewPos = cameraTransform.position;
-    const auto& viewQuat = cameraTransform.rotation;
+    const auto& viewPos = task.position;
+    const auto& viewQuat = task.rotation;
     const auto& camera = task.camera;
     RenderTrace("Set View, pos: {}, {}, {}",
         viewPos.x, viewPos.y, viewPos.z);
@@ -91,13 +91,14 @@ void Renderer::setTexture(TextureHandle handle){
     context.setTexture(texture.texture);
 }
 void Renderer::drawMesh(
-    const Transform& transform, MeshHandle handle
+    const Vec3& position, const Vec4& rotation,
+    const Vec3& scale, MeshHandle handle
 ){
     RenderTrace("draw type: {}, index: {}", static_cast<int>(handle.type), handle.index);
     const auto& mesh = meshManager.get(handle);
 
     for(const auto partPtr: mesh.meshPtr){
-        context.drawMesh(transform, partPtr);
+        context.drawMesh(position, rotation, scale, partPtr);
     }
 }
 void Renderer::onFrameEnd(){

@@ -12,7 +12,7 @@ namespace ModernBoy
     using FunctionID = ID;
 
     struct DrawTask{
-        Transform transform;
+        DEFINE_TRANSFORM;
         MeshHandle meshHandle;
         TextureHandle texHandle;
         ShaderHandle shaderHandle;
@@ -21,7 +21,7 @@ namespace ModernBoy
     bool operator<(const DrawTask& lhs, const DrawTask& rhs);
 
     struct ViewTask{
-        Transform transform;
+        DEFINE_TRANSFORM;
         Camera camera;
     };
     struct InputTask{

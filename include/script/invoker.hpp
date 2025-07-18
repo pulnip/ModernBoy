@@ -19,7 +19,7 @@ namespace ModernBoy::Script
 
     class Invoker{
     public:
-        Invoker(Game::Context& world,
+        Invoker(Game::EntityRegistry& registry,
             ModuleManager& moduleManager,
             Input::Chord& chord);
         ~Invoker();
@@ -36,7 +36,7 @@ namespace ModernBoy::Script
         FunctionID issueID();
 
         ModuleManager& moduleManager;
-        Game::Context& world;
+        Game::EntityRegistry& registry;
 
         asIScriptEngine* engine;
         asIScriptContext* context;

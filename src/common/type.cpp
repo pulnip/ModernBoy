@@ -87,10 +87,6 @@ bool ModernBoy::operator==(Vec4 lhs, Vec4 rhs){
     return lhs.x==rhs.x && lhs.y==rhs.y && lhs.z==rhs.z && lhs.w==rhs.w;
 }
 
-Transform ModernBoy::identity(){
-    return{ zeros(), unitQuat(), ones() };
-}
-
 static std::unordered_map<std::string, CameraType>
 text2camera = {
     {"MAINCAMERA", CameraType::MainCamera},

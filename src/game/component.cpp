@@ -51,14 +51,14 @@ bool ModernBoy::Game::subset(ArchetypeBit a, ArchetypeBit b){
 }
 
 template<> TransformComponent
-ModernBoy::Game::dangled(Transform transform){
+ModernBoy::Game::dangled(Vec3 position, Vec4 rotation, Vec3 scale){
     return {std::numeric_limits<EntityID>::max(),
-        true, transform };
+        true, position, rotation, scale };
 }
 template<> TransformComponent
 ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(),
-        false, identity() };
+        false, zeros(), unitQuat(), ones() };
 }
 template<> CameraComponent
 ModernBoy::Game::dangled(Camera camera, bool active){
@@ -69,6 +69,11 @@ template<> CameraComponent
 ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(),
         false, {}};
+}
+template<> ColorComponent
+ModernBoy::Game::dangled(Vec4 color){
+    return {.actor = std::numeric_limits<EntityID>::max(),
+        .color = color};
 }
 template<> MeshComponent
 ModernBoy::Game::dangled(MeshHandle meshHandle,

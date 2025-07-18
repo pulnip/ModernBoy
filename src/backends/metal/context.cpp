@@ -99,13 +99,10 @@ void RenderContext::setTexture(NativePtr texture){
 
     RenderContext_setTexture(_renderContext, texture);
 }
-void RenderContext::drawMesh(Transform transform,
+void RenderContext::drawMesh(Vec3 position,
+    Vec4 rotation, Vec3 scale,
     NativePtr mesh
 ){
-    const auto& position = transform.position;
-    const auto& rotation = transform.rotation;
-    const auto& scale = transform.scale;
-
     assert(_renderContext != nullptr);
     RenderContext_draw_(_renderContext,
         position.x, position.y, position.z,

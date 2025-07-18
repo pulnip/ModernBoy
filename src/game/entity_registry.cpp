@@ -3,6 +3,27 @@
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
+Entity EntityRegistry::query(EntityID id){
+    auto entity_it = entityTable.find(id);
+    if(entity_it == entityTable.end()){
+        GameWarn("Entity {} not exist.", id);
+        return {};
+    }
+    const auto& info = entity_it->second;
+
+    auto arch_it = archetypeMap.find(info.bit);
+    if(arch_it == archetypeMap.end()){
+        GameCritical("Archetype of Entity {}: {}, but ArchetypeVector not exist", id, info.bit);
+        return {};
+    }
+    auto& vec = arch_it->second;
+
+    return Entity{
+        .bit=info.bit,
+        .chunk=vec[info.chunkIndex]
+    };
+}
+
 void EntityRegistry::destroyEntity(EntityID id){
     auto entity_it = entityTable.find(id);
     if(entity_it == entityTable.end()){

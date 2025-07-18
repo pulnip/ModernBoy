@@ -54,13 +54,10 @@ namespace ModernBoy
 
     bool operator==(Vec4, Vec4);
 
-    struct Transform{
-        Vec3 position;
-        Vec4 rotation;
-        Vec3 scale;
-    }; static_assert(std::is_trivially_copyable_v<Transform>);
-
-    Transform identity();
+    #define DEFINE_TRANSFORM \
+        Vec3 position = zeros(); \
+        Vec4 rotation = unitQuat(); \
+        Vec3 scale = ones()
 
     enum class CameraType{
         UNKNOWN     = -1,

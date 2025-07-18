@@ -52,7 +52,7 @@ renderer(window, meshManager, textureManager,
     shaderManager, world),
 userInterface(window, renderer, *this),
 inputChord(),
-scriptInvoker(world, moduleManager, inputChord),
+scriptInvoker(world.registry, moduleManager, inputChord),
 // others
 world(*this),
 assetLoader(*this), lastTick(std::chrono::time_point_cast<

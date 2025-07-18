@@ -53,11 +53,6 @@ namespace ModernBoy::Game
 
         friend class ModernBoy::AssetLoader;
     };
-
-    struct Actor{
-        EntityID id;
-        Context* world;
-    };
 } // namespace ModernBoy::Game
 
 #endif // MODERNBOY_GAME_CONTEXT_HPP

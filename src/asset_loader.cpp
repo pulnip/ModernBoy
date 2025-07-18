@@ -82,14 +82,15 @@ parse<TransformComponent>(
     auto r = *table["rotation"].as_array();
     auto s = *table["scale"].as_array();
 
-    Transform transform;
+    auto component = dangled<TransformComponent>();
+
     for(size_t i=0; i<3; ++i)
-        transform.position.v[i] = *p[i].value<double>();
+        component.position.v[i] = *p[i].value<double>();
     for(size_t i=0; i<4; ++i)
-        transform.rotation.v[i] = *r[i].value<double>();
+        component.rotation.v[i] = *r[i].value<double>();
     for(size_t i=0; i<3; ++i)
-        transform.scale.v[i] = *s[i].value<double>();
-    return dangled<TransformComponent>(transform);
+        component.scale.v[i] = *s[i].value<double>();
+    return component;
 }
 
 template<>

@@ -30,10 +30,10 @@ static void printInt(int i){
     std::println("{}", i);
 }
 
-Invoker::Invoker(Game::Context& world,
+Invoker::Invoker(Game::EntityRegistry& registry,
     ModuleManager& moduleManager,
     Input::Chord& chord
-):moduleManager(moduleManager), world(world),
+):moduleManager(moduleManager), registry(registry),
 engine(asCreateScriptEngine()),
 context(engine->CreateContext()){
     int r = engine->SetMessageCallback(asFUNCTION(messageCallback), 0, asCALL_CDECL);
@@ -87,13 +87,9 @@ ABNORMAL_FLAG Invoker::invokeInput(const Module& module_,
 
     context->Prepare(func);
 
-    Game::Actor actor{
-        .id = id,
-        .world = &world,
-    };
-
-    context->SetArgObject(0, &actor);
-    context->SetArgObject(1, &state);
+    auto entity = registry.query(id);
+    context->SetArgObject(0, &entity);
+    // context->SetArgObject(1, &);
 
     auto ret = context->Execute();
     if(ret != asEXECUTION_FINISHED){
@@ -119,12 +115,8 @@ ABNORMAL_FLAG Invoker::invoke(ModuleHandle handle,
 
     context->Prepare(func);
 
-    Game::Actor actor{
-        .id = id,
-        .world = &world,
-    };
-
-    context->SetArgObject(0, &actor);
+    auto entity = registry.query(id);
+    context->SetArgObject(0, &entity);
     // context->SetArgDWord(1, id);
 
     auto ret = context->Execute();

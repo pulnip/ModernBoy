@@ -44,7 +44,8 @@ Generator<void> DrawSystem::update(DeltaTime){
         assert(tc.actor == cc.actor);
         if(cc.isActive)
             viewTasks.emplace_back(ViewTask{
-                tc.value, cc.value});
+                tc.position, tc.rotation, tc.scale,
+                cc.value});
 
         co_yield 0;
     }
@@ -54,7 +55,8 @@ Generator<void> DrawSystem::update(DeltaTime){
         assert(tc.actor == mc.actor);
         if(mc.isActive)
             drawTasks.emplace_back(DrawTask{
-                tc.value, mc.handle,
+                tc.position, tc.rotation, tc.scale,
+                mc.handle,
                 mc.textureHandle,
                 mc.shaderHandle});
 

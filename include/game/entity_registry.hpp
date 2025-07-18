@@ -95,6 +95,11 @@ namespace ModernBoy::Game
         Sentinel cend() const noexcept{ return {}; }
     };
 
+    struct Entity{
+        Game::ArchetypeBit bit = 0;
+        void* chunk = nullptr;
+    };
+
     template<ValueType T>
     void emplace_component(EntityID id, void* chunk, ArchetypeBit bit, T&& t){
         using U = std::remove_cvref_t<T>;
@@ -264,6 +269,8 @@ namespace ModernBoy::Game
                 )...
             );
         }
+        Entity query(EntityID id);
+
         template<typename Component>
         void appendComponent(EntityID id, Component&& component){
             auto entity_it = entityTable.find(id);
