@@ -2,20 +2,26 @@ void onCreated(Entity@ entity){
     print("Actor Created!");
 }
 
-void update(Entity@ entity){
-    // auto t = actor.getTransform();
-    // float dt = actor.world.getDeltaTime() / 1000.0f;
+void update(Entity@ entity, float dt){
+    Rigidbody@ rc = cast<Rigidbody>(
+        entity.GetComponentByClassName("Rigidbody"));
+    if(rc is null)
+        print("MoveComponent: Cannot find Rigidbody Component");
 
-    // if(input.query(KEY_UP, Held))
-    //     t.position.z += 5 * dt;
-    // if(input.query(KEY_DOWN, Held))
-    //     t.position.z -= 5 * dt;
-    // if(input.query(KEY_LEFT, Held))
-    //     t.position.x -= 5 * dt;
-    // if(input.query(KEY_RIGHT, Held))
-    //     t.position.x += 5 * dt;
+    float vx = 0, vz = 0;
 
-    // actor.setTransform(t);
+    if(input.query(KEY_LEFT, Held))
+        vx -= 5;
+    if(input.query(KEY_RIGHT, Held))
+        vx += 5;
+
+    if(input.query(KEY_UP, Held))
+        vz += 5;
+    if(input.query(KEY_DOWN, Held))
+        vz -= 5;
+
+    rc.velocity.x = vx;
+    rc.velocity.z = vz;
 }
 
 void onDestroyed(Entity@ entity){

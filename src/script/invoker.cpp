@@ -48,10 +48,7 @@ context(engine->CreateContext()){
         asFUNCTION(printInt), asCALL_CDECL); assert( r >= 0 );
 
     TypeHelper typeHelper(engine, chord);
-    typeHelper.registerTransform();
-    typeHelper.registerKeyevent();
-    typeHelper.registerActor();
-    typeHelper.registerGlobalProperty();
+    typeHelper.registerAll();
 }
 Invoker::~Invoker(){
     context->Release();
@@ -74,9 +71,10 @@ FunctionID Invoker::registerFunction(const FuncName& funcName){
 }
 
 ABNORMAL_FLAG Invoker::invokeInput(const Module& module_,
-    FunctionID func_id, EntityID id, Input::Trigger state
+    FunctionID func_id, EntityID id, DeltaTime deltaTime,
+    Input::Trigger state
 ){
-        auto mod = module_.module_;
+    auto mod = module_.module_;
     auto funcName = functionMap.at(func_id);
 
     auto* func = mod->GetFunctionByName(funcName.c_str());
@@ -85,11 +83,15 @@ ABNORMAL_FLAG Invoker::invokeInput(const Module& module_,
         return true;
     }
 
-    context->Prepare(func);
+    if(auto ret = context->Prepare(func)){
+        if(ret != 0) return true;
+    }
 
     auto entity = registry.query(id);
+    auto dt = deltaTime.count() / 1'000'000.0f;
+
     context->SetArgObject(0, &entity);
-    // context->SetArgObject(1, &);
+    context->SetArgFloat(1, dt);
 
     auto ret = context->Execute();
     if(ret != asEXECUTION_FINISHED){
@@ -102,7 +104,7 @@ ABNORMAL_FLAG Invoker::invokeInput(const Module& module_,
 }
 
 ABNORMAL_FLAG Invoker::invoke(ModuleHandle handle,
-    FunctionID func_id, EntityID id
+    FunctionID func_id, EntityID id, DeltaTime deltaTime
 ){
     auto module_ = moduleManager.get(handle).module_;
     auto funcName = functionMap.at(func_id);
@@ -116,8 +118,10 @@ ABNORMAL_FLAG Invoker::invoke(ModuleHandle handle,
     context->Prepare(func);
 
     auto entity = registry.query(id);
+    auto dt = deltaTime.count() / 1'000'000.0f;
+
     context->SetArgObject(0, &entity);
-    // context->SetArgDWord(1, id);
+    context->SetArgFloat(1, dt);
 
     auto ret = context->Execute();
     if(ret != asEXECUTION_FINISHED){

@@ -11,12 +11,12 @@ ActionSystem::ActionSystem(EntityRegistry& registry,
     Script::Invoker& invoker)
 :registry(registry), invoker(invoker){}
 
-Generator<void> ActionSystem::update(DeltaTime){
+Generator<void> ActionSystem::update(DeltaTime dt){
     for(const auto [ac]: registry.query<ActionComponent>()){
         if(!ac.isActive)
             continue;
         invoker.invoke(ac.moduleHandle,
-            ac.updateFunc, ac.actor);
+            ac.updateFunc, ac.actor, dt);
         co_yield 0;
     }
 

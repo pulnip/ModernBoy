@@ -14,13 +14,13 @@ namespace ModernBoy::Script
             Input::Chord& chord);
 
         int registerAll();
-    // private:
-        int registerTransform();
+
+    private:
+        int registerBasicTypes();
         int registerKeyevent();
         int registerActor();
-        int registerGlobalProperty();
-
         int registerComponent();
+        int registerGlobalProperty();
 
     private:
         asIScriptEngine* engine;
