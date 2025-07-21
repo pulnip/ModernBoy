@@ -113,23 +113,11 @@ static uint64_t getDeltaTime(Context* context){
 }
 
 int TypeHelper::registerActor(){
-    if(auto ret=engine->RegisterObjectType(
-        "GameContext", sizeof(Game::Context),
-        asOBJ_REF | asOBJ_NOCOUNT ) < 0)
-        return ret;
     int typeId = engine->GetTypeIdByDecl("uint64");
     if (typeId < 0)
         std::println("Angelscript Not Support uint64.");
     else
         std::println("Angelscript Supprty uint64, typeId = {}", typeId);
-    if(auto ret=engine->RegisterObjectMethod(
-        "GameContext", "uint64 getDeltaTime()",
-        asFUNCTION(getDeltaTime), asCALL_CDECL_OBJFIRST) < 0)
-        return ret;
-    if(auto ret=engine->RegisterObjectType(
-        "Context", sizeof(Context),
-        asOBJ_REF | asOBJ_NOCOUNT ) < 0)
-        return ret;
     if(auto ret=engine->RegisterObjectType(
         "Entity", sizeof(Entity),
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
