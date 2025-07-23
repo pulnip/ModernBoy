@@ -133,6 +133,36 @@ ABNORMAL_FLAG Invoker::invoke(ModuleHandle handle,
     return false;
 }
 
+ABNORMAL_FLAG Invoker::invoke(Script::Object& object,
+    FunctionID func_id, EntityID id, DeltaTime deltaTime
+){
+    auto funcName = functionMap.at(func_id);
+    auto* func = object.type->GetMethodByName(funcName.c_str());
+
+    if(func == nullptr){
+        std::println("No function Name {} exists!", funcName);
+        return true;
+    }
+
+    context->Prepare(func);
+    context->SetObject(object.object);
+
+    auto entity = registry.query(id);
+    auto dt = deltaTime.count() / 1'000'000.0f;
+
+    context->SetArgObject(0, &entity);
+    context->SetArgFloat(1, dt);
+
+    auto ret = context->Execute();
+    if(ret != asEXECUTION_FINISHED){
+        if(ret == asEXECUTION_EXCEPTION)
+            std::println("Exception: {} occured",
+                context->GetExceptionString());
+        return true;
+    }
+    return false;
+}
+
 FunctionID Invoker::issueID(){ return id_seed++; }
 
 static void messageCallback(const asSMessageInfo* msg,

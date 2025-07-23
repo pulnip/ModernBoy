@@ -33,6 +33,8 @@ namespace ModernBoy::Script
             EntityID, DeltaTime, Input::Trigger);
         ABNORMAL_FLAG invoke(ModuleHandle, FunctionID,
             EntityID, DeltaTime);
+        ABNORMAL_FLAG invoke(Script::Object&, FunctionID,
+            EntityID, DeltaTime);
 
     private:
         FunctionID issueID();
