@@ -20,7 +20,7 @@ namespace ModernBoy::Script
     class Invoker{
     public:
         Invoker(Game::EntityRegistry& registry,
-            ModuleManager& moduleManager,
+            ModuleManager& moduleManager, ObjectManager& objectManager,
             Input::Chord& chord);
         ~Invoker();
         Invoker(const Invoker& other)=delete;
@@ -33,13 +33,14 @@ namespace ModernBoy::Script
             EntityID, DeltaTime, Input::Trigger);
         ABNORMAL_FLAG invoke(ModuleHandle, FunctionID,
             EntityID, DeltaTime);
-        ABNORMAL_FLAG invoke(Script::Object&, FunctionID,
+        ABNORMAL_FLAG invoke(ObjectHandle, const std::string& func,
             EntityID, DeltaTime);
 
     private:
         FunctionID issueID();
 
         ModuleManager& moduleManager;
+        ObjectManager& objectManager;
         Game::EntityRegistry& registry;
 
         asIScriptEngine* engine;

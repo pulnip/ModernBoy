@@ -31,10 +31,10 @@ static void printInt(int i){
 }
 
 Invoker::Invoker(Game::EntityRegistry& registry,
-    ModuleManager& moduleManager,
+    ModuleManager& moduleManager, ObjectManager& objectManager,
     Input::Chord& chord
-):moduleManager(moduleManager), registry(registry),
-engine(asCreateScriptEngine()),
+):moduleManager(moduleManager), objectManager(objectManager),
+registry(registry), engine(asCreateScriptEngine()),
 context(engine->CreateContext()){
     int r = engine->SetMessageCallback(asFUNCTION(messageCallback), 0, asCALL_CDECL);
     assert(r >= 0);
@@ -133,10 +133,10 @@ ABNORMAL_FLAG Invoker::invoke(ModuleHandle handle,
     return false;
 }
 
-ABNORMAL_FLAG Invoker::invoke(Script::Object& object,
-    FunctionID func_id, EntityID id, DeltaTime deltaTime
+ABNORMAL_FLAG Invoker::invoke(ObjectHandle handle,
+    const std::string& funcName, EntityID id, DeltaTime deltaTime
 ){
-    auto funcName = functionMap.at(func_id);
+    auto& object = objectManager.get(handle);
     auto* func = object.type->GetMethodByName(funcName.c_str());
 
     if(func == nullptr){

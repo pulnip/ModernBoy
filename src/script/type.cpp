@@ -55,7 +55,9 @@ Object& Object::operator=(Object&& other){
     return *this;
 }
 void Object::moveFrom(Object&& other){
+    type = other.type;
     object = other.object;
+    other.type = nullptr;
     other.object = nullptr;
 }
 
