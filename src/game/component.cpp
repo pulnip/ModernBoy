@@ -6,24 +6,6 @@
 
 using namespace ModernBoy::Game;
 
-void ModernBoy::Game::setChunk(void* dst,
-    const SparseChunk& chunk, ArchetypeBit bit
-){
-    if(bit & TRANSFORM_BIT)
-        dst = Util::chunkcpy(dst, chunk.transform);
-    if(bit & CAMERA_BIT)
-        dst = Util::chunkcpy(dst, chunk.camera);
-    if(bit & MESH_BIT)
-        dst = Util::chunkcpy(dst, chunk.mesh);
-    if(bit & ACTION_BIT)
-        dst = Util::chunkcpy(dst, chunk.action);
-    if(bit & INPUT_BIT)
-        dst = Util::chunkcpy(dst, chunk.input);
-    if(bit & RIGIDBODY_BIT)
-        dst = Util::chunkcpy(dst, chunk.rigidbody);
-}
-
-
 size_t ModernBoy::Game::size_of(ArchetypeBit bit){
     size_t size = 0;
     if(bit & TRANSFORM_BIT)
@@ -36,6 +18,8 @@ size_t ModernBoy::Game::size_of(ArchetypeBit bit){
         size += sizeof(MeshComponent);
     if(bit & ACTION_BIT)
         size += sizeof(ActionComponent);
+    if(bit & SCRIPT_BIT)
+        size += sizeof(ScriptComponent);
     if(bit & INPUT_BIT)
         size += sizeof(InputComponent);
     if(bit & RIGIDBODY_BIT)
