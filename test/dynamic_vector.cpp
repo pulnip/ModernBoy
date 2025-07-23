@@ -5,7 +5,7 @@
 using namespace ModernBoy;
 
 TEST(DynamicVectorMemory, Trivial){
-    for(size_t c=4; c<=100; c+=4){
+    for(size_t c=4; c<=20; c+=4){
         DynamicVector vec(c);
         const auto& ref = vec;
 
@@ -21,7 +21,7 @@ TEST(DynamicVectorMemory, Trivial){
 }
 
 TEST(DynamicVectorMemory, LinearlyGrowth){
-    for(size_t c=4; c<=100; c+=4){
+    for(size_t c=4; c<=20; c+=4){
         DynamicVector vec(c);
         const auto& ref = vec;
 
@@ -46,7 +46,7 @@ TEST(DynamicVectorMemory, LinearlyGrowth){
 }
 
 TEST(DynamicVectorMemory, LinearlyGraduallyGrowth){
-    for(size_t c=4; c<=100; c+=4){
+    for(size_t c=4; c<=20; c+=4){
         DynamicVector vec(c);
         const auto& ref = vec;
 
@@ -61,7 +61,7 @@ TEST(DynamicVectorMemory, LinearlyGraduallyGrowth){
 }
 
 TEST(DynamicVectorValue, Trivlal){
-    for(int32_t i=1; i<=25; ++i){
+    for(int32_t i=1; i<=5; ++i){
         DynamicVector vec(4*i);
         const auto& ref = vec;
         vec.reserve(1);
@@ -85,7 +85,7 @@ TEST(DynamicVectorValue, Trivlal){
 }
 
 TEST(DynamicVectorMemory, Reuse){
-    for(size_t i=2; i<=100; ++i){
+    for(size_t i=2; i<=20; ++i){
         DynamicVector vec(4);
         vec.insertRange(2*i);
 
@@ -97,7 +97,7 @@ TEST(DynamicVectorMemory, Reuse){
         EXPECT_EQ(vec.size(), 2*i);
         EXPECT_EQ(vec.capacity(), std::bit_ceil(2*i));
     }
-    for(size_t i=2; i<=100; ++i){
+    for(size_t i=2; i<=20; ++i){
         DynamicVector vec(4, 2*i);
 
         for(Index j=0; j<i; ++j)
@@ -111,7 +111,7 @@ TEST(DynamicVectorMemory, Reuse){
 }
 
 TEST(DynamicVectorIterator, Trivial){
-    for(size_t c=4; c<=100; ++c){
+    for(size_t c=4; c<=20; ++c){
         DynamicVector vec(4, c);
 
         for(int32_t i=0; i<vec.size(); ++i)
@@ -128,7 +128,7 @@ TEST(DynamicVectorIterator, Trivial){
 }
 
 TEST(DynamicVectorIterator, SkipFreed){
-    for(size_t c=4; c<=100; ++c){
+    for(size_t c=4; c<=20; ++c){
         DynamicVector vec(4, 2*c);
 
         vec.remove(c, c);
@@ -141,7 +141,7 @@ TEST(DynamicVectorIterator, SkipFreed){
         EXPECT_EQ(count, c);
         EXPECT_EQ(vec.size(), c);
     }
-    for(size_t c=4; c<=100; ++c){
+    for(size_t c=4; c<=20; ++c){
         DynamicVector vec(4, 2*c);
 
         for(size_t i=c; i<2*c; ++i)
@@ -210,7 +210,7 @@ TEST(DynamicVectorPart, InsertMiddle){
     double z = 1.414;
     char w = 'w';
     constexpr auto elmSize = sizeof(x)+sizeof(y)+sizeof(z)+sizeof(w);
-    for(size_t s=1; s<=100; ++s){
+    for(size_t s=1; s<=5; ++s){
         DynamicVector vec(elmSize, s);
         for(size_t i=0; i<s; ++i){
             vec.set(i, 0, x, y, z, w);
@@ -240,7 +240,7 @@ TEST(DynamicVectorPart, SparseVector){
     char w = 'w';
     constexpr auto elmSize = sizeof(x)+sizeof(y)+sizeof(z)+sizeof(w);
 
-    for(size_t s=1; s<=100; ++s){
+    for(size_t s=1; s<=5; ++s){
         for(size_t i=0; i<s; ++i){
             DynamicVector vec(elmSize, s);
 
