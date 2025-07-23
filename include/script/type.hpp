@@ -10,6 +10,8 @@
 
 class asIScriptEngine;
 class asIScriptModule;
+class asIScriptObject;
+class asITypeInfo;
 
 namespace ModernBoy::Script
 {
@@ -21,7 +23,7 @@ namespace ModernBoy::Script
         FunctionID function;
     };
     struct Module{
-        asIScriptModule* module_;
+        asIScriptModule* module_ = nullptr;
 
         Module()=default;
         Module(const Module&)=delete;
@@ -39,6 +41,25 @@ namespace ModernBoy::Script
         void moveFrom(Module&&);
     };
 
+    struct Object{
+        asITypeInfo* type = nullptr;
+        asIScriptObject* object = nullptr;
+
+        Object()=default;
+        ~Object();
+        Object(const Object&)=delete;
+        Object(Object&& mesh);
+        Object& operator=(const Object&)=delete;
+        Object& operator=(Object&&);
+
+        Object(const std::string& typeName,
+            asIScriptEngine* engine
+        );
+
+    private:
+        // Move semantics
+        void moveFrom(Object&&);
+    };
 }
 
 #endif // MODERNBOY_SCRIPT_TYPE_HPP

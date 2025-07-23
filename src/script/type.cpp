@@ -43,3 +43,34 @@ Module::Module(const std::string& name,
     module_ = engine->GetModule(name.c_str());
 }
 
+Object::Object(Object&& other){
+    moveFrom(std::move(other));
+}
+Object::~Object(){
+    if(object != nullptr)
+        object->Release();
+}
+Object& Object::operator=(Object&& other){
+    moveFrom(std::move(other));
+    return *this;
+}
+void Object::moveFrom(Object&& other){
+    object = other.object;
+    other.object = nullptr;
+}
+
+Object::Object(const std::string& typeName,
+    asIScriptEngine* engine
+){
+    type = engine->GetTypeInfoByName(typeName.c_str());
+    auto* factory = type->GetFactoryByIndex(0);
+
+    auto* ctx = engine->CreateContext();
+    ctx->Prepare(factory);
+    ctx->Execute();
+
+    object = *(asIScriptObject**)ctx->GetAddressOfReturnValue();
+    object->AddRef();
+
+    ctx->Release();
+}
