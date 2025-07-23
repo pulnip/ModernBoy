@@ -27,11 +27,6 @@
 
 namespace ModernBoy
 {
-    using MeshManager = ResourceManager<Mesh>;
-    using TextureManager = ResourceManager<Texture>;
-    using ShaderManager = ResourceManager<Shader>;
-    using ModuleManager = ResourceManager<Script::Module>;
-
     class AppState{
     public:
         AppState(SDL_Window* window);
@@ -96,6 +91,7 @@ namespace ModernBoy
         TextureManager textureManager;
         ShaderManager shaderManager;
         ModuleManager moduleManager;
+        ObjectManager objectManager;
 
         // App Subsystem
         Render::Renderer renderer;

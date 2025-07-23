@@ -52,7 +52,8 @@ namespace ModernBoy::Script
         Object& operator=(const Object&)=delete;
         Object& operator=(Object&&);
 
-        Object(const std::string& typeName,
+        Object(const std::string& instanceName,
+            const std::string& typeName,
             asIScriptEngine* engine
         );
 

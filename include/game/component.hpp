@@ -44,6 +44,12 @@ namespace ModernBoy::Game
         ModuleHandle moduleHandle;
         FunctionID updateFunc;
     }; static_assert(std::is_trivially_copyable_v<ActionComponent>); 
+    struct alignas(COMPONENT_ALIGN) ScriptComponent{
+        EntityID actor;
+
+        bool isActive;
+        ObjectHandle handle;
+    }; static_assert(std::is_trivially_copyable_v<ScriptComponent>);
     struct alignas(COMPONENT_ALIGN) InputComponent{
         EntityID actor;
 
@@ -52,7 +58,7 @@ namespace ModernBoy::Game
         bool isJumpEnabled;
         bool isSkillEnabled;
         ModuleHandle handle;
-    };
+    }; static_assert(std::is_trivially_copyable_v<InputComponent>); 
     struct alignas(COMPONENT_ALIGN) LifeSpanComponent{
         EntityID actor;
 

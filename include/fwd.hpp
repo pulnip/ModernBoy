@@ -56,9 +56,11 @@ namespace ModernBoy
 #endif
     namespace Script{
         struct Module;
+        struct Object;
         class Invoker;
     }
     using Module = Script::Module;
+    using Object = Script::Object;
     using ScriptInvoker = Script::Invoker;
 
     namespace Game{
@@ -70,6 +72,7 @@ namespace ModernBoy
     using TextureHandle = ResourceHandle;
     using ShaderHandle = ResourceHandle;
     using ModuleHandle = ResourceHandle;
+    using ObjectHandle = ResourceHandle;
 
     template<typename Resource>
     class ResourceManager;
@@ -78,6 +81,7 @@ namespace ModernBoy
     using TextureManager = ResourceManager<Texture>;
     using ShaderManager = ResourceManager<Shader>;
     using ModuleManager = ResourceManager<Module>;
+    using ObjectManager = ResourceManager<Object>;
 }
 
 #endif // MODERNBOY_FWD_HPP

@@ -59,7 +59,8 @@ void Object::moveFrom(Object&& other){
     other.object = nullptr;
 }
 
-Object::Object(const std::string& typeName,
+Object::Object([[maybe_unused]] const std::string& instanceName,
+    const std::string& typeName,
     asIScriptEngine* engine
 ){
     type = engine->GetTypeInfoByName(typeName.c_str());

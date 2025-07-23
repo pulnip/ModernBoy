@@ -88,26 +88,32 @@ MeshHandle AppState::append<Mesh, std::string&>
     );
 }
 template<>
-MeshHandle AppState::append<Texture, std::string&>
+TextureHandle AppState::append<Texture, std::string&>
 (std::string& textureFile){
     return textureManager.emplace(
         textureFile, renderer.context.metalLayer
     );
 }
 template<>
-MeshHandle AppState::append<Shader, std::string>
+ShaderHandle AppState::append<Shader, std::string>
 (std::string&& shaderFile){
     return shaderManager.emplace(
         shaderFile, renderer.context.metalLayer
     );
 }
 template<>
-MeshHandle AppState::append<Script::Module,
+ModuleHandle AppState::append<Module,
     std::string&, std::vector<std::string>&>
 (std::string& moduleFile, std::vector<std::string>& funcs){
-    
     return moduleManager.emplace(moduleFile, funcs,
         scriptInvoker.engine);
+}
+template<>
+ObjectHandle AppState::append<Object, std::string&>
+(std::string& typeName){
+    return objectManager.emplace(
+        std::format("{}{}", typeName, issueID()),
+        typeName, scriptInvoker.engine);
 }
 
 

@@ -89,7 +89,8 @@ namespace ModernBoy
         TEXTURE      = 1,
         SHADER       = 2,
         MODULE       = 3,
-        NUM_RESOURCE = 4,
+        OBJECT       = 4,
+        NUM_RESOURCE = 5,
     };
 
     struct ResourceHandle{

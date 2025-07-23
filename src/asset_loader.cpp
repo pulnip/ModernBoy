@@ -145,6 +145,19 @@ parse<MeshComponent>(
         textureHandle, shaderHandle);
 }
 
+template<>
+std::optional<ScriptComponent>
+parse<ScriptComponent>(
+    const toml::table* ptr, AppState& app
+){
+    if(ptr == nullptr)
+        return std::nullopt;
+    const auto& script = *ptr;
+
+    std::string typeName = script["type"].value_or("IComponent");
+    app.append<Object>(typeName);
+}
+
 static std::optional<ScriptSection>
 parseScriptSection(const toml::table* ptr){
     if(ptr == nullptr)

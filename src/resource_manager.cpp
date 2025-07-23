@@ -17,8 +17,12 @@ ResourceManager<Shader>::makeHandle(Index index){
     return ShaderHandle{ResourceType::SHADER, index};
 }
 template<> ModuleHandle
-ResourceManager<Script::Module>::makeHandle(Index index){
+ResourceManager<Module>::makeHandle(Index index){
     return ModuleHandle{ResourceType::MODULE, index};
+}
+template<> ObjectHandle
+ResourceManager<Object>::makeHandle(Index index){
+    return ObjectHandle{ResourceType::OBJECT, index};
 }
 
 template<> ResourceHandle
