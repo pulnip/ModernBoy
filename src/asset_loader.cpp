@@ -154,8 +154,11 @@ parse<ScriptComponent>(
         return std::nullopt;
     const auto& script = *ptr;
 
+    std::string moduleName = script["module"].value_or("component");
     std::string typeName = script["type"].value_or("IComponent");
-    app.append<Object>(typeName);
+    auto objectHandle = app.append<Object>(moduleName, typeName);
+
+    return dangled<ScriptComponent>(objectHandle);
 }
 
 static std::optional<ScriptSection>
@@ -256,11 +259,13 @@ void AssetLoader::loadAsset(const std::string& fileName){
             mc = ::parse<MeshComponent>(model, app);
         }
 
-        auto ac = parseScriptSection(
-            entity["script"].as_table()
-        ).and_then([this](auto&& val){
-            return makeActionComponent(val); 
-        });
+        // auto ac = parseScriptSection(
+        //     entity["script"].as_table()
+        // ).and_then([this](auto&& val){
+        //     return makeActionComponent(val); 
+        // });
+        auto sc = ::parse<ScriptComponent>(
+            entity["script"].as_table(), app);
 
         auto ic = ::parse<InputComponent>(
             entity["script"].as_table(), app);
@@ -270,6 +275,6 @@ void AssetLoader::loadAsset(const std::string& fileName){
 
         GameDebug("Actor loaded, name: {}", name);
 
-        app.world.registry.createEntity(tc, cc, mc, ac, ic, rc);
+        app.world.registry.createEntity(tc, cc, mc, sc, ic, rc);
     }
 }

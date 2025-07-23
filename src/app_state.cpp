@@ -109,11 +109,13 @@ ModuleHandle AppState::append<Module,
         scriptInvoker.engine);
 }
 template<>
-ObjectHandle AppState::append<Object, std::string&>
-(std::string& typeName){
+ObjectHandle AppState::append<Object, std::string&, std::string&>
+(std::string& moduleName, std::string& typeName){
+
     return objectManager.emplace(
-        std::format("{}{}", typeName, issueID()),
-        typeName, scriptInvoker.engine);
+        std::format("{}{}", typeName, issueID()), typeName,
+        moduleManager.get(moduleName).module_,
+        scriptInvoker.engine);
 }
 
 

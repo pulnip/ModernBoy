@@ -61,9 +61,12 @@ void Object::moveFrom(Object&& other){
 
 Object::Object([[maybe_unused]] const std::string& instanceName,
     const std::string& typeName,
+    asIScriptModule* module_,
     asIScriptEngine* engine
 ){
-    type = engine->GetTypeInfoByName(typeName.c_str());
+    type = module_->GetTypeInfoByName(typeName.c_str());
+    if(type==nullptr)
+        throw std::format("Type {} Not Exist!", typeName);
     auto* factory = type->GetFactoryByIndex(0);
 
     auto* ctx = engine->CreateContext();

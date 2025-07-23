@@ -12,7 +12,8 @@ mesh = "Sphere"
 texture = "asset/world_map.jpg"
 shader = "default"
 [entities.script]
-module="default"
+module="component"
+type = "Movable"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]
 useGravity = false

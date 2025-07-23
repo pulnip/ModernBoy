@@ -198,7 +198,7 @@ int TypeHelper::registerComponent(){
         return ret;
 
     if(auto ret=engine->RegisterObjectMethod(
-        "Entity", "Component@ GetComponentByClassName(const string& in)",
+        "Entity", "Component@ GetComponentByClassNameImpl(const string& in)",
         asFUNCTION(GetComponentByClassName), asCALL_CDECL_OBJFIRST) < 0)
         return ret;
     return 0;

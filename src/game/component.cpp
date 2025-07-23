@@ -95,6 +95,12 @@ ModernBoy::Game::dangled(ModuleHandle handle, FunctionID id){
         true, handle, id
     };
 }
+template<> ScriptComponent
+ModernBoy::Game::dangled(ObjectHandle handle){
+    return {std::numeric_limits<EntityID>::max(),
+        true, handle
+    };
+}
 template<> InputComponent
 ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(),

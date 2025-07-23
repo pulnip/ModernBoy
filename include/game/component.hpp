@@ -129,6 +129,7 @@ namespace ModernBoy::Game
         X(           COLOR) \
         X(            MESH) \
         X(          ACTION) \
+        X(          SCRIPT) \
         X(           INPUT) \
         X(        LIFESPAN) \
         X(       RIGIDBODY) \
@@ -143,6 +144,7 @@ namespace ModernBoy::Game
         X(           ColorComponent,            COLOR) \
         X(            MeshComponent,             MESH) \
         X(          ActionComponent,           ACTION) \
+        X(          ScriptComponent,           SCRIPT) \
         X(           InputComponent,            INPUT) \
         X(        LifeSpanComponent,         LIFESPAN) \
         X(       RigidbodyComponent,        RIGIDBODY) \

@@ -4,7 +4,7 @@ void onCreated(Entity@ entity){
 
 void update(Entity@ entity, float dt){
     Rigidbody@ rc = cast<Rigidbody>(
-        entity.GetComponentByClassName("Rigidbody"));
+        entity.GetComponentByClassNameImpl("Rigidbody"));
     if(rc is null)
         print("MoveComponent: Cannot find Rigidbody Component");
 

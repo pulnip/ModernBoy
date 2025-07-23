@@ -54,6 +54,7 @@ namespace ModernBoy::Script
 
         Object(const std::string& instanceName,
             const std::string& typeName,
+            asIScriptModule* module_,
             asIScriptEngine* engine
         );
 
