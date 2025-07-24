@@ -20,10 +20,6 @@ template<> ModuleHandle
 ResourceManager<Module>::makeHandle(Index index){
     return ModuleHandle{ResourceType::MODULE, index};
 }
-template<> ObjectHandle
-ResourceManager<Object>::makeHandle(Index index){
-    return ObjectHandle{ResourceType::OBJECT, index};
-}
 
 template<> ResourceHandle
 ResourceManager<Script::Module>::getHandle(

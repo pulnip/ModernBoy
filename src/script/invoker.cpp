@@ -136,7 +136,7 @@ ABNORMAL_FLAG Invoker::invoke(ModuleHandle handle,
 ABNORMAL_FLAG Invoker::invoke(ObjectHandle handle,
     const std::string& funcName, EntityID id, DeltaTime deltaTime
 ){
-    auto& object = objectManager.get(handle);
+    auto& object = objectManager[handle];
     auto* func = object.type->GetMethodByName(funcName.c_str());
 
     if(func == nullptr){

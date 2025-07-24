@@ -61,6 +61,7 @@ assetLoader(*this), lastTick(std::chrono::time_point_cast<
 generators(){}
 
 void AppState::shutdown(){
+    objectManager.clear();
     SDL_DestroyWindow(window);
     window = nullptr;
 }
@@ -110,7 +111,7 @@ ModuleHandle AppState::append<Module,
         scriptInvoker.engine);
 }
 template<>
-ObjectHandle AppState::append<Object, std::string&, std::string&>
+ObjectHandle AppState::appendV2<Object, std::string&, std::string&>
 (std::string& moduleName, std::string& typeName){
 
     return objectManager.emplace(

@@ -156,7 +156,7 @@ parse<ScriptComponent>(
 
     std::string moduleName = script["module"].value_or("component");
     std::string typeName = script["type"].value_or("IComponent");
-    auto objectHandle = app.append<Object>(moduleName, typeName);
+    auto objectHandle = app.appendV2<Object>(moduleName, typeName);
 
     return dangled<ScriptComponent>(objectHandle);
 }

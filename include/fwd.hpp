@@ -72,16 +72,20 @@ namespace ModernBoy
     using TextureHandle = ResourceHandle;
     using ShaderHandle = ResourceHandle;
     using ModuleHandle = ResourceHandle;
-    using ObjectHandle = ResourceHandle;
+    // using ObjectHandle = ResourceHandle;
+    using ObjectHandle = HandleV2;
 
     template<typename Resource>
     class ResourceManager;
+    template<typename T>
+    class ObjectPoolV2;
 
     using MeshManager = ResourceManager<Mesh>;
     using TextureManager = ResourceManager<Texture>;
     using ShaderManager = ResourceManager<Shader>;
     using ModuleManager = ResourceManager<Module>;
-    using ObjectManager = ResourceManager<Object>;
+    // using ObjectManager = ResourceManager<Object>;
+    using ObjectManager = ObjectPoolV2<Object>;
 }
 
 #endif // MODERNBOY_FWD_HPP
