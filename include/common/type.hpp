@@ -104,6 +104,17 @@ namespace ModernBoy
     bool operator==(const ResourceHandle& lhs, const ResourceHandle& rhs);
     bool operator!=(const ResourceHandle& lhs, const ResourceHandle& rhs);
     bool operator<(const ResourceHandle& lhs, const ResourceHandle& rhs);
+
+    struct HandleV2{
+        Index index;
+        uint32_t generation;
+    };
+    inline bool operator==(HandleV2 lhs, HandleV2 rhs){
+        return lhs.index==rhs.index && lhs.generation==rhs.generation;
+    }
+    inline bool operator!=(HandleV2 lhs, HandleV2 rhs){
+        return !(lhs==rhs);
+    }
 } // namespace ModernBoy
 
 #endif // MODERNBOY_COMMON_TYPE_HPP

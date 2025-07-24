@@ -9,6 +9,7 @@
 #include <unordered_set>
 #include <vector>
 #include "common/alias.hpp"
+#include "common/type.hpp"
 
 namespace ModernBoy
 {
@@ -106,17 +107,6 @@ namespace ModernBoy
         size_t capacity() const{ return pool.size(); }
     };
 
-    struct HandleV2{
-        Index index;
-        uint32_t generation;
-    };
-    inline bool operator==(HandleV2 lhs, HandleV2 rhs){
-        return lhs.index==rhs.index && lhs.generation==rhs.generation;
-    }
-    inline bool operator!=(HandleV2 lhs, HandleV2 rhs){
-        return !(lhs==rhs);
-    }
-
     template<typename T>
     class ObjectPoolV2{
     private:
@@ -181,6 +171,25 @@ namespace ModernBoy
                 ));
             std::destroy_at(slots[handle.index].get());
             freeIndexes.push_back(handle.index);
+        }
+
+        void clear(){
+            std::sort(freeIndexes.begin(), freeIndexes.end());
+
+            Index freeIdxPtr = 0;
+            for(Index i=0; i<slots.size(); ++i){
+                if(freeIdxPtr<freeIndexes.size() && freeIndexes[freeIdxPtr]==i){
+                    ++freeIdxPtr;
+                    continue;
+                }
+                std::destroy_at(slots[i].get());
+            }
+
+            freeIndexes.clear();
+            for(Index i=0; i<slots.size(); ++i)
+                freeIndexes.push_back(i);
+
+            slots.clear();
         }
 
         T& operator[](HandleV2 handle){
