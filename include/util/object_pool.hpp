@@ -1,11 +1,13 @@
 #ifndef MODERNBOY_OBJECT_POOL_HPP
 #define MODERNBOY_OBJECT_POOL_HPP
 
+#include <algorithm>
 #include <cassert>
-#include <ranges>
+#include <new>
 #include <print>
-#include <vector>
+#include <ranges>
 #include <unordered_set>
+#include <vector>
 #include "common/alias.hpp"
 
 namespace ModernBoy
@@ -102,6 +104,115 @@ namespace ModernBoy
 
         size_t size() const{ return pool.size() - freeIndexes.size(); }
         size_t capacity() const{ return pool.size(); }
+    };
+
+    struct HandleV2{
+        Index index;
+        uint32_t generation;
+    };
+    inline bool operator==(HandleV2 lhs, HandleV2 rhs){
+        return lhs.index==rhs.index && lhs.generation==rhs.generation;
+    }
+    inline bool operator!=(HandleV2 lhs, HandleV2 rhs){
+        return !(lhs==rhs);
+    }
+
+    template<typename T>
+    class ObjectPoolV2{
+    private:
+        struct Slot{
+            alignas(T) std::byte storage[sizeof(T)];
+            uint32_t generation = 0;
+
+            T* get(){ return std::launder(reinterpret_cast<T*>(&storage)); }
+            const T* get() const{ return std::launder(reinterpret_cast<const T*>(&storage)); }
+
+            Slot() = default;
+        };
+        std::vector<Slot> slots;
+        using Indexes = std::vector<Index>;
+        Indexes freeIndexes;
+
+    public:
+        ObjectPoolV2() = default;
+        ~ObjectPoolV2(){
+            std::sort(freeIndexes.begin(), freeIndexes.end());
+
+            Index freeIdxPtr = 0;
+            for(Index i=0; i<slots.size(); ++i){
+                if(freeIdxPtr<freeIndexes.size() && freeIndexes[freeIdxPtr]==i){
+                    ++freeIdxPtr;
+                    continue;
+                }
+                std::destroy_at(slots[i].get());
+            }
+        }
+
+        HandleV2 push(T&& t){
+            Index freeIndex = std::numeric_limits<uint32_t>::max();
+
+            if(freeIndexes.size() > 0){
+                freeIndex = freeIndexes[freeIndexes.size() - 1];
+                freeIndexes.resize(freeIndexes.size() - 1);
+            }
+            else{
+                slots.resize(slots.size() + 1);
+                freeIndex = slots.size() - 1;
+            }
+            std::construct_at(slots[freeIndex].get(), std::move(t));
+            ++slots[freeIndex].generation;
+
+            return {
+                .index = freeIndex,
+                .generation = slots[freeIndex].generation
+            };
+        }
+
+        template<typename... Args>
+        HandleV2 emplace(Args... args){
+            return push(T(std::forward<Args>(args)...));
+        }
+
+        void remove(HandleV2 handle){
+            if(slots[handle.index].generation != handle.generation)
+                throw std::out_of_range(std::format(
+                    "Handle(Index={}) generation {} is mismatched. (valid generation={})",
+                    handle.index, handle.generation, slots[handle.index].generation
+                ));
+            std::destroy_at(slots[handle.index].get());
+            freeIndexes.push_back(handle.index);
+        }
+
+        T& operator[](HandleV2 handle){
+            if(slots[handle.index].generation != handle.generation)
+                throw std::out_of_range(std::format(
+                    "Handle(Index={}) generation {} is mismatched. (valid generation={})",
+                    handle.index, handle.generation, slots[handle.index].generation
+                ));
+            return *slots[handle.index].get();
+        }
+        const T& operator[](HandleV2 handle) const{
+                throw std::out_of_range(std::format(
+                    "Handle(Index={}) generation {} is mismatched. (valid generation={})",
+                    handle.index, handle.generation, slots[handle.index].generation
+                ));
+            return *slots[handle.index].get();
+        }
+
+        void reserve(size_t size){
+            if(size <= slots.size())
+                return;
+            for(auto i=slots.size(); i<size; ++i)
+                freeIndexes.push_back(i);
+            slots.resize(size);
+        }
+
+        size_t size() const{
+            return slots.size() - freeIndexes.size();
+        }
+        size_t capacity() const{
+            return slots.size();
+        }
     };
 } // namespace ModernBoy
 
