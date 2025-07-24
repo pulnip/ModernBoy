@@ -68,6 +68,31 @@ void AssetLoader::loadAction(const std::string& fileName){
     }
 }
 
+template<typename T>
+std::optional<T> parse(const toml::array* ptr);
+
+template<>
+std::optional<Vec3> parse<Vec3>(const toml::array* ptr){
+    if(ptr == nullptr)
+        return std::nullopt;
+    const auto& v = *ptr;
+
+    Vec3 vec;
+    for(Index i=0; i<3; ++i)
+        vec.v[i] = v[i].value<double>().value_or(0.0);
+    return vec;
+}
+template<>
+std::optional<Vec4> parse<Vec4>(const toml::array* ptr){
+    if(ptr == nullptr)
+        return std::nullopt;
+    const auto& v = *ptr;
+
+    Vec4 vec;
+    for(Index i=0; i<4; ++i)
+        vec.v[i] = v[i].value<double>().value_or(0.0);
+    return vec;
+}
 
 template<>
 std::optional<TransformComponent>
@@ -78,18 +103,19 @@ parse<TransformComponent>(
         return std::nullopt;
     const auto& table = *ptr;
 
+
     auto p = *table["position"].as_array();
     auto r = *table["rotation"].as_array();
     auto s = *table["scale"].as_array();
 
     auto component = dangled<TransformComponent>();
+    component.position = parse<Vec3>(
+        table["position"].as_array()).value_or(zeros());
+    component.rotation = parse<Vec4>(
+        table["rotation"].as_array()).value_or(unitQuat());
+    component.scale = parse<Vec3>(
+        table["scale"].as_array()).value_or(ones());
 
-    for(size_t i=0; i<3; ++i)
-        component.position.v[i] = *p[i].value<double>();
-    for(size_t i=0; i<4; ++i)
-        component.rotation.v[i] = *r[i].value<double>();
-    for(size_t i=0; i<3; ++i)
-        component.scale.v[i] = *s[i].value<double>();
     return component;
 }
 
@@ -207,6 +233,26 @@ parse<InputComponent>(
     return component;
 }
 
+template<>
+std::optional<SphereColliderComponent>
+parse<SphereColliderComponent>(
+    const toml::table* ptr, AppState&
+){
+    if(ptr==nullptr)
+        return std::nullopt;
+    const auto& collider = *ptr;
+
+    auto position = parse<Vec3>(
+        collider["position"].as_array()).value_or(zeros());
+    float radius = collider["radius"].value_or(1.0);
+
+    auto component = dangled<SphereColliderComponent>(
+        position, radius
+    );
+
+    return component;
+}
+
 static std::tuple<std::string, std::vector<std::string>>
 parseModule(const toml::table* ptr){
     if(ptr==nullptr)
@@ -273,8 +319,12 @@ void AssetLoader::loadAsset(const std::string& fileName){
         auto rc = parse<toml::table, RigidbodyComponent>(
             entity["rigidbody"].as_table());
 
+        auto scc = ::parse<SphereColliderComponent>(
+            entity["sphereCollider"].as_table(), app);
+
         GameDebug("Actor loaded, name: {}", name);
 
-        app.world.registry.createEntity(tc, cc, mc, sc, ic, rc);
+        app.world.registry.createEntity(tc, cc, mc, sc, ic, rc,
+            scc);
     }
 }

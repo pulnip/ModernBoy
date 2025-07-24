@@ -18,12 +18,12 @@ type = "Movable"
 velocity = [0.0, 0.0, 0.0]
 useGravity = false
 mass = 1
-[entities.sphereCollider]
-position = [0.0, 0.0, 0.0]
-radius = 1
     [entities.rigidbody.material]
     bounciness = 1.0
     friction = 0
+[entities.sphereCollider]
+position = [0.0, 0.0, 0.0]
+radius = 1
 
 [[entities]]
 name = "Cuby1"
@@ -35,6 +35,9 @@ scale    = [0.5, 0.5, 0.5]
 mesh = "Cube"
 texture = "asset/metal_logo.png"
 shader = "default"
+[entities.sphereCollider]
+position = [0.0, 0.0, 0.0]
+radius = 0.5
 
 [[entities]]
 name = "Cuby2"

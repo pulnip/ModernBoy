@@ -94,7 +94,6 @@ namespace ModernBoy::Game
 
         Vec3 position;
         float radius;
-        PhysicsMaterial material;
     }; static_assert(std::is_trivially_copyable_v<SphereColliderComponent>);
     struct FixedBoxColliderComponent{
         EntityID actor;

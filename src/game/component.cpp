@@ -26,6 +26,8 @@ size_t ModernBoy::Game::size_of(ArchetypeBit bit){
         size += sizeof(RigidbodyComponent);
     if(bit & ELEMENT_BIT)
         size += sizeof(ElementComponent);
+    if(bit & SPHERECOLLIDER_BIT)
+        size += sizeof(SphereColliderComponent);
 
     return size;
 }
@@ -100,3 +102,9 @@ ModernBoy::Game::dangled(){
     };
 }
 
+template<> SphereColliderComponent
+ModernBoy::Game::dangled(Vec3 position, float radius){
+    return {std::numeric_limits<EntityID>::max(),
+        position, radius
+    };
+}
