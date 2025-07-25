@@ -94,7 +94,7 @@ class RenderContext {
         var viewPosition = viewPos
         renderEncoder!.setFragmentBytes(&viewPosition,
             length: MemoryLayout<simd_float3>.stride, 
-            index: 1)
+            index: 0)
         let viewMat = viewMatrix(viewPos, viewQuat)
 
         let projMat = perspectiveMatrix(
@@ -111,13 +111,19 @@ class RenderContext {
     func setTexture(_ texture: Texture) {
         texture.bind(encoder: renderEncoder)
     }
-    func draw(_ modelMat: simd_float4x4, _ mesh: Mesh) {
+    func draw(_ modelMat: simd_float4x4, _ mesh: Mesh, _ alpha: Float) {
         guard let encoder
             = self.renderEncoder else {return }
         var modelConstant = ModelConstant(
             modelMat: modelMat, normalMat: normal(modelMat))
         encoder.setVertexBytes(&modelConstant,
             length: MemoryLayout<ModelConstant>.stride, index: 2)
+
+        var a = alpha
+        encoder.setFragmentBytes(&a,
+            length: MemoryLayout<Float>.stride,
+            index: 2)
+
 
         encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
 
@@ -214,7 +220,7 @@ public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,
     _ px: Float, _ py: Float, _ pz: Float,
     _ rx: Float, _ ry: Float, _ rz: Float, _ w: Float,
     _ sx: Float, _ sy: Float, _ sz: Float,
-    _ meshPtr: UnsafeRawPointer?,
+    _ meshPtr: UnsafeRawPointer?, _ alpha: Float
 ) {
     guard let rctxPtr = rctxPtr,
           let meshPtr = meshPtr else { return }
@@ -228,14 +234,14 @@ public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,
         rotate(&modelMat, rx, ry, rz, w)
         scale(&modelMat, sx, sy, sz)
 
-    rctx.draw(modelMat, mesh)
+    rctx.draw(modelMat, mesh, alpha)
 }
 @_cdecl("RenderContext_draw_")
 public func RenderContext_draw_(_ rctxPtr: UnsafeRawPointer?,
     _ px: Float, _ py: Float, _ pz: Float,
     _ rx: Float, _ ry: Float, _ rz: Float,
     _ sx: Float, _ sy: Float, _ sz: Float,
-    _ meshPtr: UnsafeRawPointer?,
+    _ meshPtr: UnsafeRawPointer?, _ alpha: Float
 ) {
     guard let rctxPtr = rctxPtr,
           let meshPtr = meshPtr else { return }
@@ -249,7 +255,7 @@ public func RenderContext_draw_(_ rctxPtr: UnsafeRawPointer?,
         rotate(&modelMat, rx, ry, rz)
         scale(&modelMat, sx, sy, sz)
 
-    rctx.draw(modelMat, mesh)
+    rctx.draw(modelMat, mesh, alpha)
 }
 @_cdecl("RenderContext_frameEnd")
 public func RenderContext_frameEnd(_ rctxPtr: UnsafeRawPointer?) {

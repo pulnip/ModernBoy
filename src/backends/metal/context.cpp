@@ -33,14 +33,14 @@ extern "C"{
         float px, float py, float pz,
         float rx, float ry, float rz, float w,
         float sx, float sy, float sz,
-        void* meshPtr
+        void* meshPtr, float alpha
     );
     extern void RenderContext_draw_(
         void* _nativeContext,
         float px, float py, float pz,
         float rx, float ry, float rz,
         float sx, float sy, float sz,
-        void* meshPtr
+        void* meshPtr, float alpha
     );
     extern void RenderContext_frameEnd(
         void* _nativeContext
@@ -101,14 +101,14 @@ void RenderContext::setTexture(NativePtr texture){
 }
 void RenderContext::drawMesh(Vec3 position,
     Vec4 rotation, Vec3 scale,
-    NativePtr mesh
+    NativePtr mesh, float alpha
 ){
     assert(_renderContext != nullptr);
     RenderContext_draw_(_renderContext,
         position.x, position.y, position.z,
         rotation.x, rotation.y, rotation.z,
         scale.x, scale.y, scale.z,
-        mesh);
+        mesh, alpha);
 }
 void RenderContext::onFrameEnd(){
     assert(_renderContext != nullptr);

@@ -20,7 +20,7 @@ namespace ModernBoy::Metal
         void setShader(NativePtr shader);
         void setTexture(NativePtr texture);
         void drawMesh(Vec3 position, Vec4 rotation,
-            Vec3 scale, NativePtr mesh);
+            Vec3 scale, NativePtr mesh, float alpha);
         void onFrameEnd();
 
         NativePtr getRenderPassDesc();

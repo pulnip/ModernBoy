@@ -7,7 +7,8 @@ using namespace ModernBoy::Game;
 
 Context::Context(AppState& app)
 :app(app),
-draw(registry), action(registry, app.scriptInvoker),
+debug(registry), draw(registry),
+action(registry, app.scriptInvoker),
 physics(registry), lifespan(registry){}
 
 
@@ -19,6 +20,10 @@ void Context::update(DeltaTime dt){
     auto physicsFut = physics.update(dt);
     while(!physicsFut.done())
         physicsFut.next();
+
+    auto debugFut = debug.update(dt);
+    while(!debugFut.done())
+        debugFut.next();
 
     auto drawFut = draw.update(dt);
     while(!drawFut.done())

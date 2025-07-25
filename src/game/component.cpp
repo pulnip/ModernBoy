@@ -68,12 +68,13 @@ ModernBoy::Game::dangled(MeshHandle meshHandle,
     TextureHandle textureHandle, ShaderHandle shaderHandle
 ){
     return {std::numeric_limits<EntityID>::max(),
-        true, meshHandle, textureHandle, shaderHandle};
+        true, meshHandle, 1.0f, textureHandle, shaderHandle};
 }
 template<> MeshComponent
 ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(), false,
         invalidResourceHandle(),
+        1.0f,
         invalidResourceHandle(),
         invalidResourceHandle()};
 }

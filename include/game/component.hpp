@@ -34,6 +34,7 @@ namespace ModernBoy::Game
 
         bool isActive;
         ResourceHandle handle;
+        float alpha;
         TextureHandle textureHandle;
         ShaderHandle shaderHandle;
     }; static_assert(std::is_trivially_copyable_v<MeshComponent>);

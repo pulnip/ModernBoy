@@ -56,6 +56,7 @@ Generator<void> DrawSystem::update(DeltaTime){
         if(mc.isActive)
             drawTasks.emplace_back(DrawTask{
                 tc.position, tc.rotation, tc.scale,
+                mc.alpha,
                 mc.handle,
                 mc.textureHandle,
                 mc.shaderHandle});

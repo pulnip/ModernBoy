@@ -13,6 +13,7 @@ namespace ModernBoy
 
     struct DrawTask{
         DEFINE_TRANSFORM;
+        float alpha;
         MeshHandle meshHandle;
         TextureHandle texHandle;
         ShaderHandle shaderHandle;

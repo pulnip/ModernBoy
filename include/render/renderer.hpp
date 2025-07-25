@@ -54,7 +54,7 @@ namespace ModernBoy::Render
         void setTexture(TextureHandle handle);
         void drawMesh(const Vec3& position,
             const Vec4& rotation, const Vec3& scale,
-            MeshHandle handle);
+            MeshHandle handle, float alpha);
 
     public:
         RenderContext context;
