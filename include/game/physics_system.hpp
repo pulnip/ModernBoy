@@ -8,6 +8,9 @@
 
 namespace ModernBoy::Game
 {
+    using SphereColliderProxy = std::tuple<TransformComponent*, RigidbodyComponent*, SphereColliderComponent*>;
+    using SphereCollisionCandidate = std::pair<SphereColliderProxy, SphereColliderProxy>;
+
     class PhysicsSystem{
     public:
         PhysicsSystem(EntityRegistry& registry);
@@ -15,6 +18,9 @@ namespace ModernBoy::Game
         Generator<void> update(DeltaTime dt);
 
     private:
+        std::vector<SphereColliderProxy> flatten();
+        std::vector<SphereCollisionCandidate> findCandidate();
+
         EntityRegistry& registry;
     };
 } // namespace ModernBoy::Game

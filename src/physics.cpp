@@ -6,6 +6,13 @@ using namespace ModernBoy;
 constexpr float eps = 1e-6;
 constexpr float eps_3d = 1e-5;
 
+bool ModernBoy::sphereCollision(Vec3 pos1, float radius1, Vec3 pos2, float radius2){
+    auto distance_squared = norm_squared(pos2 - pos1);
+    auto radius_squared = (radius1+radius2)*(radius1+radius2);
+
+    return distance_squared <= radius_squared;
+}
+
 Vec2 ModernBoy::support(
     const Vec2 polygon[], int num_vert,
     const Vec2 v

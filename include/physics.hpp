@@ -5,6 +5,8 @@
 
 namespace ModernBoy
 {
+    bool sphereCollision(Vec3 pos1, float radius1, Vec3 pos2, float radius2);
+
     Vec2 support(const Vec2 polygon[], int num_vert, const Vec2 v);
     Vec2 mink_dif(const Vec2 poly1[], int num_vert1,
         const Vec2 poly2[], int num_vert2, const Vec2 dir);
