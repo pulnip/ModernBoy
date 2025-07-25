@@ -198,7 +198,7 @@ namespace ModernBoy::Game
                 return offset; \
             if(bit & bit_of<type>()) \
                 offset += sizeof(type);
-        size_t offset = 0;
+        size_t offset = sizeof(EntityID);
         #define X COMP_OFFSET
         ARCHETYPE_PAIRS
         #undef X

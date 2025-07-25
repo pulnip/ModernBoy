@@ -7,7 +7,7 @@
 using namespace ModernBoy::Game;
 
 size_t ModernBoy::Game::size_of(ArchetypeBit bit){
-    size_t size = 0;
+    size_t size = sizeof(EntityID);
     if(bit & TRANSFORM_BIT)
         size += sizeof(TransformComponent);
     if(bit & CAMERA_BIT)
