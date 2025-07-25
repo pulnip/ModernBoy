@@ -19,7 +19,7 @@ TEST(ArchetypeView, SimpleQuery){
     }
 
     size_t i=0;
-    for(auto [cc]: registry.query<ColorComponent>()){
+    for(auto [id, cc]: registry.query<ColorComponent>()){
         EXPECT_EQ(cc.color, testColors[i]);
         ++i;
     }
@@ -41,7 +41,7 @@ TEST(ArchetypeView, ComplexQuery){
     }
 
     size_t i=0;
-    for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+    for(auto [id, tc, cc]: registry.query<TransformComponent, ColorComponent>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());
@@ -75,7 +75,7 @@ TEST(ArchetypeView, EmplaceOrder){
     }
 
     size_t i=0;
-    for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+    for(auto [id, tc, cc]: registry.query<TransformComponent, ColorComponent>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());
@@ -114,7 +114,7 @@ TEST(ArchetypeView, AppendComponent){
 
     auto testVal = 0;
     auto count = 0;
-    for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+    for(auto [id, tc, cc]: registry.query<TransformComponent, ColorComponent>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());
@@ -127,7 +127,7 @@ TEST(ArchetypeView, AppendComponent){
     EXPECT_EQ(count, 3);
 
     count = 0;
-    for(auto [ec]: registry.query<ElementComponent>()){
+    for(auto [id, ec]: registry.query<ElementComponent>()){
         EXPECT_EQ(ec.type, ElementType::FIRE);
         ++count;
     }
@@ -161,7 +161,7 @@ TEST(ArchetypeView, RemoveComponent){
 
     auto testVal = 0;
     auto count = 0;
-    for(auto [tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+    for(auto [id, tc, cc]: registry.query<TransformComponent, ColorComponent>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());
@@ -174,7 +174,7 @@ TEST(ArchetypeView, RemoveComponent){
     EXPECT_EQ(count, 2);
 
     count = 0;
-    for(auto [_]: registry.query<TransformComponent>()){
+    for(auto [_1, _2]: registry.query<TransformComponent>()){
         ++count;
     }
     EXPECT_EQ(count, 3);

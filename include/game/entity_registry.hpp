@@ -39,7 +39,7 @@ namespace ModernBoy::Game
                 advance_to_valid_archetype();
             }
 
-            std::tuple<Component&...> operator*(){
+            std::tuple<EntityID, ArchetypeBit, Component&...> operator*(){
                 assert(!at_end());
                 auto bit = map_it->first;
                 auto& vec = map_it->second;
@@ -47,6 +47,8 @@ namespace ModernBoy::Game
                 auto chunk_ptr = vec[vec_index];
 
                 return std::forward_as_tuple(
+                    *static_cast<EntityID*>(chunk_ptr),
+                    map_it->first,
                     *static_cast<Component*>(
                         Util::add(chunk_ptr, offset_of<Component>(bit))
                     )...
@@ -247,6 +249,7 @@ namespace ModernBoy::Game
             entityTable.emplace(entity_id, EntityInfo{
                 .bit = bit, .chunkIndex = index
             });
+            *static_cast<EntityID*>(chunk) = entity_id;
             emplace_component(entity_id, chunk, bit, std::forward<Args>(args)...);
 
             return entity_id;

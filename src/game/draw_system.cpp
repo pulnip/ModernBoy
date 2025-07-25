@@ -38,7 +38,7 @@ Generator<void> DrawSystem::update(DeltaTime){
     viewTasks.clear();
     drawTasks.clear();
 
-    for(const auto [tc, cc]: registry.query<
+    for(const auto [id, bit, tc, cc]: registry.query<
         TransformComponent, CameraComponent>()
     ){
         assert(tc.actor == cc.actor);
@@ -49,7 +49,7 @@ Generator<void> DrawSystem::update(DeltaTime){
 
         co_yield 0;
     }
-    for(const auto [tc, mc]: registry.query<
+    for(const auto [id, bit, tc, mc]: registry.query<
         TransformComponent, MeshComponent>()
     ){
         assert(tc.actor == mc.actor);

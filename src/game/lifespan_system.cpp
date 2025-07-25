@@ -11,7 +11,7 @@ LifespanSystem::LifespanSystem(EntityRegistry& registry)
 size_t LifespanSystem::yield_count() const noexcept{
     size_t numTask = 0;
 
-    for(const auto [lc]: registry.query<LifeSpanComponent>()){
+    for(const auto [id, bit, lc]: registry.query<LifeSpanComponent>()){
         if(!lc.isAlive)
             numTask += 1;
     }
@@ -25,9 +25,9 @@ Generator<void> LifespanSystem::updateTask(DeltaTime) noexcept{
     deadActors.reserve(numDeadActors);
 
     // remove actor from current epoch
-    for(const auto [lc]: registry.query<LifeSpanComponent>()){
+    for(const auto [id, bit, lc]: registry.query<LifeSpanComponent>()){
         if(!lc.isAlive)
-            deadActors.emplace_back(lc.actor);
+            deadActors.emplace_back(id);
     }
     for(const auto& deadActor: deadActors){
         registry.destroyEntity(deadActor);
@@ -42,9 +42,9 @@ Generator<void> LifespanSystem::update(DeltaTime) noexcept{
     deadActors.reserve(numDeadActors);
 
     // remove actor from next epoch
-    for(const auto [lc]: registry.query<LifeSpanComponent>()){
+    for(const auto [id, bit, lc]: registry.query<LifeSpanComponent>()){
         if(!lc.isAlive)
-            deadActors.emplace_back(lc.actor);
+            deadActors.emplace_back(id);
     }
     for(const auto& deadActor: deadActors){
         registry.destroyEntity(deadActor);

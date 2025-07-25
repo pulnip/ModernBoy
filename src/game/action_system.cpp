@@ -12,7 +12,7 @@ ActionSystem::ActionSystem(EntityRegistry& registry,
 :registry(registry), invoker(invoker){}
 
 Generator<void> ActionSystem::update(DeltaTime dt){
-    for(const auto [sc]: registry.query<ScriptComponent>()){
+    for(const auto [id, bit, sc]: registry.query<ScriptComponent>()){
         if(!sc.isActive)
             continue;
         invoker.invoke(sc.handle, "Update", sc.actor, dt);
