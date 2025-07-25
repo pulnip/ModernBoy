@@ -20,6 +20,7 @@ namespace ModernBoy::Game
     private:
         std::vector<SphereColliderProxy> flatten();
         std::vector<SphereCollisionCandidate> findCandidate();
+        std::vector<EntityID> findCollidedBefore();
 
         EntityRegistry& registry;
     };

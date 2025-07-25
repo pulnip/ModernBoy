@@ -29,6 +29,8 @@ size_t ModernBoy::Game::size_of(ArchetypeBit bit){
     if(bit & SPHERECOLLIDER_BIT)
         size += sizeof(SphereColliderComponent);
 
+    if(bit & COLLIDED_BIT)
+        size += sizeof(Collided);
     return size;
 }
 

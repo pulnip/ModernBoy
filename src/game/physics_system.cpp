@@ -17,21 +17,34 @@ Generator<void> PhysicsSystem::update(DeltaTime dt){
         co_yield 0;
     }
 
-    auto collisionPair = findCandidate();
+    auto collidedCandidate = findCandidate();
+    std::vector<EntityID> collided;
+    auto notCollidedCandidate = findCollidedBefore();
 
-    for(auto [src, tgt]: collisionPair){
-        auto [src_id, src_tc, src_rc, src_sc] = src;
-        auto [tgt_id, tgt_tc, tgt_rc, tgt_sc] = tgt;
+    for(auto [src, tgt]: collidedCandidate){
+        auto [src_id, src_bit, src_tc, src_rc, src_sc] = src;
+        auto [tgt_id, tgt_bit, tgt_tc, tgt_rc, tgt_sc] = tgt;
 
         auto src_pos = src_tc->position + tgt_tc->position;
         auto tgt_pos = tgt_tc->position + tgt_tc->position;
 
         if(sphereCollision(src_pos, src_sc->radius, tgt_pos, tgt_sc->radius)){
-            std::println("Entity {} and Entity {}, collision!", src_id, tgt_id);
+            if((src_bit & COLLIDED_BIT) == 0){
+                std::erase(notCollidedCandidate, src_id);
+                collided.emplace_back(src_id);
+            }
+            if((tgt_bit & COLLIDED_BIT) == 0){
+                std::erase(notCollidedCandidate, tgt_id);
+                collided.emplace_back(tgt_id);
+            }
         }
-        else{
-            std::println("Not collision!");
-        }
+    }
+
+    for(auto id: collided){
+        registry.appendComponent(id, Collided{ .entity=id });
+    }
+    for(auto id: notCollidedCandidate){
+        registry.removeComponent<Collided>(id);
     }
 
     co_return;
@@ -65,4 +78,14 @@ std::vector<SphereCollisionCandidate> PhysicsSystem::findCandidate(){
     }
 
     return candidates;
+}
+
+std::vector<EntityID> PhysicsSystem::findCollidedBefore(){
+    std::vector<EntityID> tagged;
+
+    for(auto [id, bit, _]: registry.query<Collided>()){
+        tagged.emplace_back(id);
+    }
+
+    return tagged;
 }

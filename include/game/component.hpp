@@ -108,6 +108,9 @@ namespace ModernBoy::Game
         PhysicsMaterial material;
     }; static_assert(std::is_trivially_copyable_v<BoxColliderComponent>);
 
+    // Event Tags
+    struct Collided{ EntityID entity; }; static_assert(std::is_trivially_copyable_v<Collided>);
+
     struct SparseChunk{
         TransformComponent transform;
         CameraComponent camera;
@@ -136,7 +139,8 @@ namespace ModernBoy::Game
         X(  SPHERECOLLIDER) \
         X(FIXEDBOXCOLLIDER) \
         X(     BOXCOLLIDER) \
-        X(       COLLISION)
+        X(       COLLISION) \
+        X(        COLLIDED)
     #define ARCHETYPE_PAIRS \
         X(       TransformComponent,        TRANSFORM) \
         X(          CameraComponent,           CAMERA) \
@@ -151,7 +155,8 @@ namespace ModernBoy::Game
         X(  SphereColliderComponent,   SPHERECOLLIDER) \
         X(FixedBoxColliderComponent, FIXEDBOXCOLLIDER) \
         X(     BoxColliderComponent,      BOXCOLLIDER) \
-        X(        PhysicalCollision,        COLLISION)
+        X(        PhysicalCollision,        COLLISION) \
+        X(                 Collided,         COLLIDED)
     #define COMPOSIT_PAIRS \
         X(                 DrawTask,             DRAW) \
         X(                 ViewTask,             VIEW) \
