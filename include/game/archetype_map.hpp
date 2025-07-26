@@ -101,8 +101,8 @@ namespace ModernBoy::Game
         std::unordered_map<ArchetypeBit, RWPhaseGate> archetypeMap;
 
     public:
-        Index insert(ArchetypeBit bit,
-            const SparseChunk& chunk);
+        // Index insert(ArchetypeBit bit,
+        //     const SparseChunk& chunk);
 
         RWPhaseGate& at(ArchetypeBit bit);
         const RWPhaseGate& at(ArchetypeBit bit) const;

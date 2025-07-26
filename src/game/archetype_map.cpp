@@ -107,22 +107,22 @@ const RWPhaseGate& ArchetypeMap::at(ArchetypeBit bit) const{
     return archetypeMap.at(bit);
 }
 
-Index ArchetypeMap::insert(ArchetypeBit bit,
-    const SparseChunk& chunk
-){
-    size_t CHUNK_SIZE = size_of(bit);
+// Index ArchetypeMap::insert(ArchetypeBit bit,
+//     const SparseChunk& chunk
+// ){
+//     size_t CHUNK_SIZE = size_of(bit);
 
-    if(archetypeMap.find(bit) == archetypeMap.end()){
+//     if(archetypeMap.find(bit) == archetypeMap.end()){
 
-        auto [it, ret] = archetypeMap.try_emplace(bit, bit, CHUNK_SIZE);
-        GameDebug("    No Archetype: {} in map. emplace new. Result: {}", bit, ret);
-    }
-    auto& vector = archetypeMap.at(bit);
-    auto newIndex = vector.mutate<Index>([bit, &chunk](DynamicVector& vec){
-        auto newIndex = vec.insertRange(1);
-        auto mem = vec[newIndex];
-        setChunk(mem, chunk, bit);
-        return newIndex;
-    });
-    return newIndex;
-}
+//         auto [it, ret] = archetypeMap.try_emplace(bit, bit, CHUNK_SIZE);
+//         GameDebug("    No Archetype: {} in map. emplace new. Result: {}", bit, ret);
+//     }
+//     auto& vector = archetypeMap.at(bit);
+//     auto newIndex = vector.mutate<Index>([bit, &chunk](DynamicVector& vec){
+//         auto newIndex = vec.insertRange(1);
+//         auto mem = vec[newIndex];
+//         setChunk(mem, chunk, bit);
+//         return newIndex;
+//     });
+//     return newIndex;
+// }

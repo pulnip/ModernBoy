@@ -116,15 +116,6 @@ namespace ModernBoy::Game
     // Event Tags
     struct Collided{ EntityID entity; }; static_assert(std::is_trivially_copyable_v<Collided>);
 
-    struct SparseChunk{
-        TransformComponent transform;
-        CameraComponent camera;
-        MeshComponent mesh;
-        ActionComponent action;
-        InputComponent input;
-        RigidbodyComponent rigidbody;
-    };
-
     // Entity-to-Entity Event Component
     struct PhysicalCollision{
         Vec3 force;
@@ -214,12 +205,6 @@ namespace ModernBoy::Game
         #undef X
         return offset;
     }
-
-    void setChunk(void* dst, const SparseChunk& chunk,
-        ArchetypeBit bit);
-
-    template<typename Component, typename ...T>
-    Component dangled(T... args);
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_COMPONENT_HPP

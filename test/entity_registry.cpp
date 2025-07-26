@@ -14,7 +14,10 @@ TEST(ArchetypeView, SimpleQuery){
 
     for(size_t i=0; i<3; ++i){
         registry.createEntity(
-            dangled<ColorComponent>(testColors[i])
+            ColorComponent{
+                .entity = std::numeric_limits<EntityID>::max(),
+                .color = testColors[i]
+            }
         );
     }
 
@@ -35,8 +38,17 @@ TEST(ArchetypeView, ComplexQuery){
 
     for(size_t i=0; i<3; ++i){
         registry.createEntity(
-            dangled<TransformComponent>(),
-            dangled<ColorComponent>(testColors[i])
+            TransformComponent{
+                .entity = std::numeric_limits<EntityID>::max(),
+                .isActive = true,
+                .position = zeros(),
+                .rotation = unitQuat(),
+                .scale = ones()
+            },
+            ColorComponent{
+                .entity = std::numeric_limits<EntityID>::max(),
+                .color = testColors[i]
+            }
         );
     }
 
@@ -62,14 +74,32 @@ TEST(ArchetypeView, EmplaceOrder){
     for(size_t i=0; i<3; ++i){
         if(i % 2 == 1){
             registry.createEntity(
-                dangled<TransformComponent>(),
-            dangled<ColorComponent>(testColors[i])
+                TransformComponent{
+                    .entity = std::numeric_limits<EntityID>::max(),
+                    .isActive = true,
+                    .position = zeros(),
+                    .rotation = unitQuat(),
+                    .scale = ones()
+                },
+                ColorComponent{
+                    .entity = std::numeric_limits<EntityID>::max(),
+                    .color = testColors[i]
+                }
             );
         }
         else{
             registry.createEntity(
-            dangled<ColorComponent>(testColors[i]),
-                dangled<TransformComponent>()
+                ColorComponent{
+                    .entity = std::numeric_limits<EntityID>::max(),
+                    .color = testColors[i]
+                },
+                TransformComponent{
+                    .entity = std::numeric_limits<EntityID>::max(),
+                    .isActive = true,
+                    .position = zeros(),
+                    .rotation = unitQuat(),
+                    .scale = ones()
+                }
             );
         }
     }
@@ -103,12 +133,22 @@ TEST(ArchetypeView, AppendComponent){
 
     for(size_t i=0; i<3; ++i){
         entities[i] = registry.createEntity(
-            dangled<ColorComponent>(testColors[i]),
-            dangled<TransformComponent>()
+            ColorComponent{
+                .entity = std::numeric_limits<EntityID>::max(),
+                .color = testColors[i]
+            },
+            TransformComponent{
+                .entity = std::numeric_limits<EntityID>::max(),
+                .isActive = true,
+                .position = zeros(),
+                .rotation = unitQuat(),
+                .scale = ones()
+            }
         );
     }
 
-    registry.appendComponent(entities[1], ElementComponent{
+    registry.appendComponent(entities[1],
+        ElementComponent{
         .entity = entities[1], .type = ElementType::FIRE
     });
 
@@ -152,8 +192,17 @@ TEST(ArchetypeView, RemoveComponent){
 
     for(size_t i=0; i<3; ++i){
         entities[i] = registry.createEntity(
-            dangled<ColorComponent>(testColors[i]),
-            dangled<TransformComponent>()
+            ColorComponent{
+                .entity = std::numeric_limits<EntityID>::max(),
+                .color = testColors[i]
+            },
+            TransformComponent{
+                .entity = std::numeric_limits<EntityID>::max(),
+                .isActive = true,
+                .position = zeros(),
+                .rotation = unitQuat(),
+                .scale = ones()
+            }
         );
     }
 

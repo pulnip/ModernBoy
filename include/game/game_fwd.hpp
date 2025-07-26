@@ -13,7 +13,6 @@ namespace ModernBoy::Game
     class EntityRegistry;
 
     struct ActionComponent;
-    struct SparseChunk;
 } // namespace ModernBoy::Game
 
 #endif // MODERNBOY_GAME_FWD_HPP
