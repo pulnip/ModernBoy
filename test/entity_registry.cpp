@@ -202,6 +202,10 @@ TEST(ArchetypeView, RemoveComponent){
                 .position = zeros(),
                 .rotation = unitQuat(),
                 .scale = ones()
+            },
+            ElementComponent{
+                .entity = std::numeric_limits<EntityID>::max(),
+                .type = ElementType::WIND
             }
         );
     }
@@ -210,10 +214,12 @@ TEST(ArchetypeView, RemoveComponent){
 
     auto testVal = 0;
     auto count = 0;
-    for(auto [id, bit, tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+    for(auto [id, bit, tc, cc, ec]: registry.query<TransformComponent, ColorComponent, ElementComponent>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());
+
+        EXPECT_EQ(ec.type, ElementType::WIND);
 
         // cannot predict query order.
         testVal += colorTest(cc.color);
@@ -223,10 +229,13 @@ TEST(ArchetypeView, RemoveComponent){
     EXPECT_EQ(count, 2);
 
     count = 0;
-    for(auto [id, bit, tc]: registry.query<TransformComponent>()){
+    for(auto [id, bit, tc, ec]: registry.query<TransformComponent, ElementComponent>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());
+
+        EXPECT_EQ(ec.type, ElementType::WIND);
+
         ++count;
     }
     EXPECT_EQ(count, 3);
