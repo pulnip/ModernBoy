@@ -33,7 +33,7 @@ set(ImGui_INCLUDE_DIRS
 target_include_directories(ImGui PRIVATE ${ImGui_DIR})
 
 if(ImGui_RENDER_BACKEND STREQUAL "DirectX")
-    target_sources(ImGui
+    target_sources(ImGui PRIVATE
         ${ImGui_DIR}/backends/imgui_impl_dx11.cpp
     )
 elseif(ImGui_RENDER_BACKEND STREQUAL "Metal")

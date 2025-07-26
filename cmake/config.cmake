@@ -21,8 +21,8 @@ if(RENDER_BACKEND STREQUAL "DirectX")
     find_program(SHADER_COMPILER NAMES fxc HINTS
         "$ENV{VCToolsInstallDir}/bin/Hostx64/x64"
         "$ENV{WindowsSdkBinPath}/x64"
-        "$ENV{ProgramFiles(x86)}/Windows Kits/10/bin/x64"
-        "$ENV{ProgramFiles(x86)}/Windows Kits/10/bin"
+        "$ENV{ProgramFiles\(x86\)}/Windows Kits/10/bin/x64"
+        "$ENV{ProgramFiles\(x86\)}/Windows Kits/10/bin"
         "C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64"
     )
     if(NOT SHADER_COMPILER)
