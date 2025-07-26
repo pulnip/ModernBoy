@@ -220,11 +220,11 @@ void AssetLoader::loadAsset(const std::string& fileName){
 }
 
 template<>
-std::optional<ModuleDescriptor> parse(const toml::node& view){
-    if(!view.is_table())
+std::optional<ModuleDescriptor> parse(const toml::node& node){
+    if(!node.is_table())
         return std::nullopt;
 
-    auto ptr = view.as_table();
+    auto ptr = node.as_table();
     if(ptr == nullptr)
         return std::nullopt;
 
