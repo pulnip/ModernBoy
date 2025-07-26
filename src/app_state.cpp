@@ -57,8 +57,7 @@ scriptInvoker(world.registry, moduleManager,
 // others
 world(*this),
 assetLoader(*this), lastTick(std::chrono::time_point_cast<
-    std::chrono::microseconds>(steady_clock::now())),
-generators(){}
+    std::chrono::microseconds>(steady_clock::now())){}
 
 void AppState::shutdown(){
     objectManager.clear();
@@ -127,19 +126,22 @@ void AppState::update(){
     deltaTime = now - lastTick;
     lastTick = now;
 
-    auto gen1 = inputChord.update(deltaTime);
-    while(!gen1.done())
-        gen1.next();
+    inputChord.update(deltaTime);
+    // auto gen1 = inputChord.update(deltaTime);
+    // while(!gen1.done())
+    //     gen1.next();
 
     world.update(deltaTime);
 
     on<Event::OnFrameStart>();
-    auto gen3 = userInterface.update(deltaTime);
-    while(!gen3.done())
-        gen3.next();
-    auto gen4 = renderer.update(deltaTime);
-    while(!gen4.done())
-        gen4.next();
+    userInterface.update(deltaTime);
+    // auto gen3 = userInterface.update(deltaTime);
+    // while(!gen3.done())
+    //     gen3.next();
+    renderer.update(deltaTime);
+    // auto gen4 = renderer.update(deltaTime);
+    // while(!gen4.done())
+    //     gen4.next();
     on<Event::OnFrameEnd>();
 
     constexpr auto TARGET_FPS = 60;

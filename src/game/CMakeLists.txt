@@ -5,7 +5,7 @@ add_library(Game STATIC
 
 target_compile_options(Game PRIVATE
     -Wall -Wextra
-    # -fsanitize=address
+    -fsanitize=address,leak
 )
 target_compile_definitions(Game PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>

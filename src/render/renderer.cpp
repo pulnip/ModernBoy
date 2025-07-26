@@ -25,16 +25,14 @@ using RenderCommands = std::vector<RenderCommand>;
 
 static void sortTask(DrawTasks& tasks);
 
-Generator<void> Renderer::update(DeltaTime){
+void Renderer::update(DeltaTime){
     auto started = std::chrono::steady_clock::now();
 
     auto drawTasks = world.getBuffer<DrawTask>();
     sortTask(drawTasks);
-    co_yield 0;
 
     for(const auto& view: world.getBuffer<ViewTask>()){
         setView(view);
-        co_yield 0;
 
         auto shaderHandle = invalidResourceHandle();
         auto textureHandle = invalidResourceHandle();
@@ -49,14 +47,45 @@ Generator<void> Renderer::update(DeltaTime){
             }
             drawMesh(draw.position, draw.rotation,
                 draw.scale, draw.meshHandle, draw.alpha);
-            co_yield 0;
         }
     }
 
     auto elapsed = std::chrono::steady_clock::now() - started;
     updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
-    co_return;
 }
+
+// Generator<void> Renderer::update(DeltaTime){
+//     auto started = std::chrono::steady_clock::now();
+
+//     auto drawTasks = world.getBuffer<DrawTask>();
+//     sortTask(drawTasks);
+//     co_yield 0;
+
+//     for(const auto& view: world.getBuffer<ViewTask>()){
+//         setView(view);
+//         co_yield 0;
+
+//         auto shaderHandle = invalidResourceHandle();
+//         auto textureHandle = invalidResourceHandle();
+//         for(const auto& draw: drawTasks){
+//             if(draw.shaderHandle != shaderHandle){
+//                 shaderHandle = draw.shaderHandle;
+//                 setShader(shaderHandle);
+//             }
+//             if(draw.texHandle != textureHandle){
+//                 textureHandle = draw.texHandle;
+//                 setTexture(textureHandle);
+//             }
+//             drawMesh(draw.position, draw.rotation,
+//                 draw.scale, draw.meshHandle, draw.alpha);
+//             co_yield 0;
+//         }
+//     }
+
+//     auto elapsed = std::chrono::steady_clock::now() - started;
+//     updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
+//     co_return;
+// }
 
 void Renderer::onFrameStart(){
     RenderTrace("Frame Start");

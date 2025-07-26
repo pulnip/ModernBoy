@@ -13,6 +13,8 @@ struct ModelConstant{
 }
 
 class RenderContext {
+    let semaphore = DispatchSemaphore(value: 3)
+
     let layer: CAMetalLayer
     let commandQueue: MTLCommandQueue
     let sampler: MTLSamplerState
@@ -65,6 +67,8 @@ class RenderContext {
     func frameStart(
         _ r: Double, _ g: Double, _ b: Double, _ a: Double
     ) {
+        semaphore.wait()
+
         guard let drawable
             = layer.nextDrawable() else { return }
         self.drawable = drawable
@@ -88,6 +92,10 @@ class RenderContext {
         renderEncoder!.setDepthStencilState(depthStencilState)
         renderEncoder?.setCullMode(.back)
         renderEncoder!.setFragmentSamplerState(sampler, index: 0)
+
+        commandBuffer?.addCompletedHandler { _ in
+            self.semaphore.signal()
+        }
     }
     func setView(_ viewPos: simd_float3, _ fov: Float, _ viewQuat: simd_float4) {
         let aspectRatio = Float(layer.bounds.width / layer.bounds.height)
@@ -149,6 +157,7 @@ class RenderContext {
         self.renderEncoder = nil
         self.commandBuffer = nil
         self.drawable = nil
+        self.renderPassDesc = nil
     }
 }
 

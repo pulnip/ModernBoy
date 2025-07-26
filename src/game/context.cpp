@@ -13,21 +13,25 @@ physics(registry), lifespan(registry){}
 
 
 void Context::update(DeltaTime dt){
-    auto actionFut = action.update(dt);
-    while(!actionFut.done())
-        actionFut.next();
+    action.update(dt);
+    // auto actionFut = action.update(dt);
+    // while(!actionFut.done())
+    //     actionFut.next();
 
-    auto physicsFut = physics.update(dt);
-    while(!physicsFut.done())
-        physicsFut.next();
+    physics.update(dt);
+    // auto physicsFut = physics.update(dt);
+    // while(!physicsFut.done())
+    //     physicsFut.next();
 
-    auto debugFut = debug.update(dt);
-    while(!debugFut.done())
-        debugFut.next();
+    debug.update(dt);
+    // auto debugFut = debug.update(dt);
+    // while(!debugFut.done())
+    //     debugFut.next();
 
-    auto drawFut = draw.update(dt);
-    while(!drawFut.done())
-        drawFut.next();
+    draw.update(dt);
+    // auto drawFut = draw.update(dt);
+    // while(!drawFut.done())
+    //     drawFut.next();
 }
 
 uint32_t Context::issueID(){

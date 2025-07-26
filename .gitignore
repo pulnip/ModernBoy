@@ -127,3 +127,4 @@ imgui.ini
 
 .DS_Store
 external/metal-cpp/
+.swiftpm

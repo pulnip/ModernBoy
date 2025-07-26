@@ -12,7 +12,8 @@ namespace ModernBoy::Input
         Chord();
 
         TaskTime expectedExecTime();
-        Generator<void> update(DeltaTime deltatime);
+        void update(DeltaTime);
+        // Generator<void> update(DeltaTime deltatime);
 
         bool query(KeyCode, KeyState);
 

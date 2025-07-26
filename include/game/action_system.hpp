@@ -14,8 +14,9 @@ namespace ModernBoy::Game
         ActionSystem(EntityRegistry& registry,
             Script::Invoker& invoker);
 
-        TaskTime expectedExecTime();
-        Generator<void> update(DeltaTime dt);
+        // TaskTime expectedExecTime();
+        void update(DeltaTime);
+        // Generator<void> update(DeltaTime dt);
 
     private:
         EntityRegistry& registry;

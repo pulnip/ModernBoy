@@ -57,7 +57,7 @@ UserInterface::UserInterface(SDL_Window* window,
     emplace<Slider>(id, "Rim Strength"s, 0.0f, 1.0f, 0.0f);
 }
 
-Generator<void> UserInterface::update(DeltaTime dt){
+void UserInterface::update(DeltaTime dt){
     auto started = std::chrono::steady_clock::now();
 
     // ImGui::ShowDemoWindow(); // Show demo window! :)s
@@ -65,13 +65,28 @@ Generator<void> UserInterface::update(DeltaTime dt){
         std::visit([dt](auto& controller){
             controller.update(dt);
         }, ctrller);
-        co_yield 0;
     }
 
     auto elapsed = std::chrono::steady_clock::now() - started;
     updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
-    co_return;
 }
+
+
+// Generator<void> UserInterface::update(DeltaTime dt){
+//     auto started = std::chrono::steady_clock::now();
+
+//     // ImGui::ShowDemoWindow(); // Show demo window! :)s
+//     for(auto& [id, ctrller]: controllers){
+//         std::visit([dt](auto& controller){
+//             controller.update(dt);
+//         }, ctrller);
+//         co_yield 0;
+//     }
+
+//     auto elapsed = std::chrono::steady_clock::now() - started;
+//     updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
+//     co_return;
+// }
 
 void UserInterface::onFrameStart(){
     auto renderPassDesc = static_cast<MTL::RenderPassDescriptor*>(

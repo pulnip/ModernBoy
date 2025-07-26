@@ -388,6 +388,7 @@ void DynamicVector::remove(Index pos, size_t num){
 
 
 DynamicVectorV2::~DynamicVectorV2(){
+    std::println("DynamicVectorV2 size: {}, capacity: {}", size_, cap_);
     if(mem != nullptr)
         free(mem);
 }

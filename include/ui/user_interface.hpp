@@ -18,7 +18,8 @@ namespace ModernBoy::UI
 
         TaskTime expectedExecTime();
         void onFrameStart();
-        Generator<void> update(DeltaTime);
+        void update(DeltaTime);
+        // Generator<void> update(DeltaTime);
         void onFrameEnd();
 
         void handleEvent(Event event);

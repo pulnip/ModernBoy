@@ -10,7 +10,7 @@ TaskTime Chord::expectedExecTime(){
     return ema;
 }
 
-Generator<void> Chord::update(DeltaTime){
+void Chord::update(DeltaTime){
     auto started = std::chrono::steady_clock::now();
 
     device.fetch(state[1 - readIndex]);
@@ -18,8 +18,18 @@ Generator<void> Chord::update(DeltaTime){
 
     auto elapsed = std::chrono::steady_clock::now() - started;
     updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
-    co_return;
 }
+
+// Generator<void> Chord::update(DeltaTime){
+//     auto started = std::chrono::steady_clock::now();
+
+//     device.fetch(state[1 - readIndex]);
+//     swapState();
+
+//     auto elapsed = std::chrono::steady_clock::now() - started;
+//     updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
+//     co_return;
+// }
 
 bool Chord::query(KeyCode keyCode, KeyState keyState
 ){

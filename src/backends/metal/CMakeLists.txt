@@ -9,10 +9,10 @@ add_library(MetalContext SHARED ${SWIFT_SOURCES})
 
 target_compile_options(RenderBackend PRIVATE
     -Wall -Wextra
-    # -fsanitize=address
+    -fsanitize=address,leak
 )
 target_link_options(RenderBackend PRIVATE
-    # -fsanitize=address
+    -fsanitize=address,leak
 )
 
 target_compile_definitions(RenderBackend PRIVATE

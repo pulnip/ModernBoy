@@ -32,7 +32,8 @@ namespace ModernBoy::Render
 
         TaskTime expectedExecTime();
         void onFrameStart();
-        Generator<void> update(DeltaTime);
+        void update(DeltaTime);
+        // Generator<void> update(DeltaTime);
         void onFrameEnd();
 
         NativePtr getRenderPassDesc();

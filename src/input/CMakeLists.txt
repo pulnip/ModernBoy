@@ -5,7 +5,7 @@ add_library(InputModule STATIC
 
 target_compile_options(InputModule PRIVATE
     -Wall -Wextra
-    # -fsanitize=address
+    -fsanitize=address,leak
 )
 target_compile_definitions(InputModule PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>

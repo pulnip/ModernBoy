@@ -3,6 +3,11 @@
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
+EntityRegistry::~EntityRegistry(){
+    std::println("EntityTable Size: {}", entityTable.size());
+    std::println("ArchetypeMap Size: {}", archetypeMap.size());
+}
+
 Entity EntityRegistry::query(EntityID id){
     auto entity_it = entityTable.find(id);
     if(entity_it == entityTable.end()){

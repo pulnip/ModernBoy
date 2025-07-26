@@ -15,10 +15,10 @@ add_executable(${PROJECT_NAME}
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall -Wextra
-    # -fsanitize=address
+    -fsanitize=address,leak
 )
 target_link_options(${PROJECT_NAME} PRIVATE
-    # -fsanitize=address
+    -fsanitize=address,leak
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>

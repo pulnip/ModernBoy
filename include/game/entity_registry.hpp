@@ -226,7 +226,7 @@ namespace ModernBoy::Game
 
     public:
         EntityRegistry() = default;
-        ~EntityRegistry() = default;
+        ~EntityRegistry();
         EntityRegistry(const EntityRegistry&) = delete;
         EntityRegistry(EntityRegistry&&) = delete;
         EntityRegistry& operator=(const EntityRegistry&) = delete;

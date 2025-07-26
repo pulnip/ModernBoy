@@ -3,7 +3,7 @@ add_library(RenderModule STATIC ${ALL_SOURCES})
 
 target_compile_options(RenderModule PRIVATE
     -Wall -Wextra
-    # -fsanitize=address
+    -fsanitize=address,leak
 )
 target_compile_definitions(RenderModule PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>

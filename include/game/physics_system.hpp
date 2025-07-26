@@ -15,7 +15,8 @@ namespace ModernBoy::Game
     public:
         PhysicsSystem(EntityRegistry& registry);
 
-        Generator<void> update(DeltaTime dt);
+        void update(DeltaTime);
+        // Generator<void> update(DeltaTime);
 
     private:
         std::vector<SphereColliderProxy> flatten();

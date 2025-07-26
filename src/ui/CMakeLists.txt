@@ -7,7 +7,7 @@ add_library(UIModule STATIC
 
 target_compile_options(UIModule PRIVATE
     -Wall -Wextra
-    # -fsanitize=address
+    -fsanitize=address,leak
 )
 target_compile_definitions(UIModule PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>

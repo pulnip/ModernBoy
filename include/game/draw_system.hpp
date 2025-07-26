@@ -14,9 +14,10 @@ namespace ModernBoy::Game
     public:
         DrawSystem(EntityRegistry& registry);
 
-        size_t yield_count() noexcept;
+        // size_t yield_count() noexcept;
 
-        Generator<void> update(DeltaTime dt);
+        void update(DeltaTime);
+        // Generator<void> update(DeltaTime dt);
 
     private:
         EntityRegistry& registry;
@@ -25,7 +26,7 @@ namespace ModernBoy::Game
         std::vector<DrawTask> drawTasks;
 
     friend class Context;
-    }; static_assert(Schedulable<DrawSystem>);
+    }; // static_assert(Schedulable<DrawSystem>);
 } // namespace ModernBoy::Game
 
 #endif // MODERNBOY_GAME_DRAW_SYSTEM_HPP

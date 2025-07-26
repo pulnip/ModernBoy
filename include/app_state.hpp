@@ -106,9 +106,9 @@ namespace ModernBoy
 
         Timepoint lastTick;
         DeltaTime deltaTime;
-        static constexpr auto NUM_SCHEDULING = 4;
-        std::vector<Generator<void>> generators;
-        std::vector<Index> schedule;
+        // static constexpr auto NUM_SCHEDULING = 4;
+        // std::vector<Generator<void>> generators;
+        // std::vector<Index> schedule;
 
     public:
         friend AssetLoader;
