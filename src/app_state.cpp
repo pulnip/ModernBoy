@@ -82,8 +82,8 @@ void AppState::on<Event::OnFrameEnd>(){
 }
 
 template<>
-MeshHandle AppState::append<Mesh, std::string&>
-(std::string& meshFile){
+MeshHandle AppState::append<Mesh, const std::string&>
+(const std::string& meshFile){
 #if defined(USE_DIRECTX)
     return meshManager.emplace(meshFile);
 #elif defined(USE_METAL)
@@ -93,8 +93,8 @@ MeshHandle AppState::append<Mesh, std::string&>
 #endif
 }
 template<>
-TextureHandle AppState::append<Texture, std::string&>
-(std::string& textureFile){
+TextureHandle AppState::append<Texture, const std::string&>
+(const std::string& textureFile){
 #if defined(USE_DIRECTX)
     return textureManager.emplace(textureFile);
 #elif defined(USE_METAL)
@@ -104,8 +104,8 @@ TextureHandle AppState::append<Texture, std::string&>
 #endif
 }
 template<>
-ShaderHandle AppState::append<Shader, std::string>
-(std::string&& shaderFile){
+ShaderHandle AppState::append<Shader, const std::string&>
+(const std::string& shaderFile){
 #if defined(USE_DIRECTX)
     return shaderManager.emplace(shaderFile);
 #elif defined(USE_METAL)
@@ -116,14 +116,14 @@ ShaderHandle AppState::append<Shader, std::string>
 }
 template<>
 ModuleHandle AppState::append<Module,
-    std::string&, std::vector<std::string>&>
-(std::string& moduleFile, std::vector<std::string>& funcs){
+    const std::string&, const std::vector<std::string>&>
+(const std::string& moduleFile, const std::vector<std::string>& funcs){
     return moduleManager.emplace(moduleFile, funcs,
         scriptInvoker.engine);
 }
 template<>
-ObjectHandle AppState::appendV2<Object, std::string&, std::string&>
-(std::string& moduleName, std::string& typeName){
+ObjectHandle AppState::appendV2<Object, const std::string&, const std::string&>
+(const std::string& moduleName, const std::string& typeName){
 
     return objectManager.emplace(
         std::format("{}{}", typeName, issueID()), typeName,

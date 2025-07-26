@@ -109,7 +109,7 @@ TEST(ArchetypeView, AppendComponent){
     }
 
     registry.appendComponent(entities[1], ElementComponent{
-        .actor = entities[1], .type = ElementType::FIRE
+        .entity = entities[1], .type = ElementType::FIRE
     });
 
     auto testVal = 0;

@@ -49,8 +49,8 @@ namespace ModernBoy
         template<typename Resrc, typename... Args>
         HandleV2 appendV2(Args&&...);
         // append by resource filename
-        template<typename Resrc>
-        uint32_t append(const std::string&);
+        // template<typename Resrc>
+        // uint32_t append(const std::string&);
 
         // get resource from handle
         template<typename Resrc>

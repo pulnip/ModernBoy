@@ -102,11 +102,10 @@ void Renderer::updateEMA(TaskTime elapsed){
 void Renderer::setView(const ViewTask& task){
     const auto& viewPos = task.position;
     const auto& viewQuat = task.rotation;
-    const auto& camera = task.camera;
     RenderTrace("Set View, pos: {}, {}, {}",
         viewPos.x, viewPos.y, viewPos.z);
 
-    context.setView(camera.fov, viewPos, viewQuat);
+    context.setView(task.fov, viewPos, viewQuat);
 }
 void Renderer::setShader(ShaderHandle handle){
     RenderTrace("Set Shader, index: {}", handle.index);

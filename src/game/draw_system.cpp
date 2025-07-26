@@ -17,16 +17,17 @@ void DrawSystem::update(DeltaTime){
     for(const auto [id, bit, tc, cc]: registry.query<
         TransformComponent, CameraComponent>()
     ){
-        assert(tc.actor == cc.actor);
+        assert(tc.entity == cc.entity);
         if(cc.isActive)
             viewTasks.emplace_back(ViewTask{
                 tc.position, tc.rotation, tc.scale,
-                cc.value});
+                cc.type, cc.fov, cc.nearPlane, cc.farPlane,
+                cc.projection});
     }
     for(const auto [id, bit, tc, mc]: registry.query<
         TransformComponent, MeshComponent>()
     ){
-        assert(tc.actor == mc.actor);
+        assert(tc.entity == mc.entity);
         if(mc.isActive)
             drawTasks.emplace_back(DrawTask{
                 tc.position, tc.rotation, tc.scale,
@@ -68,7 +69,7 @@ void DrawSystem::update(DeltaTime){
 //     for(const auto [id, bit, tc, cc]: registry.query<
 //         TransformComponent, CameraComponent>()
 //     ){
-//         assert(tc.actor == cc.actor);
+//         assert(tc.entity == cc.entity);
 //         if(cc.isActive)
 //             viewTasks.emplace_back(ViewTask{
 //                 tc.position, tc.rotation, tc.scale,
@@ -79,7 +80,7 @@ void DrawSystem::update(DeltaTime){
 //     for(const auto [id, bit, tc, mc]: registry.query<
 //         TransformComponent, MeshComponent>()
 //     ){
-//         assert(tc.actor == mc.actor);
+//         assert(tc.entity == mc.entity);
 //         if(mc.isActive)
 //             drawTasks.emplace_back(DrawTask{
 //                 tc.position, tc.rotation, tc.scale,

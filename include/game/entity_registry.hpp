@@ -109,7 +109,7 @@ namespace ModernBoy::Game
         auto offset = offset_of<U>(bit);
         auto dst = Util::add(chunk, offset);
         *static_cast<U*>(dst) = std::forward<T>(t);
-        static_cast<U*>(dst)->actor = id;
+        static_cast<U*>(dst)->entity = id;
     }
     template<ValueType T1, AllValue... TN>
     void emplace_component(EntityID id, void* chunk, ArchetypeBit bit,
@@ -120,7 +120,7 @@ namespace ModernBoy::Game
         auto offset = offset_of<U>(bit);
         auto dst = Util::add(chunk, offset);
         *static_cast<U*>(dst) = std::forward<T1>(t1);
-        static_cast<U*>(dst)->actor = id;
+        static_cast<U*>(dst)->entity = id;
 
         emplace_component(id, chunk, bit, std::forward<TN>(tn)...);
     }
@@ -131,7 +131,7 @@ namespace ModernBoy::Game
         auto offset = offset_of<U>(bit);
         auto dst = Util::add(chunk, offset);
         *static_cast<U>(dst) = *t;
-        static_cast<U>(dst)->actor = id;
+        static_cast<U>(dst)->entity = id;
     }
     template<PointerType T1, AllPointer... TN>
     void emplace_component(EntityID id, void* chunk, ArchetypeBit bit,
@@ -142,7 +142,7 @@ namespace ModernBoy::Game
         auto offset = offset_of<U>(bit);
         auto dst = Util::add(chunk, offset);
         *static_cast<U>(dst) = *t1;
-        static_cast<U>(dst)->actor = id;
+        static_cast<U>(dst)->entity = id;
 
         emplace_component(id, chunk, bit, tn...);
     }
@@ -154,7 +154,7 @@ namespace ModernBoy::Game
             auto offset = offset_of<U>(bit);
             auto dst = Util::add(chunk, offset);
             *static_cast<U*>(dst) = t.value();
-            static_cast<U*>(dst)->actor = id;
+            static_cast<U*>(dst)->entity = id;
         }
     }
     template<OptionalType T1, AllOptional... TN>
@@ -167,7 +167,7 @@ namespace ModernBoy::Game
             auto offset = offset_of<U>(bit);
             auto dst = Util::add(chunk, offset);
             *static_cast<U*>(dst) = t1.value();
-            static_cast<U*>(dst)->actor = id;
+            static_cast<U*>(dst)->entity = id;
         }
 
         emplace_component(id, chunk, bit, tn...);

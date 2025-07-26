@@ -19,7 +19,11 @@ namespace ModernBoy::Render
     struct SetViewCommand{
         RenderEpoch epoch;
         DEFINE_TRANSFORM;
-        Camera camera;
+        CameraType type;
+        float fov;
+        float nearPlane;
+        float farPlane;
+        Projection projection;
     };
     struct SetShaderCommand{
         RenderEpoch epoch;

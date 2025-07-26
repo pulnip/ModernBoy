@@ -49,18 +49,14 @@ ModernBoy::Game::dangled(){
         false, zeros(), unitQuat(), ones() };
 }
 template<> CameraComponent
-ModernBoy::Game::dangled(Camera camera, bool active){
-    return {std::numeric_limits<EntityID>::max(),
-        active, camera};
-}
-template<> CameraComponent
 ModernBoy::Game::dangled(){
     return {std::numeric_limits<EntityID>::max(),
-        false, {}};
+        false, CameraType::MainCamera,
+        100.0f, 0.1f, 100.0f, Projection::PERSPECTIVE };
 }
 template<> ColorComponent
 ModernBoy::Game::dangled(Vec4 color){
-    return {.actor = std::numeric_limits<EntityID>::max(),
+    return {.entity = std::numeric_limits<EntityID>::max(),
         .color = color};
 }
 template<> MeshComponent

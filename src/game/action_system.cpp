@@ -15,7 +15,7 @@ void ActionSystem::update(DeltaTime dt){
     for(const auto [id, bit, sc]: registry.query<ScriptComponent>()){
         if(!sc.isActive)
             continue;
-        invoker.invoke(sc.handle, "Update", sc.actor, dt);
+        invoker.invoke(sc.handle, "Update", sc.entity, dt);
     }
 }
 

@@ -115,11 +115,6 @@ Projection ModernBoy::projection(const std::string& text){
     return it->second;
 }
 
-Camera ModernBoy::defaultCamera(){
-    return { CameraType::MainCamera,
-        100.0f, 0.1f, 100.0f, Projection::PERSPECTIVE };
-}
-
 ResourceHandle ModernBoy::invalidResourceHandle(){
     return {ResourceType::INVALID,
         std::numeric_limits<size_t>::max()};

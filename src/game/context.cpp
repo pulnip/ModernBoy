@@ -42,17 +42,6 @@ DeltaTime Context::getDeltaTime(){
     return app.getDeltaTime();
 }
 
-static void assignEntityID(SparseChunk& chunk,
-    EntityID actor
-){
-    chunk.transform.actor = actor;
-    chunk.camera.actor = actor;
-    chunk.mesh.actor = actor;
-    chunk.action.actor = actor;
-    chunk.input.actor = actor;
-    chunk.rigidbody.actor = actor;
-}
-
 template<>
 const std::vector<ViewTask>& Context::getBuffer() const{
     return draw.viewTasks;

@@ -1,26 +1,29 @@
 [[module]]
 name = "test"
-[[module.file]]
-name = "src/script/test.as"
-[[module.function]]
-name = "printHello"
+file = [
+    "src/script/test.as"
+]
+function = [
+    "printHello"
+]
 
 [[module]]
 name = "default"
-[[module.file]]
-name = "src/script/default.as"
-[[module.function]]
-name = "onCreated"
-[[module.function]]
-name = "update"
-[[module.function]]
-name = "onDestroyed"
+file = [
+    "src/script/default.as"
+]
+function = [
+    "onCreated",
+    "update",
+    "onDestroyed"
+]
 
 [[module]]
 name = "component"
-[[module.file]]
-name = "src/script/component.as"
-[[module.file]]
-name = "src/script/movable.as"
-[[module.function]]
-name = "fake"
+file = [
+    "src/script/component.as",
+    "src/script/movable.as"
+]
+function = [
+    "fake"
+]

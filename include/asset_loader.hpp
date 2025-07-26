@@ -4,15 +4,24 @@
 #include <string>
 #include "fwd.hpp"
 #include "game/game_fwd.hpp"
+#include "game/component.hpp"
 
 namespace ModernBoy
 {
-    enum class parse_error{
-        invalid_table,
-        omitted_column
+    struct ModelDescriptor{
+        std::string mesh;
+        std::string texture;
+        std::string shader;
     };
-    struct ScriptSection{
-        std::string moduleName;
+    struct ScriptDescriptor{
+        std::string module_;
+        std::string type;
+    };
+
+    struct ModuleDescriptor{
+        std::string module_;
+        std::vector<std::string> files;
+        std::vector<std::string> funcs;
     };
 
     class AssetLoader{
@@ -23,11 +32,10 @@ namespace ModernBoy
         void loadAction(const std::string& fileName);
 
     private:
-        std::optional<Game::ActionComponent>
-            makeActionComponent(const ScriptSection& section);
-        template<typename File, typename Component>
-        std::optional<Component> parse(
-            const File* file);
+        Game::MeshComponent load(const ModelDescriptor&);
+        Game::ScriptComponent load(const ScriptDescriptor&);
+
+        void load(const ModuleDescriptor&);
 
         AppState& app;
 #if defined(USE_DIRECTX)

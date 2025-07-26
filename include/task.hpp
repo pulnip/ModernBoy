@@ -23,7 +23,12 @@ namespace ModernBoy
 
     struct ViewTask{
         DEFINE_TRANSFORM;
-        Camera camera;
+
+        CameraType type;
+        float fov;
+        float nearPlane;
+        float farPlane;
+        Projection projection;
     };
     struct InputTask{
         EntityID actor;

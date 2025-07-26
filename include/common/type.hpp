@@ -73,16 +73,6 @@ namespace ModernBoy
     };
     Projection projection(const std::string& text);
 
-    struct Camera{
-        CameraType type;
-        float fov;
-        float nearPlane;
-        float farPlane;
-        Projection projection;
-    }; static_assert(std::is_trivially_copyable_v<Camera>);
-
-    Camera defaultCamera();
-
     enum class ResourceType{
         INVALID      = -1,
         MESH         = 0,
