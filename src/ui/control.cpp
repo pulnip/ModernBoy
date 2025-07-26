@@ -14,6 +14,7 @@ void CheckBox::OnEvent(Event event){
         checked = event.checked;
         break;
     default:
+        break;
     }
 }
 
@@ -31,6 +32,7 @@ void RadioButton::OnEvent(Event event){
         index = event.index;
         break;
     default:
+        break;
     }
 }
 
@@ -47,10 +49,11 @@ void Slider::OnEvent(Event event){
         value = event.value;
         break;
     default:
+        break;
     }
 }
 
 void SameLine::draw(){
     ImGui::SameLine();
 }
-void SameLine::OnEvent(Event event){}
+void SameLine::OnEvent(Event){}

@@ -2,25 +2,13 @@
 #define MODERNBOY_DX11_CONTEXT_HPP
 
 #include <SDL3/SDL_video.h>
-#include "render/render_command.hpp"
-#include "render/render_context.hpp"
-#include "resource_handle.hpp"
+#include "fwd.hpp"
 #include "resource_manager.hpp"
 #include "type.hpp"
-#include "mesh.hpp"
-#include "shader.hpp"
 
 namespace ModernBoy::DX11
 {
-    using MeshManager = ResourceManager<DX11::Mesh>;
-    using MeshHandle = ResourceHandle<DX11::Mesh>;
-    using ShaderManager = ResourceManager<DX11::DefaultShader>;
-    using ShaderHandle = ResourceHandle<DX11::DefaultShader>;
-
     struct RenderContext{
-        using Window = SDL_Window;
-        using Mesh = DX11::Mesh;
-        using Shader = DX11::DefaultShader;
 
         MeshManager& meshManager;
         ShaderManager& shaderManager;
@@ -45,18 +33,24 @@ namespace ModernBoy::DX11
         RenderContext& operator=(const RenderContext&)=delete;
         RenderContext& operator=(RenderContext&&)=delete;
 
-        RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
-            ShaderManager& in_shaderManager);
+        RenderContext(SDL_Window* in_window);
 
-        void operator()(const FrameStartCommand<Shader>&);
-        void operator()(const DrawCommand<Mesh>&);
-        void operator()(const FrameEndCommand&);
+        void onFrameStart(Vec4 clearColor);
+        void setView(float fov,
+            Vec3 viewPos, Vec4 viewQuat);
+        void setShader(NativePtr shader);
+        void setTexture(NativePtr texture);
+        void drawMesh(Vec3 position, Vec4 rotation,
+            Vec3 scale, NativePtr mesh, float alpha);
+        void onFrameEnd();
+
+        NativePtr getDevice();
+        NativePtr getContext();
 
     private:
         // Move semantics
         void moveFrom(RenderContext&& other);
     };
-    static_assert(ModernBoy::RenderContext<DX11::RenderContext>);
 }
 
 #endif // MODERNBOY_DX11_CONTEXT_HPP

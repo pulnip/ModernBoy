@@ -137,6 +137,14 @@ void Renderer::onFrameEnd(){
     context.onFrameEnd();
 }
 
+#if defined(USE_DIRECTX)
+NativePtr Renderer::getDevice(){
+    return context.getDevice();
+}
+NativePtr Renderer::getContext(){
+    return context.getContext();
+}
+#elif defined(USE_METAL)
 NativePtr Renderer::getRenderPassDesc(){
     return context.getRenderPassDesc();
 }
@@ -149,6 +157,7 @@ NativePtr Renderer::getCommandBuffer(){
 NativePtr Renderer::getRenderEncoder(){
     return context.getRenderEncoder();
 }
+#endif
 
 static void sortTask(DrawTasks& tasks){
     // sort by shader-texture-mesh order

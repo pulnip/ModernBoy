@@ -16,6 +16,8 @@
 #include "event.hpp"
 #if defined(USE_DIRECTX)
 #include "backends/dx11/mesh.hpp"
+#include "backends/dx11/texture.hpp"
+#include "backends/dx11/shader.hpp"
 #elif defined(USE_METAL)
 #include "SDL3/SDL_metal.h"
 #include "backends/metal/mesh.hpp"
@@ -74,10 +76,15 @@ namespace ModernBoy
         // AssetLoader helper
         FunctionID registerFunction(const std::string& funcName);
         // UserInterface helper
+#if defined(USE_DIRECTX)
+        NativePtr getDevice();
+        NativePtr getContext();
+#elif defined(USE_METAL)
         NativePtr getRenderPassDesc();
         NativePtr getDevice();
         NativePtr getCommandBuffer();
         NativePtr getRenderEncoder();
+#endif
 
     private:
         EntityID id_seed = 0;

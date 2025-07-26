@@ -47,9 +47,7 @@ void RenderContext::moveFrom(RenderContext&& other){
 }
 
 
-RenderContext::RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
-    ShaderManager& in_shaderManager)
-:meshManager(in_meshManager), shaderManager(in_shaderManager){
+RenderContext::RenderContext(SDL_Window* in_window){
     HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(in_window),
         SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
 
@@ -67,7 +65,7 @@ RenderContext::RenderContext(SDL_Window* in_window, MeshManager& in_meshManager,
         throw std::runtime_error("Failed to initialize ImGui.");
 }
 
-void RenderContext::operator()(const FrameStartCommand& cmd){
+void RenderContext::onFrameStart(Vec4 clearColor){
     // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplSDL3_NewFrame();
@@ -77,10 +75,7 @@ void RenderContext::operator()(const FrameStartCommand& cmd){
 
     context->RSSetViewports(1, &viewport);
     context->OMSetRenderTargets(1, rtv.GetAddressOf(), dsv.Get());
-    [[unlikely]] if(cmd.clearColor){
-        auto clearColor = cmd.color.value_or(std::array{0.0f, 0.0f, 0.0f, 0.5f});
-        context->ClearRenderTargetView(rtv.Get(), clearColor.data());
-    }
+    context->ClearRenderTargetView(rtv.Get(), clearColor.v);
     context->OMSetDepthStencilState(dss.Get(), 0);
     context->ClearDepthStencilView(dsv.Get(),
         D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
@@ -89,14 +84,20 @@ void RenderContext::operator()(const FrameStartCommand& cmd){
     shaderManager.get(cmd.shaderHandle)->bind(*this);
 }
 
-void RenderContext::operator()(const DrawMeshCommand<Mesh>& cmd){
+void RenderContext::setView(float fov, Vec3 viewPos, Vec4 viewQuat){
+    
+}
+
+void RenderContext::drawMesh(Vec3 position, Vec4 rotation,Vec3 scale,
+    NativePtr mesh, float alpha
+){
     auto pMesh = meshManager.get(cmd.meshHandle);
     if(pMesh != nullptr){
         pMesh->bind(*this);
         context->DrawIndexed(pMesh->numIndices, 0, 0);
     }
 }
-void RenderContext::operator()([[maybe_unused]] const FrameEndCommand& cmd){
+void RenderContext::onFrameEnd(){
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

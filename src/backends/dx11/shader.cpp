@@ -19,16 +19,14 @@ using namespace ModernBoy::DX11;
 
 using BlobPtr = ComPtr<ID3DBlob>;
 
-template bool detail::InitConstantBuffer<DefaultVSConstants>(DevicePtr&,
-    const DefaultVSConstants&, BufferPtr&);
-template bool detail::InitConstantBuffer<DefaultPSConstants>(DevicePtr&,
-    const DefaultPSConstants&, BufferPtr&);
-template bool detail::InitConstantBuffer<NormalConstants>(DevicePtr&,
+template bool ModernBoy::DX11::InitConstantBuffer<VSConstants>(DevicePtr&,
+    const VSConstants&, BufferPtr&);
+template bool ModernBoy::DX11::InitConstantBuffer<PSConstants>(DevicePtr&,
+    const PSConstants&, BufferPtr&);
+template bool ModernBoy::DX11::InitConstantBuffer<NormalConstants>(DevicePtr&,
     const NormalConstants&, BufferPtr&);
-template void DefaultShader::bind(RenderContext&) const;
-template void NormalShader::bind(RenderContext&) const;
 
-bool detail::InitRasterizer(DevicePtr& in_device,
+bool ModernBoy::DX11::InitRasterizer(DevicePtr& in_device,
     D3D11_FILL_MODE in_fillMode, RasterizerPtr& out_rs)
 {
     D3D11_CULL_MODE cullMode = in_fillMode==D3D11_FILL_SOLID ?
@@ -48,7 +46,7 @@ bool detail::InitRasterizer(DevicePtr& in_device,
 }
 
 template<typename T>
-bool detail::InitConstantBuffer(DevicePtr& in_device,
+bool ModernBoy::DX11::InitConstantBuffer(DevicePtr& in_device,
     const T& in_constants, BufferPtr& out_buffer)
 {
     D3D11_BUFFER_DESC cbDesc;
@@ -86,7 +84,7 @@ static bool CompileShader(const std::wstring& in_fileName,
     return true;
 }
 
-bool detail::InitShader(const std::wstring& in_vsFileName,
+bool ModernBoy::DX11::InitShader(const std::wstring& in_vsFileName,
     const std::wstring& in_psFileName, DevicePtr& in_device,
     std::span<const D3D11_INPUT_ELEMENT_DESC> in_iedesc,
     InputLayoutPtr& out_il, VertexShaderPtr& out_vs, PixelShaderPtr& out_ps)
@@ -113,8 +111,7 @@ bool detail::InitShader(const std::wstring& in_vsFileName,
     return true;
 }
 
-template<typename VSC, typename PSC>
-void detail::Shader<VSC, PSC>::bind(RenderContext& in_context) const{
+void Shader::bind(RenderContext& in_context) const{
     auto& ctx = in_context.context;
 
     ctx->IASetInputLayout(il.Get());

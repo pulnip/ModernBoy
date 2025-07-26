@@ -44,6 +44,7 @@ std::string ModernBoy::Input::toText(
         return "Pressed";
     case STATE_INVALID: [[fallthrough]];
     default:
+        break;
     }
     return "UNKNOWN";
 }
@@ -316,6 +317,7 @@ std::string ModernBoy::Input::toText(
     case KeyCode::KEY_ENTER: return "ENTER";
     case KeyCode::KEY_UNKNOWN: [[fallthrough]];
     default:
+        break;
     }
     return "UNKNOWN";
 }

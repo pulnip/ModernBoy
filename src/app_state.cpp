@@ -84,23 +84,35 @@ void AppState::on<Event::OnFrameEnd>(){
 template<>
 MeshHandle AppState::append<Mesh, std::string&>
 (std::string& meshFile){
+#if defined(USE_DIRECTX)
+    return meshManager.emplace(meshFile);
+#elif defined(USE_METAL)
     return meshManager.emplace(
         meshFile, renderer.context.metalLayer
     );
+#endif
 }
 template<>
 TextureHandle AppState::append<Texture, std::string&>
 (std::string& textureFile){
+#if defined(USE_DIRECTX)
+    return textureManager.emplace(textureFile);
+#elif defined(USE_METAL)
     return textureManager.emplace(
         textureFile, renderer.context.metalLayer
     );
+#endif
 }
 template<>
 ShaderHandle AppState::append<Shader, std::string>
 (std::string&& shaderFile){
+#if defined(USE_DIRECTX)
+    return shaderManager.emplace(shaderFile);
+#elif defined(USE_METAL)
     return shaderManager.emplace(
         shaderFile, renderer.context.metalLayer
     );
+#endif
 }
 template<>
 ModuleHandle AppState::append<Module,
@@ -181,17 +193,24 @@ FunctionID AppState::registerFunction(
     return scriptInvoker.registerFunction(funcName);
 }
 
+#if defined(USE_DIRECTX)
+NativePtr AppState::getDevice(){
+    return renderer.getDevice();
+}
+NativePtr AppState::getContext(){
+    return renderer.getContext();
+}
+#elif defined(USE_METAL)
 NativePtr AppState::getRenderPassDesc(){
     return renderer.getRenderPassDesc();
 }
 NativePtr AppState::getDevice(){
     return renderer.getDevice();
-
 }
 NativePtr AppState::getCommandBuffer(){
     return renderer.getCommandBuffer();
-
 }
 NativePtr AppState::getRenderEncoder(){
     return renderer.getRenderEncoder();
 }
+#endif

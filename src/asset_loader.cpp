@@ -131,16 +131,16 @@ parse<CameraComponent>(
     auto typeText = table["type"].value<std::string>().value();
     auto type = cameraType(typeText);
     auto fov = table["fov"].value<double>().value();
-    auto near = table["nearPlane"].value<double>().value();
-    auto far = table["farPlane"].value<double>().value();
+    auto near_ = table["nearPlane"].value<double>().value();
+    auto far_ = table["farPlane"].value<double>().value();
     auto projText = table["projection"].value<std::string>().value();
     auto proj = projection(projText);
 
     Camera camera{
         .type = type,
         .fov = static_cast<float>(fov),
-        .nearPlane = static_cast<float>(near),
-        .farPlane = static_cast<float>(far),
+        .nearPlane = static_cast<float>(near_),
+        .farPlane = static_cast<float>(far_),
         .projection = proj
     };
 

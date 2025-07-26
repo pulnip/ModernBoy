@@ -36,10 +36,15 @@ namespace ModernBoy::Render
         // Generator<void> update(DeltaTime);
         void onFrameEnd();
 
+#if defined(USE_DIRECTX)
+        NativePtr getDevice();
+        NativePtr getContext();
+#elif defined(USE_METAL)
         NativePtr getRenderPassDesc();
         NativePtr getDevice();
         NativePtr getCommandBuffer();
         NativePtr getRenderEncoder();
+#endif
 
         const TaskPolicy policy{
             .effective_window_size = 10,

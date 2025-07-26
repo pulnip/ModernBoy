@@ -1,6 +1,7 @@
 #ifndef MODERNBOY_INPUT_CHORD_HPP
 #define MODERNBOY_INPUT_CHORD_HPP
 
+#include <atomic>
 #include "interface.hpp"
 #include "input/device.hpp"
 #include "input/state.hpp"

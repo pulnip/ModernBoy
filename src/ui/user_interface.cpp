@@ -2,8 +2,12 @@
 #include <SDL3/SDL_log.h>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
+#if defined(USE_DIRECTX)
+#include <imgui_impl_dx11.h>
+#elif defined (USE_METAL)
 #define IMGUI_IMPL_METAL_CPP
 #include <imgui_impl_metal.h>
+#endif
 #include "render/renderer.hpp"
 #include "ui/user_interface.hpp"
 #include "app_state.hpp"
@@ -35,11 +39,20 @@ UserInterface::UserInterface(SDL_Window* window,
     // ImGui::StyleColorsLight();
     ImGui::StyleColorsDark();
 
+#if defined(USE_DIRECTX)
+    ImGui_ImplSDL3_InitForD3D(window);
+    auto device = static_cast<ID3D11Device*>(
+        renderer.getDevice());
+    auto context = static_cast<ID3D11DeviceContext*>(
+        renderer.getContext());
+    ImGui_ImplDX11_Init(device, context);
+#elif defined(USE_METAL)
     // Setup Platform/Renderer backends
     ImGui_ImplSDL3_InitForMetal(window);
     auto device = static_cast<MTL::Device*>(
         renderer.getDevice());
     ImGui_ImplMetal_Init(device);
+#endif
 
     // move to somewhere
     auto id = emplace<MenuController>();
@@ -89,11 +102,15 @@ void UserInterface::update(DeltaTime dt){
 // }
 
 void UserInterface::onFrameStart(){
+#if defined(USE_DIRECTX)
+    ImGui_ImplDX11_NewFrame();
+#elif defined(USE_METAL)
     auto renderPassDesc = static_cast<MTL::RenderPassDescriptor*>(
         renderer.getRenderPassDesc()
     );
     // Start the Dear ImGui frame
     ImGui_ImplMetal_NewFrame(renderPassDesc);
+#endif
     ImGui_ImplSDL3_NewFrame();
 
     ImGui::NewFrame();
@@ -102,16 +119,21 @@ void UserInterface::onFrameEnd(){
     ImGui::EndFrame();
     ImGui::Render();
 
+#if defined(USE_DIRECTX)
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+#elif defined(USE_METAL)
     auto commandBuffer = renderer.getCommandBuffer();
     auto renderEncoder = renderer.getRenderEncoder();
 
     assert(commandBuffer != nullptr);
     assert(renderEncoder != nullptr);
+
     ImGui_ImplMetal_RenderDrawData(
         ImGui::GetDrawData(),
         static_cast<MTL::CommandBuffer*>(commandBuffer),
         static_cast<MTL::RenderCommandEncoder*>(renderEncoder)
     );
+#endif
 }
 
 void UserInterface::handleEvent(Event event){

@@ -3,7 +3,6 @@
 
 #include "fwd.hpp"
 #include "type.hpp"
-#include "resource_data.hpp"
 
 namespace ModernBoy::DX11
 {
@@ -57,7 +56,6 @@ namespace ModernBoy::DX11
         // Move semantics
         void moveFrom(Mesh&&);
     };
-    // static_assert(ResourceData<Mesh, RenderContext>);
 
     extern bool makeRect(DevicePtr& in_device, Mesh& out_mesh);
     extern bool makeTetra(DevicePtr& in_device, Mesh& out_mesh);

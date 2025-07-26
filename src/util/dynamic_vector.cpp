@@ -518,6 +518,6 @@ void DynamicVectorV2::clear(){
 void DynamicVectorV2::swap_remove(Index index){
     assert(index < size_ && "swap_remove out of range");
     if(index < size_ - 1 && CHUNK_SIZE > 0)
-        std::memmove((*this)[index], (*this)[size_-1], CHUNK_SIZE);
+        memcpy((*this)[index], (*this)[size_-1], CHUNK_SIZE);
     --size_;
 }

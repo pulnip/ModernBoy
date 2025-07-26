@@ -6,11 +6,6 @@
 #include <SDL3/SDL_main.h>
 #include <imgui_impl_sdl3.h>
 #include "app_state.hpp"
-#if defined(USE_DIRECTX)
-#include "backends/dx11/mesh.hpp"
-#elif defined(USE_OPENGL)
-#include <glad/glad.h>
-#endif
 
 using namespace ModernBoy;
 
@@ -31,26 +26,6 @@ SDL_AppResult SDL_AppInit([[maybe_unused]] void** appState,
     [[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     *appState = &app();
-
-    // Temporal codes...
-#if defined(USE_DIRECTX)
-    DX11::Mesh rect;
-    if(!DX11::makeTetra(as->renderer.context.device, rect)){
-        SDL_Log("Failed to create rect mesh");
-        return SDL_APP_FAILURE;
-    }
-
-    MeshHandle rectHandle = as->meshManager.create(std::move(rect));
-    as->taskManager.create(MeshComponent{
-        .owner = 0,
-        .resourceHandle = rectHandle
-    });
-
-    DX11::DefaultShader shader(as->renderer.context.device);
-    as->shaderManager.create(std::move(shader));
-#elif defined(USE_OPENGL)
-    // TODO
-#endif
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
