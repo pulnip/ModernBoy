@@ -174,7 +174,10 @@ TEST(ArchetypeView, RemoveComponent){
     EXPECT_EQ(count, 2);
 
     count = 0;
-    for(auto [_1, _2, _3]: registry.query<TransformComponent>()){
+    for(auto [id, bit, tc]: registry.query<TransformComponent>()){
+        EXPECT_EQ(tc.position,    zeros());
+        EXPECT_EQ(tc.rotation, unitQuat());
+        EXPECT_EQ(   tc.scale,     ones());
         ++count;
     }
     EXPECT_EQ(count, 3);

@@ -202,7 +202,7 @@ namespace ModernBoy::Game
     bool subset(ArchetypeBit a, ArchetypeBit b);
 
     template<typename Component>
-    size_t offset_of(ArchetypeBit bit){
+    constexpr size_t offset_of(ArchetypeBit bit){
         #define COMP_OFFSET(type, name) \
             if(std::same_as<Component, type>) \
                 return offset; \

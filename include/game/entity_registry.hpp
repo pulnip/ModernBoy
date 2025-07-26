@@ -337,10 +337,10 @@ namespace ModernBoy::Game
 
             // 1. copy new chunk
             // copy chunk before component
-            Util::chunkcpy(dst, chunk, offset_of<Component>(info.bit));
+            dst = Util::chunkcpy(dst, chunk, offset_of<Component>(info.bit));
             chunk = Util::add(        chunk, offset_of<Component>(info.bit));
             // copy component
-            Util::chunkcpy(dst, std::forward<Component>(component));
+            dst = Util::chunkcpy(dst, std::forward<Component>(component));
             // copy chunk after component
             Util::chunkcpy(dst, chunk, size_of(info.bit) - offset_of<Component>(info.bit));
 
@@ -364,8 +364,7 @@ namespace ModernBoy::Game
 
             // 1. copy new chunk
             // copy chunk before component
-            Util::chunkcpy(dst, chunk, offset_of<Component>(info.bit));
-            chunk = Util::add(        chunk, offset_of<Component>(info.bit));
+            dst = Util::chunkcpy(dst, chunk, offset_of<Component>(info.bit));
             // skip target component
             chunk = Util::add(chunk, offset_of<Component>(info.bit) + sizeof(Component));
             // copy chunk after component
