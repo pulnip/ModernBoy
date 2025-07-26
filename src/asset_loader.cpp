@@ -234,8 +234,6 @@ std::optional<ModuleDescriptor> parse(const toml::node& view){
         .module_ = table["name"].value<std::string>().value(),
         .files = parse<std::vector<std::string>>(
             table["file"]).value(),
-        .funcs = parse<std::vector<std::string>>(
-            table["function"]).value()
     };
 }
 

@@ -3,27 +3,24 @@ name = "test"
 file = [
     "src/script/test.as"
 ]
-function = [
-    "printHello"
-]
+# function = [
+#     "printHello"
+# ]
 
 [[module]]
 name = "default"
 file = [
     "src/script/default.as"
 ]
-function = [
-    "onCreated",
-    "update",
-    "onDestroyed"
-]
+# function = [
+#     "onCreated",
+#     "update",
+#     "onDestroyed"
+# ]
 
 [[module]]
 name = "component"
 file = [
     "src/script/component.as",
     "src/script/movable.as"
-]
-function = [
-    "fake"
 ]

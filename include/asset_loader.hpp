@@ -21,7 +21,7 @@ namespace ModernBoy
     struct ModuleDescriptor{
         std::string module_;
         std::vector<std::string> files;
-        std::vector<std::string> funcs;
+        // std::vector<std::string> funcs;
     };
 
     class AssetLoader{
