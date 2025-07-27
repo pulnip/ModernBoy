@@ -8,17 +8,15 @@
 #include "game/game_fwd.hpp"
 #include "script/type.hpp"
 
-#define COMPONENT_ALIGN (8)
-
 namespace ModernBoy::Game
 {
-    struct alignas(COMPONENT_ALIGN) TransformComponent{
+    struct TransformComponent{
         EntityID entity;
 
         bool isActive;
         DEFINE_TRANSFORM;
     }; static_assert(std::is_trivially_copyable_v<TransformComponent>);
-    struct alignas(COMPONENT_ALIGN) CameraComponent{
+    struct CameraComponent{
         EntityID entity;
 
         bool isActive;
@@ -28,12 +26,12 @@ namespace ModernBoy::Game
         float farPlane;
         Projection projection;
     }; static_assert(std::is_trivially_copyable_v<CameraComponent>);
-    struct alignas(COMPONENT_ALIGN) ColorComponent{
+    struct ColorComponent{
         EntityID entity;
 
         Vec4 color;
     }; static_assert(std::is_trivially_copyable_v<ColorComponent>);
-    struct alignas(COMPONENT_ALIGN) MeshComponent{
+    struct MeshComponent{
         EntityID entity;
 
         bool isActive;
@@ -42,20 +40,20 @@ namespace ModernBoy::Game
         TextureHandle textureHandle;
         ShaderHandle shaderHandle;
     }; static_assert(std::is_trivially_copyable_v<MeshComponent>);
-    struct alignas(COMPONENT_ALIGN) ActionComponent{
+    struct ActionComponent{
         EntityID entity;
 
         bool isActive;
         ModuleHandle moduleHandle;
         FunctionID updateFunc;
     }; static_assert(std::is_trivially_copyable_v<ActionComponent>); 
-    struct alignas(COMPONENT_ALIGN) ScriptComponent{
+    struct ScriptComponent{
         EntityID entity;
 
         bool isActive;
         ObjectHandle handle;
     }; static_assert(std::is_trivially_copyable_v<ScriptComponent>);
-    struct alignas(COMPONENT_ALIGN) InputComponent{
+    struct InputComponent{
         EntityID entity;
 
         bool isActive;
@@ -64,12 +62,12 @@ namespace ModernBoy::Game
         bool isSkillEnabled;
         ModuleHandle handle;
     }; static_assert(std::is_trivially_copyable_v<InputComponent>); 
-    struct alignas(COMPONENT_ALIGN) LifeSpanComponent{
+    struct LifeSpanComponent{
         EntityID entity;
 
         bool isAlive;
     }; static_assert(std::is_trivially_copyable_v<LifeSpanComponent>);
-    struct alignas(COMPONENT_ALIGN) RigidbodyComponent{
+    struct RigidbodyComponent{
         EntityID entity;
 
         Vec3 velocity;
@@ -85,7 +83,7 @@ namespace ModernBoy::Game
         ICE,
         ELECTRIC
     };
-    struct alignas(COMPONENT_ALIGN) ElementComponent{
+    struct ElementComponent{
         EntityID entity;
 
         ElementType type;
