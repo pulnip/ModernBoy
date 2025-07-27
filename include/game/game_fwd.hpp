@@ -12,7 +12,7 @@ namespace ModernBoy::Game
     class Context;
     class EntityRegistry;
 
-    struct ActionComponent;
+    struct Action;
 } // namespace ModernBoy::Game
 
 #endif // MODERNBOY_GAME_FWD_HPP

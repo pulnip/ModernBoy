@@ -12,7 +12,7 @@ namespace ModernBoy::Game
     class ActionSystem{
     public:
         ActionSystem(EntityRegistry& registry,
-            Script::Invoker& invoker);
+            ::ModernBoy::Script::Invoker& invoker);
 
         // TaskTime expectedExecTime();
         void update(DeltaTime);
@@ -20,7 +20,7 @@ namespace ModernBoy::Game
 
     private:
         EntityRegistry& registry;
-        Script::Invoker& invoker;
+        ::ModernBoy::Script::Invoker& invoker;
 
         std::vector<ActionTask> actionTasks;
     };

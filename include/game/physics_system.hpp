@@ -8,7 +8,7 @@
 
 namespace ModernBoy::Game
 {
-    using SphereColliderProxy = std::tuple<EntityID, ArchetypeBit, TransformComponent*, RigidbodyComponent*, SphereColliderComponent*>;
+    using SphereColliderProxy = std::tuple<EntityID, ArchetypeBit, Transform*, Rigidbody*, SphereCollider*>;
     using SphereCollisionCandidate = std::pair<SphereColliderProxy, SphereColliderProxy>;
 
     class PhysicsSystem{

@@ -15,7 +15,7 @@ void DrawSystem::update(DeltaTime){
     drawTasks.clear();
 
     for(const auto [id, bit, tc, cc]: registry.query<
-        TransformComponent, CameraComponent>()
+        Transform, Camera>()
     ){
         assert(tc.entity == cc.entity);
         if(cc.isActive)
@@ -24,8 +24,7 @@ void DrawSystem::update(DeltaTime){
                 cc.type, cc.fov, cc.nearPlane, cc.farPlane,
                 cc.projection});
     }
-    for(const auto [id, bit, tc, mc]: registry.query<
-        TransformComponent, MeshComponent>()
+    for(const auto [id, bit, tc, mc]: registry.query<Transform, Model>()
     ){
         assert(tc.entity == mc.entity);
         if(mc.isActive)
@@ -44,12 +43,12 @@ void DrawSystem::update(DeltaTime){
 //     size_t numDrawTask = 0;
 
 //     for(const auto _: registry.query<
-//         TransformComponent, CameraComponent>()
+//         Transform, Camera>()
 //     ){
 //         numViewTask += 1;
 //     }
 //     for(const auto _: registry.query<
-//         TransformComponent, MeshComponent>()
+//         Transform, Mesh>()
 //     ){    
 //         numDrawTask += 1;
 //     }
@@ -67,7 +66,7 @@ void DrawSystem::update(DeltaTime){
 //     drawTasks.clear();
 
 //     for(const auto [id, bit, tc, cc]: registry.query<
-//         TransformComponent, CameraComponent>()
+//         Transform, Camera>()
 //     ){
 //         assert(tc.entity == cc.entity);
 //         if(cc.isActive)
@@ -78,7 +77,7 @@ void DrawSystem::update(DeltaTime){
 //         co_yield 0;
 //     }
 //     for(const auto [id, bit, tc, mc]: registry.query<
-//         TransformComponent, MeshComponent>()
+//         Transform, Mesh>()
 //     ){
 //         assert(tc.entity == mc.entity);
 //         if(mc.isActive)

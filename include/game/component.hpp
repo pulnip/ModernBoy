@@ -10,13 +10,17 @@
 
 namespace ModernBoy::Game
 {
-    struct TransformComponent{
-        EntityID entity;
+    #define DEFINE_COMPONENT(name, ...) \
+    struct name{ \
+        EntityID entity; \
+        bool isActive; \
+        __VA_ARGS__ \
+    };
 
-        bool isActive;
+    DEFINE_COMPONENT(Transform,
         DEFINE_TRANSFORM;
-    }; static_assert(std::is_trivially_copyable_v<TransformComponent>);
-    struct CameraComponent{
+    );
+    struct Camera{
         EntityID entity;
 
         bool isActive;
@@ -25,13 +29,13 @@ namespace ModernBoy::Game
         float nearPlane;
         float farPlane;
         Projection projection;
-    }; static_assert(std::is_trivially_copyable_v<CameraComponent>);
-    struct ColorComponent{
+    };
+    struct Color{
         EntityID entity;
 
         Vec4 color;
-    }; static_assert(std::is_trivially_copyable_v<ColorComponent>);
-    struct MeshComponent{
+    };
+    struct Model{
         EntityID entity;
 
         bool isActive;
@@ -39,21 +43,21 @@ namespace ModernBoy::Game
         float alpha;
         TextureHandle textureHandle;
         ShaderHandle shaderHandle;
-    }; static_assert(std::is_trivially_copyable_v<MeshComponent>);
-    struct ActionComponent{
+    };
+    struct Action{
         EntityID entity;
 
         bool isActive;
         ModuleHandle moduleHandle;
         FunctionID updateFunc;
-    }; static_assert(std::is_trivially_copyable_v<ActionComponent>); 
-    struct ScriptComponent{
+    };
+    struct ScriptObject{
         EntityID entity;
 
         bool isActive;
         ObjectHandle handle;
-    }; static_assert(std::is_trivially_copyable_v<ScriptComponent>);
-    struct InputComponent{
+    };
+    struct Input{
         EntityID entity;
 
         bool isActive;
@@ -61,19 +65,19 @@ namespace ModernBoy::Game
         bool isJumpEnabled;
         bool isSkillEnabled;
         ModuleHandle handle;
-    }; static_assert(std::is_trivially_copyable_v<InputComponent>); 
-    struct LifeSpanComponent{
+    };
+    struct LifeSpan{
         EntityID entity;
 
         bool isAlive;
-    }; static_assert(std::is_trivially_copyable_v<LifeSpanComponent>);
-    struct RigidbodyComponent{
+    };
+    struct Rigidbody{
         EntityID entity;
 
         Vec3 velocity;
         bool useGravity;
         float mass;
-    }; static_assert(std::is_trivially_copyable_v<RigidbodyComponent>);
+    };
     enum class ElementType{
         FIRE,
         EARTH,
@@ -83,38 +87,38 @@ namespace ModernBoy::Game
         ICE,
         ELECTRIC
     };
-    struct ElementComponent{
+    struct Element{
         EntityID entity;
 
         ElementType type;
-    }; static_assert(std::is_trivially_copyable_v<ElementComponent>);
+    };
     struct PhysicsMaterial{
         float bounciness;
         float friction;
     };
-    struct SphereColliderComponent{
+    struct SphereCollider{
         EntityID entity;
 
         Vec3 position;
         float radius;
-    }; static_assert(std::is_trivially_copyable_v<SphereColliderComponent>);
-    struct FixedBoxColliderComponent{
+    };
+    struct FixedBoxCollider{
         EntityID entity;
 
         Vec3 position;
         Vec3 scale;
         PhysicsMaterial material;
-    }; static_assert(std::is_trivially_copyable_v<FixedBoxColliderComponent>);
-    struct BoxColliderComponent{
+    };
+    struct BoxCollider{
         EntityID entity;
 
         PhysicsMaterial material;
-    }; static_assert(std::is_trivially_copyable_v<BoxColliderComponent>);
+    }; static_assert(std::is_trivially_copyable_v<BoxCollider>);
 
     // Event Tags
     struct Collided{ EntityID entity; }; static_assert(std::is_trivially_copyable_v<Collided>);
 
-    // Entity-to-Entity Event Component
+    // Entity-to-Entity Event 
     struct PhysicalCollision{
         Vec3 force;
     }; static_assert(std::is_trivially_copyable_v<PhysicalCollision>);
@@ -136,25 +140,30 @@ namespace ModernBoy::Game
         X(       COLLISION) \
         X(        COLLIDED)
     #define ARCHETYPE_PAIRS \
-        X(       TransformComponent,        TRANSFORM) \
-        X(          CameraComponent,           CAMERA) \
-        X(           ColorComponent,            COLOR) \
-        X(            MeshComponent,             MESH) \
-        X(          ActionComponent,           ACTION) \
-        X(          ScriptComponent,           SCRIPT) \
-        X(           InputComponent,            INPUT) \
-        X(        LifeSpanComponent,         LIFESPAN) \
-        X(       RigidbodyComponent,        RIGIDBODY) \
-        X(         ElementComponent,          ELEMENT) \
-        X(  SphereColliderComponent,   SPHERECOLLIDER) \
-        X(FixedBoxColliderComponent, FIXEDBOXCOLLIDER) \
-        X(     BoxColliderComponent,      BOXCOLLIDER) \
+        X(       Transform,        TRANSFORM) \
+        X(          Camera,           CAMERA) \
+        X(           Color,            COLOR) \
+        X(           Model,             MESH) \
+        X(          Action,           ACTION) \
+        X(    ScriptObject,           SCRIPT) \
+        X(           Input,            INPUT) \
+        X(        LifeSpan,         LIFESPAN) \
+        X(       Rigidbody,        RIGIDBODY) \
+        X(         Element,          ELEMENT) \
+        X(  SphereCollider,   SPHERECOLLIDER) \
+        X(FixedBoxCollider, FIXEDBOXCOLLIDER) \
+        X(     BoxCollider,      BOXCOLLIDER) \
         X(        PhysicalCollision,        COLLISION) \
         X(                 Collided,         COLLIDED)
     #define COMPOSIT_PAIRS \
         X(                 DrawTask,             DRAW) \
         X(                 ViewTask,             VIEW) \
         X(               ActionTask,           ACTION)
+
+    #define ASSERT_TRIVIAL(type, name) static_assert(std::is_trivially_copyable_v<type>);
+    #define X ASSERT_TRIVIAL
+    ARCHETYPE_PAIRS
+    #undef X
 
     enum{
         #define NAME_INDEX(name) name##_INDEX,
@@ -190,10 +199,10 @@ namespace ModernBoy::Game
 
     bool subset(ArchetypeBit a, ArchetypeBit b);
 
-    template<typename Component>
+    template<typename T>
     constexpr size_t offset_of(ArchetypeBit bit){
         #define COMP_OFFSET(type, name) \
-            if(std::same_as<Component, type>) \
+            if(std::same_as<T, type>) \
                 return offset; \
             if(bit & bit_of<type>()) \
                 offset += sizeof(type);

@@ -32,8 +32,8 @@ namespace ModernBoy
         void loadAction(const std::string& fileName);
 
     private:
-        Game::MeshComponent load(const ModelDescriptor&);
-        Game::ScriptComponent load(const ScriptDescriptor&);
+        Game::Model load(const ModelDescriptor&);
+        Game::ScriptObject load(const ScriptDescriptor&);
 
         void load(const ModuleDescriptor&);
 

@@ -54,23 +54,23 @@ namespace ModernBoy::Game
 
         void update(Index index, Writer fn);
 
-        template<typename Component>
-        const Component& get(Index index) const{
-            return vec.at<Component>(
-                index, offset_of<Component>(bit)
+        template<typename T>
+        const T& get(Index index) const{
+            return vec.at<T>(
+                index, offset_of<T>(bit)
             );
         }
-        template<typename Component>
-        Component& get(Index index){
-            return vec.at<Component>(
-                index, offset_of<Component>(bit)
+        template<typename T>
+        T& get(Index index){
+            return vec.at<T>(
+                index, offset_of<T>(bit)
             );
         }
-        template<typename Component>
-        ABNORMAL_FLAG set(Index index, Component&& component){
-            auto& comp = vec.at<Component>(
-                index, offset_of<Component>(bit));
-            comp = std::forward<Component>(component);
+        template<typename T>
+        ABNORMAL_FLAG set(Index index, T&& component){
+            auto& comp = vec.at<T>(
+                index, offset_of<T>(bit));
+            comp = std::forward<T>(component);
             return false;
         }
 
@@ -117,32 +117,32 @@ namespace ModernBoy::Game
         const_iterator cbegin() const{ return archetypeMap.cbegin(); }
         const_iterator cend() const{ return archetypeMap.cend(); }
 
-        template<typename Component>
-        Component get(ArchetypeBit bit, Index index){
+        template<typename T>
+        T get(ArchetypeBit bit, Index index){
             const auto& vec = archetypeMap.at(bit);
             // vec.on_read_phase();
-            auto component = vec.get<Component>(index);
+            auto component = vec.get<T>(index);
             // vec.read_phase_end();
             return component;
         }
-        template<typename Component>
-        ABNORMAL_FLAG set(Component&& component,
+        template<typename T>
+        ABNORMAL_FLAG set(T&& component,
             ArchetypeBit bit, Index index
         ){
             auto& vec = archetypeMap.at(bit);
             // vec.on_write_phase();
-            vec.set<Component>(
-                index, std::forward<Component>(component));
+            vec.set<T>(
+                index, std::forward<T>(component));
             // vec.write_phase_end();
             return false;
         }
-        template<typename Component>
+        template<typename T>
         Index pop(ArchetypeBit bit, Index index){
             auto& vec = archetypeMap.at(bit);
             auto src = vec[index];
-            auto component = vec.get<Component>(index);
+            auto component = vec.get<T>(index);
 
-            auto new_bit = bit & (!bit_of<Component>());
+            auto new_bit = bit & (!bit_of<T>());
             Index new_index = 0;
             auto new_size = size_of(new_bit);
             if(new_bit == 0)
@@ -158,23 +158,23 @@ namespace ModernBoy::Game
                 auto new_index = vec.insertRange(1);
                 auto dst = vec[new_index];
 
-                dst = Util::chunkcpy(dst, src, offset_of<Component>(bit));
-                src = Util::add(src, offset_of<Component>(bit)+sizeof(Component));
-                dst = Util::chunkcpy(dst, src, size_of(bit)-offset_of<Component>(bit)-sizeof(Component));
+                dst = Util::chunkcpy(dst, src, offset_of<T>(bit));
+                src = Util::add(src, offset_of<T>(bit)+sizeof(T));
+                dst = Util::chunkcpy(dst, src, size_of(bit)-offset_of<T>(bit)-sizeof(T));
 
                 return new_index;
             });
 
             return new_index;
         }
-        template<typename Component>
-        Index push(Component&& component,
+        template<typename T>
+        Index push(T&& component,
             ArchetypeBit bit, Index index
         ){
             auto& vec = archetypeMap.at(bit);
             auto src = vec[index];
 
-            auto new_bit = bit | bit_of<Component>();
+            auto new_bit = bit | bit_of<T>();
             auto new_size = size_of(new_bit);
 
             if(archetypeMap.find(new_bit) == archetypeMap.end()){
@@ -187,10 +187,10 @@ namespace ModernBoy::Game
                 auto new_index = vec.insertRange(1);
                 auto dst = vec[new_index];
 
-                dst = Util::chunkcpy(dst, src, offset_of<Component>(bit));
+                dst = Util::chunkcpy(dst, src, offset_of<T>(bit));
                 dst = Util::chunkcpy(dst, component);
-                src = Util::add(src, offset_of<Component>(bit));
-                dst = Util::chunkcpy(dst, src, size_of(bit)-offset_of<Component>(bit));
+                src = Util::add(src, offset_of<T>(bit));
+                dst = Util::chunkcpy(dst, src, size_of(bit)-offset_of<T>(bit));
 
                 return new_index;
             });
@@ -199,9 +199,9 @@ namespace ModernBoy::Game
         }
     }; static_assert(std::ranges::range<ArchetypeMap>);
 
-    ArchetypeBit archetype(const TransformComponent*,
-        const CameraComponent*, const MeshComponent*,
-        const InputComponent*
+    ArchetypeBit archetype(const Transform*,
+        const Camera*, const Model*,
+        const Input*
     );
 } // namespace ModernBoy::Game
 

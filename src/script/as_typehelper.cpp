@@ -145,9 +145,9 @@ static void* GetComponentByClassName(Entity* entity, const std::string& name){
         return nullptr;
 
     if(name == "Transform")
-        return findComponent<TransformComponent>(entity);
+        return findComponent<Transform>(entity);
     if(name == "Rigidbody")
-        return findComponent<RigidbodyComponent>(entity);
+        return findComponent<Rigidbody>(entity);
     return nullptr;
     // other components...
 }
@@ -160,28 +160,28 @@ static T* componentCast(void* component){
 int TypeHelper::registerComponent(){
     if(auto ret=engine->RegisterObjectType(
         "Transform",
-        sizeof(TransformComponent), asOBJ_REF | asOBJ_NOCOUNT) < 0)
+        sizeof(Transform), asOBJ_REF | asOBJ_NOCOUNT) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectProperty(
         "Transform", "Vec3 position",
-        asOFFSET(TransformComponent, position)) < 0)
+        asOFFSET(Transform, position)) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectProperty(
         "Transform", "Vec4 rotation",
-        asOFFSET(TransformComponent, rotation)) < 0)
+        asOFFSET(Transform, rotation)) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectProperty(
         "Transform", "Vec3 scale",
-        asOFFSET(TransformComponent, scale)) < 0)
+        asOFFSET(Transform, scale)) < 0)
         return ret;
 
     if(auto ret=engine->RegisterObjectType(
-        "Rigidbody", sizeof(RigidbodyComponent),
+        "Rigidbody", sizeof(Rigidbody),
         asOBJ_REF | asOBJ_NOCOUNT) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectProperty(
         "Rigidbody", "Vec3 velocity",
-        asOFFSET(RigidbodyComponent, velocity)) < 0)
+        asOFFSET(Rigidbody, velocity)) < 0)
         return ret;
 
     if(auto ret=engine->RegisterObjectType(
@@ -190,11 +190,11 @@ int TypeHelper::registerComponent(){
         return ret;
     if(auto ret = engine->RegisterObjectMethod(
         "Component", "Transform@ opCast()",
-        asFUNCTION(componentCast<TransformComponent>), asCALL_CDECL_OBJLAST) < 0)
+        asFUNCTION(componentCast<Transform>), asCALL_CDECL_OBJLAST) < 0)
         return ret;
     if(auto ret = engine->RegisterObjectMethod(
         "Component", "Rigidbody@ opCast()",
-        asFUNCTION(componentCast<RigidbodyComponent>), asCALL_CDECL_OBJLAST) < 0)
+        asFUNCTION(componentCast<Rigidbody>), asCALL_CDECL_OBJLAST) < 0)
         return ret;
 
     if(auto ret=engine->RegisterObjectMethod(

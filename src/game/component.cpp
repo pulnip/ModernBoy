@@ -9,25 +9,25 @@ using namespace ModernBoy::Game;
 size_t ModernBoy::Game::size_of(ArchetypeBit bit){
     size_t size = sizeof(EntityID);
     if(bit & TRANSFORM_BIT)
-        size += sizeof(TransformComponent);
+        size += sizeof(Transform);
     if(bit & CAMERA_BIT)
-        size += sizeof(CameraComponent);
+        size += sizeof(Camera);
     if(bit & COLOR_BIT)
-        size += sizeof(ColorComponent);
+        size += sizeof(Color);
     if(bit & MESH_BIT)
-        size += sizeof(MeshComponent);
+        size += sizeof(Model);
     if(bit & ACTION_BIT)
-        size += sizeof(ActionComponent);
+        size += sizeof(Action);
     if(bit & SCRIPT_BIT)
-        size += sizeof(ScriptComponent);
+        size += sizeof(ScriptObject);
     if(bit & INPUT_BIT)
-        size += sizeof(InputComponent);
+        size += sizeof(Input);
     if(bit & RIGIDBODY_BIT)
-        size += sizeof(RigidbodyComponent);
+        size += sizeof(Rigidbody);
     if(bit & ELEMENT_BIT)
-        size += sizeof(ElementComponent);
+        size += sizeof(Element);
     if(bit & SPHERECOLLIDER_BIT)
-        size += sizeof(SphereColliderComponent);
+        size += sizeof(SphereCollider);
 
     if(bit & COLLIDED_BIT)
         size += sizeof(Collided);

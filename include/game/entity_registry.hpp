@@ -16,7 +16,7 @@ namespace ModernBoy::Game
         Index chunkIndex;
     };
 
-    template<typename... Component>
+    template<typename... Ts>
     struct ArchetypeView{
         using Map = std::unordered_map<ArchetypeBit, DynamicVectorV2>;
 
@@ -35,11 +35,11 @@ namespace ModernBoy::Game
 
         public:
             Iterator(Map::iterator map_it, Map::iterator map_end)
-            :map_it(map_it), map_end(map_end), required_bit(bits_of<Component...>()){
+            :map_it(map_it), map_end(map_end), required_bit(bits_of<Ts...>()){
                 advance_to_valid_archetype();
             }
 
-            std::tuple<EntityID, ArchetypeBit, Component&...> operator*(){
+            std::tuple<EntityID, ArchetypeBit, Ts&...> operator*(){
                 assert(!at_end());
                 auto bit = map_it->first;
                 auto& vec = map_it->second;
@@ -49,8 +49,8 @@ namespace ModernBoy::Game
                 return std::forward_as_tuple(
                     *static_cast<EntityID*>(chunk_ptr),
                     map_it->first,
-                    *static_cast<Component*>(
-                        Util::add(chunk_ptr, offset_of<Component>(bit))
+                    *static_cast<Ts*>(
+                        Util::add(chunk_ptr, offset_of<Ts>(bit))
                     )...
                 );
             }
@@ -256,26 +256,26 @@ namespace ModernBoy::Game
         }
         void destroyEntity(EntityID);
 
-        template<typename... Component>
+        template<typename... Ts>
         auto query(){
-            return ArchetypeView<Component...>(archetypeMap);
+            return ArchetypeView<Ts...>(archetypeMap);
         }
-        template<typename... Component>
-        std::tuple<Component&...> query(EntityID id){
+        template<typename... Ts>
+        std::tuple<Ts&...> query(EntityID id){
             const auto& info = entityTable.at(id);
             auto& vec = archetypeMap.at(info.bit);
             auto chunk = vec[info.chunkIndex];
 
             return std::forward_as_tuple(
-                *static_cast<Component*>(
-                    Util::add(chunk, offset_of<Component>(info.bit))
+                *static_cast<Ts*>(
+                    Util::add(chunk, offset_of<Ts>(info.bit))
                 )...
             );
         }
         Entity query(EntityID id);
 
-        template<typename Component>
-        void appendComponent(EntityID id, Component&& component){
+        template<typename T>
+        void appendComponent(EntityID id, T&& component){
             auto entity_it = entityTable.find(id);
             if(entity_it == entityTable.end()){
                 GameWarn("Entity {} not exist. component cannot be added", id);
@@ -284,19 +284,19 @@ namespace ModernBoy::Game
 
             auto& info = entity_it->second;
 
-            if(subset(bit_of<Component>(), info.bit)){
+            if(subset(bit_of<T>(), info.bit)){
                 GameWarn("Component {} already exist. (entity: {}, archetype: {})",
-                    bit_of<Component>(), id, info.bit);
+                    bit_of<T>(), id, info.bit);
                 return;
             }
 
             auto [new_index, old_vec] = moveChunk(info,
-                std::forward<Component>(component));
+                std::forward<T>(component));
             updateEntityInfo(info, old_vec,
-                info.bit | bit_of<Component>(), new_index
+                info.bit | bit_of<T>(), new_index
             );
         }
-        template<typename Component>
+        template<typename T>
         void removeComponent(EntityID id){
             auto entity_it = entityTable.find(id);
             if(entity_it == entityTable.end()){
@@ -306,15 +306,15 @@ namespace ModernBoy::Game
 
             auto& info = entity_it->second;
 
-            if(!subset(bit_of<Component>(), info.bit)){
+            if(!subset(bit_of<T>(), info.bit)){
                 GameWarn("Component {} not exist. (entity: {}, archetype: {})",
-                    bit_of<Component>(), id, info.bit);
+                    bit_of<T>(), id, info.bit);
                 return;
             }
 
-            auto [new_index, old_vec] = moveChunk<Component>(info);
+            auto [new_index, old_vec] = moveChunk<T>(info);
             updateEntityInfo(info, old_vec,
-                info.bit & (~bit_of<Component>()), new_index);
+                info.bit & (~bit_of<T>()), new_index);
         }
 
     private:
@@ -322,13 +322,13 @@ namespace ModernBoy::Game
 
         DynamicVectorV2& getVector(ArchetypeBit);
 
-        template<typename Component>
-        std::tuple<Index, DynamicVectorV2&> moveChunk(EntityInfo& info, Component&& component){
+        template<typename T>
+        std::tuple<Index, DynamicVectorV2&> moveChunk(EntityInfo& info, T&& component){
             auto& old_vec = archetypeMap.at(info.bit);
             auto old_index = info.chunkIndex;
             auto chunk = old_vec[old_index];
 
-            auto new_bit = info.bit | bit_of<Component>();
+            auto new_bit = info.bit | bit_of<T>();
             auto& new_vec = getVector(new_bit);
 
             new_vec.resize(new_vec.size() + 1);
@@ -337,25 +337,25 @@ namespace ModernBoy::Game
 
             // 1. copy new chunk
             // copy chunk before component
-            dst = Util::chunkcpy(dst, chunk, offset_of<Component>(info.bit));
-            chunk = Util::add(        chunk, offset_of<Component>(info.bit));
+            dst = Util::chunkcpy(dst, chunk, offset_of<T>(info.bit));
+            chunk = Util::add(        chunk, offset_of<T>(info.bit));
             // copy component
-            dst = Util::chunkcpy(dst, std::forward<Component>(component));
+            dst = Util::chunkcpy(dst, std::forward<T>(component));
             // copy chunk after component
-            Util::chunkcpy(dst, chunk, size_of(info.bit) - offset_of<Component>(info.bit));
+            Util::chunkcpy(dst, chunk, size_of(info.bit) - offset_of<T>(info.bit));
 
             // 2. remove old chunk
             old_vec.swap_remove(info.chunkIndex);
 
             return {new_index, old_vec};
         }
-        template<typename Component>
+        template<typename T>
         std::tuple<Index, DynamicVectorV2&> moveChunk(EntityInfo& info){
             auto& old_vec = archetypeMap.at(info.bit);
             auto old_index = info.chunkIndex;
             auto chunk = old_vec[old_index];
 
-            auto new_bit = info.bit & (~bit_of<Component>());
+            auto new_bit = info.bit & (~bit_of<T>());
             auto& new_vec = getVector(new_bit);
 
             new_vec.resize(new_vec.size() + 1);
@@ -364,11 +364,11 @@ namespace ModernBoy::Game
 
             // 1. copy new chunk
             // copy chunk before component
-            dst = Util::chunkcpy(dst, chunk, offset_of<Component>(info.bit));
+            dst = Util::chunkcpy(dst, chunk, offset_of<T>(info.bit));
             // skip target component
-            chunk = Util::add(chunk, offset_of<Component>(info.bit) + sizeof(Component));
+            chunk = Util::add(chunk, offset_of<T>(info.bit) + sizeof(T));
             // copy chunk after component
-            Util::chunkcpy(dst, chunk, size_of(info.bit) - offset_of<Component>(info.bit) - sizeof(Component));
+            Util::chunkcpy(dst, chunk, size_of(info.bit) - offset_of<T>(info.bit) - sizeof(T));
 
             // 2. remove old chunk
             old_vec.swap_remove(info.chunkIndex);

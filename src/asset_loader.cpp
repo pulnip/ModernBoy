@@ -86,10 +86,10 @@ std::optional<std::vector<std::string>> parse(toml::node_view<const toml::node> 
 EntityID invalidEntityID(){ return std::numeric_limits<EntityID>::max(); }
 
 template<>
-std::optional<TransformComponent> parse(toml::node_view<const toml::node> view){
+std::optional<Transform> parse(toml::node_view<const toml::node> view){
     CHECK_IF_TABLE(view, table)
 
-    return TransformComponent{
+    return Transform{
         .entity = invalidEntityID(),
         .isActive = true,
         .position = parse<Vec3>(table["position"]).value_or(zeros()),
@@ -108,12 +108,12 @@ std::optional<ModelDescriptor> parse(toml::node_view<const toml::node> view){
         .shader = table["shader"].value_or<std::string>("asset/shader/ModernBoy.metallib")
     };
 }
-MeshComponent AssetLoader::load(const ModelDescriptor& md){
+Model AssetLoader::load(const ModelDescriptor& md){
     auto mesh = app.append<Mesh>(md.mesh);
     auto texture = app.append<Texture>(md.texture);
     auto shader = app.append<Shader>(md.shader);
 
-    return MeshComponent{
+    return Model{
         .entity = invalidEntityID(),
         .isActive = true,
         .handle = mesh,
@@ -132,9 +132,9 @@ std::optional<ScriptDescriptor> parse(toml::node_view<const toml::node> view){
         .type = table["type"].value_or<std::string>("IComponent")
     };
 }
-ScriptComponent AssetLoader::load(const ScriptDescriptor& sd){
+Game::ScriptObject AssetLoader::load(const ScriptDescriptor& sd){
     auto objectHandle = app.appendV2<Object>(sd.module_, sd.type);
-    return ScriptComponent{
+    return Game::ScriptObject{
         .entity = invalidEntityID(),
         .isActive = true,
         .handle = objectHandle
@@ -142,10 +142,10 @@ ScriptComponent AssetLoader::load(const ScriptDescriptor& sd){
 }
 
 template<>
-std::optional<RigidbodyComponent> parse(toml::node_view<const toml::node> view){
+std::optional<Rigidbody> parse(toml::node_view<const toml::node> view){
     CHECK_IF_TABLE(view, table)
 
-    return RigidbodyComponent{
+    return Rigidbody{
         .entity = invalidEntityID(),
         .velocity = parse<Vec3>(table["velocity"]).value_or(zeros()),
         .useGravity = table["useGravity"].value_or(false),
@@ -154,10 +154,10 @@ std::optional<RigidbodyComponent> parse(toml::node_view<const toml::node> view){
 }
 
 template<>
-std::optional<SphereColliderComponent> parse(toml::node_view<const toml::node> view){
+std::optional<SphereCollider> parse(toml::node_view<const toml::node> view){
     CHECK_IF_TABLE(view, table)
 
-    return SphereColliderComponent{
+    return SphereCollider{
         .entity = invalidEntityID(),
         .position = parse<Vec3>(table["velocity"]).value_or(zeros()),
         .radius = static_cast<float>(table["radius"].value_or(1.0))
@@ -165,10 +165,10 @@ std::optional<SphereColliderComponent> parse(toml::node_view<const toml::node> v
 }
 
 template<>
-std::optional<CameraComponent> parse(toml::node_view<const toml::node> view){
+std::optional<Camera> parse(toml::node_view<const toml::node> view){
     CHECK_IF_TABLE(view, table)
 
-    return CameraComponent{
+    return Camera{
         .entity = invalidEntityID(),
         .isActive = true,
         .type = cameraType(table["type"].value_or("MainCamera")),
@@ -196,26 +196,26 @@ void AssetLoader::loadAsset(const std::string& fileName){
         // new Actor
         std::string name = entity["name"].value<std::string>().value();
 
-        auto tc = parse<TransformComponent>(entity["transform"]);
-        auto cc = parse<CameraComponent>(entity["camera"]);
+        auto tc = parse<Transform>(entity["transform"]);
+        auto cc = parse<Camera>(entity["camera"]);
 
         auto md = parse<ModelDescriptor>(entity["model"]);
-        std::optional<MeshComponent> mc = std::nullopt;
+        std::optional<Model> mc = std::nullopt;
         if(md.has_value())
             mc = load(md.value());
 
         auto sd = parse<ScriptDescriptor>(entity["script"]);
-        std::optional<ScriptComponent> sc = std::nullopt;
+        std::optional<ScriptObject> soc = std::nullopt;
         if(sd.has_value())
-            sc = load(sd.value());
+            soc = load(sd.value());
 
-        auto rc = parse<RigidbodyComponent>(entity["rigidbody"]);
-        auto scc = parse<SphereColliderComponent>(
+        auto rc = parse<Rigidbody>(entity["rigidbody"]);
+        auto scc = parse<SphereCollider>(
             entity["sphereCollider"]);
 
         GameDebug("Actor loaded, name: {}", name);
 
-        app.world.registry.createEntity(tc, cc, mc, sc, rc, scc);
+        app.world.registry.createEntity(tc, cc, mc, soc, rc, scc);
     }
 }
 

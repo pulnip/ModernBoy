@@ -14,7 +14,7 @@ TEST(ArchetypeView, SimpleQuery){
 
     for(size_t i=0; i<3; ++i){
         registry.createEntity(
-            ColorComponent{
+            Color{
                 .entity = std::numeric_limits<EntityID>::max(),
                 .color = testColors[i]
             }
@@ -22,7 +22,7 @@ TEST(ArchetypeView, SimpleQuery){
     }
 
     size_t i=0;
-    for(auto [id, bit, cc]: registry.query<ColorComponent>()){
+    for(auto [id, bit, cc]: registry.query<Color>()){
         EXPECT_EQ(cc.color, testColors[i]);
         ++i;
     }
@@ -38,14 +38,14 @@ TEST(ArchetypeView, ComplexQuery){
 
     for(size_t i=0; i<3; ++i){
         registry.createEntity(
-            TransformComponent{
+            Transform{
                 .entity = std::numeric_limits<EntityID>::max(),
                 .isActive = true,
                 .position = zeros(),
                 .rotation = unitQuat(),
                 .scale = ones()
             },
-            ColorComponent{
+            Color{
                 .entity = std::numeric_limits<EntityID>::max(),
                 .color = testColors[i]
             }
@@ -53,7 +53,7 @@ TEST(ArchetypeView, ComplexQuery){
     }
 
     size_t i=0;
-    for(auto [id, bit, tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+    for(auto [id, bit, tc, cc]: registry.query<Transform, Color>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());
@@ -74,14 +74,14 @@ TEST(ArchetypeView, EmplaceOrder){
     for(size_t i=0; i<3; ++i){
         if(i % 2 == 1){
             registry.createEntity(
-                TransformComponent{
+                Transform{
                     .entity = std::numeric_limits<EntityID>::max(),
                     .isActive = true,
                     .position = zeros(),
                     .rotation = unitQuat(),
                     .scale = ones()
                 },
-                ColorComponent{
+                Color{
                     .entity = std::numeric_limits<EntityID>::max(),
                     .color = testColors[i]
                 }
@@ -89,11 +89,11 @@ TEST(ArchetypeView, EmplaceOrder){
         }
         else{
             registry.createEntity(
-                ColorComponent{
+                Color{
                     .entity = std::numeric_limits<EntityID>::max(),
                     .color = testColors[i]
                 },
-                TransformComponent{
+                Transform{
                     .entity = std::numeric_limits<EntityID>::max(),
                     .isActive = true,
                     .position = zeros(),
@@ -105,7 +105,7 @@ TEST(ArchetypeView, EmplaceOrder){
     }
 
     size_t i=0;
-    for(auto [id, bit, tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+    for(auto [id, bit, tc, cc]: registry.query<Transform, Color>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());
@@ -133,11 +133,11 @@ TEST(ArchetypeView, AppendComponent){
 
     for(size_t i=0; i<3; ++i){
         entities[i] = registry.createEntity(
-            ColorComponent{
+            Color{
                 .entity = std::numeric_limits<EntityID>::max(),
                 .color = testColors[i]
             },
-            TransformComponent{
+            Transform{
                 .entity = std::numeric_limits<EntityID>::max(),
                 .isActive = true,
                 .position = zeros(),
@@ -148,13 +148,13 @@ TEST(ArchetypeView, AppendComponent){
     }
 
     registry.appendComponent(entities[1],
-        ElementComponent{
+        Element{
         .entity = entities[1], .type = ElementType::FIRE
     });
 
     auto testVal = 0;
     auto count = 0;
-    for(auto [id, bit, tc, cc]: registry.query<TransformComponent, ColorComponent>()){
+    for(auto [id, bit, tc, cc]: registry.query<Transform, Color>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());
@@ -167,7 +167,7 @@ TEST(ArchetypeView, AppendComponent){
     EXPECT_EQ(count, 3);
 
     count = 0;
-    for(auto [id, bit, ec]: registry.query<ElementComponent>()){
+    for(auto [id, bit, ec]: registry.query<Element>()){
         EXPECT_EQ(ec.type, ElementType::FIRE);
         ++count;
     }
@@ -192,29 +192,29 @@ TEST(ArchetypeView, RemoveComponent){
 
     for(size_t i=0; i<3; ++i){
         entities[i] = registry.createEntity(
-            ColorComponent{
+            Color{
                 .entity = std::numeric_limits<EntityID>::max(),
                 .color = testColors[i]
             },
-            TransformComponent{
+            Transform{
                 .entity = std::numeric_limits<EntityID>::max(),
                 .isActive = true,
                 .position = zeros(),
                 .rotation = unitQuat(),
                 .scale = ones()
             },
-            ElementComponent{
+            Element{
                 .entity = std::numeric_limits<EntityID>::max(),
                 .type = ElementType::WIND
             }
         );
     }
 
-    registry.removeComponent<ColorComponent>(entities[1]);
+    registry.removeComponent<Color>(entities[1]);
 
     auto testVal = 0;
     auto count = 0;
-    for(auto [id, bit, tc, cc, ec]: registry.query<TransformComponent, ColorComponent, ElementComponent>()){
+    for(auto [id, bit, tc, cc, ec]: registry.query<Transform, Color, Element>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());
@@ -229,7 +229,7 @@ TEST(ArchetypeView, RemoveComponent){
     EXPECT_EQ(count, 2);
 
     count = 0;
-    for(auto [id, bit, tc, ec]: registry.query<TransformComponent, ElementComponent>()){
+    for(auto [id, bit, tc, ec]: registry.query<Transform, Element>()){
         EXPECT_EQ(tc.position,    zeros());
         EXPECT_EQ(tc.rotation, unitQuat());
         EXPECT_EQ(   tc.scale,     ones());

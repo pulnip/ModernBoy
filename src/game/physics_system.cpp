@@ -11,7 +11,7 @@ PhysicsSystem::PhysicsSystem(EntityRegistry& registry)
 void PhysicsSystem::update(DeltaTime dt){
     auto dt_ = dt.count() / 1'000'000.0f;
 
-    for(auto [id, bit, tc, rc]: registry.query<TransformComponent, RigidbodyComponent>()){
+    for(auto [id, bit, tc, rc]: registry.query<Transform, Rigidbody>()){
         tc.position += rc.velocity * dt_;
     }
 
@@ -49,7 +49,7 @@ void PhysicsSystem::update(DeltaTime dt){
 // Generator<void> PhysicsSystem::update(DeltaTime dt){
 //     auto dt_ = dt.count() / 1'000'000.0f;
 
-//     for(auto [id, bit, tc, rc]: registry.query<TransformComponent, RigidbodyComponent>()){
+//     for(auto [id, bit, tc, rc]: registry.query<Transform, Rigidbody>()){
 //         tc.position += rc.velocity * dt_;
 
 //         co_yield 0;
@@ -79,10 +79,10 @@ void PhysicsSystem::update(DeltaTime dt){
 //     }
 
 //     for(auto id: collided){
-//         registry.appendComponent(id, Collided{ .entity=id });
+//         registry.append(id, Collided{ .entity=id });
 //     }
 //     for(auto id: notCollidedCandidate){
-//         registry.removeComponent<Collided>(id);
+//         registry.remove<Collided>(id);
 //     }
 
 //     co_return;
@@ -91,7 +91,7 @@ void PhysicsSystem::update(DeltaTime dt){
 std::vector<SphereColliderProxy> PhysicsSystem::flatten(){
     std::vector<SphereColliderProxy> flat;
 
-    for(auto [id, bit, tc, rc, sc]: registry.query<TransformComponent, RigidbodyComponent, SphereColliderComponent>()){
+    for(auto [id, bit, tc, rc, sc]: registry.query<Transform, Rigidbody, SphereCollider>()){
         flat.emplace_back(id, bit, &tc, &rc, &sc);
     }
 

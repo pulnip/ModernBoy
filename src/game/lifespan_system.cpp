@@ -13,7 +13,7 @@ void LifespanSystem::updateTask(DeltaTime) noexcept{
     deadActors.reserve(numDeadActors);
 
     // remove actor from current epoch
-    for(const auto [id, bit, lc]: registry.query<LifeSpanComponent>()){
+    for(const auto [id, bit, lc]: registry.query<LifeSpan>()){
         if(!lc.isAlive)
             deadActors.emplace_back(id);
     }
@@ -27,7 +27,7 @@ void LifespanSystem::update(DeltaTime) noexcept{
     deadActors.reserve(numDeadActors);
 
     // remove actor from next epoch
-    for(const auto [id, bit, lc]: registry.query<LifeSpanComponent>()){
+    for(const auto [id, bit, lc]: registry.query<LifeSpan>()){
         if(!lc.isAlive)
             deadActors.emplace_back(id);
     }
@@ -39,7 +39,7 @@ void LifespanSystem::update(DeltaTime) noexcept{
 // size_t LifespanSystem::yield_count() const noexcept{
 //     size_t numTask = 0;
 
-//     for(const auto [id, bit, lc]: registry.query<LifeSpanComponent>()){
+//     for(const auto [id, bit, lc]: registry.query<LifeSpan>()){
 //         if(!lc.isAlive)
 //             numTask += 1;
 //     }
@@ -53,7 +53,7 @@ void LifespanSystem::update(DeltaTime) noexcept{
 //     deadActors.reserve(numDeadActors);
 
 //     // remove actor from current epoch
-//     for(const auto [id, bit, lc]: registry.query<LifeSpanComponent>()){
+//     for(const auto [id, bit, lc]: registry.query<LifeSpan>()){
 //         if(!lc.isAlive)
 //             deadActors.emplace_back(id);
 //     }
@@ -70,7 +70,7 @@ void LifespanSystem::update(DeltaTime) noexcept{
 //     deadActors.reserve(numDeadActors);
 
 //     // remove actor from next epoch
-//     for(const auto [id, bit, lc]: registry.query<LifeSpanComponent>()){
+//     for(const auto [id, bit, lc]: registry.query<LifeSpan>()){
 //         if(!lc.isAlive)
 //             deadActors.emplace_back(id);
 //     }
