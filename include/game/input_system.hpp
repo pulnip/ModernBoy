@@ -1,0 +1,22 @@
+#ifndef MODERNBOY_GAME_INPUT_SYSTEM_HPP
+#define MODERNBOY_GAME_INPUT_SYSTEM_HPP
+
+#include "fwd.hpp"
+#include "game/game_fwd.hpp"
+
+namespace ModernBoy::Game
+{
+    class InputSystem{
+    public:
+        InputSystem(EntityRegistry&,
+            ModernBoy::Input::Chord&);
+
+        void update(DeltaTime);
+
+    private:
+        EntityRegistry& registry;
+        ModernBoy::Input::Chord& input;
+    };
+}
+
+#endif // MODERNBOY_GAME_INPUT_SYSTEM_HPP

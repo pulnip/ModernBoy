@@ -11,9 +11,6 @@ Vec3 ModernBoy::zeros(){
 Vec3 ModernBoy::ones(){
     return {.v={1.0f, 1.0f, 1.0f}};
 }
-Vec4 ModernBoy::unitQuat(){
-    return {.v={0.0f, 0.0f, 0.0f, 1.0f}};
-}
 
 Vec2 ModernBoy::operator+(Vec2 lhs, Vec2 rhs){
     return {{lhs.x+rhs.x, lhs.y+rhs.y}};
@@ -39,30 +36,6 @@ float ModernBoy::cross(Vec2 lhs, Vec2 rhs){
     return lhs.x*rhs.y - lhs.y*rhs.x;
 }
 
-Vec3 ModernBoy::operator+(Vec3 lhs, Vec3 rhs){
-    return {{lhs.x+rhs.x, lhs.y+rhs.y, lhs.z+rhs.z}};
-}
-Vec3& ModernBoy::operator+=(Vec3& lhs, Vec3 rhs){
-    lhs.x += rhs.x;
-    lhs.y += rhs.y;
-    lhs.z += rhs.z;
-    return lhs;
-}
-Vec3 ModernBoy::operator-(Vec3 lhs, Vec3 rhs){
-    return {{lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z}};
-}
-Vec3 ModernBoy::operator-(Vec3 v){
-    return {{-v.x, -v.y, -v.z}};
-}
-Vec3 ModernBoy::operator*(Vec3 v, float f){
-    return {{v.x*f, v.y*f, v.z*f}};
-}
-Vec3& ModernBoy::operator*=(Vec3& v, float f){
-    v.x += f;
-    v.y += f;
-    v.z += f;
-    return v;
-}
 Vec3 ModernBoy::operator/(Vec3 v, float f){
     return {{v.x/f, v.y/f, v.z/f}};
 }

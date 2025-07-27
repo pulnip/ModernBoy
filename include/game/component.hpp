@@ -87,8 +87,9 @@ namespace ModernBoy::Game
         PhysicsMaterial material;
     );
 
-    // Event Tags
+    // State Tags
     DEFINE_COMPONENT(Collided,);
+    DEFINE_COMPONENT(Player,);
 
     // Entity-to-Entity Event 
     DEFINE_COMPONENT(PhysicalCollision,
@@ -110,23 +111,25 @@ namespace ModernBoy::Game
         X(FIXEDBOXCOLLIDER) \
         X(     BOXCOLLIDER) \
         X(       COLLISION) \
-        X(        COLLIDED)
+        X(        COLLIDED) \
+        X(          PLAYER)
     #define ARCHETYPE_PAIRS \
-        X(       Transform,        TRANSFORM) \
-        X(          Camera,           CAMERA) \
-        X(           Color,            COLOR) \
-        X(           Model,             MESH) \
-        X(          Action,           ACTION) \
-        X(    ScriptObject,           SCRIPT) \
-        X(           Input,            INPUT) \
-        X(        LifeSpan,         LIFESPAN) \
-        X(       Rigidbody,        RIGIDBODY) \
-        X(         Element,          ELEMENT) \
-        X(  SphereCollider,   SPHERECOLLIDER) \
-        X(FixedBoxCollider, FIXEDBOXCOLLIDER) \
-        X(     BoxCollider,      BOXCOLLIDER) \
-        X(        PhysicalCollision,        COLLISION) \
-        X(                 Collided,         COLLIDED)
+        X(        Transform,        TRANSFORM) \
+        X(           Camera,           CAMERA) \
+        X(            Color,            COLOR) \
+        X(            Model,             MESH) \
+        X(           Action,           ACTION) \
+        X(     ScriptObject,           SCRIPT) \
+        X(            Input,            INPUT) \
+        X(         LifeSpan,         LIFESPAN) \
+        X(        Rigidbody,        RIGIDBODY) \
+        X(          Element,          ELEMENT) \
+        X(   SphereCollider,   SPHERECOLLIDER) \
+        X( FixedBoxCollider, FIXEDBOXCOLLIDER) \
+        X(      BoxCollider,      BOXCOLLIDER) \
+        X(PhysicalCollision,        COLLISION) \
+        X(         Collided,         COLLIDED) \
+        X(           Player,           PLAYER)
     #define COMPOSIT_PAIRS \
         X(                 DrawTask,             DRAW) \
         X(                 ViewTask,             VIEW) \

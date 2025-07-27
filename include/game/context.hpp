@@ -9,6 +9,7 @@
 #include "game/action_system.hpp"
 #include "game/debug_system.hpp"
 #include "game/draw_system.hpp"
+#include "game/input_system.hpp"
 #include "game/physics_system.hpp"
 #include "game/lifespan_system.hpp"
 #include "game/scheduler.hpp"
@@ -50,6 +51,7 @@ namespace ModernBoy::Game
         DebugSystem debug;
         DrawSystem draw;
         ActionSystem action;
+        InputSystem input;
         PhysicsSystem physics;
         LifespanSystem lifespan;
 

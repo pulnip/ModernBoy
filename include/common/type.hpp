@@ -1,6 +1,7 @@
 #ifndef MODERNBOY_COMMON_TYPE_HPP
 #define MODERNBOY_COMMON_TYPE_HPP
 
+#include <cmath>
 #include <cstddef>
 #include <string>
 #include <type_traits>
@@ -36,12 +37,39 @@ namespace ModernBoy
     Vec3 zeros();
     Vec3 ones();
 
-    Vec3 operator+(Vec3, Vec3);
-    Vec3& operator+=(Vec3&, Vec3);
-    Vec3 operator-(Vec3, Vec3);
-    Vec3 operator-(Vec3);
-    Vec3 operator*(Vec3, float);
-    Vec3& operator*=(Vec3&, float);
+    constexpr Vec3 operator+(Vec3 lhs, Vec3 rhs){
+        return {{lhs.x+rhs.x, lhs.y+rhs.y, lhs.z+rhs.z}};
+    }
+    constexpr Vec3& operator+=(Vec3& lhs, Vec3 rhs){
+        lhs.x += rhs.x;
+        lhs.y += rhs.y;
+        lhs.z += rhs.z;
+        return lhs;
+    }
+    constexpr Vec3 operator-(Vec3 v){
+        return {{-v.x, -v.y, -v.z}};
+    }
+    constexpr Vec3 operator-(Vec3 lhs, Vec3 rhs){
+        return {{lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z}};
+    }
+    constexpr Vec3& operator-=(Vec3& lhs, Vec3 rhs){
+        lhs.x -= rhs.x;
+        lhs.y -= rhs.y;
+        lhs.z -= rhs.z;
+        return lhs;
+    }
+    constexpr Vec3 operator*(float f, Vec3 v){
+        return {{f*v.x, f*v.y, f*v.z}};
+    }
+    constexpr Vec3 operator*(Vec3 v, float f){
+        return f*v;
+    }
+    constexpr Vec3& operator*=(Vec3& v, float f){
+        v.x *= f;
+        v.y *= f;
+        v.z *= f;
+        return v;
+    }
     Vec3 operator/(Vec3, float);
     Vec3 cross(Vec3, Vec3);
 
@@ -50,7 +78,66 @@ namespace ModernBoy
     float dot(Vec3, Vec3);
     float norm_squared(Vec3);
 
-    Vec4 unitQuat();
+    constexpr Vec4 unitQuat(){
+        return {.x=0, .y=0, .z=0, .w=1};
+    }
+    constexpr Vec4 conjugate(Vec4 quat){
+        return {
+            .x = -quat.x,
+            .y = -quat.y,
+            .z = -quat.z,
+            .w =  quat.w
+        };
+    }
+
+    constexpr Vec4 operator*(Vec4 lhs, Vec4 rhs){
+        return {
+            .x = lhs.w*rhs.x + lhs.x*rhs.w + lhs.y*rhs.z - lhs.z*rhs.y,
+            .y = lhs.w*rhs.y - lhs.x*rhs.z + lhs.y*rhs.w + lhs.z*rhs.x,
+            .z = lhs.w*rhs.z + lhs.x*rhs.y - lhs.y*rhs.x + lhs.z*rhs.w,
+            .w = lhs.w*rhs.w - lhs.x*rhs.x - lhs.y*rhs.y - lhs.z*rhs.z
+        };
+    }
+
+    inline Vec4 yaw(Vec4 quat){
+        float siny_cosp = 2*(quat.w*quat.y + quat.x*quat.z);
+        float cosy_cosp = 1 - 2*(quat.y*quat.y + quat.x*quat.x);
+        float half_yaw = std::atan2(siny_cosp, cosy_cosp) / 2;
+        return {
+            .x = std::cosf(half_yaw),
+            .y = 0,
+            .z = std::sinf(half_yaw),
+            .w = 0
+        };
+    }
+
+    constexpr Vec3 right(Vec4 quat){
+        auto e_x = Vec4{.x=1, .y=0, .z=0, .w=0};
+        auto vec = quat * e_x * conjugate(quat);
+        return {.x=vec.x, .y=vec.y, .z=vec.z };
+    }
+    constexpr Vec3 ground_right(Vec4 quat){
+        auto e_x = Vec4{.x=1, .y=0, .z=0, .w=0};
+        Vec4 y_quat = yaw(quat);
+        auto vec = y_quat * e_x * conjugate(y_quat);
+        return {.x=vec.x, .y=vec.y, .z=vec.z };
+    }
+    constexpr Vec3 up(Vec4 quat){
+        auto e_y = Vec4{.x=0, .y=1, .z=0, .w=0};
+        auto vec = quat * e_y * conjugate(quat);
+        return {.x=vec.x, .y=vec.y, .z=vec.z };
+    }
+    constexpr Vec3 forward(Vec4 quat){
+        auto e_z = Vec4{.x=0, .y=0, .z=1, .w=0};
+        auto vec = quat * e_z * conjugate(quat);
+        return {.x=vec.x, .y=vec.y, .z=vec.z };
+    }
+    constexpr Vec3 ground_forward(Vec4 quat){
+        auto e_z = Vec4{.x=0, .y=0, .z=1, .w=0};
+        Vec4 y_quat = yaw(quat);
+        auto vec = y_quat * e_z * conjugate(y_quat);
+        return {.x=vec.x, .y=vec.y, .z=vec.z };
+    }
 
     bool operator==(Vec4, Vec4);
 

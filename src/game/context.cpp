@@ -9,10 +9,12 @@ Context::Context(AppState& app)
 :app(app),
 debug(registry), draw(registry),
 action(registry, app.scriptInvoker),
+input(registry, app.inputChord),
 physics(registry), lifespan(registry){}
 
 
 void Context::update(DeltaTime dt){
+    input.update(dt);
     action.update(dt);
     // auto actionFut = action.update(dt);
     // while(!actionFut.done())
