@@ -20,64 +20,43 @@ namespace ModernBoy::Game
     DEFINE_COMPONENT(Transform,
         DEFINE_TRANSFORM;
     );
-    struct Camera{
-        EntityID entity;
-
-        bool isActive;
+    DEFINE_COMPONENT(Camera,
         CameraType type;
         float fov;
         float nearPlane;
         float farPlane;
         Projection projection;
-    };
-    struct Color{
-        EntityID entity;
-
+    );
+    DEFINE_COMPONENT(Color,
         Vec4 color;
-    };
-    struct Model{
-        EntityID entity;
-
-        bool isActive;
+    );
+    DEFINE_COMPONENT(Model,
         ResourceHandle handle;
         float alpha;
         TextureHandle textureHandle;
         ShaderHandle shaderHandle;
-    };
-    struct Action{
-        EntityID entity;
-
-        bool isActive;
+    )
+    DEFINE_COMPONENT(Action,
         ModuleHandle moduleHandle;
         FunctionID updateFunc;
-    };
-    struct ScriptObject{
-        EntityID entity;
-
-        bool isActive;
+    );
+    DEFINE_COMPONENT(ScriptObject,
         ObjectHandle handle;
-    };
-    struct Input{
-        EntityID entity;
-
-        bool isActive;
+    );
+    DEFINE_COMPONENT(Input,
         bool isMoveEnabled;
         bool isJumpEnabled;
         bool isSkillEnabled;
         ModuleHandle handle;
-    };
-    struct LifeSpan{
-        EntityID entity;
-
+    );
+    DEFINE_COMPONENT(LifeSpan,
         bool isAlive;
-    };
-    struct Rigidbody{
-        EntityID entity;
-
+    );
+    DEFINE_COMPONENT(Rigidbody,
         Vec3 velocity;
         bool useGravity;
         float mass;
-    };
+    );
     enum class ElementType{
         FIRE,
         EARTH,
@@ -87,41 +66,34 @@ namespace ModernBoy::Game
         ICE,
         ELECTRIC
     };
-    struct Element{
-        EntityID entity;
-
+    DEFINE_COMPONENT(Element,
         ElementType type;
-    };
+    );
     struct PhysicsMaterial{
         float bounciness;
         float friction;
     };
-    struct SphereCollider{
-        EntityID entity;
-
+    DEFINE_COMPONENT(SphereCollider,
         Vec3 position;
         float radius;
-    };
-    struct FixedBoxCollider{
-        EntityID entity;
-
+    );
+    DEFINE_COMPONENT(FixedBoxCollider,
         Vec3 position;
         Vec3 scale;
-        PhysicsMaterial material;
-    };
-    struct BoxCollider{
-        EntityID entity;
 
         PhysicsMaterial material;
-    }; static_assert(std::is_trivially_copyable_v<BoxCollider>);
+    );
+    DEFINE_COMPONENT(BoxCollider,
+        PhysicsMaterial material;
+    );
 
     // Event Tags
-    struct Collided{ EntityID entity; }; static_assert(std::is_trivially_copyable_v<Collided>);
+    DEFINE_COMPONENT(Collided,);
 
     // Entity-to-Entity Event 
-    struct PhysicalCollision{
+    DEFINE_COMPONENT(PhysicalCollision,
         Vec3 force;
-    }; static_assert(std::is_trivially_copyable_v<PhysicalCollision>);
+    );
 
     #define ARCHETYPES \
         X(       TRANSFORM) \

@@ -39,7 +39,7 @@ void PhysicsSystem::update(DeltaTime dt){
     }
 
     for(auto id: collided){
-        registry.appendComponent(id, Collided{ .entity=id });
+        registry.appendComponent(id, Collided{ .entity=id, .isActive=true });
     }
     for(auto id: notCollidedCandidate){
         registry.removeComponent<Collided>(id);

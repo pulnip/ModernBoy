@@ -16,6 +16,7 @@ TEST(ArchetypeView, SimpleQuery){
         registry.createEntity(
             Color{
                 .entity = std::numeric_limits<EntityID>::max(),
+                .isActive = true,
                 .color = testColors[i]
             }
         );
@@ -47,6 +48,7 @@ TEST(ArchetypeView, ComplexQuery){
             },
             Color{
                 .entity = std::numeric_limits<EntityID>::max(),
+                .isActive = true,
                 .color = testColors[i]
             }
         );
@@ -83,6 +85,7 @@ TEST(ArchetypeView, EmplaceOrder){
                 },
                 Color{
                     .entity = std::numeric_limits<EntityID>::max(),
+                    .isActive = true,
                     .color = testColors[i]
                 }
             );
@@ -91,6 +94,7 @@ TEST(ArchetypeView, EmplaceOrder){
             registry.createEntity(
                 Color{
                     .entity = std::numeric_limits<EntityID>::max(),
+                    .isActive = true,
                     .color = testColors[i]
                 },
                 Transform{
@@ -135,6 +139,7 @@ TEST(ArchetypeView, AppendComponent){
         entities[i] = registry.createEntity(
             Color{
                 .entity = std::numeric_limits<EntityID>::max(),
+                .isActive = true,
                 .color = testColors[i]
             },
             Transform{
@@ -147,9 +152,10 @@ TEST(ArchetypeView, AppendComponent){
         );
     }
 
-    registry.appendComponent(entities[1],
-        Element{
-        .entity = entities[1], .type = ElementType::FIRE
+    registry.appendComponent(entities[1], Element{
+        .entity = entities[1],
+        .isActive = true,
+        .type = ElementType::FIRE
     });
 
     auto testVal = 0;
@@ -194,6 +200,7 @@ TEST(ArchetypeView, RemoveComponent){
         entities[i] = registry.createEntity(
             Color{
                 .entity = std::numeric_limits<EntityID>::max(),
+                .isActive = true,
                 .color = testColors[i]
             },
             Transform{
@@ -205,6 +212,7 @@ TEST(ArchetypeView, RemoveComponent){
             },
             Element{
                 .entity = std::numeric_limits<EntityID>::max(),
+                .isActive = true,
                 .type = ElementType::WIND
             }
         );

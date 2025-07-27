@@ -147,6 +147,7 @@ std::optional<Rigidbody> parse(toml::node_view<const toml::node> view){
 
     return Rigidbody{
         .entity = invalidEntityID(),
+        .isActive = true,
         .velocity = parse<Vec3>(table["velocity"]).value_or(zeros()),
         .useGravity = table["useGravity"].value_or(false),
         .mass = static_cast<float>(table["mass"].value_or(1.0))
@@ -159,6 +160,7 @@ std::optional<SphereCollider> parse(toml::node_view<const toml::node> view){
 
     return SphereCollider{
         .entity = invalidEntityID(),
+        .isActive = true,
         .position = parse<Vec3>(table["velocity"]).value_or(zeros()),
         .radius = static_cast<float>(table["radius"].value_or(1.0))
     };
