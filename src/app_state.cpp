@@ -88,7 +88,7 @@ MeshHandle AppState::append<Mesh, const std::string&>
     return meshManager.emplace(meshFile);
 #elif defined(USE_METAL)
     return meshManager.emplace(
-        meshFile, renderer.context.metalLayer
+        meshFile, renderer.metalLayer
     );
 #endif
 }
@@ -99,7 +99,7 @@ TextureHandle AppState::append<Texture, const std::string&>
     return textureManager.emplace(textureFile);
 #elif defined(USE_METAL)
     return textureManager.emplace(
-        textureFile, renderer.context.metalLayer
+        textureFile, renderer.metalLayer
     );
 #endif
 }
@@ -110,7 +110,7 @@ ShaderHandle AppState::append<Shader, const std::string&>
     return shaderManager.emplace(shaderFile);
 #elif defined(USE_METAL)
     return shaderManager.emplace(
-        shaderFile, renderer.context.metalLayer
+        shaderFile, renderer.metalLayer
     );
 #endif
 }

@@ -16,7 +16,8 @@
 #if defined(USE_DIRECTX)
 #include "backends/dx11/context.hpp"
 #elif defined(USE_METAL)
-#include "backends/metal/context.hpp"
+#include <SDL3/SDL_metal.h>
+#include "backends/metal/context.h"
 #elif defined(USE_OPENGL)
 #include "backends/opengl/context.hpp"
 #endif
@@ -28,7 +29,7 @@ namespace ModernBoy::Render
         Renderer(SDL_Window*, MeshManager&,
             TextureManager&, ShaderManager&,
             World&);
-        ~Renderer() = default;
+        ~Renderer();
 
         TaskTime expectedExecTime();
         void onFrameStart();
@@ -63,8 +64,13 @@ namespace ModernBoy::Render
             MeshHandle handle, float alpha);
 
     public:
+#if defined(USE_DIRECTX)
         RenderContext context;
-
+#elif defined(USE_METAL)
+        SDL_MetalView view;
+        NativePtr metalLayer;
+        NativePtr context;
+#endif
     private:
         MeshManager& meshManager;
         TextureManager& textureManager;
