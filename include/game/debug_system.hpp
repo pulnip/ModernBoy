@@ -12,7 +12,6 @@ namespace ModernBoy::Game
         DebugSystem(EntityRegistry&);
 
         void update(DeltaTime);
-        // Generator<void> update(DeltaTime);
 
     private:
         EntityRegistry& registry;

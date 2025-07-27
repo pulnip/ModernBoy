@@ -19,7 +19,7 @@ void CheckBox::OnEvent(Event event){
 }
 
 void RadioButton::draw(){
-    for(int i=0; i<labels.size(); ++i){
+    for(Index i=0; i<labels.size(); ++i){
         if(ImGui::RadioButton(labels[i].c_str(), index==i))
             index = i;
         if(i != labels.size()-1)

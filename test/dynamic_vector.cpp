@@ -114,7 +114,7 @@ TEST(DynamicVectorIterator, Trivial){
     for(size_t c=4; c<=20; ++c){
         DynamicVector vec(4, c);
 
-        for(int32_t i=0; i<vec.size(); ++i)
+        for(size_t i=0; i<vec.size(); ++i)
             memcpy(vec[i], &i, 4);
 
         size_t count=0;

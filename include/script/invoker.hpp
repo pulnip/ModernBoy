@@ -29,8 +29,6 @@ namespace ModernBoy::Script
         Invoker& operator=(Invoker&&)=delete;
 
         FunctionID registerFunction(const FuncName& funcName);
-        ABNORMAL_FLAG invokeInput(const Module&, FunctionID,    
-            EntityID, DeltaTime, Input::Trigger);
         ABNORMAL_FLAG invoke(ModuleHandle, FunctionID,
             EntityID, DeltaTime);
         ABNORMAL_FLAG invoke(ObjectHandle, const std::string& func,

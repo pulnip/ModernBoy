@@ -10,7 +10,10 @@ void ModernBoy::Script::printExceptionInfo(asIScriptContext *ctx){
     const asIScriptFunction *function = ctx->GetExceptionFunction();
     std::println("func: {}", function->GetDeclaration());
     std::print("modl: {}", function->GetModuleName());
-    std::print("sect: {}", function->GetScriptSectionName());
+
+    const char* sectionName;
+    function->GetDeclaredAt(&sectionName, nullptr, nullptr);
+    std::print("sect: {}", sectionName);
  
     // Determine the line number where the exception occurred
     std::println("line: {}", ctx->GetExceptionLineNumber());

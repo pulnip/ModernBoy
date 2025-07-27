@@ -4,6 +4,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include "common/alias.hpp"
 #include "ui/event.hpp"
 
 namespace ModernBoy::UI
@@ -17,7 +18,7 @@ namespace ModernBoy::UI
     };
     struct RadioButton{
         std::vector<std::string> labels;
-        int index;
+        Index index;
 
         void draw();
         void OnEvent(Event);

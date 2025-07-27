@@ -106,12 +106,6 @@ int TypeHelper::registerKeyevent(){
     return 0;
 }
 
-static uint64_t getDeltaTime(Context* context){
-    return std::chrono::duration_cast<std::chrono::milliseconds>(
-        context->getDeltaTime()
-    ).count();
-}
-
 int TypeHelper::registerActor(){
     int typeId = engine->GetTypeIdByDecl("uint64");
     if (typeId < 0)

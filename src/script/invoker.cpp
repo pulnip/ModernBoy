@@ -70,39 +70,6 @@ FunctionID Invoker::registerFunction(const FuncName& funcName){
     return newID;
 }
 
-ABNORMAL_FLAG Invoker::invokeInput(const Module& module_,
-    FunctionID func_id, EntityID id, DeltaTime deltaTime,
-    Input::Trigger state
-){
-    auto mod = module_.module_;
-    auto funcName = functionMap.at(func_id);
-
-    auto* func = mod->GetFunctionByName(funcName.c_str());
-    if(func == nullptr){
-        std::println("No function Name {} exists!", funcName);
-        return true;
-    }
-
-    if(auto ret = context->Prepare(func)){
-        if(ret != 0) return true;
-    }
-
-    auto entity = registry.query(id);
-    auto dt = deltaTime.count() / 1'000'000.0f;
-
-    context->SetArgObject(0, &entity);
-    context->SetArgFloat(1, dt);
-
-    auto ret = context->Execute();
-    if(ret != asEXECUTION_FINISHED){
-        if(ret == asEXECUTION_EXCEPTION)
-            std::println("Exception: {} occured",
-                context->GetExceptionString());
-        return true;
-    }
-    return false;
-}
-
 ABNORMAL_FLAG Invoker::invoke(ModuleHandle handle,
     FunctionID func_id, EntityID id, DeltaTime deltaTime
 ){

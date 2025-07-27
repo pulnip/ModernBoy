@@ -38,11 +38,6 @@ namespace ModernBoy
         void load(const ModuleDescriptor&);
 
         AppState& app;
-#if defined(USE_DIRECTX)
-#elif defined(USE_METAL)
-        NativePtr metalView;
-#elif defined(USE_OPENGL)
-#endif
     };
 } // namespace ModernBoy
 
