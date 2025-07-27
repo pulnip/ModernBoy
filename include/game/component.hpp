@@ -154,7 +154,15 @@ namespace ModernBoy::Game
     constexpr auto VIEW_BIT    = TRANSFORM_BIT |    CAMERA_BIT;
     constexpr auto PHYSICS_BIT = TRANSFORM_BIT | RIGIDBODY_BIT;
 
-    size_t size_of(ArchetypeBit bit);
+    constexpr size_t size_of(ArchetypeBit bit){
+        size_t size = sizeof(EntityID);
+        #define X(type, name) \
+            if(bit & name##_BIT) \
+                size += sizeof(type);
+        ARCHETYPE_PAIRS
+        #undef X
+        return size;
+    }
 
     template<typename T>
     consteval ArchetypeBit bit_of();
@@ -190,9 +198,20 @@ namespace ModernBoy::Game
         return offset;
     }
 
-    std::string name_of(ArchetypeBit);
+    constexpr std::string name_of(ArchetypeBit bit){
+        switch(bit) {
+        #define X(type, name) \
+        case name##_BIT: \
+            return #type;
+        ARCHETYPE_PAIRS
+        #undef X
+        default:
+            return "Unnamed";
+        }
+    }
+
     template<typename T>
-    std::string name_of(){
+    constexpr std::string name_of(){
         return name_of(bit_of<T>());
     }
 } // namespace ModernBoy
