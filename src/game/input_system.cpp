@@ -15,13 +15,13 @@ void InputSystem::update(DeltaTime dt){
 
     for(auto [id, bit, tc, _1]: registry.query<Transform, Player>()){
         if(input.query(KEY_LEFT, Held))
-            tc.position -= 5 * dt_ * ground_right(tc.rotation);
+            tc.position -= 10 * dt_ * ground_right(tc.rotation);
         if(input.query(KEY_RIGHT, Held))
-            tc.position += 5 * dt_ * ground_right(tc.rotation);
+            tc.position += 10 * dt_ * ground_right(tc.rotation);
         if(input.query(KEY_UP, Held))
-            tc.position += 5 * dt_ * ground_forward(tc.rotation);
+            tc.position -= 10 * dt_ * ground_forward(tc.rotation);
         if(input.query(KEY_DOWN, Held))
-            tc.position -= 5 * dt_ * ground_forward(tc.rotation);
+            tc.position += 10 * dt_ * ground_forward(tc.rotation);
         // if(input.query(KEY_SPACE, Pressed))
         //     jump;
     }
