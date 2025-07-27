@@ -181,6 +181,13 @@ std::optional<Camera> parse(toml::node_view<const toml::node> view){
     };
 }
 
+template<>
+std::optional<Player> parse(toml::node_view<const toml::node> view){
+    CHECK_IF_TABLE(view, table)
+
+    return Player{};
+}
+
 AssetLoader::AssetLoader(AppState& app):app(app){
     loadAction("asset/action.toml");
     loadAsset("asset/actor.toml");
@@ -215,9 +222,11 @@ void AssetLoader::loadAsset(const std::string& fileName){
         auto scc = parse<SphereCollider>(
             entity["sphereCollider"]);
 
+        auto pc = parse<Player>(entity["player"]);
+
         GameDebug("Actor loaded, name: {}", name);
 
-        app.world.registry.createEntity(tc, cc, mc, soc, rc, scc);
+        app.world.registry.createEntity(tc, cc, mc, soc, rc, scc, pc);
     }
 }
 
