@@ -12,6 +12,8 @@ void PhysicsSystem::update(DeltaTime dt){
     auto dt_ = dt.count() / 1'000'000.0f;
 
     auto vec = asVector();
+    std::vector<bool> collided(vec.size(), false);
+
     for(Index i=0; i<vec.size(); ++i){
         auto [src_id, src_bit, src_tc, src_rc, src_sc] = vec[i];
         auto src_pos = src_tc->position + src_sc->position;
@@ -22,36 +24,29 @@ void PhysicsSystem::update(DeltaTime dt){
             auto tgt_pos = tgt_tc->position + tgt_sc->position;
             auto tgt_rad = tgt_sc->radius;
 
-            auto [_1, src_c_ret] = registry.query_safe<Collided>(src_id);
-            auto [_2, tgt_c_ret] = registry.query_safe<Collided>(src_id);
             if(sphereCollision(src_pos, src_rad, tgt_pos, tgt_rad)){
-                if(!src_c_ret){
-                    registry.appendComponent(src_id, Collided{.entity=src_id, .isActive=true });
-                    auto [src_mc, src_mc_ret] = registry.query_safe<Model>(src_id);
-                    if(src_mc_ret)
-                        src_mc.alpha = 0.5f;
-                }
-                if(!tgt_c_ret){
-                    registry.appendComponent(tgt_id, Collided{.entity=tgt_id, .isActive=true });
-                    auto [tgt_mc, tgt_mc_ret] = registry.query_safe<Model>(tgt_id);
-                    if(tgt_mc_ret)
-                        tgt_mc.alpha = 0.5f;
-                }
+                collided[i] = true;
+                collided[j] = true;
             }
-            else{
-                if(src_c_ret){
-                    registry.removeComponent<Collided>(src_id);
-                    auto [src_mc, src_mc_ret] = registry.query_safe<Model>(src_id);
-                    if(src_mc_ret)
-                        src_mc.alpha = 1.0f;
-                }
-                if(tgt_c_ret){
-                    registry.removeComponent<Collided>(tgt_id);
-                    auto [tgt_mc, tgt_mc_ret] = registry.query_safe<Model>(tgt_id);
-                    if(tgt_mc_ret)
-                        tgt_mc.alpha = 1.0f;
-                }
-            }
+        }
+    }
+
+    for(Index i=0; i<vec.size(); ++i){
+        auto [id, bit, _1, _2, _3] = vec[i];
+        auto [_4, collided_before] = registry.query_safe<Collided>(id);
+        bool collided_now = collided[i];
+
+        if(collided_now && !collided_before){
+            registry.appendComponent(id, Collided{.entity=id, .isActive=true});
+            auto [mc, has_mc] = registry.query_safe<Model>(id);
+            if(has_mc)
+                mc.alpha = 0.5f;
+        }
+        else if(!collided_now && collided_before){
+            registry.removeComponent<Collided>(id);
+            auto [mc, has_mc] = registry.query_safe<Model>(id);
+            if(has_mc)
+                mc.alpha = 1.0f;
         }
     }
 

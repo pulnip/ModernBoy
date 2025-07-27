@@ -29,5 +29,6 @@ fragment float4 fragment_main(
         input.worldPosition, viewPosition, light);
     float3 rimColor = rimLighting(color.rgb, input.normal,
         input.worldPosition, viewPosition, rimc);
-    return float4(phongColor + rimColor, alpha);
+
+    return float4(mix(float3(1.0, 0.0, 0.0), phongColor + rimColor, alpha), 1.0);
 }
