@@ -8,9 +8,9 @@ DebugSystem::DebugSystem(EntityRegistry& registry)
 :registry(registry){}
 
 void DebugSystem::update(DeltaTime){
-    for(auto [id, bit, mc, _]: registry.query<Model, Collided>()){
-        mc.alpha = 0.5f;
-    }
+    // for(auto [id, bit, mc, _]: registry.query<Model, Collided>()){
+    //     mc.alpha = 0.5f;
+    // }
 }
 // Generator<void> DebugSystem::update(DeltaTime){
 //     for(auto [id, bit, mc, _]: registry.query<Mesh, Collided>()){

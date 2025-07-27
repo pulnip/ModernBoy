@@ -169,10 +169,15 @@ namespace ModernBoy::Game
     COMPOSIT_PAIRS
     #undef X
 
-    bool subset(ArchetypeBit a, ArchetypeBit b);
+    constexpr bool subset(ArchetypeBit a, ArchetypeBit b){
+        return (a & b) == a;
+    }
 
     template<typename T>
     constexpr size_t offset_of(ArchetypeBit bit){
+        if(!subset(bit_of<T>(), bit))
+            return -1;
+
         #define COMP_OFFSET(type, name) \
             if(std::same_as<T, type>) \
                 return offset; \
@@ -183,6 +188,12 @@ namespace ModernBoy::Game
         ARCHETYPE_PAIRS
         #undef X
         return offset;
+    }
+
+    std::string name_of(ArchetypeBit);
+    template<typename T>
+    std::string name_of(){
+        return name_of(bit_of<T>());
     }
 } // namespace ModernBoy
 

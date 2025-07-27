@@ -34,6 +34,24 @@ size_t ModernBoy::Game::size_of(ArchetypeBit bit){
     return size;
 }
 
-bool ModernBoy::Game::subset(ArchetypeBit a, ArchetypeBit b){
-    return (a & b) == a;
+static std::unordered_map<ArchetypeBit, std::string>
+bit2name = {
+    {     TRANSFORM_BIT,      "Transform"},
+    {        CAMERA_BIT,         "Camera"},
+    {         COLOR_BIT,          "Color"},
+    {          MESH_BIT,          "Model"},
+    {        ACTION_BIT,         "Action"},
+    {        SCRIPT_BIT,         "Script"},
+    {         INPUT_BIT,          "Input"},
+    {     RIGIDBODY_BIT,      "Rigidbody"},
+    {       ELEMENT_BIT,        "Element"},
+    {SPHERECOLLIDER_BIT, "SphereCollider"},
+    {      COLLIDED_BIT,       "Collided"}
+};
+
+std::string ModernBoy::Game::name_of(ArchetypeBit bit){
+    auto it = bit2name.find(bit);
+    if(it == bit2name.end())
+        return "Unnamed";
+    return it->second;
 }

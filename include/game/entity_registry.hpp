@@ -272,6 +272,18 @@ namespace ModernBoy::Game
                 )...
             );
         }
+        template<typename T>
+        std::pair<T&, bool> query_safe(EntityID id){
+            const auto& info = entityTable.at(id);
+            auto& vec = archetypeMap.at(info.bit);
+            auto chunk = vec[info.chunkIndex];
+
+            auto offset = offset_of<T>(info.bit);
+            return {
+                *static_cast<T*>(Util::add(chunk, offset)),
+                offset != std::numeric_limits<size_t>::max()
+            };
+        }
         Entity query(EntityID id);
 
         template<typename T>
@@ -307,8 +319,8 @@ namespace ModernBoy::Game
             auto& info = entity_it->second;
 
             if(!subset(bit_of<T>(), info.bit)){
-                GameWarn("Component {} not exist. (entity: {}, archetype: {})",
-                    bit_of<T>(), id, info.bit);
+                GameWarn("{} not exist. (entity: {}, archetype: {})",
+                    name_of<T>(), id, info.bit);
                 return;
             }
 
@@ -337,12 +349,12 @@ namespace ModernBoy::Game
 
             // 1. copy new chunk
             // copy chunk before component
-            dst = Util::chunkcpy(dst, chunk, offset_of<T>(info.bit));
-            chunk = Util::add(        chunk, offset_of<T>(info.bit));
+            dst = Util::chunkcpy(dst, chunk, offset_of<T>(new_bit));
+            chunk = Util::add(        chunk, offset_of<T>(new_bit));
             // copy component
             dst = Util::chunkcpy(dst, std::forward<T>(component));
             // copy chunk after component
-            Util::chunkcpy(dst, chunk, size_of(info.bit) - offset_of<T>(info.bit));
+            Util::chunkcpy(dst, chunk, size_of(info.bit) - offset_of<T>(new_bit));
 
             // 2. remove old chunk
             old_vec.swap_remove(info.chunkIndex);

@@ -16,12 +16,9 @@ namespace ModernBoy::Game
         PhysicsSystem(EntityRegistry& registry);
 
         void update(DeltaTime);
-        // Generator<void> update(DeltaTime);
 
     private:
-        std::vector<SphereColliderProxy> flatten();
-        std::vector<SphereCollisionCandidate> findCandidate();
-        std::vector<EntityID> findCollidedBefore();
+        std::vector<SphereColliderProxy> asVector();
 
         EntityRegistry& registry;
     };
