@@ -99,6 +99,15 @@ namespace ModernBoy
         };
     }
 
+    inline Vec4 rotateX(float theta) {
+        float half = theta * 0.5f;
+        return Vec4{
+            .x = std::sinf(half),
+            .y = 0.0f,
+            .z = 0.0f,
+            .w = std::cosf(half)
+        };
+    }
     inline Vec4 rotateY(float theta) {
         float half = theta * 0.5f;
         return Vec4{

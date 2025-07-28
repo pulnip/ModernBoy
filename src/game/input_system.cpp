@@ -30,4 +30,28 @@ void InputSystem::update(DeltaTime dt){
         // if(input.query(KEY_SPACE, Pressed))
         //     jump;
     }
+
+    for(auto [id, bit, tc, _2]: registry.query<Transform, Editor>()){
+        if(input.query(KEY_A, Held))
+            tc.position -= 10 * dt_ * right(tc.rotation);
+        if(input.query(KEY_D, Held))
+            tc.position += 10 * dt_ * right(tc.rotation);
+        if(input.query(KEY_W, Held))
+            tc.position += 10 * dt_ * forward(tc.rotation);
+        if(input.query(KEY_S, Held))
+            tc.position -= 10 * dt_ * forward(tc.rotation);
+        if(input.query(KEY_SPACE, Held))
+            tc.position += 10 * dt_ * up(tc.rotation);
+        if(input.query(KEY_SHIFT, Held))
+            tc.position -= 10 * dt_ * up(tc.rotation);
+
+        if(input.query(KEY_I, Held))
+            tc.rotation = tc.rotation * rotateX( 3.14/2 * dt_);
+        if(input.query(KEY_K, Held))
+            tc.rotation = tc.rotation * rotateX(-3.14/2 * dt_);
+        if(input.query(KEY_L, Held))
+            tc.rotation = tc.rotation * rotateY( 3.14/2 * dt_);
+        if(input.query(KEY_J, Held))
+            tc.rotation = tc.rotation * rotateY(-3.14/2 * dt_);
+    }
 }

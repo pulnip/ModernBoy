@@ -90,6 +90,7 @@ namespace ModernBoy::Game
     // State Tags
     DEFINE_COMPONENT(Collided,);
     DEFINE_COMPONENT(Player,);
+    DEFINE_COMPONENT(Editor,);
 
     // Entity-to-Entity Event 
     DEFINE_COMPONENT(PhysicalCollision,
@@ -112,7 +113,8 @@ namespace ModernBoy::Game
         X(     BOXCOLLIDER) \
         X(       COLLISION) \
         X(        COLLIDED) \
-        X(          PLAYER)
+        X(          PLAYER) \
+        X(          EDITOR)
     #define ARCHETYPE_PAIRS \
         X(        Transform,        TRANSFORM) \
         X(           Camera,           CAMERA) \
@@ -129,7 +131,8 @@ namespace ModernBoy::Game
         X(      BoxCollider,      BOXCOLLIDER) \
         X(PhysicalCollision,        COLLISION) \
         X(         Collided,         COLLIDED) \
-        X(           Player,           PLAYER)
+        X(           Player,           PLAYER) \
+        X(           Editor,           EDITOR)
     #define COMPOSIT_PAIRS \
         X(                 DrawTask,             DRAW) \
         X(                 ViewTask,             VIEW) \

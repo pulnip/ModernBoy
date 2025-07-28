@@ -132,7 +132,8 @@ fov        = 45.0
 nearPlane  = 0.1
 farPlane   = 100.0
 projection = "perspective"
-[entities.player]
+# [entities.player]
+[entities.editor]
 
 [[entities]]
 name = "Camera1"

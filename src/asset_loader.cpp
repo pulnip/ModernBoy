@@ -185,7 +185,19 @@ template<>
 std::optional<Player> parse(toml::node_view<const toml::node> view){
     CHECK_IF_TABLE(view, table)
 
-    return Player{};
+    return Player{
+        .entity = invalidEntityID(),
+        .isActive = true
+    };
+}
+template<>
+std::optional<Editor> parse(toml::node_view<const toml::node> view){
+    CHECK_IF_TABLE(view, table)
+
+    return Editor{
+        .entity = invalidEntityID(),
+        .isActive = true
+    };
 }
 
 AssetLoader::AssetLoader(AppState& app):app(app){
@@ -223,10 +235,11 @@ void AssetLoader::loadAsset(const std::string& fileName){
             entity["sphereCollider"]);
 
         auto pc = parse<Player>(entity["player"]);
+        auto ec = parse<Editor>(entity["editor"]);
 
         GameDebug("Actor loaded, name: {}", name);
 
-        app.world.registry.createEntity(tc, cc, mc, soc, rc, scc, pc);
+        app.world.registry.createEntity(tc, cc, mc, soc, rc, scc, pc, ec);
     }
 }
 
