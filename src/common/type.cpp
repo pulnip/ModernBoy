@@ -29,28 +29,8 @@ bool ModernBoy::operator==(Vec2 lhs, Vec2 rhs){
     return (lhs.x==rhs.x) && (lhs.y==rhs.y);
 }
 
-float ModernBoy::dot(Vec2 lhs, Vec2 rhs){
-    return lhs.x*rhs.x + lhs.y*rhs.y;
-}
-float ModernBoy::cross(Vec2 lhs, Vec2 rhs){
-    return lhs.x*rhs.y - lhs.y*rhs.x;
-}
-
 Vec3 ModernBoy::operator/(Vec3 v, float f){
     return {{v.x/f, v.y/f, v.z/f}};
-}
-Vec3 ModernBoy::cross(Vec3 lhs, Vec3 rhs){
-    return {{
-        lhs.y*rhs.z - lhs.z*rhs.y,
-        lhs.z*rhs.x - lhs.x*rhs.z,
-        lhs.x*rhs.y - lhs.y*rhs.x
-    }};
-}
-float ModernBoy::dot(Vec3 lhs, Vec3 rhs){
-    return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z;
-}
-float ModernBoy::norm_squared(Vec3 v){
-    return v.x*v.x + v.y*v.y + v.z*v.z;
 }
 bool ModernBoy::operator==(Vec3 lhs, Vec3 rhs){
     return lhs.x==rhs.x && lhs.y==rhs.y && lhs.z==rhs.z;

@@ -31,8 +31,21 @@ namespace ModernBoy
 
     bool operator==(Vec2, Vec2);
 
-    float dot(Vec2, Vec2);
-    float cross(Vec2, Vec2);
+    constexpr float dot(Vec2 lhs, Vec2 rhs){
+        return lhs.x*rhs.x + lhs.y*rhs.y;
+    }
+    constexpr float norm_squared(Vec2 v){
+        return dot(v, v);
+    }
+    inline float norm(Vec2 v){
+        return std::sqrt(norm_squared(v));
+    }
+    inline Vec2 normalize(Vec2 v){
+        return v / norm(v);
+    }
+    constexpr float cross(Vec2 lhs, Vec2 rhs){
+        return lhs.x*rhs.y - lhs.y*rhs.x;
+    }
 
     Vec3 zeros();
     Vec3 ones();
@@ -71,12 +84,28 @@ namespace ModernBoy
         return v;
     }
     Vec3 operator/(Vec3, float);
-    Vec3 cross(Vec3, Vec3);
 
     bool operator==(Vec3, Vec3);
 
-    float dot(Vec3, Vec3);
-    float norm_squared(Vec3);
+    constexpr float dot(Vec3 lhs, Vec3 rhs){
+        return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z;
+    }
+    constexpr float norm_squared(Vec3 v){
+        return dot(v, v);
+    }
+    inline float norm(Vec3 v){
+        return std::sqrt(norm_squared(v));
+    }
+    inline Vec3 normalize(Vec3 v){
+        return v / norm(v);
+    }
+    constexpr Vec3 cross(Vec3 lhs, Vec3 rhs){
+        return {
+            .x = lhs.y*rhs.z - lhs.z*rhs.y,
+            .y = lhs.z*rhs.x - lhs.x*rhs.z,
+            .z = lhs.x*rhs.y - lhs.y*rhs.x
+        };
+    }
 
     constexpr Vec4 unitQuat(){
         return {.x=0, .y=0, .z=0, .w=1};
@@ -117,11 +146,30 @@ namespace ModernBoy
             .w = std::cosf(half)
         };
     }
+    inline Vec4 rotateZ(float theta) {
+        float half = theta * 0.5f;
+        return Vec4{
+            .x = 0.0f,
+            .y = 0.0f,
+            .z = std::sinf(half),
+            .w = std::cosf(half)
+        };
+    }
     inline Vec4 yaw(Vec4 quat){
         float siny_cosp = 2*(quat.w*quat.y + quat.x*quat.z);
         float cosy_cosp = 1 - 2*(quat.y*quat.y + quat.x*quat.x);
         float theta = std::atan2(siny_cosp, cosy_cosp);
         return rotateY(theta);
+    }
+    constexpr Vec4 axisAngle(Vec3 axis, float radian){
+        auto half = radian / 2;
+        float s = std::sinf(half);
+        return {
+            .x = axis.x * s,
+            .y = axis.y * s,
+            .z = axis.z * s,
+            .w = std::cosf(half)
+        };
     }
 
     constexpr Vec3 right(Vec4 quat){

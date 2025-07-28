@@ -12,6 +12,7 @@ using namespace ModernBoy::Input;
 
 Device::Device(SDL_Window* window)
 :window(window), sdlKeyboard(SDL_GetKeyboardState(nullptr)){
+
     SDL_SetWindowRelativeMouseMode(window, true);
 }
 Device::Device(Device&& other){
@@ -37,26 +38,31 @@ void Device::fetch(State& state){
         state.keyboard[key] = newState;
     }
 
-    if(state.keyboard[KEY_SHIFT] == Pressed){
-        SDL_SetWindowRelativeMouseMode(window, false);
-    }
-    else if(state.keyboard[KEY_SHIFT] == Released){
-        SDL_SetWindowRelativeMouseMode(window, true);
-    }
+    // if(state.keyboard[KEY_SHIFT] == Pressed){
+    //     SDL_SetWindowRelativeMouseMode(window, false);
+    // }
+    // else if(state.keyboard[KEY_SHIFT] == Released){
+    //     SDL_SetWindowRelativeMouseMode(window, true);
+    // }
 
-    state.mouse.dx = 0;
-    state.mouse.dy = 0;
+    // auto x0 = state.mouse.x, y0 = state.mouse.y;
+    SDL_GetRelativeMouseState(&state.mouse.dx, &state.mouse.dy);
+    // state.mouse.dx = state.mouse.x - x0;
+    // state.mouse.dy = state.mouse.y - y0;
 
-    SDL_Event event;
-    if(!SDL_PollEvent(&event))
-        return;
+    // state.mouse.dx = 0;
+    // state.mouse.dy = 0;
 
-    if(event.type == SDL_EVENT_MOUSE_MOTION){
-        state.mouse = {
-            .x = event.motion.x,
-            .y = event.motion.y,
-            .dx = event.motion.xrel,
-            .dy = event.motion.yrel
-        };
-    }
+    // SDL_Event event;
+    // if(!SDL_PollEvent(&event))
+    //     return;
+
+    // if(event.type == SDL_EVENT_MOUSE_MOTION){
+    //     state.mouse = {
+    //         .x = event.motion.x,
+    //         .y = event.motion.y,
+    //         .dx = event.motion.xrel,
+    //         .dy = event.motion.yrel
+    //     };
+    // }
 }

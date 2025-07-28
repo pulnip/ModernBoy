@@ -172,8 +172,6 @@ namespace ModernBoy::Game
         X(                 ViewTask,             VIEW) \
         X(               ActionTask,           ACTION)
 
-    constexpr auto x = EDITOR_BIT;
-
     #define ASSERT_TRIVIAL(type, name) static_assert(std::is_trivially_copyable_v<type>);
     #define X ASSERT_TRIVIAL
     ARCHETYPE_PAIRS

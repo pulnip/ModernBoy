@@ -45,13 +45,26 @@ void InputSystem::update(DeltaTime dt){
         if(input.query(KEY_SHIFT, Held))
             tc.position -= 10 * dt_ * up(tc.rotation);
 
-        if(input.query(KEY_I, Held))
-            tc.rotation = tc.rotation * rotateX( 3.14/2 * dt_);
-        if(input.query(KEY_K, Held))
-            tc.rotation = tc.rotation * rotateX(-3.14/2 * dt_);
-        if(input.query(KEY_L, Held))
-            tc.rotation = tc.rotation * rotateY( 3.14/2 * dt_);
-        if(input.query(KEY_J, Held))
-            tc.rotation = tc.rotation * rotateY(-3.14/2 * dt_);
+        Vec2 mouse_move = input.mouse();
+
+        if(norm_squared(mouse_move) > 0){
+            Vec3 mouse_vec{
+                .x = mouse_move.x,
+                .y = -mouse_move.y,
+                .z = 0
+            };
+
+            Vec3 axis = normalize(cross(Vec3{{0, 0, 1}}, mouse_vec));
+
+            float theta = norm(mouse_move) / 10.0f;
+            Vec4 mouse_quat = axisAngle(axis, theta * dt_);
+    
+            tc.rotation = tc.rotation * mouse_quat;
+        }
+
+        if(input.query(KEY_Q, Held))
+            tc.rotation = tc.rotation * rotateZ( 3.14/2 * dt_);
+        if(input.query(KEY_E, Held))
+            tc.rotation = tc.rotation * rotateZ(-3.14/2 * dt_);
     }
 }
