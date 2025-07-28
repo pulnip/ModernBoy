@@ -14,14 +14,19 @@ void InputSystem::update(DeltaTime dt){
     auto dt_ = dt.count() / 1'000'000.0f;
 
     for(auto [id, bit, tc, _1]: registry.query<Transform, Player>()){
-        if(input.query(KEY_LEFT, Held))
+        if(input.query(KEY_A, Held))
             tc.position -= 10 * dt_ * ground_right(tc.rotation);
-        if(input.query(KEY_RIGHT, Held))
+        if(input.query(KEY_D, Held))
             tc.position += 10 * dt_ * ground_right(tc.rotation);
-        if(input.query(KEY_UP, Held))
-            tc.position -= 10 * dt_ * ground_forward(tc.rotation);
-        if(input.query(KEY_DOWN, Held))
+        if(input.query(KEY_W, Held))
             tc.position += 10 * dt_ * ground_forward(tc.rotation);
+        if(input.query(KEY_S, Held))
+            tc.position -= 10 * dt_ * ground_forward(tc.rotation);
+
+        if(input.query(KEY_Q, Held))
+            tc.rotation = rotateY(-3.14/2 * dt_) * tc.rotation;
+        if(input.query(KEY_E, Held))
+            tc.rotation = rotateY( 3.14/2 * dt_) * tc.rotation;
         // if(input.query(KEY_SPACE, Pressed))
         //     jump;
     }

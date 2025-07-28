@@ -4,7 +4,7 @@ using namespace std::chrono_literals;
 using namespace ModernBoy;
 using namespace ModernBoy::Input;
 
-Chord::Chord():ema(0ms){}
+Chord::Chord(SDL_Window* window):device(window), ema(0ms){}
 
 TaskTime Chord::expectedExecTime(){
     return ema;
@@ -34,6 +34,10 @@ void Chord::update(DeltaTime){
 bool Chord::query(KeyCode keyCode, KeyState keyState
 ){
     return state[readIndex].keyboard[keyCode] == keyState;
+}
+
+Vec2 Chord::mouse(){
+    return {.x = state->mouse.dx, .y = state->mouse.dy};
 }
 
 void Chord::updateEMA(TaskTime elapsed){

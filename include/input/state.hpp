@@ -99,9 +99,15 @@ namespace ModernBoy::Input
         uint8_t current);
 
     using Keyboard = std::array<KeyState, KEY_UNKNOWN>;
+
+    struct Mouse{
+        float x, y;
+        float dx, dy;
+    };
     
     struct State{
         Keyboard keyboard;
+        Mouse mouse;
     };
 
     constexpr uint32_t STATE_MASK = 0b11;

@@ -99,16 +99,20 @@ namespace ModernBoy
         };
     }
 
+    inline Vec4 rotateY(float theta) {
+        float half = theta * 0.5f;
+        return Vec4{
+            .x = 0.0f,
+            .y = std::sinf(half),
+            .z = 0.0f,
+            .w = std::cosf(half)
+        };
+    }
     inline Vec4 yaw(Vec4 quat){
         float siny_cosp = 2*(quat.w*quat.y + quat.x*quat.z);
         float cosy_cosp = 1 - 2*(quat.y*quat.y + quat.x*quat.x);
-        float half_yaw = std::atan2(siny_cosp, cosy_cosp) / 2;
-        return {
-            .x = std::cosf(half_yaw),
-            .y = 0,
-            .z = std::sinf(half_yaw),
-            .w = 0
-        };
+        float theta = std::atan2(siny_cosp, cosy_cosp);
+        return rotateY(theta);
     }
 
     constexpr Vec3 right(Vec4 quat){

@@ -2,6 +2,7 @@
 #define MODERNBOY_INPUT_CHORD_HPP
 
 #include <atomic>
+#include <SDL3/SDL_video.h>
 #include "interface.hpp"
 #include "input/device.hpp"
 #include "input/state.hpp"
@@ -10,13 +11,15 @@ namespace ModernBoy::Input
 {
     class Chord{
     public:
-        Chord();
+        Chord(SDL_Window* window);
 
         TaskTime expectedExecTime();
         void update(DeltaTime);
         // Generator<void> update(DeltaTime deltatime);
 
         bool query(KeyCode, KeyState);
+
+        Vec2 mouse();
 
         const TaskPolicy policy{
             .effective_window_size = 10,

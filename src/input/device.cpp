@@ -1,14 +1,19 @@
+#include <print>
 #include <utility>
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL.h>
 #include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_mouse.h>
 #include "input/state.hpp"
 #include "input/device.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Input;
 
-Device::Device()
-:sdlKeyboard(SDL_GetKeyboardState(nullptr)){}
+Device::Device(SDL_Window* window)
+:window(window), sdlKeyboard(SDL_GetKeyboardState(nullptr)){
+    SDL_SetWindowRelativeMouseMode(window, true);
+}
 Device::Device(Device&& other){
     moveFrom(std::move(other)); }
 Device& Device::operator=(Device&& other){
@@ -30,5 +35,28 @@ void Device::fetch(State& state){
 
         auto newState = transit(state.keyboard[key], active);
         state.keyboard[key] = newState;
+    }
+
+    if(state.keyboard[KEY_SHIFT] == Pressed){
+        SDL_SetWindowRelativeMouseMode(window, false);
+    }
+    else if(state.keyboard[KEY_SHIFT] == Released){
+        SDL_SetWindowRelativeMouseMode(window, true);
+    }
+
+    state.mouse.dx = 0;
+    state.mouse.dy = 0;
+
+    SDL_Event event;
+    if(!SDL_PollEvent(&event))
+        return;
+
+    if(event.type == SDL_EVENT_MOUSE_MOTION){
+        state.mouse = {
+            .x = event.motion.x,
+            .y = event.motion.y,
+            .dx = event.motion.xrel,
+            .dy = event.motion.yrel
+        };
     }
 }

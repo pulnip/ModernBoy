@@ -9,7 +9,7 @@ namespace ModernBoy::Input
 
     class Device{
     public:
-        Device();
+        Device(SDL_Window* window);
         ~Device() = default;
         Device(const Device& other)=delete;
         Device(Device&&);
@@ -21,6 +21,7 @@ namespace ModernBoy::Input
     private:
         void moveFrom(Device&& other);
 
+        SDL_Window* window;
         const bool* sdlKeyboard = nullptr;
     };
 }

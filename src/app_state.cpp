@@ -51,7 +51,7 @@ shaderManager(), moduleManager(),
 renderer(window, meshManager, textureManager,
     shaderManager, world),
 userInterface(window, renderer, *this),
-inputChord(),
+inputChord(window),
 scriptInvoker(world.registry, moduleManager,
     objectManager, inputChord),
 // others

@@ -36,18 +36,7 @@ static SDL_AppResult _handle_key_event([[maybe_unused]] void* ctx,
     switch(key_code){
     /* Quit. */
     case SDL_SCANCODE_ESCAPE:
-    case SDL_SCANCODE_Q:
         return SDL_APP_SUCCESS;
-    case SDL_SCANCODE_R:
-        break;
-    case SDL_SCANCODE_RIGHT:
-        break;
-    case SDL_SCANCODE_UP:
-        break;
-    case SDL_SCANCODE_LEFT:
-        break;
-    case SDL_SCANCODE_DOWN:
-        break;
     default:
         break;
     }
