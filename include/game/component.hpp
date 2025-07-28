@@ -15,7 +15,7 @@ namespace ModernBoy::Game
         EntityID entity; \
         bool isActive; \
         __VA_ARGS__ \
-    };
+    }
 
     DEFINE_COMPONENT(Transform,
         DEFINE_TRANSFORM;
@@ -35,7 +35,7 @@ namespace ModernBoy::Game
         float alpha;
         TextureHandle textureHandle;
         ShaderHandle shaderHandle;
-    )
+    );
     DEFINE_COMPONENT(Action,
         ModuleHandle moduleHandle;
         FunctionID updateFunc;
@@ -87,12 +87,27 @@ namespace ModernBoy::Game
         PhysicsMaterial material;
     );
 
-    // State Tags
-    DEFINE_COMPONENT(Collided,);
+    // Entity Type? Property? Tags (kept in Long-term)
     DEFINE_COMPONENT(Player,);
     DEFINE_COMPONENT(Editor,);
+    DEFINE_COMPONENT(Attachable,);
+    DEFINE_COMPONENT(Climbable,);
+    DEFINE_COMPONENT(Inventory,);
+    DEFINE_COMPONENT(Lootable,);
+    DEFINE_COMPONENT(LootMagnet,);
 
-    // Entity-to-Entity Event 
+    // Entity Temporal State Tags (kept in Short-term)
+    DEFINE_COMPONENT(Attached,
+        EntityID target;
+    );
+    DEFINE_COMPONENT(Climbed,
+        EntityID climbable;
+    );
+    DEFINE_COMPONENT(Collided,);
+    DEFINE_COMPONENT(Walked,);
+    DEFINE_COMPONENT(Ran,);
+
+    // Entity-to-Entity Event Tags
     DEFINE_COMPONENT(PhysicalCollision,
         Vec3 force;
     );
@@ -114,7 +129,16 @@ namespace ModernBoy::Game
         X(       COLLISION) \
         X(        COLLIDED) \
         X(          PLAYER) \
-        X(          EDITOR)
+        X(          EDITOR) \
+        X(      ATTACHABLE) \
+        X(       CLIMBABLE) \
+        X(       INVENTORY) \
+        X(        LOOTABLE) \
+        X(      LOOTMAGNET) \
+        X(        ATTACHED) \
+        X(         CLIMBED) \
+        X(          WALKED) \
+        X(             RAN)
     #define ARCHETYPE_PAIRS \
         X(        Transform,        TRANSFORM) \
         X(           Camera,           CAMERA) \
@@ -132,11 +156,23 @@ namespace ModernBoy::Game
         X(PhysicalCollision,        COLLISION) \
         X(         Collided,         COLLIDED) \
         X(           Player,           PLAYER) \
-        X(           Editor,           EDITOR)
+        X(           Editor,           EDITOR) \
+        X(       Attachable,       ATTACHABLE) \
+        X(        Climbable,        CLIMBABLE) \
+        X(        Inventory,        INVENTORY) \
+        X(         Lootable,         LOOTABLE) \
+        X(       LootMagnet,       LOOTMAGNET) \
+        X(         Attached,         ATTACHED) \
+        X(          Climbed,          CLIMBED) \
+        X(           Walked,           WALKED) \
+        X(              Ran,              RAN)
+
     #define COMPOSIT_PAIRS \
         X(                 DrawTask,             DRAW) \
         X(                 ViewTask,             VIEW) \
         X(               ActionTask,           ACTION)
+
+    constexpr auto x = EDITOR_BIT;
 
     #define ASSERT_TRIVIAL(type, name) static_assert(std::is_trivially_copyable_v<type>);
     #define X ASSERT_TRIVIAL
