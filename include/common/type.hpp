@@ -71,8 +71,19 @@ namespace ModernBoy
         lhs.z -= rhs.z;
         return lhs;
     }
+    constexpr Vec3 operator*(Vec3 lhs, Vec3 rhs){
+        return{
+            .x = lhs.x * rhs.x,
+            .y = lhs.y * rhs.y,
+            .z = lhs.z * rhs.z
+        };
+    }
     constexpr Vec3 operator*(float f, Vec3 v){
-        return {{f*v.x, f*v.y, f*v.z}};
+        return {
+            .x = f*v.x,
+            .y = f*v.y,
+            .z = f*v.z
+        };
     }
     constexpr Vec3 operator*(Vec3 v, float f){
         return f*v;
