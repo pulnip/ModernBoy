@@ -16,6 +16,7 @@ namespace ModernBoy::Game
         PhysicsSystem(EntityRegistry& registry);
 
         void update(DeltaTime);
+        void simulateGravity(DeltaTime);
 
     private:
         std::vector<SphereColliderProxy> asVector();

@@ -50,9 +50,24 @@ void PhysicsSystem::update(DeltaTime dt){
         }
     }
 
+    simulateGravity(dt);
+
     for(auto [id, bit, tc, rc]: registry.query<Transform, Rigidbody>()){
         tc.position += rc.velocity * dt_;
     }
+}
+
+void PhysicsSystem::simulateGravity(DeltaTime dt){
+    auto dt_ = dt.count() / 1'000'000.0f;
+
+    for(auto [id, bit, tf, rb]: registry.query<Transform, Rigidbody>()){
+        if(bit & GROUNDED_BIT)
+            continue;
+        if(!rb.useGravity)
+            continue;
+        rb.velocity += 0.5*dt_ * Vec3{.x=0, .y=-1, .z=0};
+    }
+
 }
 
 std::vector<SphereColliderProxy> PhysicsSystem::asVector(){

@@ -104,6 +104,7 @@ namespace ModernBoy::Game
         EntityID climbable;
     );
     DEFINE_COMPONENT(Collided,);
+    DEFINE_COMPONENT(Grounded,);
     DEFINE_COMPONENT(Walked,);
     DEFINE_COMPONENT(Ran,);
 
@@ -137,6 +138,7 @@ namespace ModernBoy::Game
         X(      LOOTMAGNET) \
         X(        ATTACHED) \
         X(         CLIMBED) \
+        X(        GROUNDED) \
         X(          WALKED) \
         X(             RAN)
     #define ARCHETYPE_PAIRS \
@@ -164,6 +166,7 @@ namespace ModernBoy::Game
         X(       LootMagnet,       LOOTMAGNET) \
         X(         Attached,         ATTACHED) \
         X(          Climbed,          CLIMBED) \
+        X(         Grounded,         GROUNDED) \
         X(           Walked,           WALKED) \
         X(              Ran,              RAN)
 
