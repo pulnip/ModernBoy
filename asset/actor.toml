@@ -4,7 +4,7 @@ name = "Dummy"
 max = 100
 regen = 2.0
 [entities.transform]
-position = [0.0, 0.0, 0.0]
+position = [0.0, 0.0, 5.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [1.0, 1.0, 1.0]
 [entities.model]
@@ -42,9 +42,11 @@ mass = 1
     [entities.rigidbody.material]
     bounciness = 1.0
     friction = 0
-[entities.sphereCollider]
+[entities.boxCollider]
 position = [0.0, 0.0, 0.0]
-radius = 0.5
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [1.0, 1.0, 1.0]
+
 
 [[entities]]
 name = "Cuby2"
@@ -119,6 +121,17 @@ scale    = [100.0, 1.0, 100.0]
 mesh = "Cube"
 texture = "asset/Farback01.png"
 shader = "default"
+[entities.rigidbody]
+velocity = [0.0, 0.0, 0.0]
+useGravity = false
+mass = 1
+    [entities.rigidbody.material]
+    bounciness = 1.0
+    friction = 0
+[entities.boxCollider]
+position = [0.0, 0.0, 0.0]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [1.0, 1.0, 1.0]
 
 [[entities]]
 name = "Camera0"

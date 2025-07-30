@@ -8,18 +8,29 @@
 
 namespace ModernBoy::Game
 {
-    using SphereColliderProxy = std::tuple<EntityID, ArchetypeBit, Transform*, Rigidbody*, SphereCollider*>;
-    using SphereCollisionCandidate = std::pair<SphereColliderProxy, SphereColliderProxy>;
+    template<typename T>
+    using ColliderProxy = std::tuple<EntityID, ArchetypeBit, Transform*, Rigidbody*, T*>;
+    template<typename T>
+    using CollisionCandidate = std::pair<ColliderProxy<T>, ColliderProxy<T>>;
+
+    using SphereColliderProxy = ColliderProxy<SphereCollider>;
+    using BoxColliderProxy = ColliderProxy<BoxCollider>;
+    using SphereColliderCandidate = CollisionCandidate<SphereCollider>;
+    using BoxColliderCandidate = CollisionCandidate<BoxCollider>;
 
     class PhysicsSystem{
     public:
         PhysicsSystem(EntityRegistry& registry);
 
         void update(DeltaTime);
-        void simulateGravity(DeltaTime);
 
     private:
-        std::vector<SphereColliderProxy> asVector();
+        void simulateGravity(DeltaTime);
+        void sphere2sphereCollision();
+        void box2boxCollision();
+
+        std::vector<SphereColliderProxy> getSphereColliderProxies();
+        std::vector<BoxColliderProxy> getBoxColliderProxies();
 
         EntityRegistry& registry;
     };

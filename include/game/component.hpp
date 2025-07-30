@@ -84,6 +84,7 @@ namespace ModernBoy::Game
         PhysicsMaterial material;
     );
     DEFINE_COMPONENT(BoxCollider,
+        DEFINE_TRANSFORM;
         PhysicsMaterial material;
     );
 
