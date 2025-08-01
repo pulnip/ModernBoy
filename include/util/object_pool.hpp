@@ -167,11 +167,14 @@ namespace ModernBoy
         }
 
         void remove(HandleV2 handle){
-            if(slots[handle.index].generation != handle.generation)
+            if( (handle.index > slots.size()) ||
+                (slots[handle.index].generation != handle.generation)
+            )
                 throw std::out_of_range(std::format(
                     "Handle(Index={}) generation {} is mismatched. (valid generation={})",
                     handle.index, handle.generation, slots[handle.index].generation
                 ));
+            ++slots[handle.index].generation;
             std::destroy_at(slots[handle.index].get());
             freeIndexes.push_back(handle.index);
         }
@@ -196,7 +199,9 @@ namespace ModernBoy
         }
 
         T& operator[](HandleV2 handle){
-            if(slots[handle.index].generation != handle.generation)
+            if( (handle.index > slots.size()) ||
+                (slots[handle.index].generation != handle.generation)
+            )
                 throw std::out_of_range(std::format(
                     "Handle(Index={}) generation {} is mismatched. (valid generation={})",
                     handle.index, handle.generation, slots[handle.index].generation
@@ -204,7 +209,9 @@ namespace ModernBoy
             return *slots[handle.index].get();
         }
         const T& operator[](HandleV2 handle) const{
-            if(slots[handle.index].generation != handle.generation)
+            if( (handle.index > slots.size()) ||
+                (slots[handle.index].generation != handle.generation)
+            )
                 throw std::out_of_range(std::format(
                     "Handle(Index={}) generation {} is mismatched. (valid generation={})",
                     handle.index, handle.generation, slots[handle.index].generation
