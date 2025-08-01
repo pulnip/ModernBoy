@@ -281,13 +281,16 @@ void DynamicVector::reserve(size_t minCap) noexcept{
     if(memSize >= minCap)
         return;
     size_t newAllocSize = std::bit_ceil(minCap);
+    size_t oldMemSize = memSize;
+
     if(numElement == 0){
         mem = malloc(ELEMENT_SIZE*newAllocSize);
     }
     else
         mem = realloc(mem, ELEMENT_SIZE*newAllocSize);
+
     memSize = newAllocSize;
-    for(Index i=memSize; i<newAllocSize; ++i)
+    for(Index i=oldMemSize; i<newAllocSize; ++i)
         freeIndexes.insert(i);
 }
 size_t DynamicVector::capacity() const noexcept{
