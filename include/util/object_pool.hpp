@@ -204,6 +204,7 @@ namespace ModernBoy
             return *slots[handle.index].get();
         }
         const T& operator[](HandleV2 handle) const{
+            if(slots[handle.index].generation != handle.generation)
                 throw std::out_of_range(std::format(
                     "Handle(Index={}) generation {} is mismatched. (valid generation={})",
                     handle.index, handle.generation, slots[handle.index].generation
