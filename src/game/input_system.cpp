@@ -45,7 +45,7 @@ void InputSystem::update(DeltaTime dt){
         if(input.query(KEY_SHIFT, Held))
             tc.position -= 10 * dt_ * up(tc.rotation);
 
-        Vec2 mouse_move = input.mouse();
+        Vec2 mouse_move = input.mouseMove();
 
         if(norm_squared(mouse_move) > 0){
             Vec3 mouse_vec{

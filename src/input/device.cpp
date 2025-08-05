@@ -46,6 +46,7 @@ void Device::fetch(State& state){
     // }
 
     // auto x0 = state.mouse.x, y0 = state.mouse.y;
+    SDL_GetMouseState(&state.mouse.x, &state.mouse.y);
     SDL_GetRelativeMouseState(&state.mouse.dx, &state.mouse.dy);
     // state.mouse.dx = state.mouse.x - x0;
     // state.mouse.dy = state.mouse.y - y0;

@@ -37,6 +37,8 @@ namespace ModernBoy::Render
         // Generator<void> update(DeltaTime);
         void onFrameEnd();
 
+        EntityID queryWindowPos(int x, int y);
+
 #if defined(USE_DIRECTX)
         NativePtr getDevice();
         NativePtr getContext();

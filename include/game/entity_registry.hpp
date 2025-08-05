@@ -222,7 +222,7 @@ namespace ModernBoy::Game
         ArchetypeMap archetypeMap;
         EntityTable entityTable;
 
-        EntityID id_seed = 0;
+        EntityID id_seed = 1;
 
     public:
         EntityRegistry() = default;

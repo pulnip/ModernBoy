@@ -33,9 +33,14 @@ fragment float4 fragment_main(
         input.worldPosition, viewPosition, rimc);
     float3 lightingColor = phongColor + rimColor;
 
-    float3 white = float3(0.0, 0.0, 0.0);
+    float3 red = float3(1.0, 0.0, 0.0);
+    float m = 0.0;
+    if((myIDColor == pickedIDColor).x)
+        m = 0.5;
+    float3 mixed = mix(lightingColor, red, m);
 
-    return float4(mix(white, lightingColor, alpha), color.a);
+    float3 white = float3(0.0, 0.0, 0.0);
+    return float4(mix(white, mixed, alpha), color.a);
 }
 
 fragment float4 fragment_id(

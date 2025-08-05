@@ -36,8 +36,11 @@ bool Chord::query(KeyCode keyCode, KeyState keyState
     return state[readIndex].keyboard[keyCode] == keyState;
 }
 
-Vec2 Chord::mouse(){
+Vec2 Chord::mouseMove(){
     return {.x = state->mouse.dx, .y = state->mouse.dy};
+}
+Vec2 Chord::mousePos(){
+    return {.x = state->mouse.x, .y = state->mouse.y};
 }
 
 void Chord::updateEMA(TaskTime elapsed){

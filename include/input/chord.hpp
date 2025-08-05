@@ -19,7 +19,8 @@ namespace ModernBoy::Input
 
         bool query(KeyCode, KeyState);
 
-        Vec2 mouse();
+        Vec2 mousePos();
+        Vec2 mouseMove();
 
         const TaskPolicy policy{
             .effective_window_size = 10,

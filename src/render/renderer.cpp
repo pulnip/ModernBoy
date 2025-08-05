@@ -182,6 +182,11 @@ void Renderer::onFrameEnd(){
 #endif
 }
 
+EntityID Renderer::queryWindowPos(int x, int y){
+    int id = RenderContext_getPickedID(context, x, y);
+    return static_cast<EntityID>(id);
+}
+
 #if defined(USE_DIRECTX)
 NativePtr Renderer::getDevice(){
     return context.getDevice();
