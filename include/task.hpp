@@ -17,6 +17,7 @@ namespace ModernBoy
         MeshHandle meshHandle;
         TextureHandle texHandle;
         ShaderHandle shaderHandle;
+        EntityID entity;
     };
 
     bool operator<(const DrawTask& lhs, const DrawTask& rhs);

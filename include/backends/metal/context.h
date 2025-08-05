@@ -11,50 +11,56 @@ extern "C"{
     extern void destroyRenderContext(void* ctx);
 
     extern void RenderContext_frameStart(
-        void* _nativeContext,
+        void* nativeContext,
         double r, double g, double b, double a
     );
     extern void RenderContext_setView(
-        void* _nativeContext,
+        void* nativeContext,
         float px, float py, float pz, float fov,
         float rx, float ry, float rz, float w
     );
     extern void RenderContext_setShader(
-        void* _nativeContext,
+        void* nativeContext,
         void* shaderPtr
     );
     extern void RenderContext_setTexture(
-        void* _nativeContext,
+        void* nativeContext,
         void* texture
     );
     extern void RenderContext_draw(
-        void* _nativeContext,
+        void* nativeContext,
         float px, float py, float pz,
         float rx, float ry, float rz, float w,
         float sx, float sy, float sz,
-        void* meshPtr, float alpha
+        void* meshPtr, float alpha,
+        int id
     );
     extern void RenderContext_draw_(
-        void* _nativeContext,
+        void* nativeContext,
         float px, float py, float pz,
         float rx, float ry, float rz,
         float sx, float sy, float sz,
-        void* meshPtr, float alpha
+        void* meshPtr, float alpha,
+        int id
     );
     extern void RenderContext_frameEnd(
-        void* _nativeContext
+        void* nativeContext
     );
     extern void* RenderContext_getDevice(
-        void* _nativeContext
+        void* nativeContext
     );
     extern void* RenderContext_getRenderPassDesc(
-        void* _nativeContext
+        void* nativeContext
     );
     extern void* RenderContext_getCommandBuffer(
-        void* _nativeContext
+        void* nativeContext
     );
     extern void* RenderContext_getRenderEncoder(
-        void* _nativeContext
+        void* nativeContext
+    );
+
+    extern int RenderContext_getPickedID(
+        void* nativeContext, int x, int y
     );
 
 #ifdef __cplusplus

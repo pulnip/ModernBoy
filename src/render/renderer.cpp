@@ -60,7 +60,8 @@ void Renderer::update(DeltaTime){
                 setTexture(textureHandle);
             }
             drawMesh(draw.position, draw.rotation,
-                draw.scale, draw.meshHandle, draw.alpha);
+                draw.scale, draw.meshHandle, draw.alpha,
+                static_cast<int>(draw.entity));
         }
     }
 
@@ -155,7 +156,7 @@ void Renderer::setTexture(TextureHandle handle){
 void Renderer::drawMesh(
     const Vec3& position, const Vec4& rotation,
     const Vec3& scale, MeshHandle handle,
-    float alpha
+    float alpha, int id
 ){
     RenderTrace("draw type: {}, index: {}", static_cast<int>(handle.type), handle.index);
     const auto& mesh = meshManager.get(handle);
@@ -168,7 +169,7 @@ void Renderer::drawMesh(
             position.x, position.y, position.z,
             rotation.x, rotation.y, rotation.z,
             scale.x, scale.y, scale.z,
-            partPtr, alpha);
+            partPtr, alpha, id);
 #endif
     }
 }

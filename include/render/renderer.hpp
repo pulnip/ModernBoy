@@ -61,7 +61,7 @@ namespace ModernBoy::Render
         void setTexture(TextureHandle handle);
         void drawMesh(const Vec3& position,
             const Vec4& rotation, const Vec3& scale,
-            MeshHandle handle, float alpha);
+            MeshHandle handle, float alpha, int id);
 
     public:
 #if defined(USE_DIRECTX)

@@ -33,7 +33,8 @@ void DrawSystem::update(DeltaTime){
                 mc.alpha,
                 mc.handle,
                 mc.textureHandle,
-                mc.shaderHandle});
+                mc.shaderHandle,
+                id});
     }
 }
 

@@ -21,7 +21,8 @@ class RenderContext {
     var depthStencilState: MTLDepthStencilState?
     var dsTexture: MTLTexture?
 
-    // var pickingTexture: MTLTexture?
+    var pickingTexture: MTLTexture?
+    var pickedID = -1
 
     // material per frame
     var renderPassDesc: MTLRenderPassDescriptor?
@@ -29,10 +30,11 @@ class RenderContext {
     var renderEncoder: MTLRenderCommandEncoder?
     var drawable: CAMetalDrawable?
 
-    // var idCommandBuffer: MTLCommandBuffer?
-    // var idRenderEncoder: MTLRenderCommandEncoder?
+    var idCommandBuffer: MTLCommandBuffer?
+    var idRenderEncoder: MTLRenderCommandEncoder?
 
     var shaderLib: MTLLibrary
+    var idShader: Shader
 
     init(_ layer: CAMetalLayer, _ libPath: String) {
         self.layer = layer
@@ -42,6 +44,10 @@ class RenderContext {
 
         let libURL = URL(fileURLWithPath: libPath)
         shaderLib = try! layer.device!.makeLibrary(URL: libURL)
+        idShader = Shader(layer.device!,
+            shaderLib.makeFunction(name: "vertex_main")!,
+            shaderLib.makeFunction(name: "fragment_id")!
+        )
 
         let dsd = MTLDepthStencilDescriptor()
         dsd.depthCompareFunction = .less
@@ -70,12 +76,14 @@ class RenderContext {
             mipmapped: false
         )
         ptd.usage = [.renderTarget, .shaderRead]
-        // pickingTexture = layer.device!.makeTexture(descriptor: ptd)
+        pickingTexture = layer.device!.makeTexture(descriptor: ptd)
     }
     deinit {
-        if let encoder = self.renderEncoder {
-            encoder.endEncoding()
-        }
+        guard let encoder = renderEncoder,
+              let idEncoder = idRenderEncoder
+              else { return; }
+        encoder.endEncoding()
+        idEncoder.endEncoding()
     }
 
     func frameStart(
@@ -100,18 +108,6 @@ class RenderContext {
         rpd.depthAttachment.storeAction = .dontCare
         rpd.depthAttachment.clearDepth = 1.0
 
-        // ID pass for mouse picking
-        // let prpd = MTLRenderPassDescriptor()
-        // prpd.colorAttachments[0].texture = pickingTexture
-        // prpd.colorAttachments[0].loadAction = .clear
-        // prpd.colorAttachments[0].clearColor = MTLClearColor(
-        //     red: 0, green: 0, blue: 0, alpha: 0)
-        // prpd.colorAttachments[0].storeAction = .store
-        // prpd.depthAttachment.texture = dsTexture
-        // prpd.depthAttachment.loadAction = .clear
-        // prpd.depthAttachment.storeAction = .dontCare
-        // prpd.depthAttachment.clearDepth = 1.0
-
         renderPassDesc = rpd
         commandBuffer = commandQueue.makeCommandBuffer()
         renderEncoder = commandBuffer?
@@ -120,11 +116,26 @@ class RenderContext {
         renderEncoder?.setCullMode(.back)
         renderEncoder!.setFragmentSamplerState(sampler, index: 0)
 
-        // idCommandBuffer = commandQueue.makeCommandBuffer()
-        // idRenderEncoder = commandBuffer?
-        //     .makeRenderCommandEncoder(descriptor: prpd)
-        // idRenderEncoder?.setDepthStencilState(depthStencilState)
-        // idRenderEncoder?.setCullMode(.back)
+        // ID pass for mouse picking
+        let prpd = MTLRenderPassDescriptor()
+        prpd.colorAttachments[0].texture = pickingTexture
+        prpd.colorAttachments[0].loadAction = .clear
+        prpd.colorAttachments[0].clearColor = MTLClearColor(
+            red: 0, green: 0, blue: 0, alpha: 0)
+        prpd.colorAttachments[0].storeAction = .store
+        prpd.depthAttachment.texture = dsTexture
+        prpd.depthAttachment.loadAction = .clear
+        prpd.depthAttachment.storeAction = .dontCare
+        prpd.depthAttachment.clearDepth = 1.0
+
+        idCommandBuffer = commandQueue.makeCommandBuffer()
+        idRenderEncoder = idCommandBuffer?
+            .makeRenderCommandEncoder(descriptor: prpd)
+        idRenderEncoder?.setDepthStencilState(depthStencilState)
+        idRenderEncoder?.setCullMode(.back)
+
+        // bind ID Shader
+        idRenderEncoder?.setRenderPipelineState(idShader.pipelineState)
 
         commandBuffer?.addCompletedHandler { _ in
             self.semaphore.signal()
@@ -145,6 +156,9 @@ class RenderContext {
         renderEncoder!.setVertexBytes(&viewConstant,
             length: MemoryLayout<ViewConstant>.stride,
             index: 1)
+        idRenderEncoder!.setVertexBytes(&viewConstant,
+            length: MemoryLayout<ViewConstant>.stride,
+            index: 1)
     }
     func setShader(_ shader: Shader) {
         shader.bind(encoder: renderEncoder)
@@ -152,15 +166,15 @@ class RenderContext {
     func setTexture(_ texture: Texture) {
         texture.bind(encoder: renderEncoder)
     }
-    func draw(_ modelMat: simd_float4x4, _ mesh: Mesh, _ alpha: Float) {
-        guard let encoder = self.renderEncoder
+    func draw(_ modelMat: simd_float4x4, _ mesh: Mesh, _ alpha: Float, _ id: Int) {
+        guard let encoder = self.renderEncoder,
+              let idEncoder = self.idRenderEncoder
               else {return }
-        // TODO. Replace to Real Object ID later.
-        // var myID = 0, pickedID = 0
-
         var modelConstant = ModelConstant(
             modelMat: modelMat, normalMat: normal(modelMat))
         encoder.setVertexBytes(&modelConstant,
+            length: MemoryLayout<ModelConstant>.stride, index: 2)
+        idEncoder.setVertexBytes(&modelConstant,
             length: MemoryLayout<ModelConstant>.stride, index: 2)
 
         var a = alpha
@@ -168,20 +182,20 @@ class RenderContext {
             length: MemoryLayout<Float>.stride,
             index: 2)
 
-        // var myIdColor = simd_float4(Float(myID)/255.0, 0, 0, 0);
-        // var pickedIDColor = simd_float4(Float(pickedID)/255.0, 0, 0, 0);
-        // encoder.setFragmentBytes(&myIdColor,
-        //     length: MemoryLayout<simd_float4>.stride,
-        //     index: 3)
-        // encoder.setFragmentBytes(&pickedIDColor,
-        //     length: MemoryLayout<simd_float4>.stride,
-        //     index: 4)
-        // idRenderEncoder?.setFragmentBytes(&myIdColor,
-        //     length: MemoryLayout<simd_float4>.stride,
-        //     index: 0)
-
+        var myIdColor = simd_float4(Float(id)/255.0, 0, 0, 0);
+        var pickedIDColor = simd_float4(Float(pickedID)/255.0, 0, 0, 0);
+        encoder.setFragmentBytes(&myIdColor,
+            length: MemoryLayout<simd_float4>.stride,
+            index: 3)
+        encoder.setFragmentBytes(&pickedIDColor,
+            length: MemoryLayout<simd_float4>.stride,
+            index: 4)
+        idRenderEncoder?.setFragmentBytes(&myIdColor,
+            length: MemoryLayout<simd_float4>.stride,
+            index: 0)
 
         encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
+        idEncoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
 
         if let indexBuffer = mesh.indexBuffer,
            let numIndices = mesh.numIndices, numIndices > 0 {
@@ -189,43 +203,50 @@ class RenderContext {
                 indexCount: numIndices, indexType: .uint32,
                 indexBuffer: indexBuffer, indexBufferOffset: 0
             )
+            idEncoder.drawIndexedPrimitives(type: .triangle,
+                indexCount: numIndices, indexType: .uint32,
+                indexBuffer: indexBuffer, indexBufferOffset: 0
+            )
         } else{
             encoder.drawPrimitives(type: .triangle, vertexStart: 0,
+                vertexCount: mesh.numVertices)
+            idEncoder.drawPrimitives(type: .triangle, vertexStart: 0,
                 vertexCount: mesh.numVertices)
         }
     }
     func frameEnd() {
         guard let encoder = self.renderEncoder,
               let commandBuffer = self.commandBuffer,
-              let drawable = self.drawable
+              let drawable = self.drawable,
+              let idEncoder = self.idRenderEncoder
               else {return }
         encoder.endEncoding()
         commandBuffer.present(drawable)
         commandBuffer.commit()
 
-        // idEncoder.endEncoding()
-        // idCommandBuffer?.commit()
+        idEncoder.endEncoding()
+        idCommandBuffer?.commit()
 
         self.renderEncoder = nil
         self.commandBuffer = nil
         self.drawable = nil
         self.renderPassDesc = nil
 
-        // self.idRenderEncoder = nil
-        // self.idCommandBuffer = nil
+        self.idRenderEncoder = nil
+        self.idCommandBuffer = nil
     }
-    // func getPickedID(_ x: Int, _ y: Int) -> UInt8 {
-    //     var pixelColor = [UInt8](repeating: 0, count: 4)
-    //     let region = MTLRegionMake2D(x, y, 1, 1)
-    //     pickingTexture?.getBytes(
-    //         &pixelColor,
-    //         bytesPerRow: 4,
-    //         from: region,
-    //         mipmapLevel: 0
-    //     )
-    //     let pickedID = pixelColor[0]
-    //     return pickedID
-    // }
+    func getPickedID(_ x: Int, _ y: Int) -> Int {
+        var pixelColor = [UInt8](repeating: 0, count: 4)
+        let region = MTLRegionMake2D(x, y, 1, 1)
+        pickingTexture?.getBytes(
+            &pixelColor,
+            bytesPerRow: 4,
+            from: region,
+            mipmapLevel: 0
+        )
+        pickedID = Int(pixelColor[0])
+        return pickedID
+    }
 
     func createShader(
         _ vsFuncName: String, _ fsFuncName: String
@@ -328,7 +349,8 @@ public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,
     _ px: Float, _ py: Float, _ pz: Float,
     _ rx: Float, _ ry: Float, _ rz: Float, _ w: Float,
     _ sx: Float, _ sy: Float, _ sz: Float,
-    _ meshPtr: UnsafeRawPointer?, _ alpha: Float
+    _ meshPtr: UnsafeRawPointer?, _ alpha: Float,
+    _ id: Int
 ) {
     guard let rctxPtr = rctxPtr,
           let meshPtr = meshPtr else { return }
@@ -342,14 +364,15 @@ public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,
         rotate(&modelMat, rx, ry, rz, w)
         scale(&modelMat, sx, sy, sz)
 
-    rctx.draw(modelMat, mesh, alpha)
+    rctx.draw(modelMat, mesh, alpha, id)
 }
 @_cdecl("RenderContext_draw_")
 public func RenderContext_draw_(_ rctxPtr: UnsafeRawPointer?,
     _ px: Float, _ py: Float, _ pz: Float,
     _ rx: Float, _ ry: Float, _ rz: Float,
     _ sx: Float, _ sy: Float, _ sz: Float,
-    _ meshPtr: UnsafeRawPointer?, _ alpha: Float
+    _ meshPtr: UnsafeRawPointer?, _ alpha: Float,
+    _ id: Int
 ) {
     guard let rctxPtr = rctxPtr,
           let meshPtr = meshPtr else { return }
@@ -363,7 +386,7 @@ public func RenderContext_draw_(_ rctxPtr: UnsafeRawPointer?,
         rotate(&modelMat, rx, ry, rz)
         scale(&modelMat, sx, sy, sz)
 
-    rctx.draw(modelMat, mesh, alpha)
+    rctx.draw(modelMat, mesh, alpha, id)
 }
 @_cdecl("RenderContext_frameEnd")
 public func RenderContext_frameEnd(_ rctxPtr: UnsafeRawPointer?) {
@@ -418,13 +441,13 @@ public func RenderContext_getRenderEncoder(_ rctxPtr: UnsafeRawPointer?
     return nil
 }
 
-// @_cdecl("RenderContext_getPickedID")
-// public func RenderContext_getPickedID(_ rctxPtr: UnsafeRawPointer?,
-//     _ x: Int, _ y: Int
-// ) -> UInt8 {
-//     guard let rctxPtr = rctxPtr else {return 0 }
-//     let rctx = Unmanaged<RenderContext>
-//         .fromOpaque(rctxPtr).takeUnretainedValue()
-//     let pickedID = rctx.getPickedID(x, y)
-//     return pickedID
-// }
+@_cdecl("RenderContext_getPickedID")
+public func RenderContext_getPickedID(_ rctxPtr: UnsafeRawPointer?,
+    _ x: Int, _ y: Int
+) -> Int {
+    guard let rctxPtr = rctxPtr else {return 0 }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    let pickedID = rctx.getPickedID(x, y)
+    return pickedID
+}
