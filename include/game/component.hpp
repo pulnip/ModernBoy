@@ -76,6 +76,8 @@ namespace ModernBoy::Game
     DEFINE_COMPONENT(SphereCollider,
         Vec3 position;
         float radius;
+
+        PhysicsMaterial material;
     );
     DEFINE_COMPONENT(FixedBoxCollider,
         Vec3 position;

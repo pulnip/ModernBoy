@@ -10,8 +10,9 @@ namespace ModernBoy::Metal
     struct Shader{
         ShaderPtr shaderPtr;
 
-        Shader(const std::string& fileName,
-            NativePtr layerPtr);
+        Shader(NativePtr renderContext,
+            const std::string& vsFuncName = "vertex_main",
+            const std::string& fsFuncName = "fragment_main");
         ~Shader();
 
         Shader()=default;

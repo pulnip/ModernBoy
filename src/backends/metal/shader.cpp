@@ -5,8 +5,9 @@
 extern "C"{
 #endif
 
-    extern void* createShader(const char* filePath,
-        const void* layerPtr);
+    extern void* createShader(void* rctxPtr,
+        const char* vsFuncName,
+        const char* fsFuncName);
     extern void destroyShader(const void* shaderPtr);
 
     extern void Shader_setRimPower(
@@ -22,9 +23,11 @@ extern "C"{
 
 using namespace ModernBoy::Metal;
 
-Shader::Shader(const std::string& fileName,
-    NativePtr layerPtr)
-:shaderPtr(createShader(fileName.c_str(), layerPtr)){}
+Shader::Shader(NativePtr renderContext,
+    const std::string& vsFuncName,
+    const std::string& fsFuncName)
+:shaderPtr(createShader(renderContext,
+    vsFuncName.c_str(), fsFuncName.c_str())){}
 Shader::~Shader(){
     if(shaderPtr != nullptr){
         destroyShader(shaderPtr);

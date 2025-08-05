@@ -21,21 +21,27 @@ class RenderContext {
     var depthStencilState: MTLDepthStencilState?
     var dsTexture: MTLTexture?
 
+    // var pickingTexture: MTLTexture?
+
     // material per frame
     var renderPassDesc: MTLRenderPassDescriptor?
     var commandBuffer: MTLCommandBuffer?
     var renderEncoder: MTLRenderCommandEncoder?
     var drawable: CAMetalDrawable?
 
-    init(_ layerPtr: UnsafeRawPointer?) {
-        guard let layerPtr = layerPtr else {
-            fatalError("Cannot initialize RenderContext")
-        }
-        layer = Unmanaged<CAMetalLayer>
-            .fromOpaque(layerPtr).takeUnretainedValue()
+    // var idCommandBuffer: MTLCommandBuffer?
+    // var idRenderEncoder: MTLRenderCommandEncoder?
+
+    var shaderLib: MTLLibrary
+
+    init(_ layer: CAMetalLayer, _ libPath: String) {
+        self.layer = layer
         layer.device = MTLCreateSystemDefaultDevice()!
         layer.pixelFormat = .bgra8Unorm
         commandQueue = layer.device!.makeCommandQueue()!
+
+        let libURL = URL(fileURLWithPath: libPath)
+        shaderLib = try! layer.device!.makeLibrary(URL: libURL)
 
         let dsd = MTLDepthStencilDescriptor()
         dsd.depthCompareFunction = .less
@@ -57,6 +63,14 @@ class RenderContext {
         )
         dstd.usage = [.renderTarget, .shaderRead]
         dsTexture = layer.device!.makeTexture(descriptor: dstd)
+        let ptd = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .rgba8Unorm,
+            width: Int(layer.drawableSize.width),
+            height: Int(layer.drawableSize.height),
+            mipmapped: false
+        )
+        ptd.usage = [.renderTarget, .shaderRead]
+        // pickingTexture = layer.device!.makeTexture(descriptor: ptd)
     }
     deinit {
         if let encoder = self.renderEncoder {
@@ -73,6 +87,7 @@ class RenderContext {
             = layer.nextDrawable() else { return }
         self.drawable = drawable
 
+        // Color Pass
         let rpd = MTLRenderPassDescriptor()
         rpd.colorAttachments[0].texture = drawable.texture
         rpd.colorAttachments[0].loadAction = .clear
@@ -85,6 +100,18 @@ class RenderContext {
         rpd.depthAttachment.storeAction = .dontCare
         rpd.depthAttachment.clearDepth = 1.0
 
+        // ID pass for mouse picking
+        // let prpd = MTLRenderPassDescriptor()
+        // prpd.colorAttachments[0].texture = pickingTexture
+        // prpd.colorAttachments[0].loadAction = .clear
+        // prpd.colorAttachments[0].clearColor = MTLClearColor(
+        //     red: 0, green: 0, blue: 0, alpha: 0)
+        // prpd.colorAttachments[0].storeAction = .store
+        // prpd.depthAttachment.texture = dsTexture
+        // prpd.depthAttachment.loadAction = .clear
+        // prpd.depthAttachment.storeAction = .dontCare
+        // prpd.depthAttachment.clearDepth = 1.0
+
         renderPassDesc = rpd
         commandBuffer = commandQueue.makeCommandBuffer()
         renderEncoder = commandBuffer?
@@ -92,6 +119,12 @@ class RenderContext {
         renderEncoder!.setDepthStencilState(depthStencilState)
         renderEncoder?.setCullMode(.back)
         renderEncoder!.setFragmentSamplerState(sampler, index: 0)
+
+        // idCommandBuffer = commandQueue.makeCommandBuffer()
+        // idRenderEncoder = commandBuffer?
+        //     .makeRenderCommandEncoder(descriptor: prpd)
+        // idRenderEncoder?.setDepthStencilState(depthStencilState)
+        // idRenderEncoder?.setCullMode(.back)
 
         commandBuffer?.addCompletedHandler { _ in
             self.semaphore.signal()
@@ -120,8 +153,11 @@ class RenderContext {
         texture.bind(encoder: renderEncoder)
     }
     func draw(_ modelMat: simd_float4x4, _ mesh: Mesh, _ alpha: Float) {
-        guard let encoder
-            = self.renderEncoder else {return }
+        guard let encoder = self.renderEncoder
+              else {return }
+        // TODO. Replace to Real Object ID later.
+        // var myID = 0, pickedID = 0
+
         var modelConstant = ModelConstant(
             modelMat: modelMat, normalMat: normal(modelMat))
         encoder.setVertexBytes(&modelConstant,
@@ -131,6 +167,18 @@ class RenderContext {
         encoder.setFragmentBytes(&a,
             length: MemoryLayout<Float>.stride,
             index: 2)
+
+        // var myIdColor = simd_float4(Float(myID)/255.0, 0, 0, 0);
+        // var pickedIDColor = simd_float4(Float(pickedID)/255.0, 0, 0, 0);
+        // encoder.setFragmentBytes(&myIdColor,
+        //     length: MemoryLayout<simd_float4>.stride,
+        //     index: 3)
+        // encoder.setFragmentBytes(&pickedIDColor,
+        //     length: MemoryLayout<simd_float4>.stride,
+        //     index: 4)
+        // idRenderEncoder?.setFragmentBytes(&myIdColor,
+        //     length: MemoryLayout<simd_float4>.stride,
+        //     index: 0)
 
 
         encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
@@ -149,22 +197,73 @@ class RenderContext {
     func frameEnd() {
         guard let encoder = self.renderEncoder,
               let commandBuffer = self.commandBuffer,
-              let drawable = self.drawable else {return }
+              let drawable = self.drawable
+              else {return }
         encoder.endEncoding()
         commandBuffer.present(drawable)
         commandBuffer.commit()
+
+        // idEncoder.endEncoding()
+        // idCommandBuffer?.commit()
 
         self.renderEncoder = nil
         self.commandBuffer = nil
         self.drawable = nil
         self.renderPassDesc = nil
+
+        // self.idRenderEncoder = nil
+        // self.idCommandBuffer = nil
+    }
+    // func getPickedID(_ x: Int, _ y: Int) -> UInt8 {
+    //     var pixelColor = [UInt8](repeating: 0, count: 4)
+    //     let region = MTLRegionMake2D(x, y, 1, 1)
+    //     pickingTexture?.getBytes(
+    //         &pixelColor,
+    //         bytesPerRow: 4,
+    //         from: region,
+    //         mipmapLevel: 0
+    //     )
+    //     let pickedID = pixelColor[0]
+    //     return pickedID
+    // }
+
+    func createShader(
+        _ vsFuncName: String, _ fsFuncName: String
+    ) -> Shader? {
+        let vsFunc = shaderLib.makeFunction(name: vsFuncName)
+        let fsFunc = shaderLib.makeFunction(name: fsFuncName)
+
+        guard let dev = layer.device,
+              let vsFn = vsFunc,
+              let fsFn = fsFunc
+              else { return nil }
+
+        return Shader(dev, vsFn, fsFn)
     }
 }
 
 @_cdecl("createRenderContext")
-public func createRenderContext(_ layerPtr: UnsafeRawPointer?
+public func createRenderContext(_ layerPtr: UnsafeRawPointer?,
+    _ libPathPtr: UnsafeRawPointer?
 ) -> UnsafeRawPointer? {
-    let context = RenderContext(layerPtr)
+    guard let layerPtr = layerPtr,
+          let libPathPtr = libPathPtr
+          else { fatalError("Cannot initialize RenderContext") }
+    let layer = Unmanaged<CAMetalLayer>
+        .fromOpaque(layerPtr).takeUnretainedValue()
+    let cStr = libPathPtr.assumingMemoryBound(to: CChar.self)
+    let providedPath = String(cString: cStr)
+    let libPath: String
+    if FileManager.default.fileExists(atPath: providedPath) {
+        libPath = providedPath
+    }
+    else if let bundlePath = Bundle.main.path(forResource: "ModernBoy", ofType: "metallib") {
+        libPath = bundlePath
+    } else {
+        libPath = "./asset/shader/ModernBoy.metallib"
+    }
+
+    let context = RenderContext(layer, libPath)
     return UnsafeRawPointer(Unmanaged.passRetained(context).toOpaque())
 }
 @_cdecl("destroyRenderContext")
@@ -318,3 +417,14 @@ public func RenderContext_getRenderEncoder(_ rctxPtr: UnsafeRawPointer?
     }
     return nil
 }
+
+// @_cdecl("RenderContext_getPickedID")
+// public func RenderContext_getPickedID(_ rctxPtr: UnsafeRawPointer?,
+//     _ x: Int, _ y: Int
+// ) -> UInt8 {
+//     guard let rctxPtr = rctxPtr else {return 0 }
+//     let rctx = Unmanaged<RenderContext>
+//         .fromOpaque(rctxPtr).takeUnretainedValue()
+//     let pickedID = rctx.getPickedID(x, y)
+//     return pickedID
+// }

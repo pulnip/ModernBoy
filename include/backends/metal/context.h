@@ -5,7 +5,9 @@
 extern "C"{
 #endif
 
-    extern void* createRenderContext(const void* layerPtr);
+    extern void* createRenderContext(const void* layerPtr,
+        const char* shaderLibPath
+    );
     extern void destroyRenderContext(void* ctx);
 
     extern void RenderContext_frameStart(

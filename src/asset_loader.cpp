@@ -105,13 +105,14 @@ std::optional<ModelDescriptor> parse(toml::node_view<const toml::node> view){
     return ModelDescriptor{
         .mesh = table["mesh"].value_or<std::string>("cube"),
         .texture = table["texture"].value_or<std::string>("asset/metal_logo.png.png"),
-        .shader = table["shader"].value_or<std::string>("asset/shader/ModernBoy.metallib")
+        .vsFunc = table["vsFunc"].value_or<std::string>("vertex_main"),
+        .fsFunc = table["fsFunc"].value_or<std::string>("fragment_main")
     };
 }
 Model AssetLoader::load(const ModelDescriptor& md){
     auto mesh = app.append<Mesh>(md.mesh);
     auto texture = app.append<Texture>(md.texture);
-    auto shader = app.append<Shader>(md.shader);
+    auto shader = app.append<Shader>(md.vsFunc, md.fsFunc);
 
     return Model{
         .entity = invalidEntityID(),
@@ -155,14 +156,42 @@ std::optional<Rigidbody> parse(toml::node_view<const toml::node> view){
 }
 
 template<>
+std::optional<PhysicsMaterial> parse(toml::node_view<const toml::node> view){
+    CHECK_IF_TABLE(view, table)
+
+    return PhysicsMaterial{
+        .bounciness = static_cast<float>(table["bounciness"].value_or(1.0)),
+        .friction = static_cast<float>(table["friction"].value_or(1.0))
+    };
+}
+
+template<>
 std::optional<SphereCollider> parse(toml::node_view<const toml::node> view){
     CHECK_IF_TABLE(view, table)
 
     return SphereCollider{
         .entity = invalidEntityID(),
         .isActive = true,
-        .position = parse<Vec3>(table["velocity"]).value_or(zeros()),
-        .radius = static_cast<float>(table["radius"].value_or(1.0))
+        .position = parse<Vec3>(table["position"]).value_or(zeros()),
+        .radius = static_cast<float>(table["radius"].value_or(1.0)),
+        .material = parse<PhysicsMaterial>(table["material"]).value_or(
+            PhysicsMaterial{.bounciness = 1.0f, .friction = 1.0f}
+        )
+    };
+}
+template<>
+std::optional<BoxCollider> parse(toml::node_view<const toml::node> view){
+    CHECK_IF_TABLE(view, table)
+
+    return BoxCollider{
+        .entity = invalidEntityID(),
+        .isActive = true,
+        .position = parse<Vec3>(table["position"]).value_or(zeros()),
+        .rotation = parse<Vec4>(table["rotation"]).value_or(unitQuat()),
+        .scale = parse<Vec3>(table["scale"]).value_or(zeros()),
+        .material = parse<PhysicsMaterial>(table["material"]).value_or(
+            PhysicsMaterial{.bounciness = 1.0f, .friction = 1.0f}
+        )
     };
 }
 
@@ -217,29 +246,33 @@ void AssetLoader::loadAsset(const std::string& fileName){
         // new Actor
         std::string name = entity["name"].value<std::string>().value();
 
-        auto tc = parse<Transform>(entity["transform"]);
-        auto cc = parse<Camera>(entity["camera"]);
+        auto tf = parse<Transform>(entity["transform"]);
+        auto cam = parse<Camera>(entity["camera"]);
 
         auto md = parse<ModelDescriptor>(entity["model"]);
-        std::optional<Model> mc = std::nullopt;
+        std::optional<Model> model = std::nullopt;
         if(md.has_value())
-            mc = load(md.value());
+            model = load(md.value());
 
         auto sd = parse<ScriptDescriptor>(entity["script"]);
-        std::optional<ScriptObject> soc = std::nullopt;
+        std::optional<ScriptObject> so = std::nullopt;
         if(sd.has_value())
-            soc = load(sd.value());
+            so = load(sd.value());
 
-        auto rc = parse<Rigidbody>(entity["rigidbody"]);
-        auto scc = parse<SphereCollider>(
+        auto rb = parse<Rigidbody>(entity["rigidbody"]);
+        auto sc = parse<SphereCollider>(
             entity["sphereCollider"]);
+        auto bc = parse<BoxCollider>(
+            entity["boxCollider"]);
 
         auto pc = parse<Player>(entity["player"]);
         auto ec = parse<Editor>(entity["editor"]);
 
         GameDebug("Actor loaded, name: {}", name);
 
-        app.world.registry.createEntity(tc, cc, mc, soc, rc, scc, pc, ec);
+        app.world.registry.createEntity(tf, cam, model, so,
+            rb, sc, bc,
+            pc, ec);
     }
 }
 

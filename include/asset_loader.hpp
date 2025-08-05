@@ -11,7 +11,8 @@ namespace ModernBoy
     struct ModelDescriptor{
         std::string mesh;
         std::string texture;
-        std::string shader;
+        std::string vsFunc;
+        std::string fsFunc;
     };
     struct ScriptDescriptor{
         std::string module_;

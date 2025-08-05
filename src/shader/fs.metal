@@ -8,12 +8,14 @@ constant float3 lightSpecular = float3(0.5);
 constant float3 lightAmbient = float3(0.2);
 
 fragment float4 fragment_main(
-    FS_Input input                [[stage_in]],
-    constant float3& viewPosition [[buffer(0)]],
-    texture2d<float> tex          [[texture(0)]],
-    sampler samp                  [[sampler(0)]],
-    constant RimConstant& rimc    [[buffer(1)]],
-    constant float& alpha         [[buffer(2)]]
+    FS_Input input                 [[stage_in]],
+    constant float3& viewPosition  [[buffer(0)]],
+    texture2d<float> tex           [[texture(0)]],
+    sampler samp                   [[sampler(0)]],
+    constant RimConstant& rimc     [[buffer(1)]],
+    constant float& alpha          [[buffer(2)]],
+    constant float4& myIDColor     [[buffer(3)]],
+    constant float4& pickedIDColor [[buffer(4)]]
 ){
     float2 uv = input.uv.xy;
     float4 color = tex.sample(samp, uv);
@@ -31,7 +33,14 @@ fragment float4 fragment_main(
         input.worldPosition, viewPosition, rimc);
     float3 lightingColor = phongColor + rimColor;
 
-    float3 red = float3(1.0, 0.0, 0.0);
+    float3 white = float3(0.0, 0.0, 0.0);
 
-    return float4(mix(red, lightingColor, alpha), color.a);
+    return float4(mix(white, lightingColor, alpha), color.a);
+}
+
+fragment float4 fragment_id(
+    FS_Input input             [[stage_in]],
+    constant float4 &myIDColor [[buffer(0)]])
+{
+    return myIDColor;
 }

@@ -88,7 +88,7 @@ MeshHandle AppState::append<Mesh, const std::string&>
     return meshManager.emplace(meshFile);
 #elif defined(USE_METAL)
     return meshManager.emplace(
-        meshFile, renderer.metalLayer
+        meshFile, meshFile, renderer.metalLayer
     );
 #endif
 }
@@ -99,18 +99,18 @@ TextureHandle AppState::append<Texture, const std::string&>
     return textureManager.emplace(textureFile);
 #elif defined(USE_METAL)
     return textureManager.emplace(
-        textureFile, renderer.metalLayer
+        textureFile, textureFile, renderer.metalLayer
     );
 #endif
 }
 template<>
-ShaderHandle AppState::append<Shader, const std::string&>
-(const std::string& shaderFile){
+ShaderHandle AppState::append<Shader, const std::string&, const std::string&>
+(const std::string& vsFuncName, const std::string& fsFuncName){
 #if defined(USE_DIRECTX)
     return shaderManager.emplace(shaderFile);
 #elif defined(USE_METAL)
-    return shaderManager.emplace(
-        shaderFile, renderer.metalLayer
+    return shaderManager.emplace(fsFuncName, renderer.context,
+        vsFuncName, fsFuncName
     );
 #endif
 }
@@ -118,7 +118,7 @@ template<>
 ModuleHandle AppState::append<Module,
     const std::string&, const std::vector<std::string>&>
 (const std::string& moduleFile, const std::vector<std::string>& funcs){
-    return moduleManager.emplace(moduleFile, funcs,
+    return moduleManager.emplace(moduleFile, moduleFile, funcs,
         scriptInvoker.engine);
 }
 template<>

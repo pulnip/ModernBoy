@@ -17,12 +17,9 @@ class Shader{
     var rimPower: Float = 1.0
     var rimStrength: Float = 0.0
 
-    init(device: MTLDevice, shaderPath: String) {
-        let url = URL(fileURLWithPath: shaderPath)
-        let lib = try! device.makeLibrary(URL: url)
-        let vertexFunc = lib.makeFunction(name: "vertex_main")
-        let fragFunc = lib.makeFunction(name: "fragment_main")
-
+    init(_ device: MTLDevice,
+        _ vsFunc: MTLFunction, _ fsFunc: MTLFunction
+    ){
         let vertexDesc = MTLVertexDescriptor()
         vertexDesc.attributes[0].format = .float4
         vertexDesc.attributes[0].offset = 0
@@ -38,8 +35,8 @@ class Shader{
         vertexDesc.layouts[0].stepFunction = .perVertex
 
         let pipelineDesc = MTLRenderPipelineDescriptor()
-        pipelineDesc.vertexFunction = vertexFunc
-        pipelineDesc.fragmentFunction = fragFunc
+        pipelineDesc.vertexFunction = vsFunc
+        pipelineDesc.fragmentFunction = fsFunc
         pipelineDesc.vertexDescriptor = vertexDesc
         pipelineDesc.colorAttachments[0].pixelFormat = .bgra8Unorm
         pipelineDesc.depthAttachmentPixelFormat = .depth32Float_stencil8
@@ -62,30 +59,25 @@ class Shader{
 }
 
 @_cdecl("createShader")
-public func createShader(_ pathPtr: UnsafeRawPointer?,
-    _ layerPtr: UnsafeRawPointer?
+public func createShader(_ rctxPtr: UnsafeRawPointer?,
+    _ vsFuncNamePtr: UnsafeRawPointer?,
+    _ fsFuncNamePtr: UnsafeRawPointer?
 ) -> UnsafeRawPointer? {
-    guard let pathPtr = pathPtr,
-        let layerPtr = layerPtr
-        else { return nil }
-    let device = Unmanaged<CAMetalLayer>
-        .fromOpaque(layerPtr).takeUnretainedValue().device!
+    guard let rctxPtr = rctxPtr,
+          let vsFuncNamePtr = vsFuncNamePtr,
+          let fsFuncNamePtr = fsFuncNamePtr
+          else { return nil }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
 
-    let cStr = pathPtr.assumingMemoryBound(to: CChar.self)
-    let providedPath = String(cString: cStr)
-    let shaderPath: String
-    if FileManager.default.fileExists(atPath: providedPath) {
-        shaderPath = providedPath
-    }
-    else if let bundlePath = Bundle.main.path(forResource: "ModernBoy", ofType: "metallib") {
-        shaderPath = bundlePath
-    } else {
-        shaderPath = "./asset/shader/ModernBoy.metallib"
-    }
-    let shader = Shader(device: device,
-    shaderPath: shaderPath)
+    let vsFuncNameCStr = vsFuncNamePtr.assumingMemoryBound(to: CChar.self)
+    let vsFuncName = String(cString: vsFuncNameCStr)
+    let fsFuncNameCStr = fsFuncNamePtr.assumingMemoryBound(to: CChar.self)
+    let fsFuncName = String(cString: fsFuncNameCStr)
+
+    let shader = rctx.createShader(vsFuncName, fsFuncName)
     return UnsafeRawPointer(Unmanaged
-        .passRetained(shader).toOpaque())
+        .passRetained(shader!).toOpaque())
 }
 @_cdecl("destroyShader")
 public func destroyShader(_ ptr: UnsafeRawPointer?) {

@@ -18,7 +18,8 @@ Renderer::Renderer(SDL_Window* window,
 #elif defined(USE_METAL)
 :view(SDL_Metal_CreateView(window)),
 metalLayer(SDL_Metal_GetLayer(view)),
-context(createRenderContext(metalLayer)),
+context(createRenderContext(metalLayer,
+    "./asset/shader/ModernBoy.metallib")),
 #endif
 meshManager(meshManager), textureManager(textureManager), 
 shaderManager(shaderManager), world(world), ema(0ms){}

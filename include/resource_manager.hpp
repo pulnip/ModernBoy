@@ -67,8 +67,7 @@ namespace ModernBoy
                 return link(name);
             }
 
-            auto resource = Resource(name,
-                std::forward<Args>(args)...);
+            auto resource = Resource(std::forward<Args>(args)...);
             auto handle = load(std::move(resource));
 
             nameToIndex.emplace(std::make_pair(name, handle.index));
