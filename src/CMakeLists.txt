@@ -24,7 +24,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     # gsl-lite
     ${gsl-lite_INCLUDE_DIRS}

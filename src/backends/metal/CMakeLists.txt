@@ -19,7 +19,7 @@ target_compile_definitions(RenderBackend PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )
 
-target_include_directories(RenderBackend PUBLIC
+target_include_directories(RenderBackend PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     # gsl-lite
     ${gsl-lite_INCLUDE_DIRS}
