@@ -316,7 +316,7 @@ public func RenderContext_setView(_ rctxPtr: UnsafeRawPointer?,
     let viewPos = simd_float3(px, py, pz)
     let viewQuat = simd_float4(rx, ry, rz, w)
 
-    rctx.setView(viewPos, toRadians(from: fov), viewQuat)
+    rctx.setView(viewPos, fov, viewQuat)
 }
 @_cdecl("RenderContext_setShader")
 public func RenderContext_setShader(_ rctxPtr: UnsafeRawPointer?,

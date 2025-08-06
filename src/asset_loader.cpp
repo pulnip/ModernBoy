@@ -203,7 +203,7 @@ std::optional<Camera> parse(toml::node_view<const toml::node> view){
         .entity = invalidEntityID(),
         .isActive = true,
         .type = cameraType(table["type"].value_or("MainCamera")),
-        .fov = static_cast<float>(table["fov"].value_or(100.0)),
+        .fov = static_cast<float>(table["fov"].value_or(100.0) * M_PI / 180),
         .nearPlane = static_cast<float>(table["nearPlane"].value_or(0.1)),
         .farPlane = static_cast<float>(table["farPlane"].value_or(0.1)),
         .projection = projection(table["projection"].value_or("perspective"))

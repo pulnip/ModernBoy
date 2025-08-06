@@ -71,7 +71,7 @@ void InputSystem::update(DeltaTime dt){
 
     for(auto [id, bit, tf, cam]: registry.query<Transform, Camera>()){
         auto m_pos = input.mousePos();
-        auto fov_radian = cam.fov * M_PI / 180;
+        auto fov_radian = cam.fov;
 
         Ray ray{
             .point = tf.position,
