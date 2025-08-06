@@ -36,6 +36,9 @@ namespace ModernBoy::Input
         std::atomic<int> readIndex = 0;
         Device device;
 
+        // for normalize mouse coord
+        int width, height;
+
         // exponential moving average
         TaskTime ema;
     }; static_assert(Subsystem<Chord>);

@@ -1,6 +1,7 @@
 #include "input/chord.hpp"
 #include "game/entity_registry.hpp"
 #include "game/input_system.hpp"
+#include "physics.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
@@ -66,5 +67,27 @@ void InputSystem::update(DeltaTime dt){
             tc.rotation = tc.rotation * rotateZ( 3.14/2 * dt_);
         if(input.query(KEY_E, Held))
             tc.rotation = tc.rotation * rotateZ(-3.14/2 * dt_);
+    }
+
+    for(auto [id, bit, tf, cam]: registry.query<Transform, Camera>()){
+        auto m_pos = input.mousePos();
+        auto fov_radian = cam.fov * M_PI / 180;
+
+        Ray ray{
+            .point = tf.position,
+            .dir = normalize(
+                m_pos.x * right(tf.rotation) +
+                m_pos.y * up(tf.rotation) +
+                1/std::tanf(fov_radian/2.0f) * forward(tf.rotation)
+            )
+        };
+
+        for(auto [id, bit, c_tf, sc, model]: registry.query<Transform ,SphereCollider, Model>()){
+            RaycastHit result;
+            if(raycastSphere(ray, c_tf.position+sc.position, sc.radius, result))
+                model.alpha = 0.5f;
+            else
+                model.alpha = 1.0;
+        }
     }
 }

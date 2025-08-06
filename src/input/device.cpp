@@ -13,7 +13,7 @@ using namespace ModernBoy::Input;
 Device::Device(SDL_Window* window)
 :window(window), sdlKeyboard(SDL_GetKeyboardState(nullptr)){
 
-    SDL_SetWindowRelativeMouseMode(window, true);
+    // SDL_SetWindowRelativeMouseMode(window, true);
 }
 Device::Device(Device&& other){
     moveFrom(std::move(other)); }

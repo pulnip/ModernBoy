@@ -1,10 +1,13 @@
 #include "input/chord.hpp"
+#include <print>
 
 using namespace std::chrono_literals;
 using namespace ModernBoy;
 using namespace ModernBoy::Input;
 
-Chord::Chord(SDL_Window* window):device(window), ema(0ms){}
+Chord::Chord(SDL_Window* window):device(window), ema(0ms){
+    SDL_GetWindowSize(window, &width, &height);
+}
 
 TaskTime Chord::expectedExecTime(){
     return ema;
@@ -40,7 +43,7 @@ Vec2 Chord::mouseMove(){
     return {.x = state->mouse.dx, .y = state->mouse.dy};
 }
 Vec2 Chord::mousePos(){
-    return {.x = state->mouse.x, .y = state->mouse.y};
+    return {.x = 2*state->mouse.x/height - float(width)/height, .y = 1 - 2*state->mouse.y/height};
 }
 
 void Chord::updateEMA(TaskTime elapsed){

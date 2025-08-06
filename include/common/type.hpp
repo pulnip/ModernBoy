@@ -264,6 +264,11 @@ namespace ModernBoy
     inline bool operator!=(HandleV2 lhs, HandleV2 rhs){
         return !(lhs==rhs);
     }
+
+    struct Ray{
+        Vec3 point;
+        Vec3 dir;
+    };
 } // namespace ModernBoy
 
 #endif // MODERNBOY_COMMON_TYPE_HPP

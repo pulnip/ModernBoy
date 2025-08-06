@@ -69,6 +69,32 @@ namespace ModernBoy
     Vec3 barycenter(const Vec3 poly[], int num_vert);
     bool gjk(const Vec3 poly1[], int num_vert1,
         const Vec3 poly2[], int num_vert2);
+
+    struct RaycastHit{
+        Vec3 point;
+        float distance;
+        ID collider;
+    };
+
+    inline bool raycastSphere(const Ray& ray, Vec3 pos, float radius, RaycastHit& hit){
+        auto d = pos - ray.point;
+
+        auto dist2 = norm_squared(d);
+        auto dProj = dot(d, ray.dir);
+
+        auto cos2 = dProj*dProj/dist2;
+        auto sin2 = 1 - cos2;
+        auto ray_dist2 = dist2*sin2;
+
+        auto radius2 = radius*radius;
+
+        if(ray_dist2 > radius2)
+            return false;
+        hit.distance = std::sqrt(dist2*cos2) - std::sqrt(radius2-ray_dist2);
+        hit.point = ray.point + hit.distance*ray.dir;
+
+        return true;
+    }
 }
 
 #endif // MODERNBOY_PHYSICS_HPP
