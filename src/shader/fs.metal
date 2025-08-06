@@ -45,7 +45,13 @@ fragment float4 fragment_main(
 
 fragment float4 fragment_id(
     FS_Input input             [[stage_in]],
-    constant float4 &myIDColor [[buffer(0)]])
-{
+    constant float4 &myIDColor [[buffer(0)]]
+){
     return myIDColor;
+}
+
+fragment float4 fragment_line(
+    FS_Input_Line input        [[stage_in]]
+){
+    return input.color;
 }

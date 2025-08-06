@@ -3,6 +3,12 @@ import MetalKit
 import QuartzCore
 import simd
 
+struct Line {
+    var from: simd_float3
+    var to: simd_float3
+    var color: simd_float4
+};
+
 struct ViewConstant{
     var viewMat: simd_float4x4
     var projMat: simd_float4x4
@@ -214,6 +220,16 @@ class RenderContext {
                 vertexCount: mesh.numVertices)
         }
     }
+    func drawLines(_ lines: UnsafePointer<Line>, _ count: Int){
+        guard let encoder = renderEncoder
+              else { return }
+        let buffer = layer.device?.makeBuffer(
+            bytes: lines, length: MemoryLayout<Line>.stride * count)
+
+        encoder.setVertexBuffer(buffer, offset: 0, index: 0)
+        encoder.drawPrimitives(type: .line, vertexStart: 0,
+            vertexCount: count * 2)
+    }
     func frameEnd() {
         guard let encoder = self.renderEncoder,
               let commandBuffer = self.commandBuffer,
@@ -365,6 +381,18 @@ public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,
         scale(&modelMat, sx, sy, sz)
 
     rctx.draw(modelMat, mesh, alpha, id)
+}
+@_cdecl("RenderContext_drawLines")
+public func RenderContext_drawLines(_ rctxPtr: UnsafeRawPointer?,
+    _ linesPtr: UnsafeRawPointer?, _ count: Int
+){
+    guard let rctxPtr = rctxPtr,
+          let linesPtr = linesPtr
+          else{ return }
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    let lines = linesPtr.bindMemory(to: Line.self, capacity: count)
+    rctx.drawLines(lines, count)
 }
 @_cdecl("RenderContext_draw_")
 public func RenderContext_draw_(_ rctxPtr: UnsafeRawPointer?,

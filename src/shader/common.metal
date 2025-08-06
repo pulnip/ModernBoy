@@ -4,3 +4,8 @@ struct FS_Input{
     float3 normal;
     float2 uv;
 };
+
+struct FS_Input_Line{
+    float4 position [[position]];
+    float4 color;
+};

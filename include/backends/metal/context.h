@@ -1,6 +1,8 @@
 #ifndef MODERNBOY_METAL_CONTEXT_H
 #define MODERNBOY_METAL_CONTEXT_H
 
+#include "common/type.hpp"
+
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -34,6 +36,10 @@ extern "C"{
         float sx, float sy, float sz,
         void* meshPtr, float alpha,
         int id
+    );
+    extern void RenderContext_drawLines(
+        void* NativePtr,
+        ModernBoy::Line* lines, int count
     );
     extern void RenderContext_draw_(
         void* nativeContext,

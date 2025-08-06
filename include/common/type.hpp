@@ -269,6 +269,11 @@ namespace ModernBoy
         Vec3 point;
         Vec3 dir;
     };
+
+    struct Line{
+        Vec3 from, to;
+        Vec4 color;
+    };
 } // namespace ModernBoy
 
 #endif // MODERNBOY_COMMON_TYPE_HPP
