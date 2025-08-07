@@ -9,13 +9,15 @@ namespace ModernBoy::Game
     class InputSystem{
     public:
         InputSystem(EntityRegistry&,
-            ModernBoy::Input::Chord&);
+            ModernBoy::Input::Chord&,
+            ModernBoy::Render::Renderer&);
 
         void update(DeltaTime);
 
     private:
         EntityRegistry& registry;
         ModernBoy::Input::Chord& input;
+        ModernBoy::Render::Renderer& render;
     };
 }
 

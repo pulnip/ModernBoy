@@ -18,6 +18,7 @@
 #elif defined(USE_METAL)
 #include <SDL3/SDL_metal.h>
 #include "backends/metal/context.h"
+#include "backends/metal/mesh.hpp"
 #elif defined(USE_OPENGL)
 #include "backends/opengl/context.hpp"
 #endif
@@ -38,6 +39,11 @@ namespace ModernBoy::Render
         void onFrameEnd();
 
         EntityID queryWindowPos(int x, int y);
+
+        // Debug objects
+        void pushDebugLine(const Line& line);
+        void pushDebugSphere(const Vec3& position,
+            float radius, const Vec4& color);
 
 #if defined(USE_DIRECTX)
         NativePtr getDevice();
@@ -64,6 +70,11 @@ namespace ModernBoy::Render
         void drawMesh(const Vec3& position,
             const Vec4& rotation, const Vec3& scale,
             MeshHandle handle, float alpha, int id);
+        void drawMesh(const Vec3& position,
+            const Vec4& rotation, const Vec3& scale,
+            const Mesh& mesh, float alpha, int id,
+            bool useUV = true,
+            const Vec4& color = Vec4{.r=1, .g=0, .b=0, .a=1});
 
     public:
 #if defined(USE_DIRECTX)
@@ -80,6 +91,10 @@ namespace ModernBoy::Render
         World& world;
 
         TaskTime ema;
+
+        std::vector<Line> debugLines;
+        std::vector<std::tuple<Vec3, float, Vec4>> debugSpheres;
+        Mesh sphereMesh;
     };
 } // namespace ModernBoy::Render
 

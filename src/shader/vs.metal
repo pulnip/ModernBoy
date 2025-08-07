@@ -38,15 +38,13 @@ vertex FS_Input vertex_main(uint vid [[vertex_id]],
 
 vertex FS_Input_Line vertex_line(uint vid [[vertex_id]],
     constant Line* lines          [[buffer(0)]],
-    constant ViewConstant& view   [[buffer(1)]],
-    constant ModelConstant& model [[buffer(2)]]
+    constant ViewConstant& view   [[buffer(1)]]
 ){
     FS_Input_Line output;
 
     uint idx = vid / 2;
     uint sub = vid % 2;
     float3 pos = (sub==0) ? lines[idx].from: lines[idx].to;
-    float4 color = lines[idx].color;
 
     output.position = view.proj * view.trs * float4(pos, 1.0);
     output.color = lines[idx].color;

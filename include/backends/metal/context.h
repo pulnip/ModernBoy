@@ -34,23 +34,13 @@ extern "C"{
         float px, float py, float pz,
         float rx, float ry, float rz, float w,
         float sx, float sy, float sz,
-        void* meshPtr, float alpha,
-        int id
-    );
-    extern void RenderContext_drawLines(
-        void* NativePtr,
-        ModernBoy::Line* lines, int count
-    );
-    extern void RenderContext_draw_(
-        void* nativeContext,
-        float px, float py, float pz,
-        float rx, float ry, float rz,
-        float sx, float sy, float sz,
-        void* meshPtr, float alpha,
-        int id
+        void* meshPtr, float alpha, int id,
+        bool useUV = true,
+        float r=0, float g=0, float b=0, float a=1
     );
     extern void RenderContext_frameEnd(
-        void* nativeContext
+        void* nativeContext,
+        const ModernBoy::Line* lines, int count
     );
     extern void* RenderContext_getDevice(
         void* nativeContext

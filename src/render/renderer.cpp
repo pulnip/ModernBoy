@@ -22,7 +22,8 @@ context(createRenderContext(metalLayer,
     "./asset/shader/ModernBoy.metallib")),
 #endif
 meshManager(meshManager), textureManager(textureManager), 
-shaderManager(shaderManager), world(world), ema(0ms){}
+shaderManager(shaderManager), world(world), ema(0ms),
+sphereMesh("Sphere", metalLayer){}
 
 Renderer::~Renderer(){
 #if defined(USE_METAL)
@@ -62,6 +63,13 @@ void Renderer::update(DeltaTime){
             drawMesh(draw.position, draw.rotation,
                 draw.scale, draw.meshHandle, draw.alpha,
                 static_cast<int>(draw.entity));
+        }
+
+        for(const auto& [pos, radius, color]: debugSpheres){
+            drawMesh(pos, unitQuat(),
+                Vec3{.x=radius, .y=radius, .z=radius},
+                sphereMesh, 0.0f, 0,
+                false, color);
         }
     }
 
@@ -165,11 +173,30 @@ void Renderer::drawMesh(
 #if defined(USE_DIRECTX)
         context.drawMesh(position, rotation, scale, partPtr, alpha);
 #elif defined(USE_METAL)
-        RenderContext_draw_(context,
+        RenderContext_draw(context,
             position.x, position.y, position.z,
-            rotation.x, rotation.y, rotation.z,
+            rotation.x, rotation.y, rotation.z, rotation.w,
             scale.x, scale.y, scale.z,
             partPtr, alpha, id);
+#endif
+    }
+}
+void Renderer::drawMesh(
+    const Vec3& position, const Vec4& rotation,
+    const Vec3& scale, const Mesh& mesh,
+    float alpha, int id,
+    bool useUV, const Vec4& color
+){
+    for(const auto partPtr: mesh.meshPtr){
+#if defined(USE_DIRECTX)
+        context.drawMesh(position, rotation, scale, partPtr, alpha);
+#elif defined(USE_METAL)
+        RenderContext_draw(context,
+            position.x, position.y, position.z,
+            rotation.x, rotation.y, rotation.z, rotation.w,
+            scale.x, scale.y, scale.z,
+            partPtr, alpha, id,
+            useUV, color.r, color.g, color.b, color.a);
 #endif
     }
 }
@@ -178,13 +205,25 @@ void Renderer::onFrameEnd(){
 #if defined(USE_DIRECTX)
     context.onFrameEnd();
 #elif defined(USE_METAL)
-    RenderContext_frameEnd(context);
+    RenderContext_frameEnd(context,
+        debugLines.data(), debugLines.size());
+    debugLines.clear();
+    debugSpheres.clear();
 #endif
 }
 
 EntityID Renderer::queryWindowPos(int x, int y){
     int id = RenderContext_getPickedID(context, x, y);
     return static_cast<EntityID>(id);
+}
+
+void Renderer::pushDebugLine(const Line& line){
+    debugLines.push_back(line);
+}
+void Renderer::pushDebugSphere(const Vec3& position, float radius,
+    const Vec4& color
+){
+    debugSpheres.push_back({position, radius, color});
 }
 
 #if defined(USE_DIRECTX)

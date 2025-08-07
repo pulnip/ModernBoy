@@ -9,7 +9,7 @@ Context::Context(AppState& app)
 :app(app),
 debug(registry), draw(registry),
 action(registry, app.scriptInvoker),
-input(registry, app.inputChord),
+input(registry, app.inputChord, app.renderer),
 physics(registry), lifespan(registry){}
 
 

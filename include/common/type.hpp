@@ -24,6 +24,10 @@ namespace ModernBoy
         struct{ float r, g, b, a; };
     }; static_assert(std::is_trivially_copyable_v<Vec4>);
 
+    inline Vec4 asVec4(Vec3 v3){
+        return {.x=v3.x, .y=v3.y, .z=v3.z, .w=0};
+    }
+
     Vec2 operator+(Vec2, Vec2);
     Vec2 operator-(Vec2, Vec2);
     Vec2 operator-(Vec2);
@@ -270,8 +274,8 @@ namespace ModernBoy
         Vec3 dir;
     };
 
-    struct Line{
-        Vec3 from, to;
+    struct alignas(16) Line{
+        Vec4 from, to;
         Vec4 color;
     };
 } // namespace ModernBoy

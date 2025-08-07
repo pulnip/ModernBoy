@@ -15,10 +15,14 @@ fragment float4 fragment_main(
     constant RimConstant& rimc     [[buffer(1)]],
     constant float& alpha          [[buffer(2)]],
     constant float4& myIDColor     [[buffer(3)]],
-    constant float4& pickedIDColor [[buffer(4)]]
+    constant float4& pickedIDColor [[buffer(4)]],
+    constant bool& useUV           [[buffer(5)]],
+    constant float4& plainColor    [[buffer(6)]]
 ){
     float2 uv = input.uv.xy;
-    float4 color = tex.sample(samp, uv);
+    float4 color = plainColor;
+    if(useUV)
+        color = tex.sample(samp, uv);
 
     PhongLight light{
         lightDirection,
@@ -39,8 +43,9 @@ fragment float4 fragment_main(
         m = 0.5;
     float3 mixed = mix(lightingColor, red, m);
 
-    float3 white = float3(0.0, 0.0, 0.0);
-    return float4(mix(white, mixed, alpha), color.a);
+    // float3 white = float3(0.0, 0.0, 0.0);
+    return float4(mixed, color.a);
+    // return float4(mix(white, mixed, alpha), color.a);
 }
 
 fragment float4 fragment_id(
@@ -53,5 +58,5 @@ fragment float4 fragment_id(
 fragment float4 fragment_line(
     FS_Input_Line input        [[stage_in]]
 ){
-    return input.color;
+    return float4(input.color.rgb, 1.0);
 }

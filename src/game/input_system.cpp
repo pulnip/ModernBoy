@@ -2,14 +2,16 @@
 #include "game/entity_registry.hpp"
 #include "game/input_system.hpp"
 #include "physics.hpp"
+#include "render/renderer.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
 using namespace ModernBoy::Input;
+using namespace ModernBoy::Render;
 
 InputSystem::InputSystem(EntityRegistry& registry,
-    ModernBoy::Input::Chord& input)
-:registry(registry), input(input){}
+    Chord& input, Renderer& render)
+:registry(registry), input(input), render(render){}
 
 void InputSystem::update(DeltaTime dt){
     auto dt_ = dt.count() / 1'000'000.0f;
@@ -84,10 +86,16 @@ void InputSystem::update(DeltaTime dt){
 
         for(auto [id, bit, c_tf, sc, model]: registry.query<Transform ,SphereCollider, Model>()){
             RaycastHit result;
-            if(raycastSphere(ray, c_tf.position+sc.position, sc.radius, result))
-                model.alpha = 0.5f;
-            else
-                model.alpha = 1.0;
+            if(raycastSphere(ray, c_tf.position+sc.position, sc.radius, result)){
+                render.pushDebugLine(Line{
+                    .from = asVec4(ray.point),
+                    .to = asVec4(result.point),
+                    .color = Vec4{.r=1, .g=0, .b=0, .a=1}
+                });
+                render.pushDebugSphere(result.point,
+                    0.1, Vec4{.r=1, .g=0, .b=0, .a=1}
+                );
+            }
         }
     }
 }
