@@ -6,8 +6,8 @@
 #elif defined(USE_OPENGL)
 #endif
 #include <toml++/toml.h>
-#include "common/type.hpp"
-#include "common/helper.hpp"
+#include "core/math/type.hpp"
+#include "core/string/helper.hpp"
 #include "log.hpp"
 #include "asset_loader.hpp"
 #include "app_state.hpp"

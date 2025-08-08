@@ -1,5 +1,5 @@
 #include <algorithm>
-#include "common/helper.hpp"
+#include "core/string/helper.hpp"
 
 using namespace ModernBoy;
 

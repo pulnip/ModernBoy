@@ -3,7 +3,7 @@
 
 #include <array>
 #include <cassert>
-#include "common/type.hpp"
+#include "core/math/type.hpp"
 
 namespace ModernBoy
 {

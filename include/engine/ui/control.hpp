@@ -4,7 +4,7 @@
 #include <string>
 #include <variant>
 #include <vector>
-#include "common/alias.hpp"
+#include "core/alias.hpp"
 #include "engine/ui/event.hpp"
 
 namespace ModernBoy::UI

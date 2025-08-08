@@ -4,7 +4,7 @@
 #include <vector>
 #include "fwd.hpp"
 #include "interface.hpp"
-#include "util/generator.hpp"
+#include "core/thread/generator.hpp"
 #include "game/game_fwd.hpp"
 #include "task.hpp"
 

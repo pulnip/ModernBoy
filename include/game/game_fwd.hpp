@@ -2,7 +2,7 @@
 #define MODERNBOY_GAME_FWD_HPP
 
 #include <cstdint>
-#include "common/alias.hpp"
+#include "core/alias.hpp"
 
 namespace ModernBoy::Game
 {

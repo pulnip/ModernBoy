@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <vector>
-#include "common/alias.hpp"
+#include "core/alias.hpp"
 #include "fwd.hpp"
 
 namespace ModernBoy

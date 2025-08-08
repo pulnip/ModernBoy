@@ -2,7 +2,7 @@
 #define MODERNBOY_GAME_SCHEDULER_HPP
 
 #include <vector>
-#include "util/generator.hpp"
+#include "core/thread/generator.hpp"
 #include "interface.hpp"
 #include "fwd.hpp"
 #include "game/game_fwd.hpp"

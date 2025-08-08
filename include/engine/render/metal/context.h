@@ -1,7 +1,7 @@
 #ifndef MODERNBOY_METAL_CONTEXT_H
 #define MODERNBOY_METAL_CONTEXT_H
 
-#include "common/type.hpp"
+#include "core/math/type.hpp"
 
 #ifdef __cplusplus
 extern "C"{

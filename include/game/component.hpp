@@ -2,7 +2,7 @@
 #define MODERNBOY_RESOURCE_COMPONENT_HPP
 
 #include <type_traits>
-#include "common/type.hpp"
+#include "core/math/type.hpp"
 #include "fwd.hpp"
 #include "task.hpp"
 #include "game/game_fwd.hpp"

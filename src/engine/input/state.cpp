@@ -2,7 +2,7 @@
 #include <string>
 #include <unordered_map>
 #include "engine/input/state.hpp"
-#include "common/helper.hpp"
+#include "core/string/helper.hpp"
 
 using namespace ModernBoy::Input;
 

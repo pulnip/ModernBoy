@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <thread>
 #include "log.hpp"
-#include "util/thread_backoff.hpp"
+#include "core/thread/thread_backoff.hpp"
 #include "app_state.hpp"
 #include "game/game_fwd.hpp"
 #include "game/archetype_map.hpp"

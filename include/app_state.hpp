@@ -2,7 +2,7 @@
 #define MODERNBOY_APP_STATE_HPP
 
 #include <SDL3/SDL_video.h>
-#include "common/alias.hpp"
+#include "core/alias.hpp"
 #include "asset_loader.hpp"
 #include "game/context.hpp"
 #include "game/event.hpp"

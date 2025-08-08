@@ -1,7 +1,7 @@
 #ifndef MODERNBOY_CONCEPTS_HPP
 #define MODERNBOY_CONCEPTS_HPP
 
-#include "util/type_traits.hpp"
+#include "core/type_traits.hpp"
 
 namespace ModernBoy
 {

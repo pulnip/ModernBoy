@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <string>
 #include <type_traits>
-#include "common/alias.hpp"
+#include "core/alias.hpp"
 
 namespace ModernBoy
 {

@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <SDL3/SDL_keycode.h>
-#include "common/type.hpp"
+#include "core/math/type.hpp"
 #include "fwd.hpp"
 
 namespace ModernBoy::Input

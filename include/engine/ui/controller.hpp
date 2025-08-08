@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <variant>
 #include "fwd.hpp"
-#include "util/generator.hpp"
+#include "core/thread/generator.hpp"
 #include "engine/ui/control.hpp"
 #include "engine/ui/event.hpp"
 

@@ -2,7 +2,7 @@
 #define MODERNBOY_TASK_HPP
 
 #include <vector>
-#include "common/type.hpp"
+#include "core/math/type.hpp"
 #include "fwd.hpp"
 #include "raw_resource.hpp"
 #include "engine/input/state.hpp"

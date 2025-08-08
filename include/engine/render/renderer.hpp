@@ -8,10 +8,10 @@
 #include <SDL3/SDL_video.h>
 #include "fwd.hpp"
 #include "task.hpp"
-#include "common/alias.hpp"
+#include "core/alias.hpp"
 #include "interface.hpp"
-#include "util/lock_free_queue.hpp"
-#include "util/generator.hpp"
+#include "core/thread/lock_free_queue.hpp"
+#include "core/thread/generator.hpp"
 #include "engine/render/command.hpp"
 #if defined(USE_DIRECTX)
 #include "engine/render/dx11/context.hpp"

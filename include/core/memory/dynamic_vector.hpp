@@ -8,9 +8,9 @@
 #include <set>
 #include <stdexcept>
 #include <utility>
-#include "common/alias.hpp"
-#include "util/concepts.hpp"
-#include "util/bit.hpp"
+#include "core/alias.hpp"
+#include "core/concepts.hpp"
+#include "core/memory/bit.hpp"
 
 namespace ModernBoy{
     class DynamicVectorBadCast: public std::bad_cast{

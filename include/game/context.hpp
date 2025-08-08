@@ -14,7 +14,7 @@
 #include "game/lifespan_system.hpp"
 #include "game/scheduler.hpp"
 #include "game/event.hpp"
-#include "util/generator.hpp"
+#include "core/thread/generator.hpp"
 
 namespace ModernBoy::Game
 {

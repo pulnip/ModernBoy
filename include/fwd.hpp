@@ -2,8 +2,8 @@
 #define MODERNBOY_FWD_HPP
 
 #include <chrono>
-#include "common/alias.hpp"
-#include "common/type.hpp"
+#include "core/alias.hpp"
+#include "core/math/type.hpp"
 
 namespace ModernBoy
 {

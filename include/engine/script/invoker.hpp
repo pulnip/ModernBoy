@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include "interface.hpp"
-#include "common/alias.hpp"
+#include "core/alias.hpp"
 #include "engine/script/type.hpp"
 #include "engine/input/state.hpp"
 #include "task.hpp"

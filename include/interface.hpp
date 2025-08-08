@@ -4,7 +4,7 @@
 #include <concepts>
 #include <cstddef>
 #include "fwd.hpp"
-#include "util/generator.hpp"
+#include "core/thread/generator.hpp"
 
 namespace ModernBoy
 {

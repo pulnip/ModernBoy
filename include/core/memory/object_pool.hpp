@@ -8,8 +8,8 @@
 #include <ranges>
 #include <unordered_set>
 #include <vector>
-#include "common/alias.hpp"
-#include "common/type.hpp"
+#include "core/alias.hpp"
+#include "core/math/type.hpp"
 
 namespace ModernBoy
 {

@@ -6,7 +6,7 @@
 #include <variant>
 #include "fwd.hpp"
 #include "raw_resource.hpp"
-#include "common/type.hpp"
+#include "core/math/type.hpp"
 
 namespace ModernBoy::Render
 {

@@ -1,10 +1,9 @@
-add_subdirectory(common)
+add_subdirectory(core)
 add_subdirectory(game)
 add_subdirectory(engine/input)
 add_subdirectory(engine/render)
 add_subdirectory(shader)
 add_subdirectory(engine/script)
-add_subdirectory(util)
 add_subdirectory(engine/ui)
 
 file(GLOB ALL_SOURCES "*.cpp")
@@ -35,13 +34,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/external/stb
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    CommonModule
+    Core
     Game
     RenderBackend
     RenderModule
     InputModule
     ScriptModule
-    Util
     UIModule
     # SDL3
     SDL3::SDL3

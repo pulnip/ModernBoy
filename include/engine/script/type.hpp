@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 #include "fwd.hpp"
-#include "common/type.hpp"
-#include "common/alias.hpp"
+#include "core/math/type.hpp"
+#include "core/alias.hpp"
 
 class asIScriptEngine;
 class asIScriptModule;

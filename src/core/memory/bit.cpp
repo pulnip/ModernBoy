@@ -1,4 +1,4 @@
-#include "util/bit.hpp"
+#include "core/memory/bit.hpp"
 
 void* ModernBoy::Util::add(void* ptr, size_t nbyte){
     return static_cast<uint8_t*>(ptr)+nbyte;

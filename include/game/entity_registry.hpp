@@ -5,7 +5,7 @@
 #include <tuple>
 #include <unordered_map>
 #include "log.hpp"
-#include "util/dynamic_vector.hpp"
+#include "core/memory/dynamic_vector.hpp"
 #include "game/game_fwd.hpp"
 #include "game/component.hpp"
 

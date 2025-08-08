@@ -4,8 +4,8 @@
 #include <atomic>
 #include <functional>
 #include <unordered_map>
-#include "util/dynamic_vector.hpp"
-#include "util/type_traits.hpp"
+#include "core/memory/dynamic_vector.hpp"
+#include "core/type_traits.hpp"
 #include "game/game_fwd.hpp"
 #include "game/component.hpp"
 

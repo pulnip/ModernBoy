@@ -3,7 +3,7 @@
 #include <bit>
 #include <iostream>
 #include <limits>
-#include "util/dynamic_vector.hpp"
+#include "core/memory/dynamic_vector.hpp"
 
 using namespace ModernBoy;
 

@@ -1,7 +1,7 @@
 #include <limits>
 #include <unordered_map>
-#include "common/type.hpp"
-#include "common/helper.hpp"
+#include "core/math/type.hpp"
+#include "core/string/helper.hpp"
 
 using namespace ModernBoy;
 

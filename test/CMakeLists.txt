@@ -22,8 +22,7 @@ target_include_directories(${PROJECT_NAME}Test PRIVATE
     ${CMAKE_SOURCE_DIR}/include
 )
 target_link_libraries(${PROJECT_NAME}Test PRIVATE
-    CommonModule
-    Util
+    Core
     GTest::gtest_main
     GTest::gmock_main
 )

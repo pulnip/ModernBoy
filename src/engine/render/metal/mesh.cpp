@@ -1,7 +1,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "common/alias.hpp"
+#include "core/alias.hpp"
 #include "raw_resource.hpp"
 #include "engine/render/metal/mesh.hpp"
 
