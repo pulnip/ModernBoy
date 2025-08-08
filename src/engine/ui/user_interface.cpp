@@ -9,7 +9,7 @@
 #include <imgui_impl_metal.h>
 #endif
 #include "engine/render/renderer.hpp"
-#include "ui/user_interface.hpp"
+#include "engine/ui/user_interface.hpp"
 #include "app_state.hpp"
 
 using namespace std::chrono_literals;

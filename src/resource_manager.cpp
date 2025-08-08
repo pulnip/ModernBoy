@@ -1,6 +1,6 @@
 #include "resource_manager.hpp"
 #include "fwd.hpp"
-#include "script/type.hpp"
+#include "engine/script/type.hpp"
 
 using namespace ModernBoy;
 

@@ -1,6 +1,6 @@
 #include "imgui.h"
-#include "ui/controller.hpp"
-#include "ui/user_interface.hpp"
+#include "engine/ui/controller.hpp"
+#include "engine/ui/user_interface.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::UI;

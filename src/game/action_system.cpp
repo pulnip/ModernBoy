@@ -1,5 +1,5 @@
 #include <cassert>
-#include "script/invoker.hpp"
+#include "engine/script/invoker.hpp"
 #include "game/context.hpp"
 #include "game/entity_registry.hpp"
 #include "game/component.hpp"

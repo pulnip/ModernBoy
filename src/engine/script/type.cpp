@@ -1,7 +1,7 @@
 #include <angelscript.h>
 #include <scriptstdstring/scriptstdstring.h>
 #include <scriptbuilder/scriptbuilder.h>
-#include "script/type.hpp"
+#include "engine/script/type.hpp"
 
 using namespace ModernBoy::Script;
 

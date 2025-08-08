@@ -8,11 +8,11 @@
 #include <scriptbuilder/scriptbuilder.h>
 #include "app_state.hpp"
 #include "task.hpp"
-#include "script/invoker.hpp"
-#include "script/as_helper.hpp"
-#include "script/as_stream.hpp"
-#include "script/as_typehelper.hpp"
-#include "script/type.hpp"
+#include "engine/script/invoker.hpp"
+#include "engine/script/as_helper.hpp"
+#include "engine/script/as_stream.hpp"
+#include "engine/script/as_typehelper.hpp"
+#include "engine/script/type.hpp"
 #include "game/context.hpp"
 #include "game/component.hpp"
 

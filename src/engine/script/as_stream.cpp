@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include "script/as_stream.hpp"
+#include "engine/script/as_stream.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Script;

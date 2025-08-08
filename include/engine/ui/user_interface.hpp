@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <SDL3/SDL_video.h>
 #include "interface.hpp"
-#include "ui/controller.hpp"
+#include "engine/ui/controller.hpp"
 
 namespace ModernBoy::UI
 {

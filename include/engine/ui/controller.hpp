@@ -5,8 +5,8 @@
 #include <variant>
 #include "fwd.hpp"
 #include "util/generator.hpp"
-#include "ui/control.hpp"
-#include "ui/event.hpp"
+#include "engine/ui/control.hpp"
+#include "engine/ui/event.hpp"
 
 namespace ModernBoy::UI
 {

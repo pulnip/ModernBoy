@@ -1,6 +1,6 @@
 #include <print>
 #include <angelscript.h>
-#include "script/as_helper.hpp"
+#include "engine/script/as_helper.hpp"
 
 void ModernBoy::Script::printExceptionInfo(asIScriptContext *ctx){
     // Determine the exception that occurred

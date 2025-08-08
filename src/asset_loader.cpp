@@ -12,8 +12,8 @@
 #include "asset_loader.hpp"
 #include "app_state.hpp"
 #include "game/component.hpp"
-#include "script/invoker.hpp"
-#include "script/type.hpp"
+#include "engine/script/invoker.hpp"
+#include "engine/script/type.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;

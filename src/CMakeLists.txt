@@ -3,9 +3,9 @@ add_subdirectory(game)
 add_subdirectory(engine/input)
 add_subdirectory(engine/render)
 add_subdirectory(shader)
-add_subdirectory(script)
+add_subdirectory(engine/script)
 add_subdirectory(util)
-add_subdirectory(ui)
+add_subdirectory(engine/ui)
 
 file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME}

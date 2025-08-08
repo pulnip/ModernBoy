@@ -2,8 +2,8 @@
 #include <angelscript.h>
 #include "common/type.hpp"
 #include "raw_resource.hpp"
-#include "script/as_typehelper.hpp"
-#include "script/invoker.hpp"
+#include "engine/script/as_typehelper.hpp"
+#include "engine/script/invoker.hpp"
 #include "engine/input/device.hpp"
 #include "engine/input/state.hpp"
 #include "game/context.hpp"
