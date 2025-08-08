@@ -12,15 +12,15 @@
 #include "interface.hpp"
 #include "util/lock_free_queue.hpp"
 #include "util/generator.hpp"
-#include "render/command.hpp"
+#include "engine/render/command.hpp"
 #if defined(USE_DIRECTX)
-#include "backends/dx11/context.hpp"
+#include "engine/render/dx11/context.hpp"
 #elif defined(USE_METAL)
 #include <SDL3/SDL_metal.h>
-#include "backends/metal/context.h"
-#include "backends/metal/mesh.hpp"
+#include "engine/render/metal/context.h"
+#include "engine/render/metal/mesh.hpp"
 #elif defined(USE_OPENGL)
-#include "backends/opengl/context.hpp"
+#include "engine/render/opengl/context.hpp"
 #endif
 
 namespace ModernBoy::Render

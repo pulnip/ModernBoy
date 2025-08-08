@@ -1,3 +1,5 @@
+add_subdirectory(${BACKEND_SOURCE_DIR})
+
 file(GLOB ALL_SOURCES "*.cpp")
 add_library(RenderModule STATIC ${ALL_SOURCES})
 

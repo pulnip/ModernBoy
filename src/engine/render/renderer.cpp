@@ -1,10 +1,10 @@
 #include <algorithm>
 #include "log.hpp"
 #include "resource_manager.hpp"
-#include "render/renderer.hpp"
+#include "engine/render/renderer.hpp"
 #include "app_state.hpp"
 #include "task.hpp"
-#include "render/command.hpp"
+#include "engine/render/command.hpp"
 
 using namespace std::chrono_literals;
 using namespace ModernBoy;

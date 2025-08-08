@@ -10,21 +10,21 @@
 #include "script/type.hpp"
 #include "script/invoker.hpp"
 #include "input/device.hpp"
-#include "render/renderer.hpp"
+#include "engine/render/renderer.hpp"
 #include "ui/user_interface.hpp"
 #include "scheduler.hpp"
 #include "event.hpp"
 #if defined(USE_DIRECTX)
-#include "backends/dx11/mesh.hpp"
-#include "backends/dx11/texture.hpp"
-#include "backends/dx11/shader.hpp"
+#include "engine/render/dx11/mesh.hpp"
+#include "engine/render/dx11/texture.hpp"
+#include "engine/render/dx11/shader.hpp"
 #elif defined(USE_METAL)
 #include "SDL3/SDL_metal.h"
-#include "backends/metal/mesh.hpp"
-#include "backends/metal/texture.hpp"
-#include "backends/metal/shader.hpp"
+#include "engine/render/metal/mesh.hpp"
+#include "engine/render/metal/texture.hpp"
+#include "engine/render/metal/shader.hpp"
 #elif defined(USE_OPENGL)
-#include "backends/opengl/mesh.hpp"
+#include "engine/render/opengl/mesh.hpp"
 #endif
 
 namespace ModernBoy

@@ -35,7 +35,7 @@ if(RENDER_BACKEND STREQUAL "DirectX")
     # DirectX related packages
     find_package(directxmath REQUIRED CONFIG)
     # find_package(directxtk REQUIRED CONFIG)
-    set(BACKEND_SOURCE_DIR "backends/dx11")
+    set(BACKEND_SOURCE_DIR "dx11")
 elseif(RENDER_BACKEND STREQUAL "Metal")
     if(WIN32)
         message(FATAL_ERROR
@@ -51,14 +51,14 @@ elseif(RENDER_BACKEND STREQUAL "Metal")
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
     set(CMAKE_OSX_SYSROOT "${MACOSX_SDK_PATH}")
-    set(BACKEND_SOURCE_DIR "backends/metal")
+    set(BACKEND_SOURCE_DIR "metal")
 elseif(RENDER_BACKEND STREQUAL "OpenGL")
     set(SHADER_COMPILER glslangValidator)
     add_definitions(-DUSE_OPENGL)
     # OpenGL related packages
     find_package(OpenGL REQUIRED)
     find_package(glad REQUIRED)
-    set(BACKEND_SOURCE_DIR "backends/opengl")
+    set(BACKEND_SOURCE_DIR "opengl")
 else()
     message(FATAL_ERROR
         "Invalid RENDER_BACKEND: ${RENDER_BACKEND}"

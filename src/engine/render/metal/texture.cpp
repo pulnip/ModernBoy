@@ -2,7 +2,7 @@
 #include <utility>
 #include <vector>
 #include "log.hpp"
-#include "backends/metal/texture.hpp"
+#include "engine/render/metal/texture.hpp"
 #include "app_state.hpp"
 
 #ifdef __cplusplus

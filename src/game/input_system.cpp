@@ -2,7 +2,7 @@
 #include "game/entity_registry.hpp"
 #include "game/input_system.hpp"
 #include "physics.hpp"
-#include "render/renderer.hpp"
+#include "engine/render/renderer.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
