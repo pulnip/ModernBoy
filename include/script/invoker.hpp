@@ -21,7 +21,7 @@ namespace ModernBoy::Script
     public:
         Invoker(Game::EntityRegistry& registry,
             ModuleManager& moduleManager, ObjectManager& objectManager,
-            Input::Chord& chord);
+            Input::Device& device);
         ~Invoker();
         Invoker(const Invoker& other)=delete;
         Invoker(Invoker&&)=delete;

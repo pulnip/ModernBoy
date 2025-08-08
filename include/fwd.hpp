@@ -25,7 +25,7 @@ namespace ModernBoy
     }
 
     namespace Input{
-        class Chord;
+        class Device;
     }
 
     using NativePtr = void*;

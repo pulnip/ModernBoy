@@ -51,9 +51,9 @@ shaderManager(), moduleManager(),
 renderer(window, meshManager, textureManager,
     shaderManager, world),
 userInterface(window, renderer, *this),
-inputChord(window),
+inputDevice(window),
 scriptInvoker(world.registry, moduleManager,
-    objectManager, inputChord),
+    objectManager, inputDevice),
 // others
 world(*this),
 assetLoader(*this), lastTick(std::chrono::time_point_cast<
@@ -138,8 +138,8 @@ void AppState::update(){
     deltaTime = now - lastTick;
     lastTick = now;
 
-    inputChord.update(deltaTime);
-    // auto gen1 = inputChord.update(deltaTime);
+    inputDevice.update(deltaTime);
+    // auto gen1 = inputDevice.update(deltaTime);
     // while(!gen1.done())
     //     gen1.next();
 

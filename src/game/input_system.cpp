@@ -1,4 +1,4 @@
-#include "input/chord.hpp"
+#include "input/device.hpp"
 #include "game/entity_registry.hpp"
 #include "game/input_system.hpp"
 #include "physics.hpp"
@@ -10,7 +10,7 @@ using namespace ModernBoy::Input;
 using namespace ModernBoy::Render;
 
 InputSystem::InputSystem(EntityRegistry& registry,
-    Chord& input, Renderer& render)
+    Device& input, Renderer& render)
 :registry(registry), input(input), render(render){}
 
 void InputSystem::update(DeltaTime dt){

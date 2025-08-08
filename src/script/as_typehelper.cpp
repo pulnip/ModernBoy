@@ -4,7 +4,7 @@
 #include "raw_resource.hpp"
 #include "script/as_typehelper.hpp"
 #include "script/invoker.hpp"
-#include "input/chord.hpp"
+#include "input/device.hpp"
 #include "input/state.hpp"
 #include "game/context.hpp"
 #include "game/component.hpp"
@@ -14,8 +14,8 @@ using namespace ModernBoy::Script;
 using namespace ModernBoy::Game;
 
 TypeHelper::TypeHelper(asIScriptEngine* engine,
-    Input::Chord& chord)
-:engine(engine), chord(chord){}
+    Input::Device& device)
+:engine(engine), device(device){}
 
 int TypeHelper::registerAll(){
     if(auto ret = registerBasicTypes())
@@ -34,15 +34,15 @@ int TypeHelper::registerAll(){
 
 int TypeHelper::registerGlobalProperty(){
     if(auto ret=engine->RegisterObjectType(
-        "Input", sizeof(Input::Chord),
+        "Input", sizeof(Input::Device),
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
         return ret;
     if(auto ret=engine->RegisterGlobalProperty(
-        "Input input", &chord) < 0)
+        "Input input", &device) < 0)
         return ret;
     if(auto ret=engine->RegisterObjectMethod(
         "Input", "bool query(KeyCode keyCode, KeyState keyState)",
-        asMETHOD(Input::Chord, query), asCALL_THISCALL) < 0)
+        asMETHOD(Input::Device, query), asCALL_THISCALL) < 0)
         return ret;
     
     return 0;

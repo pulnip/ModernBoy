@@ -11,7 +11,7 @@ namespace ModernBoy::Script
     class TypeHelper{
     public:
         TypeHelper(asIScriptEngine* engine, 
-            Input::Chord& chord);
+            Input::Device& device);
 
         int registerAll();
 
@@ -24,7 +24,7 @@ namespace ModernBoy::Script
 
     private:
         asIScriptEngine* engine;
-        Input::Chord& chord;
+        Input::Device& device;
     };
 } // namespace ModernBoy::Script
 

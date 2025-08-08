@@ -32,7 +32,7 @@ static void printInt(int i){
 
 Invoker::Invoker(Game::EntityRegistry& registry,
     ModuleManager& moduleManager, ObjectManager& objectManager,
-    Input::Chord& chord
+    Input::Device& device
 ):moduleManager(moduleManager), objectManager(objectManager),
 registry(registry), engine(asCreateScriptEngine()),
 context(engine->CreateContext()){
@@ -47,7 +47,7 @@ context(engine->CreateContext()){
     r = engine->RegisterGlobalFunction("void printInt(int)",
         asFUNCTION(printInt), asCALL_CDECL); assert( r >= 0 );
 
-    TypeHelper typeHelper(engine, chord);
+    TypeHelper typeHelper(engine, device);
     typeHelper.registerAll();
 }
 Invoker::~Invoker(){
