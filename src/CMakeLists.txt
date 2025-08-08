@@ -1,6 +1,6 @@
 add_subdirectory(common)
 add_subdirectory(game)
-add_subdirectory(input)
+add_subdirectory(engine/input)
 add_subdirectory(engine/render)
 add_subdirectory(shader)
 add_subdirectory(script)

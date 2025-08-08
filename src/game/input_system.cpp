@@ -1,4 +1,4 @@
-#include "input/device.hpp"
+#include "engine/input/device.hpp"
 #include "game/entity_registry.hpp"
 #include "game/input_system.hpp"
 #include "physics.hpp"

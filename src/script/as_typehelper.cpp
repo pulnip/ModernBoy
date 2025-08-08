@@ -4,8 +4,8 @@
 #include "raw_resource.hpp"
 #include "script/as_typehelper.hpp"
 #include "script/invoker.hpp"
-#include "input/device.hpp"
-#include "input/state.hpp"
+#include "engine/input/device.hpp"
+#include "engine/input/state.hpp"
 #include "game/context.hpp"
 #include "game/component.hpp"
 

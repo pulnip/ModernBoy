@@ -5,7 +5,7 @@
 #include "common/type.hpp"
 #include "fwd.hpp"
 #include "raw_resource.hpp"
-#include "input/state.hpp"
+#include "engine/input/state.hpp"
 
 namespace ModernBoy
 {

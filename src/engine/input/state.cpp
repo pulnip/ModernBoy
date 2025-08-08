@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <string>
 #include <unordered_map>
-#include "input/state.hpp"
+#include "engine/input/state.hpp"
 #include "common/helper.hpp"
 
 using namespace ModernBoy::Input;

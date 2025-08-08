@@ -9,7 +9,7 @@
 #include "resource_manager.hpp"
 #include "script/type.hpp"
 #include "script/invoker.hpp"
-#include "input/device.hpp"
+#include "engine/input/device.hpp"
 #include "engine/render/renderer.hpp"
 #include "ui/user_interface.hpp"
 #include "scheduler.hpp"

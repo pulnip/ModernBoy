@@ -4,7 +4,7 @@
 #include <atomic>
 #include <SDL3/SDL_video.h>
 #include "interface.hpp"
-#include "input/state.hpp"
+#include "engine/input/state.hpp"
 
 namespace ModernBoy::Input
 {
