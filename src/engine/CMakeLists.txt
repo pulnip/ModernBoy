@@ -37,8 +37,6 @@ target_link_libraries(Engine PRIVATE
     UIModule
     # SDL3
     SDL3::SDL3
-    # SDL3_image
-    SDL3_image::SDL3_image
     # ImGui
     ${ImGui_LIBS}
     # Assimp

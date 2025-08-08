@@ -28,6 +28,4 @@ target_link_libraries(RenderBackend PRIVATE
     MetalContext
     # SDL3
     SDL3::SDL3
-    # SDL3_image
-    SDL3_image::SDL3_image
 )
