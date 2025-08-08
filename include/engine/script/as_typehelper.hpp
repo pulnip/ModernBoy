@@ -1,7 +1,7 @@
 #ifndef MODERNBOY_SCRIPT_AS_TYPEHELPER_HPP
 #define MODERNBOY_SCRIPT_AS_TYPEHELPER_HPP
 
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 #include "game/game_fwd.hpp"
 
 class asIScriptEngine;

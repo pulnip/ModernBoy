@@ -1,9 +1,9 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "log.hpp"
+#include "engine/log.hpp"
 #include "engine/render/metal/texture.hpp"
-#include "app_state.hpp"
+#include "engine/engine.hpp"
 
 #ifdef __cplusplus
 extern "C"{

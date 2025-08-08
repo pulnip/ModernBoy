@@ -2,11 +2,11 @@
 #define MODERNBOY_GAME_DRAW_SYSTEM_HPP
 
 #include <vector>
-#include "fwd.hpp"
-#include "interface.hpp"
+#include "engine/fwd.hpp"
+#include "engine/interface.hpp"
 #include "core/thread/generator.hpp"
 #include "game/game_fwd.hpp"
-#include "task.hpp"
+#include "engine/task.hpp"
 
 namespace ModernBoy::Game
 {

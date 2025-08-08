@@ -29,10 +29,10 @@
 
 namespace ModernBoy
 {
-    class AppState{
+    class Engine{
     public:
-        AppState(SDL_Window* window);
-        ~AppState() = default;
+        Engine(SDL_Window* window);
+        ~Engine() = default;
         void shutdown();
 
         void update();
@@ -122,7 +122,7 @@ namespace ModernBoy
         friend Game::Context;
     };
 
-    AppState createAppState();
+    Engine createEngine();
 }
 
 #endif // MODERNBOY_APP_STATE_HPP

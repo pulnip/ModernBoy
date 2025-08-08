@@ -8,9 +8,9 @@
 #include <vector>
 #include <unordered_map>
 #include "core/math/type.hpp"
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 #include "core/memory/object_pool.hpp"
-#include "log.hpp"
+#include "engine/log.hpp"
 
 namespace ModernBoy
 {

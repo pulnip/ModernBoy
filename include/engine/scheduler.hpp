@@ -4,14 +4,14 @@
 #include <array>
 #include <variant>
 #include <vector>
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 #include "interface.hpp"
 
 namespace ModernBoy
 {
     class Scheduler{
     public:
-        Scheduler(AppState& app);
+        Scheduler(Engine& engine);
 
         void prepareScheduling();
         // task update phase
@@ -41,7 +41,7 @@ namespace ModernBoy
         }
 
     private:
-        AppState& app;
+        Engine& engine;
 
         std::vector<size_t> taskCounts;
         std::vector<size_t> updateCounts;

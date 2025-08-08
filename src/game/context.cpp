@@ -1,15 +1,15 @@
-#include "log.hpp"
-#include "app_state.hpp"
+#include "engine/log.hpp"
+#include "engine/engine.hpp"
 #include "game/context.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
-Context::Context(AppState& app)
-:app(app),
+Context::Context(Engine& engine)
+:engine(engine),
 debug(registry), draw(registry),
-action(registry, app.scriptInvoker),
-input(registry, app.inputDevice, app.renderer),
+action(registry, engine.scriptInvoker),
+input(registry, engine.inputDevice, engine.renderer),
 physics(registry), lifespan(registry){}
 
 
@@ -37,11 +37,11 @@ void Context::update(DeltaTime dt){
 }
 
 uint32_t Context::issueID(){
-    return app.issueID();
+    return engine.issueID();
 }
 
 DeltaTime Context::getDeltaTime(){
-    return app.getDeltaTime();
+    return engine.getDeltaTime();
 }
 
 template<>
@@ -54,6 +54,6 @@ const std::vector<DrawTask>& Context::getBuffer() const{
 }
 
 DeltaTime Context::getDeltaTime() const{
-    return app.getDeltaTime();
+    return engine.getDeltaTime();
 }
 

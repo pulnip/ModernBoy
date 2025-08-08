@@ -2,14 +2,14 @@
 #include <numeric>
 #include <thread>
 #include <SDL3/SDL_timer.h>
-#include "app_state.hpp"
-#include "scheduler.hpp"
+#include "engine/engine.hpp"
+#include "engine/scheduler.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
 using namespace ModernBoy;
 
-Scheduler::Scheduler(AppState& app):app(app){}
+Scheduler::Scheduler(Engine& engine):engine(engine){}
 
 void Scheduler::prepareScheduling(){
     auto now = std::chrono::time_point_cast<
@@ -89,7 +89,7 @@ void Scheduler::prepareScheduling(){
 void Scheduler::prepareFrame(){
     AppTrace("T.U.P., Num Generators: {}, Num Scheduled: {}",
         taskGenerators.size(), taskSchedule.size());
-    app.on<Event::OnFrameStart>();
+    engine.on<Event::OnFrameStart>();
 
     for(auto idx: taskSchedule){
         if(taskGenerators[idx].done())
@@ -108,7 +108,7 @@ void Scheduler::prepareFrame(){
         }
     } while(!all_done);
 
-    app.on<Event::OnFrameEnd>();
+    engine.on<Event::OnFrameEnd>();
     AppTrace("T.U.P., Finished");
 }
 

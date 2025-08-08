@@ -3,7 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "raw_resource.hpp"
+#include "engine/raw_resource.hpp"
 
 using namespace ModernBoy;
 

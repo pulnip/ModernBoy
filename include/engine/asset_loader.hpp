@@ -2,7 +2,7 @@
 #define MODERNBOY_ASSET_LOADER_HPP
 
 #include <string>
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 #include "game/game_fwd.hpp"
 #include "game/component.hpp"
 
@@ -27,7 +27,7 @@ namespace ModernBoy
 
     class AssetLoader{
     public:
-        AssetLoader(AppState& app);
+        AssetLoader(Engine& engine);
 
         void loadAsset(const std::string& fileName);
         void loadAction(const std::string& fileName);
@@ -38,7 +38,7 @@ namespace ModernBoy
 
         void load(const ModuleDescriptor&);
 
-        AppState& app;
+        Engine& engine;
     };
 } // namespace ModernBoy
 

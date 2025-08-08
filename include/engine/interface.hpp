@@ -3,7 +3,7 @@
 
 #include <concepts>
 #include <cstddef>
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 #include "core/thread/generator.hpp"
 
 namespace ModernBoy

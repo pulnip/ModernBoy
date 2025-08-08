@@ -6,8 +6,8 @@
 #include <angelscript.h>
 #include <scriptstdstring/scriptstdstring.h>
 #include <scriptbuilder/scriptbuilder.h>
-#include "app_state.hpp"
-#include "task.hpp"
+#include "engine/engine.hpp"
+#include "engine/task.hpp"
 #include "engine/script/invoker.hpp"
 #include "engine/script/as_helper.hpp"
 #include "engine/script/as_stream.hpp"

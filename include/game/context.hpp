@@ -2,8 +2,8 @@
 #define MODERNBOY_GAME_CONTEXT_HPP
 
 #include <ranges>
-#include "fwd.hpp"
-#include "interface.hpp"
+#include "engine/fwd.hpp"
+#include "engine/interface.hpp"
 #include "game/entity_registry.hpp"
 #include "game/component.hpp"
 #include "game/action_system.hpp"
@@ -27,7 +27,7 @@ namespace ModernBoy::Game
 
     class Context{
     public:
-        Context(AppState& app);
+        Context(Engine& engine);
 
         void update(DeltaTime dt);
 
@@ -43,7 +43,7 @@ namespace ModernBoy::Game
         DeltaTime getDeltaTime() const;
 
     private:
-        AppState& app;
+        Engine& engine;
 
     public:
         EntityRegistry registry;

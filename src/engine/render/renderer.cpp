@@ -1,9 +1,9 @@
 #include <algorithm>
-#include "log.hpp"
-#include "resource_manager.hpp"
+#include "engine/log.hpp"
+#include "engine/resource_manager.hpp"
 #include "engine/render/renderer.hpp"
-#include "app_state.hpp"
-#include "task.hpp"
+#include "engine/engine.hpp"
+#include "engine/task.hpp"
 #include "engine/render/command.hpp"
 
 using namespace std::chrono_literals;

@@ -1,5 +1,5 @@
 #include <cassert>
-#include "log.hpp"
+#include "engine/log.hpp"
 #include "game/entity_registry.hpp"
 #include "game/draw_system.hpp"
 #include "game/component.hpp"

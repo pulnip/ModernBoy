@@ -8,9 +8,9 @@
 #include <toml++/toml.h>
 #include "core/math/type.hpp"
 #include "core/string/helper.hpp"
-#include "log.hpp"
-#include "asset_loader.hpp"
-#include "app_state.hpp"
+#include "engine/log.hpp"
+#include "engine/asset_loader.hpp"
+#include "engine/engine.hpp"
 #include "game/component.hpp"
 #include "engine/script/invoker.hpp"
 #include "engine/script/type.hpp"
@@ -110,9 +110,9 @@ std::optional<ModelDescriptor> parse(toml::node_view<const toml::node> view){
     };
 }
 Model AssetLoader::load(const ModelDescriptor& md){
-    auto mesh = app.append<Mesh>(md.mesh);
-    auto texture = app.append<Texture>(md.texture);
-    auto shader = app.append<Shader>(md.vsFunc, md.fsFunc);
+    auto mesh = engine.append<Mesh>(md.mesh);
+    auto texture = engine.append<Texture>(md.texture);
+    auto shader = engine.append<Shader>(md.vsFunc, md.fsFunc);
 
     return Model{
         .entity = invalidEntityID(),
@@ -134,7 +134,7 @@ std::optional<ScriptDescriptor> parse(toml::node_view<const toml::node> view){
     };
 }
 Game::ScriptObject AssetLoader::load(const ScriptDescriptor& sd){
-    auto objectHandle = app.appendV2<Object>(sd.module_, sd.type);
+    auto objectHandle = engine.appendV2<Object>(sd.module_, sd.type);
     return Game::ScriptObject{
         .entity = invalidEntityID(),
         .isActive = true,
@@ -229,7 +229,7 @@ std::optional<Editor> parse(toml::node_view<const toml::node> view){
     };
 }
 
-AssetLoader::AssetLoader(AppState& app):app(app){
+AssetLoader::AssetLoader(Engine& engine):engine(engine){
     loadAction("asset/action.toml");
     loadAsset("asset/actor.toml");
 }
@@ -270,7 +270,7 @@ void AssetLoader::loadAsset(const std::string& fileName){
 
         GameDebug("Actor loaded, name: {}", name);
 
-        app.world.registry.createEntity(tf, cam, model, so,
+        engine.world.registry.createEntity(tf, cam, model, so,
             rb, sc, bc,
             pc, ec);
     }
@@ -295,7 +295,7 @@ std::optional<ModuleDescriptor> parse(const toml::node& node){
 }
 
 void AssetLoader::load(const ModuleDescriptor& md){
-    app.append<Script::Module>(
+    engine.append<Script::Module>(
         md.module_, md.files);
 }
 

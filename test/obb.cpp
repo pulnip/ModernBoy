@@ -1,6 +1,6 @@
 #include <cmath>
 #include <gtest/gtest.h>
-#include "physics.hpp"
+#include "engine/physics/physics.hpp"
 
 using namespace ModernBoy;
 

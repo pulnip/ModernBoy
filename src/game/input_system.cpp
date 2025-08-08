@@ -1,7 +1,7 @@
 #include "engine/input/device.hpp"
 #include "game/entity_registry.hpp"
 #include "game/input_system.hpp"
-#include "physics.hpp"
+#include "engine/physics/physics.hpp"
 #include "engine/render/renderer.hpp"
 
 using namespace ModernBoy;

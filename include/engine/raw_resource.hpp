@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include "core/alias.hpp"
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 
 namespace ModernBoy
 {

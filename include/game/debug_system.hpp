@@ -1,7 +1,7 @@
 #ifndef MODERNBOY_DEBUG_SYSTEM_HPP
 #define MODERNBOY_DEBUG_SYSTEM_HPP
 
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 #include "core/thread/generator.hpp"
 #include "game/game_fwd.hpp"
 

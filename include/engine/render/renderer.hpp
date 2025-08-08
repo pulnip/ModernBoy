@@ -6,10 +6,10 @@
 #include <map>
 #include <unordered_set>
 #include <SDL3/SDL_video.h>
-#include "fwd.hpp"
-#include "task.hpp"
+#include "engine/fwd.hpp"
+#include "engine/task.hpp"
 #include "core/alias.hpp"
-#include "interface.hpp"
+#include "engine/interface.hpp"
 #include "core/thread/lock_free_queue.hpp"
 #include "core/thread/generator.hpp"
 #include "engine/render/command.hpp"

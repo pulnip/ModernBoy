@@ -3,13 +3,13 @@
 #include <format>
 #include <vector>
 #include <SDL3/SDL_init.h>
-#include "app_state.hpp"
+#include "engine/engine.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
 using namespace ModernBoy;
 
-AppState ModernBoy::createAppState(){
+Engine ModernBoy::createEngine(){
     if(!SDL_SetAppMetadata("ModernBoy", "1.0", "com.example.game0")){
         throw SDL_APP_FAILURE;
     }
@@ -35,14 +35,14 @@ AppState ModernBoy::createAppState(){
         throw SDL_APP_FAILURE;
     }
 
-    return AppState(window);
+    return Engine(window);
 }
 
-DeltaTime AppState::getDeltaTime() const{
+DeltaTime Engine::getDeltaTime() const{
     return deltaTime;
 }
 
-AppState::AppState(SDL_Window* window)
+Engine::Engine(SDL_Window* window)
 :window(window),
 // resource manager
 meshManager(), textureManager(),
@@ -59,30 +59,30 @@ world(*this),
 assetLoader(*this), lastTick(std::chrono::time_point_cast<
     std::chrono::microseconds>(steady_clock::now())){}
 
-void AppState::shutdown(){
+void Engine::shutdown(){
     objectManager.clear();
     SDL_DestroyWindow(window);
     window = nullptr;
 }
 
-EntityID AppState::issueID(){
+EntityID Engine::issueID(){
     return id_seed++;
 }
 
 template<>
-void AppState::on<Event::OnFrameStart>(){
+void Engine::on<Event::OnFrameStart>(){
     renderer.onFrameStart();
     userInterface.onFrameStart();
 
 }
 template<>
-void AppState::on<Event::OnFrameEnd>(){
+void Engine::on<Event::OnFrameEnd>(){
     userInterface.onFrameEnd();
     renderer.onFrameEnd();
 }
 
 template<>
-MeshHandle AppState::append<Mesh, const std::string&>
+MeshHandle Engine::append<Mesh, const std::string&>
 (const std::string& meshFile){
 #if defined(USE_DIRECTX)
     return meshManager.emplace(meshFile);
@@ -93,7 +93,7 @@ MeshHandle AppState::append<Mesh, const std::string&>
 #endif
 }
 template<>
-TextureHandle AppState::append<Texture, const std::string&>
+TextureHandle Engine::append<Texture, const std::string&>
 (const std::string& textureFile){
 #if defined(USE_DIRECTX)
     return textureManager.emplace(textureFile);
@@ -104,7 +104,7 @@ TextureHandle AppState::append<Texture, const std::string&>
 #endif
 }
 template<>
-ShaderHandle AppState::append<Shader, const std::string&, const std::string&>
+ShaderHandle Engine::append<Shader, const std::string&, const std::string&>
 (const std::string& vsFuncName, const std::string& fsFuncName){
 #if defined(USE_DIRECTX)
     return shaderManager.emplace(shaderFile);
@@ -115,14 +115,14 @@ ShaderHandle AppState::append<Shader, const std::string&, const std::string&>
 #endif
 }
 template<>
-ModuleHandle AppState::append<Module,
+ModuleHandle Engine::append<Module,
     const std::string&, const std::vector<std::string>&>
 (const std::string& moduleFile, const std::vector<std::string>& funcs){
     return moduleManager.emplace(moduleFile, moduleFile, funcs,
         scriptInvoker.engine);
 }
 template<>
-ObjectHandle AppState::appendV2<Object, const std::string&, const std::string&>
+ObjectHandle Engine::appendV2<Object, const std::string&, const std::string&>
 (const std::string& moduleName, const std::string& typeName){
 
     return objectManager.emplace(
@@ -132,7 +132,7 @@ ObjectHandle AppState::appendV2<Object, const std::string&, const std::string&>
 }
 
 
-void AppState::update(){
+void Engine::update(){
     Timepoint now = std::chrono::time_point_cast<
         std::chrono::microseconds>(steady_clock::now());
     deltaTime = now - lastTick;
@@ -166,51 +166,51 @@ void AppState::update(){
 }
 
 template<> Mesh&
-AppState::query(ResourceHandle handle){
+Engine::query(ResourceHandle handle){
     return meshManager.get(handle);
 }
 template<> Texture&
-AppState::query(ResourceHandle handle){
+Engine::query(ResourceHandle handle){
     return textureManager.get(handle);
 }
 template<> Shader&
-AppState::query(ResourceHandle handle){
+Engine::query(ResourceHandle handle){
     return shaderManager.get(handle);
 }
 template<> Script::Module&
-AppState::query(ResourceHandle handle){
+Engine::query(ResourceHandle handle){
     return moduleManager.get(handle);
 }
 
 template<> ResourceHandle
-AppState::query<Script::Module>(const std::string& name){
+Engine::query<Script::Module>(const std::string& name){
     return moduleManager.getHandle(name);
 }
 
-FunctionID AppState::registerFunction(
+FunctionID Engine::registerFunction(
     const std::string& funcName
 ){
     return scriptInvoker.registerFunction(funcName);
 }
 
 #if defined(USE_DIRECTX)
-NativePtr AppState::getDevice(){
+NativePtr Engine::getDevice(){
     return renderer.getDevice();
 }
-NativePtr AppState::getContext(){
+NativePtr Engine::getContext(){
     return renderer.getContext();
 }
 #elif defined(USE_METAL)
-NativePtr AppState::getRenderPassDesc(){
+NativePtr Engine::getRenderPassDesc(){
     return renderer.getRenderPassDesc();
 }
-NativePtr AppState::getDevice(){
+NativePtr Engine::getDevice(){
     return renderer.getDevice();
 }
-NativePtr AppState::getCommandBuffer(){
+NativePtr Engine::getCommandBuffer(){
     return renderer.getCommandBuffer();
 }
-NativePtr AppState::getRenderEncoder(){
+NativePtr Engine::getRenderEncoder(){
     return renderer.getRenderEncoder();
 }
 #endif

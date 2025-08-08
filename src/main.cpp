@@ -5,7 +5,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <imgui_impl_sdl3.h>
-#include "app_state.hpp"
+#include "engine/engine.hpp"
 
 using namespace ModernBoy;
 
@@ -17,15 +17,15 @@ using namespace ModernBoy::Metal;
 using namespace ModernBoy::OpenGL;
 #endif
 
-AppState& app(){
-    static AppState appState = createAppState();
+Engine& engine(){
+    static Engine appState = createEngine();
     return appState;
 }
 
 SDL_AppResult SDL_AppInit([[maybe_unused]] void** appState,
     [[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    *appState = &app();
+    *appState = &engine();
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
@@ -60,11 +60,11 @@ SDL_AppResult SDL_AppEvent([[maybe_unused]] void* appState,
 }
 
 SDL_AppResult SDL_AppIterate(void* appState){
-    static_cast<AppState*>(appState)->update();
+    static_cast<Engine*>(appState)->update();
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
 
 void SDL_AppQuit(void* appState, [[maybe_unused]] SDL_AppResult result){
-    static_cast<AppState*>(appState)->shutdown();
+    static_cast<Engine*>(appState)->shutdown();
 }

@@ -4,8 +4,8 @@
 #include <array>
 #include <optional>
 #include <variant>
-#include "fwd.hpp"
-#include "raw_resource.hpp"
+#include "engine/fwd.hpp"
+#include "engine/raw_resource.hpp"
 #include "core/math/type.hpp"
 
 namespace ModernBoy::Render

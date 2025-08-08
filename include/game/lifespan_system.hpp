@@ -1,8 +1,8 @@
 #ifndef MODERNBOY_GAME_LIFESPAN_SYSTEM_HPP
 #define MODERNBOY_GAME_LIFESPAN_SYSTEM_HPP
 
-#include "fwd.hpp"
-#include "interface.hpp"
+#include "engine/fwd.hpp"
+#include "engine/interface.hpp"
 #include "core/thread/generator.hpp"
 #include "game/game_fwd.hpp"
 

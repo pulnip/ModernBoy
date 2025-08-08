@@ -8,7 +8,7 @@
 #include <vector>
 #include <SDL3/SDL_keycode.h>
 #include "core/math/type.hpp"
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 
 namespace ModernBoy::Input
 {

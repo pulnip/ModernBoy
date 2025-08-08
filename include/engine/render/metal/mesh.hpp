@@ -2,7 +2,7 @@
 #define MODERNBOY_METAL_MESH_HPP
 
 #include <cstdint>
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 
 namespace ModernBoy::Metal
 {

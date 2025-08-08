@@ -10,7 +10,7 @@
 #endif
 #include "engine/render/renderer.hpp"
 #include "engine/ui/user_interface.hpp"
-#include "app_state.hpp"
+#include "engine/engine.hpp"
 
 using namespace std::chrono_literals;
 using namespace ModernBoy;
@@ -18,8 +18,8 @@ using namespace ModernBoy::UI;
 
 UserInterface::UserInterface(SDL_Window* window,
     Render::Renderer& renderer,
-    AppState& app
-):renderer(renderer), app(app), ema(0ms){
+    Engine& engine
+):renderer(renderer), engine(engine), ema(0ms){
     int w, h;
     if(!SDL_GetWindowSize(window, &w, &h)){
         SDL_Log("SDL_GetWindowSize Failed: %s", SDL_GetError());
@@ -153,5 +153,5 @@ void UserInterface::updateEMA(TaskTime elapsed){
 }
 
 uint32_t UserInterface::issueID() const noexcept{
-    return app.issueID();
+    return engine.issueID();
 }

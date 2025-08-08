@@ -1,5 +1,5 @@
-#include "resource_manager.hpp"
-#include "fwd.hpp"
+#include "engine/resource_manager.hpp"
+#include "engine/fwd.hpp"
 #include "engine/script/type.hpp"
 
 using namespace ModernBoy;

@@ -1,5 +1,5 @@
 #include <format>
-#include "exception.hpp"
+#include "engine/exception.hpp"
 
 void throwIf(bool pred, const std::string& msg,
     const std::source_location& sl)

@@ -1,7 +1,7 @@
 #ifndef MODERNBOY_DX11_TEXTURE_HPP
 #define MODERNBOY_DX11_TEXTURE_HPP
 
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 
 namespace ModernBoy::DX11
 {

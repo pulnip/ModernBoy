@@ -2,8 +2,8 @@
 #define MODERNBOY_GAME_ACTION_SYSTEM_HPP
 
 #include <vector>
-#include "interface.hpp"
-#include "task.hpp"
+#include "engine/interface.hpp"
+#include "engine/task.hpp"
 #include "core/thread/generator.hpp"
 #include "game/game_fwd.hpp"
 

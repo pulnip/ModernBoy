@@ -1,16 +1,11 @@
 add_subdirectory(core)
 add_subdirectory(game)
-add_subdirectory(engine/input)
-add_subdirectory(engine/render)
+add_subdirectory(engine)
 add_subdirectory(shader)
-add_subdirectory(engine/script)
-add_subdirectory(engine/ui)
 
-file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME}
-    ${ALL_SOURCES}
+    main.cpp
 )
-
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall -Wextra
     -fsanitize=address,leak
@@ -18,37 +13,16 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 target_link_options(${PROJECT_NAME} PRIVATE
     -fsanitize=address,leak
 )
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
-)
-
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/include
-    # gsl-lite
-    ${gsl-lite_INCLUDE_DIRS}
-    # ImGui
     ${ImGui_INCLUDE_DIRS}
-    # toml++
-    ${CMAKE_SOURCE_DIR}/external/tomlplusplus/include
-    # stb
-    ${CMAKE_SOURCE_DIR}/external/stb
 )
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Core
+    Engine
     Game
-    RenderBackend
-    RenderModule
-    InputModule
-    ScriptModule
-    UIModule
-    # SDL3
     SDL3::SDL3
-    # SDL3_image
-    SDL3_image::SDL3_image
-    # ImGui
-    ${ImGui_LIBS}
-    # Assimp
-    assimp::assimp
 )
 
 if(APPLE AND (CMAKE_GENERATOR MATCHES "Ninja"))

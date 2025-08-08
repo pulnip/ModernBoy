@@ -3,8 +3,8 @@
 
 #include <vector>
 #include "core/thread/generator.hpp"
-#include "interface.hpp"
-#include "fwd.hpp"
+#include "engine/interface.hpp"
+#include "engine/fwd.hpp"
 #include "game/game_fwd.hpp"
 
 namespace ModernBoy::Game

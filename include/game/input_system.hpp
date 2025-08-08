@@ -1,7 +1,7 @@
 #ifndef MODERNBOY_GAME_INPUT_SYSTEM_HPP
 #define MODERNBOY_GAME_INPUT_SYSTEM_HPP
 
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 #include "game/game_fwd.hpp"
 
 namespace ModernBoy::Game

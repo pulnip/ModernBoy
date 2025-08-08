@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 #include <SDL3/SDL_video.h>
-#include "interface.hpp"
+#include "engine/interface.hpp"
 #include "engine/ui/controller.hpp"
 
 namespace ModernBoy::UI
@@ -14,7 +14,7 @@ namespace ModernBoy::UI
     public:
         UserInterface(SDL_Window* window,
             Render::Renderer& renderer,
-            AppState& app);
+            Engine& engine);
 
         TaskTime expectedExecTime();
         void onFrameStart();
@@ -56,7 +56,7 @@ namespace ModernBoy::UI
         uint32_t issueID() const noexcept;
 
         Render::Renderer& renderer;
-        AppState& app;
+        Engine& engine;
 
         std::unordered_map<ControllerID, Controller> controllers;
         std::unordered_map<ControlID, ControllerID> control2Controller;

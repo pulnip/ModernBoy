@@ -3,11 +3,11 @@
 
 #include <string>
 #include <unordered_map>
-#include "interface.hpp"
+#include "engine/interface.hpp"
 #include "core/alias.hpp"
 #include "engine/script/type.hpp"
 #include "engine/input/state.hpp"
-#include "task.hpp"
+#include "engine/task.hpp"
 #include "game/game_fwd.hpp"
 
 class asIScriptContext;
@@ -50,7 +50,7 @@ namespace ModernBoy::Script
 
         std::vector<ActionTask> tasks;
 
-        friend class ::ModernBoy::AppState;
+        friend class ::ModernBoy::Engine;
     };
 } // namespace ModernBoy::Input
 

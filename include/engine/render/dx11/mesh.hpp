@@ -1,7 +1,7 @@
 #ifndef MODERNBOY_DX11_MESH_HPP
 #define MODERNBOY_DX11_MESH_HPP
 
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 #include "type.hpp"
 
 namespace ModernBoy::DX11

@@ -5,7 +5,6 @@ add_library(Core STATIC
     memory/dynamic_vector.cpp
     string/helper.cpp
 )
-
 target_compile_options(Core PRIVATE
     -Wall -Wextra
     -fsanitize=address,leak
@@ -13,7 +12,6 @@ target_compile_options(Core PRIVATE
 target_compile_definitions(Core PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )
-
 target_include_directories(Core PRIVATE
     ${CMAKE_SOURCE_DIR}/include
 )

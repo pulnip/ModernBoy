@@ -1,9 +1,9 @@
 #include <format>
 #include <stdexcept>
 #include <thread>
-#include "log.hpp"
+#include "engine/log.hpp"
 #include "core/thread/thread_backoff.hpp"
-#include "app_state.hpp"
+#include "engine/engine.hpp"
 #include "game/game_fwd.hpp"
 #include "game/archetype_map.hpp"
 

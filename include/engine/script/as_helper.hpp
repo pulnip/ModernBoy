@@ -1,7 +1,7 @@
 #ifndef MODERNBOY_SCRIPT_AS_HELPER_HPP
 #define MODERNBOY_SCRIPT_AS_HELPER_HPP
 
-#include "fwd.hpp"
+#include "engine/fwd.hpp"
 
 namespace ModernBoy::Script
 {
