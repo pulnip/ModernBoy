@@ -2,7 +2,7 @@
 #define MODERNBOY_GAME_INPUT_SYSTEM_HPP
 
 #include "engine/fwd.hpp"
-#include "game/game_fwd.hpp"
+#include "game_fwd.hpp"
 
 namespace ModernBoy::Game
 {

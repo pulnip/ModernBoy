@@ -6,8 +6,8 @@
 #include "engine/script/invoker.hpp"
 #include "engine/input/device.hpp"
 #include "engine/input/state.hpp"
-#include "game/context.hpp"
-#include "game/component.hpp"
+#include "../../../src/game/context.hpp"
+#include "../../../src/game/component.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Script;

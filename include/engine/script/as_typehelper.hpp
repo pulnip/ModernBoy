@@ -2,7 +2,6 @@
 #define MODERNBOY_SCRIPT_AS_TYPEHELPER_HPP
 
 #include "engine/fwd.hpp"
-#include "game/game_fwd.hpp"
 
 class asIScriptEngine;
 

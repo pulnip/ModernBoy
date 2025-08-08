@@ -1,4 +1,4 @@
-#include "game/entity_registry.hpp"
+#include "entity_registry.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;

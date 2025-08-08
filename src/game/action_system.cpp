@@ -1,8 +1,8 @@
 #include <cassert>
 #include "engine/script/invoker.hpp"
-#include "game/context.hpp"
-#include "game/entity_registry.hpp"
-#include "game/component.hpp"
+#include "context.hpp"
+#include "entity_registry.hpp"
+#include "component.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;

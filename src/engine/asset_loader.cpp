@@ -11,7 +11,7 @@
 #include "engine/log.hpp"
 #include "engine/asset_loader.hpp"
 #include "engine/engine.hpp"
-#include "game/component.hpp"
+#include "../../src/game/component.hpp"
 #include "engine/script/invoker.hpp"
 #include "engine/script/type.hpp"
 

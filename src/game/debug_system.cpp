@@ -1,5 +1,5 @@
-#include "game/debug_system.hpp"
-#include "game/entity_registry.hpp"
+#include "debug_system.hpp"
+#include "entity_registry.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;

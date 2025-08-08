@@ -1,8 +1,8 @@
 #include <cassert>
 #include "engine/log.hpp"
-#include "game/entity_registry.hpp"
-#include "game/draw_system.hpp"
-#include "game/component.hpp"
+#include "entity_registry.hpp"
+#include "draw_system.hpp"
+#include "component.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;

@@ -6,8 +6,8 @@
 #include <unordered_map>
 #include "core/memory/dynamic_vector.hpp"
 #include "core/type_traits.hpp"
-#include "game/game_fwd.hpp"
-#include "game/component.hpp"
+#include "game_fwd.hpp"
+#include "component.hpp"
 
 namespace ModernBoy::Game
 {

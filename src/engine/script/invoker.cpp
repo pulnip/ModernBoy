@@ -13,8 +13,8 @@
 #include "engine/script/as_stream.hpp"
 #include "engine/script/as_typehelper.hpp"
 #include "engine/script/type.hpp"
-#include "game/context.hpp"
-#include "game/component.hpp"
+#include "../../../src/game/context.hpp"
+#include "../../../src/game/component.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Script;

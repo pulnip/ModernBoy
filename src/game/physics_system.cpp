@@ -1,6 +1,6 @@
 #include "engine/physics/physics.hpp"
-#include "game/context.hpp"
-#include "game/physics_system.hpp"
+#include "context.hpp"
+#include "physics_system.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;

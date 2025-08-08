@@ -4,8 +4,8 @@
 #include "engine/log.hpp"
 #include "core/thread/thread_backoff.hpp"
 #include "engine/engine.hpp"
-#include "game/game_fwd.hpp"
-#include "game/archetype_map.hpp"
+#include "game_fwd.hpp"
+#include "archetype_map.hpp"
 
 #include <print>
 

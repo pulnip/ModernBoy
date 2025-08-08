@@ -3,7 +3,7 @@
 
 #include "engine/fwd.hpp"
 #include "core/thread/generator.hpp"
-#include "game/game_fwd.hpp"
+#include "game_fwd.hpp"
 
 namespace ModernBoy::Game
 {

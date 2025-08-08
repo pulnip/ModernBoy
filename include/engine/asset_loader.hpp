@@ -3,8 +3,8 @@
 
 #include <string>
 #include "engine/fwd.hpp"
-#include "game/game_fwd.hpp"
-#include "game/component.hpp"
+#include "../../src/game/game_fwd.hpp"
+#include "../../src/game/component.hpp"
 
 namespace ModernBoy
 {

@@ -1,6 +1,6 @@
 #include "engine/log.hpp"
 #include "engine/engine.hpp"
-#include "game/context.hpp"
+#include "context.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;

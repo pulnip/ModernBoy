@@ -5,7 +5,7 @@
 #include "core/math/type.hpp"
 #include "engine/fwd.hpp"
 #include "engine/task.hpp"
-#include "game/game_fwd.hpp"
+#include "game_fwd.hpp"
 #include "engine/script/type.hpp"
 
 namespace ModernBoy::Game

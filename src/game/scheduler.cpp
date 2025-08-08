@@ -1,5 +1,5 @@
-#include "game/scheduler.hpp"
-#include "game/context.hpp"
+#include "scheduler.hpp"
+#include "context.hpp"
 #include "engine/log.hpp"
 
 using namespace ModernBoy::Game;
