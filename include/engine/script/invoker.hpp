@@ -19,9 +19,9 @@ namespace ModernBoy::Script
 
     class Invoker{
     public:
-        Invoker(Game::EntityRegistry& registry,
-            ModuleManager& moduleManager, ObjectManager& objectManager,
-            Input::Device& device);
+        Invoker(Game::EntityRegistry&,
+            ModuleManager&, ObjectManager&,
+            Engine&);
         ~Invoker();
         Invoker(const Invoker& other)=delete;
         Invoker(Invoker&&)=delete;
@@ -41,8 +41,8 @@ namespace ModernBoy::Script
         ObjectManager& objectManager;
         Game::EntityRegistry& registry;
 
-        asIScriptEngine* engine;
-        asIScriptContext* context;
+        asIScriptEngine* scriptEngine;
+        asIScriptContext* scriptContext;
 
         FunctionID id_seed = 0;
         std::unordered_map<FunctionID, FuncName> functionMap;

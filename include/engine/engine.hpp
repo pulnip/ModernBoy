@@ -125,6 +125,7 @@ namespace ModernBoy
     public:
         friend AssetLoader;
         friend Game::Context;
+        friend Script::TypeHelper;
     };
 
     Engine createEngine();

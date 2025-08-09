@@ -53,7 +53,7 @@ renderer(window, meshManager, textureManager,
 userInterface(window, renderer, *this),
 inputDevice(window, inputService),
 scriptInvoker(world.registry, moduleManager,
-    objectManager, inputDevice),
+    objectManager, *this),
 // others
 world(*this),
 assetLoader(*this), lastTick(std::chrono::time_point_cast<
@@ -119,7 +119,7 @@ ModuleHandle Engine::append<Module,
     const std::string&, const std::vector<std::string>&>
 (const std::string& moduleFile, const std::vector<std::string>& funcs){
     return moduleManager.emplace(moduleFile, moduleFile, funcs,
-        scriptInvoker.engine);
+        scriptInvoker.scriptEngine);
 }
 template<>
 ObjectHandle Engine::appendV2<Object, const std::string&, const std::string&>
@@ -128,7 +128,7 @@ ObjectHandle Engine::appendV2<Object, const std::string&, const std::string&>
     return objectManager.emplace(
         std::format("{}{}", typeName, issueID()), typeName,
         moduleManager.get(moduleName).module_,
-        scriptInvoker.engine);
+        scriptInvoker.scriptEngine);
 }
 
 

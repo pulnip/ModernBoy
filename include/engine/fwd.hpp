@@ -63,6 +63,7 @@ namespace ModernBoy
         struct Module;
         struct Object;
         class Invoker;
+        class TypeHelper;
     }
     using Module = Script::Module;
     using Object = Script::Object;

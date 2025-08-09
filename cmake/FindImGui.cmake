@@ -31,6 +31,7 @@ set(ImGui_INCLUDE_DIRS
     ${ImGui_DIR}/backends
 )
 target_include_directories(ImGui PRIVATE ${ImGui_DIR})
+target_link_libraries(ImGui PRIVATE SDL3::SDL3)
 
 if(ImGui_RENDER_BACKEND STREQUAL "DirectX")
     target_sources(ImGui PRIVATE

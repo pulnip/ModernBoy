@@ -32,27 +32,27 @@ static void printInt(int i){
 
 Invoker::Invoker(Game::EntityRegistry& registry,
     ModuleManager& moduleManager, ObjectManager& objectManager,
-    Input::Device& device
+    Engine& engine
 ):moduleManager(moduleManager), objectManager(objectManager),
-registry(registry), engine(asCreateScriptEngine()),
-context(engine->CreateContext()){
-    int r = engine->SetMessageCallback(asFUNCTION(messageCallback), 0, asCALL_CDECL);
+registry(registry), scriptEngine(asCreateScriptEngine()),
+scriptContext(scriptEngine->CreateContext()){
+    int r = scriptEngine->SetMessageCallback(asFUNCTION(messageCallback), 0, asCALL_CDECL);
     assert(r >= 0);
-    RegisterStdString(engine);
+    RegisterStdString(scriptEngine);
 
-    r = engine->RegisterGlobalFunction("void print(const string &in)",
+    r = scriptEngine->RegisterGlobalFunction("void print(const string &in)",
         asFUNCTION(print), asCALL_CDECL); assert( r >= 0 );
-    r = engine->RegisterGlobalFunction("void printFloat(float)",
+    r = scriptEngine->RegisterGlobalFunction("void printFloat(float)",
         asFUNCTION(printFloat), asCALL_CDECL); assert( r >= 0 );
-    r = engine->RegisterGlobalFunction("void printInt(int)",
+    r = scriptEngine->RegisterGlobalFunction("void printInt(int)",
         asFUNCTION(printInt), asCALL_CDECL); assert( r >= 0 );
 
-    TypeHelper typeHelper(engine, device);
+    TypeHelper typeHelper(scriptEngine, engine);
     typeHelper.registerAll();
 }
 Invoker::~Invoker(){
-    context->Release();
-    engine->ShutDownAndRelease();
+    scriptContext->Release();
+    scriptEngine->ShutDownAndRelease();
 }
 
 FunctionID Invoker::registerFunction(const FuncName& funcName){
@@ -82,19 +82,19 @@ ABNORMAL_FLAG Invoker::invoke(ModuleHandle handle,
         return true;
     }
 
-    context->Prepare(func);
+    scriptContext->Prepare(func);
 
     auto entity = registry.query(id);
     auto dt = deltaTime.count() / 1'000'000.0f;
 
-    context->SetArgObject(0, &entity);
-    context->SetArgFloat(1, dt);
+    scriptContext->SetArgObject(0, &entity);
+    scriptContext->SetArgFloat(1, dt);
 
-    auto ret = context->Execute();
+    auto ret = scriptContext->Execute();
     if(ret != asEXECUTION_FINISHED){
         if(ret == asEXECUTION_EXCEPTION)
             std::println("Exception: {} occured",
-                context->GetExceptionString());
+                scriptContext->GetExceptionString());
         return true;
     }
     return false;
@@ -111,20 +111,20 @@ ABNORMAL_FLAG Invoker::invoke(ObjectHandle handle,
         return true;
     }
 
-    context->Prepare(func);
-    context->SetObject(object.object);
+    scriptContext->Prepare(func);
+    scriptContext->SetObject(object.object);
 
     auto entity = registry.query(id);
     auto dt = deltaTime.count() / 1'000'000.0f;
 
-    context->SetArgObject(0, &entity);
-    context->SetArgFloat(1, dt);
+    scriptContext->SetArgObject(0, &entity);
+    scriptContext->SetArgFloat(1, dt);
 
-    auto ret = context->Execute();
+    auto ret = scriptContext->Execute();
     if(ret != asEXECUTION_FINISHED){
         if(ret == asEXECUTION_EXCEPTION)
             std::println("Exception: {} occured",
-                context->GetExceptionString());
+                scriptContext->GetExceptionString());
         return true;
     }
     return false;

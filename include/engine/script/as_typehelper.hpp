@@ -9,8 +9,8 @@ namespace ModernBoy::Script
 {
     class TypeHelper{
     public:
-        TypeHelper(asIScriptEngine* engine, 
-            Input::Device& device);
+        TypeHelper(asIScriptEngine* scriptEngine,
+            Engine& engine);
 
         int registerAll();
 
@@ -22,8 +22,8 @@ namespace ModernBoy::Script
         int registerGlobalProperty();
 
     private:
-        asIScriptEngine* engine;
-        Input::Device& device;
+        asIScriptEngine* scriptEngine;
+        Engine& engine;
     };
 } // namespace ModernBoy::Script
 
