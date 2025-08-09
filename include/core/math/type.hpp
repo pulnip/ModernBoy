@@ -24,7 +24,10 @@ namespace ModernBoy
         struct{ float r, g, b, a; };
     }; static_assert(std::is_trivially_copyable_v<Vec4>);
 
-    inline Vec4 asVec4(Vec3 v3){
+    constexpr Vec3 asVec3(Vec4 v4){
+        return {.x=v4.x, .y=v4.y, .z=v4.z};
+    }
+    constexpr Vec4 asVec4(Vec3 v3){
         return {.x=v3.x, .y=v3.y, .z=v3.z, .w=0};
     }
 
@@ -176,7 +179,7 @@ namespace ModernBoy
         float theta = std::atan2(siny_cosp, cosy_cosp);
         return rotateY(theta);
     }
-    constexpr Vec4 axisAngle(Vec3 axis, float radian){
+    inline Vec4 axisAngle(Vec3 axis, float radian){
         auto half = radian / 2;
         float s = std::sinf(half);
         return {
@@ -185,6 +188,9 @@ namespace ModernBoy
             .z = axis.z * s,
             .w = std::cosf(half)
         };
+    }
+    inline Vec3 rotate(Vec3 v, Vec4 quat){
+        return asVec3(quat * asVec4(v) * conjugate(quat));
     }
 
     constexpr Vec3 right(Vec4 quat){
