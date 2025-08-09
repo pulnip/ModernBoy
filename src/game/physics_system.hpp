@@ -8,6 +8,23 @@
 
 namespace ModernBoy::Game
 {
+    class RaycastSystem{
+    public:
+        RaycastSystem(EntityRegistry&,
+            RayService&,
+            ModernBoy::Service::DebugDrawService&
+        );
+    
+        void update(DeltaTime);
+
+    private:
+        EntityRegistry& registry;
+
+        RayService& rayService;
+        ModernBoy::Service::DebugDrawService& debugDrawService;
+    };
+
+
     template<typename T>
     using ColliderProxy = std::tuple<EntityID, ArchetypeBit, Transform*, Rigidbody*, T*>;
     template<typename T>
@@ -20,7 +37,10 @@ namespace ModernBoy::Game
 
     class PhysicsSystem{
     public:
-        PhysicsSystem(EntityRegistry& registry);
+        PhysicsSystem(EntityRegistry&,
+            RayService&,
+            ModernBoy::Service::DebugDrawService&
+        );
 
         void update(DeltaTime);
 
@@ -33,6 +53,7 @@ namespace ModernBoy::Game
         std::vector<BoxColliderProxy> getBoxColliderProxies();
 
         EntityRegistry& registry;
+        RaycastSystem raycast;
     };
 } // namespace ModernBoy::Game
 

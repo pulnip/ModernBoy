@@ -28,6 +28,11 @@ namespace ModernBoy
         class Device;
     }
 
+    namespace Service{
+        class InputService;
+        class DebugDrawService;
+    }
+
     using NativePtr = void*;
 #if defined(USE_DIRECTX)
     namespace DX11{

@@ -13,6 +13,7 @@
 #include "core/thread/lock_free_queue.hpp"
 #include "core/thread/generator.hpp"
 #include "engine/render/command.hpp"
+#include "engine/service/debug_draw_service.hpp"
 #if defined(USE_DIRECTX)
 #include "engine/render/dx11/context.hpp"
 #elif defined(USE_METAL)
@@ -29,7 +30,7 @@ namespace ModernBoy::Render
     public:
         Renderer(SDL_Window*, MeshManager&,
             TextureManager&, ShaderManager&,
-            World&);
+            World&, Service::DebugDrawService&);
         ~Renderer();
 
         TaskTime expectedExecTime();
@@ -39,11 +40,6 @@ namespace ModernBoy::Render
         void onFrameEnd();
 
         EntityID queryWindowPos(int x, int y);
-
-        // Debug objects
-        void pushDebugLine(const Line& line);
-        void pushDebugSphere(const Vec3& position,
-            float radius, const Vec4& color);
 
 #if defined(USE_DIRECTX)
         NativePtr getDevice();
@@ -92,8 +88,7 @@ namespace ModernBoy::Render
 
         TaskTime ema;
 
-        std::vector<Line> debugLines;
-        std::vector<std::tuple<Vec3, float, Vec4>> debugSpheres;
+        Service::DebugDrawService& ddService;
         Mesh sphereMesh;
     };
 } // namespace ModernBoy::Render

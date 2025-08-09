@@ -7,6 +7,8 @@ file(GLOB ALL_SOURCES "*.cpp")
 add_library(Engine STATIC
     ${ALL_SOURCES}
     physics/physics.cpp
+    service/debug_draw_service.cpp
+    service/input_service.cpp
 )
 
 target_compile_options(Engine PRIVATE

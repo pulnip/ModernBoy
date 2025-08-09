@@ -7,11 +7,15 @@
 #include "entity_registry.hpp"
 #include "component.hpp"
 #include "action_system.hpp"
+#include "camera_ray_system.hpp"
+#include "control_system.hpp"
 #include "debug_system.hpp"
 #include "draw_system.hpp"
 #include "input_system.hpp"
 #include "physics_system.hpp"
 #include "lifespan_system.hpp"
+#include "intent_service.hpp"
+#include "ray_service.hpp"
 #include "scheduler.hpp"
 #include "event.hpp"
 #include "core/thread/generator.hpp"
@@ -48,9 +52,15 @@ namespace ModernBoy::Game
     public:
         EntityRegistry registry;
     private:
+        IntentService playerIntent;
+        IntentService editorIntent;
+        RayService rayService;
+
         DebugSystem debug;
         DrawSystem draw;
         ActionSystem action;
+        CameraRaySystem camRay;
+        ControlSystem control;
         InputSystem input;
         PhysicsSystem physics;
         LifespanSystem lifespan;

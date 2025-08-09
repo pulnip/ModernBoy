@@ -1,101 +1,121 @@
-#include "engine/input/device.hpp"
 #include "entity_registry.hpp"
 #include "input_system.hpp"
-#include "engine/physics/physics.hpp"
-#include "engine/render/renderer.hpp"
+#include "engine/service/input_service.hpp"
+#include "intent_service.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
+using namespace ModernBoy::Service;
 using namespace ModernBoy::Input;
-using namespace ModernBoy::Render;
+
+PlayerInputSystem::PlayerInputSystem(
+    EntityRegistry& registry,
+    InputService& inputSrv,
+    IntentService& intentSrv)
+:registry(registry), inputService(inputSrv)
+,intentService(intentSrv){}
+
+EditorInputSystem::EditorInputSystem(
+    EntityRegistry& registry,
+    InputService& inputSrv,
+    IntentService& intentSrv)
+:registry(registry), inputService(inputSrv)
+,intentService(intentSrv){}
 
 InputSystem::InputSystem(EntityRegistry& registry,
-    Device& input, Renderer& render)
-:registry(registry), input(input), render(render){}
+    InputService& inputSrv,
+    IntentService& playerItt, IntentService& editorItt)
+:playerInputSystem(registry, inputSrv, playerItt)
+,editorInputSystem(registry, inputSrv, editorItt){}
 
-void InputSystem::update(DeltaTime dt){
-    auto dt_ = dt.count() / 1'000'000.0f;
 
-    for(auto [id, bit, tc, _1]: registry.query<Transform, Player>()){
-        if(input.query(KEY_A, Held))
-            tc.position -= 10 * dt_ * ground_right(tc.rotation);
-        if(input.query(KEY_D, Held))
-            tc.position += 10 * dt_ * ground_right(tc.rotation);
-        if(input.query(KEY_W, Held))
-            tc.position += 10 * dt_ * ground_forward(tc.rotation);
-        if(input.query(KEY_S, Held))
-            tc.position -= 10 * dt_ * ground_forward(tc.rotation);
+void InputSystem::update(DeltaTime deltaTime){
+    playerInputSystem.update(deltaTime);
+    editorInputSystem.update(deltaTime);
+}
 
-        if(input.query(KEY_Q, Held))
-            tc.rotation = rotateY(-3.14/2 * dt_) * tc.rotation;
-        if(input.query(KEY_E, Held))
-            tc.rotation = rotateY( 3.14/2 * dt_) * tc.rotation;
-        // if(input.query(KEY_SPACE, Pressed))
-        //     jump;
-    }
+void PlayerInputSystem::update(DeltaTime deltaTime){
+    auto dt = deltaTime.count() / 1'000'000.0f;
+    auto input = inputService.snapshot();
 
-    for(auto [id, bit, tc, _2]: registry.query<Transform, Editor>()){
-        if(input.query(KEY_A, Held))
-            tc.position -= 10 * dt_ * right(tc.rotation);
-        if(input.query(KEY_D, Held))
-            tc.position += 10 * dt_ * right(tc.rotation);
-        if(input.query(KEY_W, Held))
-            tc.position += 10 * dt_ * forward(tc.rotation);
-        if(input.query(KEY_S, Held))
-            tc.position -= 10 * dt_ * forward(tc.rotation);
-        if(input.query(KEY_SPACE, Held))
-            tc.position += 10 * dt_ * up(tc.rotation);
-        if(input.query(KEY_SHIFT, Held))
-            tc.position -= 10 * dt_ * up(tc.rotation);
+    for(auto [_1, _2, _3]: registry.query<Player>()){
+        float dx=0, dz=0;
 
-        Vec2 mouse_move = input.mouseMove();
+        if(input.keyboard[KEY_A] == Held)
+            dx -= 10;
+        if(input.keyboard[KEY_D] == Held)
+            dx += 10;
+        if(input.keyboard[KEY_W] == Held)
+            dz += 10;
+        if(input.keyboard[KEY_S] == Held)
+            dx -= 10;
 
-        if(norm_squared(mouse_move) > 0){
-            Vec3 mouse_vec{
-                .x = mouse_move.x,
-                .y = -mouse_move.y,
-                .z = 0
-            };
-
-            Vec3 axis = normalize(cross(Vec3{{0, 0, 1}}, mouse_vec));
-
-            float theta = norm(mouse_move) / 10.0f;
-            Vec4 mouse_quat = axisAngle(axis, theta * dt_);
-    
-            tc.rotation = tc.rotation * mouse_quat;
+        if(dx != 0 || dz != 0){
+            intentService.write(MoveIntent{.move=Vec3{
+                .x=dx, .y=0, .z=dz
+            }});
         }
 
-        if(input.query(KEY_Q, Held))
-            tc.rotation = tc.rotation * rotateZ( 3.14/2 * dt_);
-        if(input.query(KEY_E, Held))
-            tc.rotation = tc.rotation * rotateZ(-3.14/2 * dt_);
-    }
-
-    for(auto [id, bit, tf, cam]: registry.query<Transform, Camera>()){
-        auto m_pos = input.mousePos();
-        auto fov_radian = cam.fov;
-
-        Ray ray{
-            .point = tf.position,
-            .dir = normalize(
-                m_pos.x * right(tf.rotation) +
-                m_pos.y * up(tf.rotation) +
-                1/std::tanf(fov_radian/2.0f) * forward(tf.rotation)
-            )
+        Vec2 mouse_move{
+            .x = input.mouse.dx,
+            .y = input.mouse.dy
         };
+        if(norm_squared(mouse_move) > 0){
+            auto axis = normalize(Vec3{
+                .x = input.mouse.dy,
+                .y = input.mouse.dx,
+                .z = 0
+            });
+            float theta = norm(mouse_move) / 10.0f;
 
-        for(auto [id, bit, c_tf, sc, model]: registry.query<Transform ,SphereCollider, Model>()){
-            RaycastHit result;
-            if(raycastSphere(ray, c_tf.position+sc.position, sc.radius, result)){
-                render.pushDebugLine(Line{
-                    .from = asVec4(ray.point),
-                    .to = asVec4(result.point),
-                    .color = Vec4{.r=1, .g=0, .b=0, .a=1}
-                });
-                render.pushDebugSphere(result.point,
-                    0.1, Vec4{.r=1, .g=0, .b=0, .a=1}
-                );
-            }
+            intentService.write(LookIntent{
+                axis, theta
+            });
+        }
+    }
+}
+
+void EditorInputSystem::update(DeltaTime deltaTime){
+    auto dt = deltaTime.count() / 1'000'000.0f;
+    auto input = inputService.snapshot();
+
+    for(auto [_1, _2, _3]: registry.query<Editor>()){
+        float dx=0, dy=0, dz=0;
+
+        if(input.keyboard[KEY_A] == Held)
+            dx -= 10;
+        if(input.keyboard[KEY_D] == Held)
+            dx += 10;
+        if(input.keyboard[KEY_SHIFT] == Held)
+            dy -= 10;
+        if(input.keyboard[KEY_SPACE] == Held)
+            dy += 10;
+        if(input.keyboard[KEY_W] == Held)
+            dz += 10;
+        if(input.keyboard[KEY_S] == Held)
+            dz -= 10;
+
+        if(dx != 0 || dz != 0){
+            intentService.write(MoveIntent{.move=Vec3{
+                .x=dx, .y=dy, .z=dz
+            }});
+        }
+
+        Vec2 mouse_move{
+            .x = input.mouse.dx,
+            .y = input.mouse.dy
+        };
+        if(norm_squared(mouse_move) > 0){
+            auto axis = normalize(Vec3{
+                .x = input.mouse.dy,
+                .y = input.mouse.dx,
+                .z = 0
+            });
+            float theta = norm(mouse_move) / 10.0f;
+
+            intentService.write(LookIntent{
+                axis, theta
+            });
         }
     }
 }

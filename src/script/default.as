@@ -10,15 +10,15 @@ void update(Entity@ entity, float dt){
 
     float vx = 0, vz = 0;
 
-    if(input.query(KEY_LEFT, Held))
-        vx -= 5;
-    if(input.query(KEY_RIGHT, Held))
-        vx += 5;
+    // if(input.query(KEY_LEFT, Held))
+    //     vx -= 5;
+    // if(input.query(KEY_RIGHT, Held))
+    //     vx += 5;
 
-    if(input.query(KEY_UP, Held))
-        vz += 5;
-    if(input.query(KEY_DOWN, Held))
-        vz -= 5;
+    // if(input.query(KEY_UP, Held))
+    //     vz += 5;
+    // if(input.query(KEY_DOWN, Held))
+    //     vz -= 5;
 
     rc.velocity.x = vx;
     rc.velocity.z = vz;

@@ -49,9 +49,9 @@ meshManager(), textureManager(),
 shaderManager(), moduleManager(),
 // subsystems
 renderer(window, meshManager, textureManager,
-    shaderManager, world),
+    shaderManager, world, debugDrawService),
 userInterface(window, renderer, *this),
-inputDevice(window),
+inputDevice(window, inputService),
 scriptInvoker(world.registry, moduleManager,
     objectManager, inputDevice),
 // others

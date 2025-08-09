@@ -6,19 +6,22 @@ using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
 Context::Context(Engine& engine)
-:engine(engine),
-debug(registry), draw(registry),
-action(registry, engine.scriptInvoker),
-input(registry, engine.inputDevice, engine.renderer),
-physics(registry), lifespan(registry){}
-
+:engine(engine), debug(registry), draw(registry)
+,action(registry, engine.scriptInvoker)
+,camRay(registry, engine.inputService, rayService)
+,control(registry, playerIntent, editorIntent)
+,input(registry, engine.inputService, playerIntent, editorIntent)
+,physics(registry, rayService, engine.debugDrawService)
+,lifespan(registry){}
 
 void Context::update(DeltaTime dt){
     input.update(dt);
+    control.update(dt);
     action.update(dt);
     // auto actionFut = action.update(dt);
     // while(!actionFut.done())
     //     actionFut.next();
+    camRay.update(dt);
 
     physics.update(dt);
     // auto physicsFut = physics.update(dt);

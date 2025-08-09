@@ -9,10 +9,12 @@
 using namespace std::chrono_literals;
 using namespace ModernBoy;
 using namespace ModernBoy::Render;
+using namespace ModernBoy::Service;
 
 Renderer::Renderer(SDL_Window* window,
     MeshManager& meshManager, TextureManager& textureManager,
-    ShaderManager& shaderManager, World& world)
+    ShaderManager& shaderManager, World& world,
+    DebugDrawService& ddSrv)
 #if defined(USE_DIRECTX)
 :context(window),
 #elif defined(USE_METAL)
@@ -23,7 +25,7 @@ context(createRenderContext(metalLayer,
 #endif
 meshManager(meshManager), textureManager(textureManager), 
 shaderManager(shaderManager), world(world), ema(0ms),
-sphereMesh("Sphere", metalLayer){}
+ddService(ddSrv), sphereMesh("Sphere", metalLayer){}
 
 Renderer::~Renderer(){
 #if defined(USE_METAL)
@@ -42,6 +44,7 @@ static void sortTask(DrawTasks& tasks);
 
 void Renderer::update(DeltaTime){
     auto started = std::chrono::steady_clock::now();
+    auto debugSpheres = ddService.drainSpheres();
 
     auto drawTasks = world.getBuffer<DrawTask>();
     sortTask(drawTasks);
@@ -202,28 +205,19 @@ void Renderer::drawMesh(
 }
 void Renderer::onFrameEnd(){
     RenderTrace("Frame End");
+    auto debugLines = ddService.drainLines();
+
 #if defined(USE_DIRECTX)
     context.onFrameEnd();
 #elif defined(USE_METAL)
     RenderContext_frameEnd(context,
         debugLines.data(), debugLines.size());
-    debugLines.clear();
-    debugSpheres.clear();
 #endif
 }
 
 EntityID Renderer::queryWindowPos(int x, int y){
     int id = RenderContext_getPickedID(context, x, y);
     return static_cast<EntityID>(id);
-}
-
-void Renderer::pushDebugLine(const Line& line){
-    debugLines.push_back(line);
-}
-void Renderer::pushDebugSphere(const Vec3& position, float radius,
-    const Vec4& color
-){
-    debugSpheres.push_back({position, radius, color});
 }
 
 #if defined(USE_DIRECTX)

@@ -24,11 +24,14 @@ namespace ModernBoy
         struct{ float r, g, b, a; };
     }; static_assert(std::is_trivially_copyable_v<Vec4>);
 
-    constexpr Vec3 asVec3(Vec4 v4){
-        return {.x=v4.x, .y=v4.y, .z=v4.z};
+    constexpr Vec3 asVec3(Vec2 v2){
+        return {.x=v2.x, .y=v2.y, .z=0};
     }
     constexpr Vec4 asVec4(Vec3 v3){
         return {.x=v3.x, .y=v3.y, .z=v3.z, .w=0};
+    }
+    constexpr Vec3 asVec3(Vec4 v4){
+        return {.x=v4.x, .y=v4.y, .z=v4.z};
     }
 
     Vec2 operator+(Vec2, Vec2);
@@ -54,8 +57,17 @@ namespace ModernBoy
         return lhs.x*rhs.y - lhs.y*rhs.x;
     }
 
-    Vec3 zeros();
-    Vec3 ones();
+    constexpr Vec3 zeros(){
+        return {.x=0.0f, .y=0.0f, .z=0.0f}; }
+    constexpr Vec3 ones(){
+        return {.x=1.0f, .y=1.0f, .z=1.0f}; }
+    constexpr Vec3 unitX(){
+        return {.x=1.0f, .y=0.0f, .z=0.0f}; }
+    constexpr Vec3 unitY(){
+        return {.x=0.0f, .y=1.0f, .z=0.0f}; }
+    constexpr Vec3 unitZ(){
+        return {.x=0.0f, .y=0.0f, .z=1.0f}; }
+
 
     constexpr Vec3 operator+(Vec3 lhs, Vec3 rhs){
         return {{lhs.x+rhs.x, lhs.y+rhs.y, lhs.z+rhs.z}};
@@ -282,6 +294,11 @@ namespace ModernBoy
 
     struct alignas(16) Line{
         Vec4 from, to;
+        Vec4 color;
+    };
+    struct Sphere{
+        Vec3 point;
+        float radius;
         Vec4 color;
     };
 } // namespace ModernBoy

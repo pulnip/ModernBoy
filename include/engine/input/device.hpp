@@ -10,16 +10,11 @@ namespace ModernBoy::Input
 {
     class Device{
     public:
-        Device(SDL_Window* window);
+        Device(SDL_Window*, Service::InputService&);
 
         TaskTime expectedExecTime();
         void update(DeltaTime);
         // Generator<void> update(DeltaTime deltatime);
-
-        bool query(KeyCode, KeyState);
-
-        Vec2 mousePos();
-        Vec2 mouseMove();
 
         const TaskPolicy policy{
             .effective_window_size = 10,
@@ -29,10 +24,6 @@ namespace ModernBoy::Input
 
     private:
         void updateEMA(TaskTime);
-        void swapState();
-
-        State state[2];
-        std::atomic<int> readIndex = 0;
 
         // for normalize mouse coord
         int width, height;
@@ -42,6 +33,8 @@ namespace ModernBoy::Input
 
         SDL_Window* window;
         const bool* sdlKeyboard = nullptr;
+
+        Service::InputService& service;
     }; static_assert(Subsystem<Device>);
 } // namespace ModernBoy::Input
 

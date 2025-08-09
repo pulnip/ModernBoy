@@ -1,3 +1,4 @@
+#include <print>
 #include "intent_service.hpp"
 
 using namespace ModernBoy;
@@ -5,10 +6,14 @@ using namespace ModernBoy::Game;
 
 void IntentService::write(const MoveIntent& intent){
     std::lock_guard lock(moveIntentMtx);
+    if(moveIntents.size() > 10)
+        moveIntents.clear();
     moveIntents.push_back(intent);
 }
 void IntentService::write(const LookIntent& intent){
     std::lock_guard lock(lookIntentMtx);
+    if(lookIntents.size() > 10)
+        lookIntents.clear();
     lookIntents.push_back(intent);
 }
 

@@ -40,10 +40,10 @@ int TypeHelper::registerGlobalProperty(){
     if(auto ret=engine->RegisterGlobalProperty(
         "Input input", &device) < 0)
         return ret;
-    if(auto ret=engine->RegisterObjectMethod(
-        "Input", "bool query(KeyCode keyCode, KeyState keyState)",
-        asMETHOD(Input::Device, query), asCALL_THISCALL) < 0)
-        return ret;
+    // if(auto ret=engine->RegisterObjectMethod(
+    //     "Input", "bool query(KeyCode keyCode, KeyState keyState)",
+    //     asMETHOD(Input::Device, query), asCALL_THISCALL) < 0)
+    //     return ret;
     
     return 0;
 }
