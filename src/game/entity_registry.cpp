@@ -3,12 +3,7 @@
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
-EntityRegistry::~EntityRegistry(){
-    std::println("EntityTable Size: {}", entityTable.size());
-    std::println("ArchetypeMap Size: {}", archetypeMap.size());
-}
-
-Entity EntityRegistry::query(EntityID id){
+auto EntityRegistry::query(EntityID id)->Entity{
     auto entity_it = entityTable.find(id);
     if(entity_it == entityTable.end()){
         GameWarn("Entity {} not exist.", id);
@@ -49,11 +44,7 @@ void EntityRegistry::destroyEntity(EntityID id){
     entityTable.erase(id);
 }
 
-EntityID EntityRegistry::issueID(){
-    return id_seed++;
-}
-
-DynamicVectorV2& EntityRegistry::getVector(ArchetypeBit bit){
+auto EntityRegistry::getVector(ArchetypeBit bit)->DynamicVectorV2&{
     auto it = archetypeMap.find(bit);
     if(it != archetypeMap.end())
         return it->second;
@@ -62,10 +53,11 @@ DynamicVectorV2& EntityRegistry::getVector(ArchetypeBit bit){
     return new_it->second;
 }
 
-EntityRegistry::EntityTable::iterator
-EntityRegistry::findEntityFromProperty(ArchetypeBit bit, Index chunkIndex){
+auto EntityRegistry::findEntityFromProperty(
+    ArchetypeBit bit, Index chunkIndex
+)->EntityRegistry::EntityTable::iterator{
     // TODO. might be replace to entity tag component
-    auto it = std::find_if(entityTable.begin(), entityTable.end(),
+    auto it = std::ranges::find_if(entityTable,
         [bit, chunkIndex](const auto& pair){
             const EntityInfo& info = pair.second;
             return info.bit == bit && info.chunkIndex == chunkIndex;

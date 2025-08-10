@@ -11,13 +11,13 @@ let package = Package(
     targets: [
         .target(
             name: "ModernBoy",
-            path: "src/backends/metal",
+            path: "src/engine/render/metal",
             exclude: [
                 "context.cpp",
                 "mesh.cpp",
                 "shader.cpp",
-                "texture.cpp"
+                "texture.cpp",
             ]
-        ),
+        )
     ],
 )

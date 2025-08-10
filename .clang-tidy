@@ -1,0 +1,8 @@
+Checks: >
+  bugprone-*,
+  performance-*,
+  modernize-*,
+  -modernize-avoid-c-arrays,
+WarningsAsErrors: ''
+FormatStyle: file
+HeaderFilterRegex: '^.*/(src|include)/'

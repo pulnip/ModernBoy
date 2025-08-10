@@ -39,7 +39,7 @@ namespace ModernBoy::Game
                 advance_to_valid_archetype();
             }
 
-            std::tuple<EntityID, ArchetypeBit, Ts&...> operator*(){
+            auto operator*(){
                 assert(!at_end());
                 auto bit = map_it->first;
                 auto& vec = map_it->second;
@@ -54,7 +54,7 @@ namespace ModernBoy::Game
                     )...
                 );
             }
-            Iterator& operator++(){
+            auto operator++()->Iterator&{
                 auto& vec = map_it->second;
                 ++vec_index;
                 if(vec_index >= vec.size()){
@@ -64,10 +64,10 @@ namespace ModernBoy::Game
                 }
                 return *this;
             }
-            bool operator==(Sentinel) noexcept{
+            auto operator==(Sentinel) noexcept{
                 return map_it == map_end;
             }
-            bool operator!=(Sentinel) noexcept{
+            auto operator!=(Sentinel) noexcept{
                 return !((*this)==Sentinel{});
             }
 
@@ -80,7 +80,7 @@ namespace ModernBoy::Game
                     ++map_it;
                 }
             }
-            bool at_end() const noexcept{ return map_it == map_end; }
+            auto at_end() const noexcept{ return map_it == map_end; }
         };
         struct ConstIterator{
 
@@ -88,13 +88,13 @@ namespace ModernBoy::Game
 
         ArchetypeView(Map& map):map(map){}
 
-        Iterator begin(){
+        auto begin(){
             return Iterator{map.begin(), map.end()};
         }
-        Sentinel end() const noexcept{ return {}; }
+        auto end() const noexcept{ return Sentinel{}; }
         // ConstIterator begin() const;
         // ConstIterator cbegin() const;
-        Sentinel cend() const noexcept{ return {}; }
+        auto cend() const noexcept{ return Sentinel{}; }
     };
 
     struct Entity{
@@ -174,26 +174,26 @@ namespace ModernBoy::Game
     }
 
     template<ValueType T>
-    ArchetypeBit bits_of(T){
+    auto bits_of(T)->ArchetypeBit{
         using U = std::remove_cvref_t<T>;
 
         return bit_of<U>();
     }
     template<ValueType T1, AllValue... TN>
-    ArchetypeBit bits_of(T1, TN... tn){
+    auto bits_of(T1, TN... tn){
         using U = std::remove_cvref_t<T1>;
 
         return bit_of<U>() + bits_of(tn...);
     }
 
     template<PointerType T>
-    ArchetypeBit bits_of(T t){
+    auto bits_of(T t){
         using U = std::remove_pointer_t<std::remove_cvref_t<T>>;
 
         return t != nullptr ? bit_of<U>() : 0;
     }
     template<PointerType T1, AllPointer... TN>
-    ArchetypeBit bits_of(T1 t1, TN... tn){
+    auto bits_of(T1 t1, TN... tn){
         using U = std::remove_pointer_t<std::remove_cvref_t<T1>>;
         auto bit = bits_of(tn...);
 
@@ -201,13 +201,13 @@ namespace ModernBoy::Game
     }
 
     template<OptionalType T>
-    ArchetypeBit bits_of(const T& t){
+    auto bits_of(const T& t){
         using U = remove_optional_t<std::remove_cvref_t<T>>;
 
         return t.has_value() ? bit_of<U>() : 0;
     }
     template<OptionalType T1, AllOptional... TN>
-    ArchetypeBit bits_of(const T1& t1, const TN&... tn){
+    auto bits_of(const T1& t1, const TN&... tn){
         using U = remove_optional_t<std::remove_cvref_t<T1>>;
         auto bit = bits_of(tn...);
 
@@ -226,14 +226,18 @@ namespace ModernBoy::Game
 
     public:
         EntityRegistry() = default;
-        ~EntityRegistry();
+        ~EntityRegistry() = default;
         EntityRegistry(const EntityRegistry&) = delete;
         EntityRegistry(EntityRegistry&&) = delete;
-        EntityRegistry& operator=(const EntityRegistry&) = delete;
-        EntityRegistry& operator=(EntityRegistry&&) = delete;
+        auto operator=(const EntityRegistry&)->EntityRegistry& = delete;
+        auto operator=(EntityRegistry&&)->EntityRegistry& = delete;
 
+    private:
+        auto issueID(){ return id_seed++; }
+
+    public:
         template<typename... Args>
-        EntityID createEntity(Args&&... args){
+        auto createEntity(Args&&... args){
             auto bit = bits_of(args...);
             // auto bit = bits_of<remove_optional_t<std::remove_cvref_t<Args>>...>();
 
@@ -261,7 +265,7 @@ namespace ModernBoy::Game
             return ArchetypeView<Ts...>(archetypeMap);
         }
         template<typename... Ts>
-        std::tuple<Ts&...> query(EntityID id){
+        auto query(EntityID id)->std::tuple<Ts&...>{
             const auto& info = entityTable.at(id);
             auto& vec = archetypeMap.at(info.bit);
             auto chunk = vec[info.chunkIndex];
@@ -273,7 +277,7 @@ namespace ModernBoy::Game
             );
         }
         template<typename T>
-        std::pair<T&, bool> query_safe(EntityID id){
+        auto query_safe(EntityID id)->std::pair<T&, bool>{
             const auto& info = entityTable.at(id);
             auto& vec = archetypeMap.at(info.bit);
             auto chunk = vec[info.chunkIndex];
@@ -284,7 +288,7 @@ namespace ModernBoy::Game
                 offset != std::numeric_limits<size_t>::max()
             };
         }
-        Entity query(EntityID id);
+        auto query(EntityID id)->Entity;
 
         template<typename T>
         void appendComponent(EntityID id, T&& component){
@@ -330,12 +334,10 @@ namespace ModernBoy::Game
         }
 
     private:
-        EntityID issueID();
-
-        DynamicVectorV2& getVector(ArchetypeBit);
+        auto getVector(ArchetypeBit)->DynamicVectorV2&;
 
         template<typename T>
-        std::tuple<Index, DynamicVectorV2&> moveChunk(EntityInfo& info, T&& component){
+        auto moveChunk(EntityInfo& info, T&& component){
             auto& old_vec = archetypeMap.at(info.bit);
             auto old_index = info.chunkIndex;
             auto chunk = old_vec[old_index];
@@ -359,10 +361,10 @@ namespace ModernBoy::Game
             // 2. remove old chunk
             old_vec.swap_remove(info.chunkIndex);
 
-            return {new_index, old_vec};
+            return std::tuple<Index, DynamicVectorV2&>{new_index, old_vec};
         }
         template<typename T>
-        std::tuple<Index, DynamicVectorV2&> moveChunk(EntityInfo& info){
+        auto moveChunk(EntityInfo& info){
             auto& old_vec = archetypeMap.at(info.bit);
             auto old_index = info.chunkIndex;
             auto chunk = old_vec[old_index];
@@ -385,13 +387,13 @@ namespace ModernBoy::Game
             // 2. remove old chunk
             old_vec.swap_remove(info.chunkIndex);
 
-            return {new_index, old_vec};
+            return std::tuple<Index, DynamicVectorV2&>{new_index, old_vec};
         }
 
         void updateEntityInfo(EntityInfo& updated, DynamicVectorV2& swapped,
             ArchetypeBit updated_bit, Index updated_index);
 
-        EntityTable::iterator findEntityFromProperty(ArchetypeBit bit, Index chunkIndex);
+        auto findEntityFromProperty(ArchetypeBit bit, Index chunkIndex)->EntityTable::iterator;
     };
 } // namespace ModernBoy::Game
 

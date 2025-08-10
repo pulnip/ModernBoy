@@ -8,6 +8,11 @@
         "editor.defaultFormatter": "ms-vscode.cpptools",
         "editor.formatOnSave": true
     },
+    "C_Cpp.clang_format_fallbackStyle": "none",
+    "C_Cpp.clang_format_style": "file",
+    "editor.formatOnSave": true,
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.runAutomatically": false,
     "files.associations": {
         "*.metal": "metal",
         "string": "cpp",
