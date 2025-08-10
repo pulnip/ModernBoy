@@ -1,17 +1,23 @@
 file(GLOB ALL_SOURCES "*.cpp")
-add_library(Core STATIC
+add_library(Core SHARED
     math/type.cpp
     memory/bit.cpp
     memory/dynamic_vector.cpp
     string/helper.cpp
 )
-target_compile_options(Core PRIVATE
+target_compile_options(Core
+PRIVATE
     -Wall -Wextra
-    -fsanitize=address,leak
 )
-target_compile_definitions(Core PRIVATE
+target_compile_definitions(Core
+PUBLIC
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )
-target_include_directories(Core PRIVATE
+target_include_directories(Core
+PUBLIC
     ${CMAKE_SOURCE_DIR}/include
+)
+target_link_libraries(Core
+PUBLIC
+    $<IF:$<CONFIG:DEBUG>, sanitizers,>
 )

@@ -11,16 +11,19 @@ add_library(Engine STATIC
     service/input_service.cpp
 )
 
-target_compile_options(Engine PRIVATE
-    -Wall -Wextra
-    -fsanitize=address,leak
+target_compile_options(Engine
+PRIVATE
+    $<IF:$<CONFIG:DEBUG>, -Wall -Wextra,>
 )
-target_compile_definitions(Engine PRIVATE
+target_compile_definitions(Engine
+PUBLIC
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )
 
-target_include_directories(Engine PRIVATE
+target_include_directories(Engine
+PUBLIC
     ${CMAKE_SOURCE_DIR}/include
+PRIVATE
     # gsl-lite
     ${gsl-lite_INCLUDE_DIRS}
     # ImGui
@@ -30,17 +33,19 @@ target_include_directories(Engine PRIVATE
     # stb
     ${CMAKE_SOURCE_DIR}/external/stb
 )
-target_link_libraries(Engine PRIVATE
-    Game
+target_link_libraries(Engine
+PRIVATE
     RenderBackend
     RenderModule
     InputModule
     ScriptModule
     UIModule
-    # SDL3
-    SDL3::SDL3
     # ImGui
     ${ImGui_LIBS}
     # Assimp
     assimp::assimp
+PUBLIC
+    $<IF:$<CONFIG:DEBUG>, sanitizers,>
+    # SDL3
+    SDL3::SDL3
 )
