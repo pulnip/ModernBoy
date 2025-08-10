@@ -101,8 +101,9 @@ namespace ModernBoy::Input
     using Keyboard = std::array<KeyState, KEY_UNKNOWN>;
 
     struct Mouse{
-        float x, y;
-        float dx, dy;
+        Vec2 pos0;
+        Vec2 pos;
+        Vec2 dpos;
     };
     
     struct State{

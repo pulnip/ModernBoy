@@ -13,8 +13,8 @@ namespace ModernBoy::Game
         Vec3 move;
     };
     struct LookIntent{
-        Vec3 axis;
-        float radian;
+        float yaw;
+        float pitch;
     };
 
     class IntentService{

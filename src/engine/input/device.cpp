@@ -40,9 +40,15 @@ void Device::update(DeltaTime){
     SDL_GetMouseState(&x, &y);
     SDL_GetRelativeMouseState(&dx, &dy);
     stateCurr.mouse = Mouse{
-        .x = 2*x/height - float(width)/height,
-        .y = 1 - 2*y/height,
-        .dx = dx, .dy = dy
+        .pos0 = statePrev.mouse.pos,
+        .pos = Vec2{
+            .x = 2*x/height - float(width)/height,
+            .y = 1 - 2*y/height,
+        },
+        .dpos = Vec2{
+            .x = 2*dx/height,
+            .y = 2*dy/height
+        }
     };
 
     service.write(stateCurr);

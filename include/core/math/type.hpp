@@ -25,11 +25,11 @@ namespace ModernBoy
         struct{ float r, g, b, a; };
     }; static_assert(std::is_trivially_copyable_v<Vec4>);
 
-    constexpr auto asVec3(Vec2 v2){
-        return Vec3{.x=v2.x, .y=v2.y, .z=0};
+    constexpr auto asVec3(Vec2 v2, float z=0.0f){
+        return Vec3{.x=v2.x, .y=v2.y, .z=z};
     }
-    constexpr auto asVec4(Vec3 v3){
-        return Vec4{.x=v3.x, .y=v3.y, .z=v3.z, .w=0};
+    constexpr auto asVec4(Vec3 v3, float w=0.0f){
+        return Vec4{.x=v3.x, .y=v3.y, .z=v3.z, .w=w};
     }
     constexpr auto asVec3(Vec4 v4){
         return Vec3{.x=v4.x, .y=v4.y, .z=v4.z};
@@ -43,6 +43,12 @@ namespace ModernBoy
     }
     constexpr auto operator-(Vec2 v){
         return Vec2{.x=-v.x, .y=-v.y};
+    }
+    constexpr auto operator*(Vec2 v, float f){
+        return Vec2{.x=v.x*f, .y=v.y*f};
+    }
+    constexpr auto operator*(float f, Vec2 v){
+        return Vec2{.x=f*v.x, .y=f*v.y};
     }
     constexpr auto operator/(Vec2 v, float f){
         return Vec2{.x=v.x/f, .y=v.y/f};
@@ -134,7 +140,6 @@ namespace ModernBoy
 
     constexpr auto operator==(Vec3 lhs, Vec3 rhs){
         return lhs.x==rhs.x && lhs.y==rhs.y && lhs.z==rhs.z;
-
     }
 
     constexpr auto dot(Vec3 lhs, Vec3 rhs){
@@ -177,8 +182,64 @@ namespace ModernBoy
             .w = lhs.w*rhs.w - lhs.x*rhs.x - lhs.y*rhs.y - lhs.z*rhs.z
         };
     }
+    constexpr auto operator/(Vec4 lhs, float rhs){
+        return Vec4{
+            .x = lhs.x/rhs,
+            .y = lhs.y/rhs,
+            .z = lhs.z/rhs,
+            .w = lhs.w/rhs,
+        };
+    }
+    constexpr auto dot(Vec4 lhs, Vec4 rhs){
+        return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z + rhs.w*rhs.w;
+    }
+    constexpr auto norm_squared(Vec4 v){
+        return dot(v, v);
+    }
+    inline auto norm(Vec4 v){
+        return std::sqrt(norm_squared(v));
+    }
+    inline auto normalize(Vec4 v){
+        return v / norm(v);
+    }
+        inline auto quat(Vec3 r, Vec3 u, Vec3 f){
+        float m00 = r.x, m01 = u.x, m02 = f.x;
+        float m10 = r.y, m11 = u.y, m12 = f.y;
+        float m20 = r.z, m21 = u.z, m22 = f.z;
 
-    inline auto rotateX(float theta) {
+        float trace = m00 + m11 + m22;
+        Vec4 q;
+
+        if(trace > 0.0f){
+            float s = std::sqrt(trace + 1.0f) * 2.0f;
+            q.x = (m21 - m12) / s;
+            q.y = (m02 - m20) / s;
+            q.z = (m10 - m01) / s;
+            q.w = 0.25f * s;
+        } else if((m00 > m11) && (m00 > m22)){
+            float s = std::sqrt(1.0f + m00 - m11 - m22) * 2.0f;
+            q.x = 0.25f * s;
+            q.y = (m01 + m10) / s;
+            q.z = (m02 + m20) / s;
+            q.w = (m21 - m12) / s;
+        } else if(m11 > m22){
+            float s = std::sqrt(1.0f + m11 - m00 - m22) * 2.0f;
+            q.x = (m01 + m10) / s;
+            q.y = 0.25f * s;
+            q.z = (m12 + m21) / s;
+            q.w = (m02 - m20) / s;
+        } else {
+            float s = std::sqrt(1.0f + m22 - m00 - m11) * 2.0f; // s=4*q.z
+            q.x = (m02 + m20) / s;
+            q.y = (m12 + m21) / s;
+            q.z = 0.25f * s;
+            q.w = (m10 - m01) / s;
+        }
+
+        return normalize(q);
+    }
+
+    inline auto rotateX(float theta){
         float half = theta * 0.5f;
         return Vec4{
             .x = std::sinf(half),
@@ -187,7 +248,7 @@ namespace ModernBoy
             .w = std::cosf(half)
         };
     }
-    inline auto rotateY(float theta) {
+    inline auto rotateY(float theta){
         float half = theta * 0.5f;
         return Vec4{
             .x = 0.0f,
@@ -196,7 +257,7 @@ namespace ModernBoy
             .w = std::cosf(half)
         };
     }
-    inline auto rotateZ(float theta) {
+    inline auto rotateZ(float theta){
         float half = theta * 0.5f;
         return Vec4{
             .x = 0.0f,
@@ -231,10 +292,8 @@ namespace ModernBoy
         return Vec3{.x=vec.x, .y=vec.y, .z=vec.z };
     }
     constexpr auto ground_right(Vec4 quat){
-        auto e_x = Vec4{.x=1, .y=0, .z=0, .w=0};
-        Vec4 y_quat = yaw(quat);
-        auto vec = y_quat * e_x * conjugate(y_quat);
-        return Vec3{.x=vec.x, .y=vec.y, .z=vec.z };
+        auto f = right(quat);
+        return f - dot(f, unitY())*unitY();
     }
     constexpr auto up(Vec4 quat){
         auto e_y = Vec4{.x=0, .y=1, .z=0, .w=0};
@@ -247,10 +306,8 @@ namespace ModernBoy
         return Vec3{.x=vec.x, .y=vec.y, .z=vec.z };
     }
     constexpr auto ground_forward(Vec4 quat){
-        auto e_z = Vec4{.x=0, .y=0, .z=1, .w=0};
-        Vec4 y_quat = yaw(quat);
-        auto vec = y_quat * e_z * conjugate(y_quat);
-        return Vec3{.x=vec.x, .y=vec.y, .z=vec.z };
+        auto f = forward(quat);
+        return f - dot(f, unitY())*unitY();
     }
 
     constexpr auto operator==(Vec4 lhs, Vec4 rhs){

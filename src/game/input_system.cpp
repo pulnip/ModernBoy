@@ -34,6 +34,19 @@ void InputSystem::update(DeltaTime deltaTime){
     editorInputSystem.update(deltaTime);
 }
 
+inline auto mouseToSphere(Vec2 mpos){
+    auto d2 = norm_squared(mpos);
+    if(d2 <= 1.0f){
+        auto z = std::sqrt(std::max(0.0f, 1.0f - d2));
+        return normalize(asVec3(mpos, z));
+    }
+    else{
+        auto d = std::sqrt(d2);
+        auto z = 1.0f / (2.0f * d);
+        return normalize(asVec3(z/d * mpos, z));
+    }
+}
+
 void PlayerInputSystem::update(DeltaTime deltaTime){
     auto dt = deltaTime.count() / 1'000'000.0f;
     auto input = inputService.snapshot();
@@ -48,7 +61,7 @@ void PlayerInputSystem::update(DeltaTime deltaTime){
         if(input.keyboard[KEY_W] == Held)
             dz += 10;
         if(input.keyboard[KEY_S] == Held)
-            dx -= 10;
+            dz -= 10;
 
         if(dx != 0 || dz != 0){
             intentService.write(MoveIntent{.move=Vec3{
@@ -56,20 +69,10 @@ void PlayerInputSystem::update(DeltaTime deltaTime){
             }});
         }
 
-        Vec2 mouse_move{
-            .x = input.mouse.dx,
-            .y = input.mouse.dy
-        };
-        if(norm_squared(mouse_move) > 0){
-            auto axis = normalize(Vec3{
-                .x = input.mouse.dy,
-                .y = input.mouse.dx,
-                .z = 0
-            });
-            float theta = norm(mouse_move) / 10.0f;
-
+        if(input.mouse.pos0 != input.mouse.pos){
             intentService.write(LookIntent{
-                axis, theta
+                .yaw = input.mouse.dpos.x,
+                .pitch = input.mouse.dpos.y
             });
         }
     }
@@ -101,20 +104,10 @@ void EditorInputSystem::update(DeltaTime deltaTime){
             }});
         }
 
-        Vec2 mouse_move{
-            .x = input.mouse.dx,
-            .y = input.mouse.dy
-        };
-        if(norm_squared(mouse_move) > 0){
-            auto axis = normalize(Vec3{
-                .x = input.mouse.dy,
-                .y = input.mouse.dx,
-                .z = 0
-            });
-            float theta = norm(mouse_move) / 10.0f;
-
+        if(input.mouse.pos0 != input.mouse.pos){
             intentService.write(LookIntent{
-                axis, theta
+                .yaw = input.mouse.dpos.x,
+                .pitch = input.mouse.dpos.y
             });
         }
     }

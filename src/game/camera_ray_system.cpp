@@ -22,8 +22,8 @@ void CameraRaySystem::update(DeltaTime deltaTime){
         Ray ray{
             .point = tf.position,
             .dir = normalize(
-                mouseState.x * right(tf.rotation) +
-                mouseState.y * up(tf.rotation) +
+                mouseState.pos.x * right(tf.rotation) +
+                mouseState.pos.y * up(tf.rotation) +
                 1/std::tanf(fov/2) * forward(tf.rotation)
             )
         };
