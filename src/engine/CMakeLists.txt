@@ -35,6 +35,7 @@ PRIVATE
 )
 target_link_libraries(Engine
 PRIVATE
+    Core
     RenderBackend
     RenderModule
     InputModule

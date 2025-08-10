@@ -1,7 +1,7 @@
 # Library options
 option(ImGui_DEMO
-  "Include the ImGui demo window implementation in library"
-  ON
+    "Include the ImGui demo window implementation in library"
+    ON
 )
 
 find_path(ImGui_DIR
@@ -15,7 +15,7 @@ else()
     message(STATUS "ImGui found. Headers: ${ImGui_DIR}")
 endif()
 
-add_library(ImGui STATIC
+add_library(ImGui SHARED
     ${ImGui_DIR}/imgui.cpp
     ${ImGui_DIR}/imgui_draw.cpp
     ${ImGui_DIR}/imgui_tables.cpp
@@ -23,33 +23,50 @@ add_library(ImGui STATIC
     $<$<BOOL:ImGui_DEMO>:${ImGui_DIR}/imgui_demo.cpp>
     ${ImGui_DIR}/backends/imgui_impl_sdl3.cpp
 )
-target_compile_definitions(ImGui PRIVATE
+target_compile_definitions(ImGui
+PUBLIC
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )
 set(ImGui_INCLUDE_DIRS
     ${ImGui_DIR}
     ${ImGui_DIR}/backends
 )
-target_include_directories(ImGui PRIVATE ${ImGui_DIR})
-target_link_libraries(ImGui PRIVATE SDL3::SDL3)
+target_include_directories(ImGui
+PUBLIC
+    ${ImGui_DIR}
+)
+target_link_libraries(ImGui
+PRIVATE
+    SDL3::SDL3
+)
 
 if(ImGui_RENDER_BACKEND STREQUAL "DirectX")
-    target_sources(ImGui PRIVATE
+    target_sources(ImGui
+    PRIVATE
         ${ImGui_DIR}/backends/imgui_impl_dx11.cpp
     )
 elseif(ImGui_RENDER_BACKEND STREQUAL "Metal")
-    target_sources(ImGui PRIVATE
+    target_sources(ImGui
+    PRIVATE
         ${ImGui_DIR}/backends/imgui_impl_metal.mm
     )
-    target_compile_definitions(ImGui PRIVATE
+    target_compile_definitions(ImGui 
+    PRIVATE
         IMGUI_IMPL_METAL_CPP
     )
-    target_include_directories(ImGui PRIVATE
+    target_include_directories(ImGui
+    PRIVATE
         ${CMAKE_SOURCE_DIR}/external/metal-cpp
-        /opt/homebrew/include
+    )
+    target_link_libraries(ImGui
+    PRIVATE
+        "-framework Cocoa"
+        "-framework Metal"
+        "-framework QuartzCore"
     )
 elseif(ImGui_RENDER_BACKEND STREQUAL "OpenGL")
     target_sources(ImGui
+    PRIVATE
         ${ImGui_DIR}/backends/imgui_impl_opengl3.cpp
     )
 endif()
