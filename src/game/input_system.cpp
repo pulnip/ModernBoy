@@ -1,11 +1,11 @@
 #include "entity_registry.hpp"
 #include "input_system.hpp"
-#include "engine/service/input_service.hpp"
+#include "engine/interface/input_service.hpp"
 #include "intent_service.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
-using namespace ModernBoy::Service;
+using namespace ModernBoy::Interface;
 using namespace ModernBoy::Input;
 
 PlayerInputSystem::PlayerInputSystem(

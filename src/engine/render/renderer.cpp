@@ -9,7 +9,7 @@
 using namespace std::chrono_literals;
 using namespace ModernBoy;
 using namespace ModernBoy::Render;
-using namespace ModernBoy::Service;
+using namespace ModernBoy::Interface;
 
 Renderer::Renderer(SDL_Window* window,
     MeshManager& meshManager, TextureManager& textureManager,

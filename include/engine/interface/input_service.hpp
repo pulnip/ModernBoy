@@ -1,9 +1,9 @@
-#ifndef MODERNBOY_SERVICE_INPUTSERVICE_HPP
-#define MODERNBOY_SERVICE_INPUTSERVICE_HPP
+#ifndef MODERNBOY_INTERFACE_INPUTSERVICE_HPP
+#define MODERNBOY_INTERFACE_INPUTSERVICE_HPP
 
 #include "engine/input/state.hpp"
 
-namespace ModernBoy::Service
+namespace ModernBoy::Interface
 {
     class InputService{
     public:
@@ -19,4 +19,4 @@ namespace ModernBoy::Service
     };
 }
 
-#endif // MODERNBOY_SERVICE_INPUTSERVICE_HPP
+#endif // MODERNBOY_INTERFACE_INPUTSERVICE_HPP

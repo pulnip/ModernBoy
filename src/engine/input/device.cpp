@@ -2,12 +2,12 @@
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_mouse.h>
 #include "engine/input/device.hpp"
-#include "engine/service/input_service.hpp"
+#include "engine/interface/input_service.hpp"
 
 using namespace std::chrono_literals;
 using namespace ModernBoy;
 using namespace ModernBoy::Input;
-using namespace ModernBoy::Service;
+using namespace ModernBoy::Interface;
 
 Device::Device(SDL_Window* window, InputService& inputSrv)
 :ema(0ms), window(window)

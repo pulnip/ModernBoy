@@ -12,8 +12,8 @@
 #include "engine/input/device.hpp"
 #include "engine/render/renderer.hpp"
 #include "engine/ui/user_interface.hpp"
-#include "engine/service/input_service.hpp"
-#include "engine/service/debug_draw_service.hpp"
+#include "engine/interface/input_service.hpp"
+#include "engine/interface/debug_draw_service.hpp"
 #include "scheduler.hpp"
 #include "event.hpp"
 #if defined(USE_DIRECTX)
@@ -104,8 +104,8 @@ namespace ModernBoy
         ModuleManager moduleManager;
         ObjectManager objectManager;
 
-        Service::InputService inputService;
-        Service::DebugDrawService debugDrawService;
+        Interface::InputService inputService;
+        Interface::DebugDrawService debugDrawService;
 
         // App Subsystem
         Render::Renderer renderer;

@@ -10,7 +10,7 @@ namespace ModernBoy::Input
 {
     class Device{
     public:
-        Device(SDL_Window*, Service::InputService&);
+        Device(SDL_Window*, Interface::InputService&);
 
         TaskTime expectedExecTime();
         void update(DeltaTime);
@@ -34,7 +34,7 @@ namespace ModernBoy::Input
         SDL_Window* window;
         const bool* sdlKeyboard = nullptr;
 
-        Service::InputService& service;
+        Interface::InputService& service;
     }; static_assert(Subsystem<Device>);
 } // namespace ModernBoy::Input
 

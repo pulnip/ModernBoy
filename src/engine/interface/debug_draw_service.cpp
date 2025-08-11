@@ -1,7 +1,7 @@
-#include "engine/service/debug_draw_service.hpp"
+#include "engine/interface/debug_draw_service.hpp"
 
 using namespace ModernBoy;
-using namespace ModernBoy::Service;
+using namespace ModernBoy::Interface;
 
 void DebugDrawService::write(const Line& line){
     std::lock_guard lock(lineMtx);

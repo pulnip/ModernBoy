@@ -1,11 +1,11 @@
-#ifndef MODERNBOY_SERVICE_DEBUGDRAWSERVICE_HPP
-#define MODERNBOY_SERVICE_DEBUGDRAWSERVICE_HPP
+#ifndef MODERNBOY_INTERFACE_DEBUGDRAWSERVICE_HPP
+#define MODERNBOY_INTERFACE_DEBUGDRAWSERVICE_HPP
 
 #include <mutex>
 #include <vector>
 #include "core/math/type.hpp"
 
-namespace ModernBoy::Service
+namespace ModernBoy::Interface
 {
     class DebugDrawService{
     public:
@@ -26,4 +26,4 @@ namespace ModernBoy::Service
     };
 }
 
-#endif // MODERNBOY_SERVICE_DEBUGDRAWSERVICE_HPP
+#endif // MODERNBOY_INTERFACE_DEBUGDRAWSERVICE_HPP

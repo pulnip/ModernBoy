@@ -28,9 +28,10 @@ namespace ModernBoy
         class Device;
     }
 
-    namespace Service{
+    namespace Interface{
         class InputService;
         class DebugDrawService;
+        class EngineCommandBus;
     }
 
     using NativePtr = void*;

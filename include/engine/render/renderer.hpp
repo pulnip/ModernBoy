@@ -13,7 +13,7 @@
 #include "core/thread/lock_free_queue.hpp"
 #include "core/thread/generator.hpp"
 #include "engine/render/command.hpp"
-#include "engine/service/debug_draw_service.hpp"
+#include "engine/interface/debug_draw_service.hpp"
 #if defined(USE_DIRECTX)
 #include "engine/render/dx11/context.hpp"
 #elif defined(USE_METAL)
@@ -30,7 +30,7 @@ namespace ModernBoy::Render
     public:
         Renderer(SDL_Window*, MeshManager&,
             TextureManager&, ShaderManager&,
-            World&, Service::DebugDrawService&);
+            World&, Interface::DebugDrawService&);
         ~Renderer();
 
         TaskTime expectedExecTime();
@@ -88,7 +88,7 @@ namespace ModernBoy::Render
 
         TaskTime ema;
 
-        Service::DebugDrawService& ddService;
+        Interface::DebugDrawService& ddService;
         Mesh sphereMesh;
     };
 } // namespace ModernBoy::Render

@@ -1,12 +1,12 @@
 #include "engine/physics/physics.hpp"
 #include "context.hpp"
 #include "physics_system.hpp"
-#include "engine/service/debug_draw_service.hpp"
+#include "engine/interface/debug_draw_service.hpp"
 #include "ray_service.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
-using namespace ModernBoy::Service;
+using namespace ModernBoy::Interface;
 
 PhysicsSystem::PhysicsSystem(EntityRegistry& registry,
     RayService& raySrv, DebugDrawService& ddSrv)

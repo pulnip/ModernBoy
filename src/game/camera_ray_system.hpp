@@ -9,13 +9,13 @@ namespace ModernBoy::Game
     class CameraRaySystem{
     public:
         CameraRaySystem(EntityRegistry&,
-            ModernBoy::Service::InputService&, RayService&);
+            ModernBoy::Interface::InputService&, RayService&);
 
         void update(DeltaTime);
 
     private:
         EntityRegistry& registry;
-        ModernBoy::Service::InputService& inputService;
+        ModernBoy::Interface::InputService& inputService;
         RayService& rayService;
 
     };

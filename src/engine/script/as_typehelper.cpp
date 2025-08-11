@@ -6,7 +6,7 @@
 #include "engine/script/invoker.hpp"
 #include "engine/input/device.hpp"
 #include "engine/input/state.hpp"
-#include "engine/service/input_service.hpp"
+#include "engine/interface/input_service.hpp"
 #include "engine/engine.hpp"
 #include "../../../src/game/context.hpp"
 #include "../../../src/game/component.hpp"
@@ -15,7 +15,7 @@ using namespace ModernBoy;
 using namespace ModernBoy::Script;
 using namespace ModernBoy::Game;
 using namespace ModernBoy::Input;
-using namespace ModernBoy::Service;
+using namespace ModernBoy::Interface;
 
 TypeHelper::TypeHelper(asIScriptEngine* scriptEngine,
     Engine& engine)
@@ -42,7 +42,7 @@ static bool query(InputService* input, KeyCode keyCode, KeyState keyState){
 
 int TypeHelper::registerGlobalProperty(){
     if(auto ret=scriptEngine->RegisterObjectType(
-        "Input", sizeof(Service::InputService),
+        "Input", sizeof(Interface::InputService),
         asOBJ_REF | asOBJ_NOCOUNT ) < 0)
         return ret;
     if(auto ret=scriptEngine->RegisterGlobalProperty(

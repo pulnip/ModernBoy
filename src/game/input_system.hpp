@@ -3,42 +3,42 @@
 
 #include "engine/fwd.hpp"
 #include "game_fwd.hpp"
-#include "engine/service/debug_draw_service.hpp"
+#include "engine/interface/debug_draw_service.hpp"
 
 namespace ModernBoy::Game
 {
     class PlayerInputSystem{
     public:
         PlayerInputSystem(EntityRegistry&,
-            Service::InputService&,
+            Interface::InputService&,
             IntentService&);
 
         void update(DeltaTime);
 
     private:
         EntityRegistry& registry;
-        Service::InputService& inputService;
+        Interface::InputService& inputService;
         IntentService& intentService;
     };
 
     class EditorInputSystem{
     public:
         EditorInputSystem(EntityRegistry&,
-            Service::InputService&,
+            Interface::InputService&,
             IntentService&);
 
         void update(DeltaTime);
 
     private:
         EntityRegistry& registry;
-        Service::InputService& inputService;
+        Interface::InputService& inputService;
         IntentService& intentService;
     };
 
     class InputSystem{
     public:
         InputSystem(EntityRegistry&,
-            Service::InputService&,
+            Interface::InputService&,
             IntentService&, IntentService&);
 
         void update(DeltaTime);

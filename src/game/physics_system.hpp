@@ -12,7 +12,7 @@ namespace ModernBoy::Game
     public:
         RaycastSystem(EntityRegistry&,
             RayService&,
-            ModernBoy::Service::DebugDrawService&
+            ModernBoy::Interface::DebugDrawService&
         );
     
         void update(DeltaTime);
@@ -21,7 +21,7 @@ namespace ModernBoy::Game
         EntityRegistry& registry;
 
         RayService& rayService;
-        ModernBoy::Service::DebugDrawService& debugDrawService;
+        ModernBoy::Interface::DebugDrawService& debugDrawService;
     };
 
 
@@ -39,7 +39,7 @@ namespace ModernBoy::Game
     public:
         PhysicsSystem(EntityRegistry&,
             RayService&,
-            ModernBoy::Service::DebugDrawService&
+            ModernBoy::Interface::DebugDrawService&
         );
 
         void update(DeltaTime);
