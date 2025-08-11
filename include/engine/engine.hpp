@@ -14,6 +14,7 @@
 #include "engine/ui/user_interface.hpp"
 #include "engine/interface/input_service.hpp"
 #include "engine/interface/debug_draw_service.hpp"
+#include "engine/interface/engine_command_bus.hpp"
 #include "scheduler.hpp"
 #include "event.hpp"
 #if defined(USE_DIRECTX)
@@ -87,6 +88,8 @@ namespace ModernBoy
         NativePtr getCommandBuffer();
         NativePtr getRenderEncoder();
 #endif
+    private:
+        void operator()(Interface::SetCursorMode);
 
     private:
         EntityID id_seed = 0;
@@ -106,6 +109,7 @@ namespace ModernBoy
 
         Interface::InputService inputService;
         Interface::DebugDrawService debugDrawService;
+        Interface::EngineCommandBus engineCommandBus;
 
         // App Subsystem
         Render::Renderer renderer;

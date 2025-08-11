@@ -9,36 +9,44 @@ namespace ModernBoy::Game
 {
     class PlayerInputSystem{
     public:
-        PlayerInputSystem(EntityRegistry&,
+        PlayerInputSystem(
             Interface::InputService&,
+            Interface::EngineCommandBus&,
+            EntityRegistry&,
             IntentService&);
 
         void update(DeltaTime);
 
     private:
-        EntityRegistry& registry;
         Interface::InputService& inputService;
+        Interface::EngineCommandBus& commandBus;
+        EntityRegistry& registry;
         IntentService& intentService;
     };
 
     class EditorInputSystem{
     public:
-        EditorInputSystem(EntityRegistry&,
+        EditorInputSystem(
             Interface::InputService&,
+            Interface::EngineCommandBus&,
+            EntityRegistry&,
             IntentService&);
 
         void update(DeltaTime);
 
     private:
-        EntityRegistry& registry;
         Interface::InputService& inputService;
+        Interface::EngineCommandBus& commandBus;
+        EntityRegistry& registry;
         IntentService& intentService;
     };
 
     class InputSystem{
     public:
-        InputSystem(EntityRegistry&,
+        InputSystem(
             Interface::InputService&,
+            Interface::EngineCommandBus&,
+            EntityRegistry&,
             IntentService&, IntentService&);
 
         void update(DeltaTime);

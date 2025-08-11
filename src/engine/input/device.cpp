@@ -14,6 +14,7 @@ Device::Device(SDL_Window* window, InputService& inputSrv)
 ,sdlKeyboard(SDL_GetKeyboardState(nullptr))
 ,service(inputSrv){
     SDL_GetWindowSize(window, &width, &height);
+    SDL_SetWindowRelativeMouseMode(window, true);
 }
 
 TaskTime Device::expectedExecTime(){
@@ -67,6 +68,10 @@ void Device::update(DeltaTime){
 //     updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
 //     co_return;
 // }
+
+void Device::setMouseMode(bool isRelative){
+    SDL_SetWindowRelativeMouseMode(window, isRelative);
+}
 
 void Device::updateEMA(TaskTime elapsed){
     auto alpha = 1.0 / policy.effective_window_size;

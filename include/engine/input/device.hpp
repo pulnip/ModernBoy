@@ -16,6 +16,8 @@ namespace ModernBoy::Input
         void update(DeltaTime);
         // Generator<void> update(DeltaTime deltatime);
 
+        void setMouseMode(bool isRelative);
+
         const TaskPolicy policy{
             .effective_window_size = 10,
             .min_interval = std::chrono::microseconds(100),

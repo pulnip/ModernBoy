@@ -1,5 +1,6 @@
 #include "entity_registry.hpp"
 #include "input_system.hpp"
+#include "engine/interface/engine_command_bus.hpp"
 #include "engine/interface/input_service.hpp"
 #include "intent_service.hpp"
 
@@ -9,25 +10,23 @@ using namespace ModernBoy::Interface;
 using namespace ModernBoy::Input;
 
 PlayerInputSystem::PlayerInputSystem(
-    EntityRegistry& registry,
-    InputService& inputSrv,
-    IntentService& intentSrv)
-:registry(registry), inputService(inputSrv)
-,intentService(intentSrv){}
+    InputService& inputSrv, EngineCommandBus& bus,
+    EntityRegistry& registry, IntentService& intentSrv)
+:inputService(inputSrv), commandBus(bus)
+,registry(registry), intentService(intentSrv){}
 
 EditorInputSystem::EditorInputSystem(
+    InputService& inputSrv, EngineCommandBus& bus,
+    EntityRegistry& registry, IntentService& intentSrv)
+:inputService(inputSrv), commandBus(bus)
+,registry(registry), intentService(intentSrv){}
+
+InputSystem::InputSystem(
+    InputService& inputSrv, EngineCommandBus& bus,
     EntityRegistry& registry,
-    InputService& inputSrv,
-    IntentService& intentSrv)
-:registry(registry), inputService(inputSrv)
-,intentService(intentSrv){}
-
-InputSystem::InputSystem(EntityRegistry& registry,
-    InputService& inputSrv,
     IntentService& playerItt, IntentService& editorItt)
-:playerInputSystem(registry, inputSrv, playerItt)
-,editorInputSystem(registry, inputSrv, editorItt){}
-
+:playerInputSystem(inputSrv, bus, registry, playerItt)
+,editorInputSystem(inputSrv, bus, registry, editorItt){}
 
 void InputSystem::update(DeltaTime deltaTime){
     playerInputSystem.update(deltaTime);
@@ -75,6 +74,22 @@ void PlayerInputSystem::update(DeltaTime deltaTime){
                 .pitch = input.mouse.dpos.y
             });
         }
+
+        if(input.keyboard[KEY_CTRL] == Pressed)
+            commandBus.write(SetCursorMode{
+                .mode=CursorMode::ABSOLUTE});
+        else if(input.keyboard[KEY_CTRL] == Released)
+            commandBus.write(SetCursorMode{
+                .mode=CursorMode::RELATIVE});
+
+        if(input.keyboard[KEY_CTRL] == None){
+            if(input.mouse.pos0 != input.mouse.pos){
+                intentService.write(LookIntent{
+                    .yaw = input.mouse.dpos.x,
+                    .pitch = input.mouse.dpos.y
+                });
+            }
+        }
     }
 }
 
@@ -104,11 +119,20 @@ void EditorInputSystem::update(DeltaTime deltaTime){
             }});
         }
 
-        if(input.mouse.pos0 != input.mouse.pos){
-            intentService.write(LookIntent{
-                .yaw = input.mouse.dpos.x,
-                .pitch = input.mouse.dpos.y
-            });
+        if(input.keyboard[KEY_CTRL] == Pressed)
+            commandBus.write(SetCursorMode{
+                .mode=CursorMode::ABSOLUTE});
+        else if(input.keyboard[KEY_CTRL] == Released)
+            commandBus.write(SetCursorMode{
+                .mode=CursorMode::RELATIVE});
+
+        if(input.keyboard[KEY_CTRL] == None){
+            if(input.mouse.pos0 != input.mouse.pos){
+                intentService.write(LookIntent{
+                    .yaw = input.mouse.dpos.x,
+                    .pitch = input.mouse.dpos.y
+                });
+            }
         }
     }
 }

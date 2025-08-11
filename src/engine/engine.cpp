@@ -8,6 +8,7 @@
 using namespace std::chrono;
 using namespace std::chrono_literals;
 using namespace ModernBoy;
+using namespace ModernBoy::Interface;
 
 Engine ModernBoy::createEngine(){
     if(!SDL_SetAppMetadata("ModernBoy", "1.0", "com.example.game0")){
@@ -138,6 +139,12 @@ void Engine::update(){
     deltaTime = now - lastTick;
     lastTick = now;
 
+    auto commands = engineCommandBus.drainCommands();
+    for(const auto& cmd: commands)
+        std::visit([this](auto const& c){
+            (*this)(c);
+        }, cmd);
+
     inputDevice.update(deltaTime);
     // auto gen1 = inputDevice.update(deltaTime);
     // while(!gen1.done())
@@ -214,3 +221,7 @@ NativePtr Engine::getRenderEncoder(){
     return renderer.getRenderEncoder();
 }
 #endif
+
+void Engine::operator()(SetCursorMode cmd){
+    inputDevice.setMouseMode(cmd.mode==CursorMode::RELATIVE);
+}

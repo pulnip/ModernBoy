@@ -10,7 +10,8 @@ Context::Context(Engine& engine)
 ,action(registry, engine.scriptInvoker)
 ,camRay(registry, engine.inputService, rayService)
 ,control(registry, playerIntent, editorIntent)
-,input(registry, engine.inputService, playerIntent, editorIntent)
+,input(engine.inputService, engine.engineCommandBus,
+    registry, playerIntent, editorIntent)
 ,physics(registry, rayService, engine.debugDrawService)
 ,lifespan(registry){}
 
