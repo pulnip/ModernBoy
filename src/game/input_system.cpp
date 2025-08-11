@@ -113,7 +113,7 @@ void EditorInputSystem::update(DeltaTime deltaTime){
         if(input.keyboard[KEY_S] == Held)
             dz -= 10;
 
-        if(dx != 0 || dz != 0){
+        if(dx != 0 || dy != 0 || dz != 0){
             intentService.write(MoveIntent{.move=Vec3{
                 .x=dx, .y=dy, .z=dz
             }});
