@@ -9,7 +9,6 @@ add_library(ScriptModule STATIC
 
 target_compile_options(ScriptModule PRIVATE
     -Wall -Wextra
-    -fsanitize=address,leak
 )
 target_compile_definitions(ScriptModule PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
@@ -22,6 +21,7 @@ target_include_directories(ScriptModule PRIVATE
     ${AS_ADD_ON_ROOT}
 )
 target_link_libraries(ScriptModule PRIVATE
+    $<IF:$<CONFIG:DEBUG>, sanitizer,>
     # angelscript
     angelscript
     # SDL3

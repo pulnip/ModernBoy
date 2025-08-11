@@ -26,7 +26,7 @@ std::vector<Line> DebugDrawService::drainLines(){
 std::vector<Sphere> DebugDrawService::drainSpheres(){
     std::vector<Sphere> out;
     {
-        std::lock_guard lock(lineMtx);
+        std::lock_guard lock(sphereMtx);
         out.swap(spheres);
     }
     return out;

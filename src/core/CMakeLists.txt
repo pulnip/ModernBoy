@@ -19,5 +19,5 @@ PUBLIC
 )
 target_link_libraries(Core
 PUBLIC
-    $<IF:$<CONFIG:DEBUG>, sanitizers,>
+    $<IF:$<CONFIG:DEBUG>, sanitizer,>
 )

@@ -7,13 +7,13 @@ struct Line {
     var from: simd_float3
     var to: simd_float3
     var color: simd_float4
-};
+}
 
-struct ViewConstant{
+struct ViewConstant {
     var viewMat: simd_float4x4
     var projMat: simd_float4x4
 }
-struct ModelConstant{
+struct ModelConstant {
     let modelMat: simd_float4x4
     let normalMat: simd_float3x3
 }
@@ -46,18 +46,21 @@ class RenderContext {
     init(_ layer: CAMetalLayer, _ libPath: String) {
         self.layer = layer
         layer.device = MTLCreateSystemDefaultDevice()!
-        layer.pixelFormat = .bgra8Unorm
+        layer.pixelFormat = .rgba8Unorm
         commandQueue = layer.device!.makeCommandQueue()!
 
         let libURL = URL(fileURLWithPath: libPath)
         shaderLib = try! layer.device!.makeLibrary(URL: libURL)
-        idShader = Shader(layer.device!,
+        idShader = Shader(
+            layer.device!,
             shaderLib.makeFunction(name: "vertex_main")!,
             shaderLib.makeFunction(name: "fragment_id")!
         )
-        lineShader = Shader(layer.device!,
+        lineShader = Shader(
+            layer.device!,
             shaderLib.makeFunction(name: "vertex_line")!,
             shaderLib.makeFunction(name: "fragment_line")!,
+            false
         )
 
         let dsd = MTLDepthStencilDescriptor()
@@ -66,10 +69,10 @@ class RenderContext {
         depthStencilState = layer.device!.makeDepthStencilState(descriptor: dsd)
 
         let desc = MTLSamplerDescriptor()
-            desc.minFilter = .linear
-            desc.magFilter = .linear
-            desc.sAddressMode = .repeat
-            desc.tAddressMode = .repeat
+        desc.minFilter = .linear
+        desc.magFilter = .linear
+        desc.sAddressMode = .repeat
+        desc.tAddressMode = .repeat
         sampler = layer.device!.makeSamplerState(
             descriptor: desc)!
         let dstd = MTLTextureDescriptor.texture2DDescriptor(
@@ -90,11 +93,8 @@ class RenderContext {
         pickingTexture = layer.device!.makeTexture(descriptor: ptd)
     }
     deinit {
-        guard let encoder = renderEncoder,
-              let idEncoder = idRenderEncoder
-              else { return; }
-        encoder.endEncoding()
-        idEncoder.endEncoding()
+        renderEncoder?.endEncoding()
+        idRenderEncoder?.endEncoding()
     }
 
     func frameStart(
@@ -102,9 +102,9 @@ class RenderContext {
     ) {
         semaphore.wait()
 
-        guard let drawable
-            = layer.nextDrawable() else { return }
+        guard let drawable = layer.nextDrawable() else { return }
         self.drawable = drawable
+        ensureSurfaceTexturesMatchDrawableSize()
 
         // Color Pass
         let rpd = MTLRenderPassDescriptor()
@@ -146,10 +146,6 @@ class RenderContext {
 
         // bind ID Shader
         idRenderEncoder?.setRenderPipelineState(idShader.pipelineState)
-
-        commandBuffer?.addCompletedHandler { _ in
-            self.semaphore.signal()
-        }
     }
 
     var viewConstant: ViewConstant?
@@ -157,8 +153,9 @@ class RenderContext {
     func setView(_ viewPos: simd_float3, _ fov: Float, _ viewQuat: simd_float4) {
         let aspectRatio = Float(layer.bounds.width / layer.bounds.height)
         var viewPosition = viewPos
-        renderEncoder!.setFragmentBytes(&viewPosition,
-            length: MemoryLayout<simd_float3>.stride, 
+        renderEncoder!.setFragmentBytes(
+            &viewPosition,
+            length: MemoryLayout<simd_float3>.stride,
             index: 0)
         let viewMat = viewMatrix(viewPos, viewQuat)
 
@@ -167,9 +164,11 @@ class RenderContext {
         viewConstant = ViewConstant(
             viewMat: viewMat, projMat: projMat)
         if var vc = viewConstant {
-            renderEncoder?.setVertexBytes(&vc,
+            renderEncoder?.setVertexBytes(
+                &vc,
                 length: MemoryLayout<ViewConstant>.stride, index: 1)
-            idRenderEncoder?.setVertexBytes(&vc,
+            idRenderEncoder?.setVertexBytes(
+                &vc,
                 length: MemoryLayout<ViewConstant>.stride, index: 1)
         }
     }
@@ -179,45 +178,54 @@ class RenderContext {
     func setTexture(_ texture: Texture) {
         texture.bind(encoder: renderEncoder)
     }
-    func draw(_ modelMat: simd_float4x4, _ mesh: Mesh, _ alpha: Float,
+    func draw(
+        _ modelMat: simd_float4x4, _ mesh: Mesh, _ alpha: Float,
         _ id: Int, _ useUV: Bool, _ color: simd_float4
     ) {
         guard let encoder = self.renderEncoder,
-              let idEncoder = self.idRenderEncoder
-              else {return }
+            let idEncoder = self.idRenderEncoder
+        else { return }
         var modelConstant = ModelConstant(
             modelMat: modelMat, normalMat: normal(modelMat))
-        encoder.setVertexBytes(&modelConstant,
+        encoder.setVertexBytes(
+            &modelConstant,
             length: MemoryLayout<ModelConstant>.stride, index: 2)
 
         var a = alpha
-        encoder.setFragmentBytes(&a,
+        encoder.setFragmentBytes(
+            &a,
             length: MemoryLayout<Float>.stride,
             index: 2)
 
-        var myIdColor = simd_float4(Float(id)/255.0, 0, 0, 0);
-        var pickedIDColor = simd_float4(Float(pickedID)/255.0, 0, 0, 0);
-        var useUV = useUV;
-        var color = color;
-    
-        encoder.setFragmentBytes(&myIdColor,
+        var myIdColor = simd_float4(Float(id) / 255.0, 0, 0, 0)
+        var pickedIDColor = simd_float4(Float(pickedID) / 255.0, 0, 0, 0)
+        var useUV = useUV
+        var color = color
+
+        encoder.setFragmentBytes(
+            &myIdColor,
             length: MemoryLayout<simd_float4>.stride,
             index: 3)
-        encoder.setFragmentBytes(&pickedIDColor,
+        encoder.setFragmentBytes(
+            &pickedIDColor,
             length: MemoryLayout<simd_float4>.stride,
             index: 4)
-        encoder.setFragmentBytes(&useUV,
+        encoder.setFragmentBytes(
+            &useUV,
             length: MemoryLayout<Bool>.stride,
             index: 5)
-        encoder.setFragmentBytes(&color,
+        encoder.setFragmentBytes(
+            &color,
             length: MemoryLayout<simd_float4>.stride,
             index: 6)
         encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
 
-        if(!useUV){
-            idEncoder.setVertexBytes(&modelConstant,
+        if !useUV {
+            idEncoder.setVertexBytes(
+                &modelConstant,
                 length: MemoryLayout<ModelConstant>.stride, index: 2)
-            idRenderEncoder?.setFragmentBytes(&myIdColor,
+            idRenderEncoder?.setFragmentBytes(
+                &myIdColor,
                 length: MemoryLayout<simd_float4>.stride,
                 index: 0)
 
@@ -225,32 +233,37 @@ class RenderContext {
         }
 
         if let indexBuffer = mesh.indexBuffer,
-           let numIndices = mesh.numIndices, numIndices > 0 {
-            encoder.drawIndexedPrimitives(type: .triangle,
+            let numIndices = mesh.numIndices, numIndices > 0
+        {
+            encoder.drawIndexedPrimitives(
+                type: .triangle,
                 indexCount: numIndices, indexType: .uint32,
                 indexBuffer: indexBuffer, indexBufferOffset: 0
             )
-            if(!useUV){
-                idEncoder.drawIndexedPrimitives(type: .triangle,
+            if !useUV {
+                idEncoder.drawIndexedPrimitives(
+                    type: .triangle,
                     indexCount: numIndices, indexType: .uint32,
                     indexBuffer: indexBuffer, indexBufferOffset: 0
                 )
             }
-        } else{
-            encoder.drawPrimitives(type: .triangle, vertexStart: 0,
+        } else {
+            encoder.drawPrimitives(
+                type: .triangle, vertexStart: 0,
                 vertexCount: mesh.numVertices)
-            if(!useUV){
-                idEncoder.drawPrimitives(type: .triangle, vertexStart: 0,
+            if !useUV {
+                idEncoder.drawPrimitives(
+                    type: .triangle, vertexStart: 0,
                     vertexCount: mesh.numVertices)
             }
         }
     }
     func frameEnd(_ lines: UnsafePointer<Line>?, _ count: Int) {
         guard let encoder = self.renderEncoder,
-              let commandBuffer = self.commandBuffer,
-              let drawable = self.drawable,
-              let idEncoder = self.idRenderEncoder
-              else {return }
+            let commandBuffer = self.commandBuffer,
+            let drawable = self.drawable,
+            let idEncoder = self.idRenderEncoder
+        else { return }
         // End of Color pass
         encoder.endEncoding()
 
@@ -259,19 +272,21 @@ class RenderContext {
         idCommandBuffer?.commit()
 
         // Debug Line pass
-        if count > 0, let lines = lines{
+        if count > 0, let lines = lines {
             let lrpd = MTLRenderPassDescriptor()
             lrpd.colorAttachments[0].texture = drawable.texture
             lrpd.colorAttachments[0].loadAction = .load
             lrpd.colorAttachments[0].storeAction = .store
 
-            let lineEncoder = commandBuffer
+            let lineEncoder =
+                commandBuffer
                 .makeRenderCommandEncoder(descriptor: lrpd)
             lineEncoder?.setCullMode(.none)
 
             lineEncoder?.setRenderPipelineState(lineShader.pipelineState)
 
-            lineEncoder?.setVertexBytes(&(viewConstant!),
+            lineEncoder?.setVertexBytes(
+                &(viewConstant!),
                 length: MemoryLayout<ViewConstant>.stride,
                 index: 1)
 
@@ -279,12 +294,16 @@ class RenderContext {
                 bytes: lines, length: MemoryLayout<Line>.stride * count)
             lineEncoder?.setVertexBuffer(lineBuffer, offset: 0, index: 0)
 
-            lineEncoder?.drawPrimitives(type: .line, vertexStart: 0,
+            lineEncoder?.drawPrimitives(
+                type: .line, vertexStart: 0,
                 vertexCount: count * 2)
             lineEncoder?.endEncoding()
         }
 
         commandBuffer.present(drawable)
+        commandBuffer.addCompletedHandler { [weak self] _ in
+            self?.semaphore.signal()
+        }
         commandBuffer.commit()
 
         self.renderEncoder = nil
@@ -315,21 +334,55 @@ class RenderContext {
         let fsFunc = shaderLib.makeFunction(name: fsFuncName)
 
         guard let dev = layer.device,
-              let vsFn = vsFunc,
-              let fsFn = fsFunc
-              else { return nil }
+            let vsFn = vsFunc,
+            let fsFn = fsFunc
+        else { return nil }
 
         return Shader(dev, vsFn, fsFn)
+    }
+
+    private func ensureSurfaceTexturesMatchDrawableSize() {
+        guard let dev = layer.device else { return }
+        let w = Int(layer.drawableSize.width)
+        let h = Int(layer.drawableSize.height)
+
+        // Recreate depth-stencil texture if the size does not match
+        let needNewDS = (dsTexture == nil) || (dsTexture!.width != w) || (dsTexture!.height != h)
+        if needNewDS {
+            let dstd = MTLTextureDescriptor.texture2DDescriptor(
+                pixelFormat: .depth32Float_stencil8,
+                width: w,
+                height: h,
+                mipmapped: false
+            )
+            dstd.usage = [.renderTarget, .shaderRead]
+            dsTexture = dev.makeTexture(descriptor: dstd)
+        }
+
+        // Recreate picking texture if the size does not match
+        let needNewPicking =
+            (pickingTexture == nil) || (pickingTexture!.width != w) || (pickingTexture!.height != h)
+        if needNewPicking {
+            let ptd = MTLTextureDescriptor.texture2DDescriptor(
+                pixelFormat: .rgba8Unorm,
+                width: w,
+                height: h,
+                mipmapped: false
+            )
+            ptd.usage = [.renderTarget, .shaderRead]
+            pickingTexture = dev.makeTexture(descriptor: ptd)
+        }
     }
 }
 
 @_cdecl("createRenderContext")
-public func createRenderContext(_ layerPtr: UnsafeRawPointer?,
+public func createRenderContext(
+    _ layerPtr: UnsafeRawPointer?,
     _ libPathPtr: UnsafeRawPointer?
 ) -> UnsafeRawPointer? {
     guard let layerPtr = layerPtr,
-          let libPathPtr = libPathPtr
-          else { fatalError("Cannot initialize RenderContext") }
+        let libPathPtr = libPathPtr
+    else { fatalError("Cannot initialize RenderContext") }
     let layer = Unmanaged<CAMetalLayer>
         .fromOpaque(layerPtr).takeUnretainedValue()
     let cStr = libPathPtr.assumingMemoryBound(to: CChar.self)
@@ -337,8 +390,7 @@ public func createRenderContext(_ layerPtr: UnsafeRawPointer?,
     let libPath: String
     if FileManager.default.fileExists(atPath: providedPath) {
         libPath = providedPath
-    }
-    else if let bundlePath = Bundle.main.path(forResource: "ModernBoy", ofType: "metallib") {
+    } else if let bundlePath = Bundle.main.path(forResource: "ModernBoy", ofType: "metallib") {
         libPath = bundlePath
     } else {
         libPath = "./asset/shader/ModernBoy.metallib"
@@ -355,142 +407,177 @@ public func destroyRenderContext(_ ptr: UnsafeRawPointer?) {
 }
 
 @_cdecl("RenderContext_frameStart")
-public func RenderContext_frameStart(_ rctxPtr: UnsafeRawPointer?,
+public func RenderContext_frameStart(
+    _ rctxPtr: UnsafeRawPointer?,
     _ r: Double, _ g: Double, _ b: Double, _ a: Double,
 ) {
-    guard let rctxPtr = rctxPtr else { return }      
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr else { return }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
 
-    rctx.frameStart(r, g, b, a)
+        rctx.frameStart(r, g, b, a)
+    }
 }
 @_cdecl("RenderContext_setView")
-public func RenderContext_setView(_ rctxPtr: UnsafeRawPointer?,
+public func RenderContext_setView(
+    _ rctxPtr: UnsafeRawPointer?,
     _ px: Float, _ py: Float, _ pz: Float, _ fov: Float,
     _ rx: Float, _ ry: Float, _ rz: Float, _ w: Float
-    
-) {
-    guard let rctxPtr = rctxPtr else { return }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    let viewPos = simd_float3(px, py, pz)
-    let viewQuat = simd_float4(rx, ry, rz, w)
 
-    rctx.setView(viewPos, fov, viewQuat)
+) {
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr else { return }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        let viewPos = simd_float3(px, py, pz)
+        let viewQuat = simd_float4(rx, ry, rz, w)
+
+        rctx.setView(viewPos, fov, viewQuat)
+    }
 }
 @_cdecl("RenderContext_setShader")
-public func RenderContext_setShader(_ rctxPtr: UnsafeRawPointer?,
+public func RenderContext_setShader(
+    _ rctxPtr: UnsafeRawPointer?,
     _ shaderPtr: UnsafeRawPointer?
 ) {
-    guard let rctxPtr = rctxPtr,
-          let shaderPtr = shaderPtr else { return }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    let shader = Unmanaged<Shader>
-        .fromOpaque(shaderPtr).takeUnretainedValue()
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr,
+            let shaderPtr = shaderPtr
+        else { return }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        let shader = Unmanaged<Shader>
+            .fromOpaque(shaderPtr).takeUnretainedValue()
 
-    rctx.setShader(shader)
+        rctx.setShader(shader)
+    }
 }
 @_cdecl("RenderContext_setTexture")
-public func RenderContext_setTexture(_ rctxPtr: UnsafeRawPointer?,
+public func RenderContext_setTexture(
+    _ rctxPtr: UnsafeRawPointer?,
     _ texPtr: UnsafeRawPointer?
 ) {
-    guard let rctxPtr = rctxPtr,
-          let texPtr = texPtr else { return }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    let shader = Unmanaged<Texture>
-        .fromOpaque(texPtr).takeUnretainedValue()
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr,
+            let texPtr = texPtr
+        else { return }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        let shader = Unmanaged<Texture>
+            .fromOpaque(texPtr).takeUnretainedValue()
 
-    rctx.setTexture(shader)
+        rctx.setTexture(shader)
+    }
 }
 @_cdecl("RenderContext_draw")
-public func RenderContext_draw(_ rctxPtr: UnsafeRawPointer?,
+public func RenderContext_draw(
+    _ rctxPtr: UnsafeRawPointer?,
     _ px: Float, _ py: Float, _ pz: Float,
     _ rx: Float, _ ry: Float, _ rz: Float, _ w: Float,
     _ sx: Float, _ sy: Float, _ sz: Float,
     _ meshPtr: UnsafeRawPointer?, _ alpha: Float, _ id: Int,
     _ useUV: Bool, _ r: Float, _ g: Float, _ b: Float, _ a: Float
 ) {
-    guard let rctxPtr = rctxPtr,
-          let meshPtr = meshPtr else { return }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    let mesh = Unmanaged<Mesh>
-        .fromOpaque(meshPtr).takeUnretainedValue()
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr,
+            let meshPtr = meshPtr
+        else { return }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        let mesh = Unmanaged<Mesh>
+            .fromOpaque(meshPtr).takeUnretainedValue()
 
+        var modelMat = matrix_identity_float4x4
+        translate(&modelMat, px, py, pz)
+        rotate(&modelMat, rx, ry, rz, w)
+        scale(&modelMat, sx, sy, sz)
 
-    var modelMat = matrix_identity_float4x4
-    translate(&modelMat, px, py, pz)
-    rotate(&modelMat, rx, ry, rz, w)
-    scale(&modelMat, sx, sy, sz)
-
-    rctx.draw(modelMat, mesh, alpha, id, useUV, simd_float4(r, g, b, a))
+        rctx.draw(modelMat, mesh, alpha, id, useUV, simd_float4(r, g, b, a))
+    }
 }
 @_cdecl("RenderContext_frameEnd")
-public func RenderContext_frameEnd(_ rctxPtr: UnsafeRawPointer?,
+public func RenderContext_frameEnd(
+    _ rctxPtr: UnsafeRawPointer?,
     _ linesPtr: UnsafeRawPointer?, _ count: Int
 ) {
-    guard let rctxPtr = rctxPtr
-          else { return }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    let lines = linesPtr?.bindMemory(to: Line.self, capacity: count)
-    rctx.frameEnd(lines, count)
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr
+        else { return }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        let lines = linesPtr?.bindMemory(to: Line.self, capacity: count)
+        rctx.frameEnd(lines, count)
+    }
 }
 
 @_cdecl("RenderContext_getDevice")
-public func RenderContext_getDevice(_ rctxPtr: UnsafeRawPointer?
+public func RenderContext_getDevice(
+    _ rctxPtr: UnsafeRawPointer?
 ) -> UnsafeRawPointer? {
-    guard let rctxPtr = rctxPtr else {return nil }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    if let desc = rctx.layer.device {
-        return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr else { return nil }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        if let desc = rctx.layer.device {
+            return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+        }
+        return nil
     }
-    return nil
 }
 @_cdecl("RenderContext_getRenderPassDesc")
-public func RenderContext_getRenderPassDesc(_ rctxPtr: UnsafeRawPointer?
+public func RenderContext_getRenderPassDesc(
+    _ rctxPtr: UnsafeRawPointer?
 ) -> UnsafeRawPointer? {
-    guard let rctxPtr = rctxPtr else {return nil }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    if let desc = rctx.renderPassDesc {
-        return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr else { return nil }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        if let desc = rctx.renderPassDesc {
+            return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+        }
+        return nil
     }
-    return nil
 }
 @_cdecl("RenderContext_getCommandBuffer")
-public func RenderContext_getCommandBuffer(_ rctxPtr: UnsafeRawPointer?
+public func RenderContext_getCommandBuffer(
+    _ rctxPtr: UnsafeRawPointer?
 ) -> UnsafeRawPointer? {
-    guard let rctxPtr = rctxPtr else {return nil }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    if let desc = rctx.commandBuffer {
-        return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr else { return nil }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        if let desc = rctx.commandBuffer {
+            return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+        }
+        return nil
     }
-    return nil
 }
 @_cdecl("RenderContext_getRenderEncoder")
-public func RenderContext_getRenderEncoder(_ rctxPtr: UnsafeRawPointer?
+public func RenderContext_getRenderEncoder(
+    _ rctxPtr: UnsafeRawPointer?
 ) -> UnsafeRawPointer? {
-    guard let rctxPtr = rctxPtr else {return nil }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    if let desc = rctx.renderEncoder {
-        return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr else { return nil }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        if let desc = rctx.renderEncoder {
+            return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+        }
+        return nil
     }
-    return nil
 }
 
 @_cdecl("RenderContext_getPickedID")
-public func RenderContext_getPickedID(_ rctxPtr: UnsafeRawPointer?,
+public func RenderContext_getPickedID(
+    _ rctxPtr: UnsafeRawPointer?,
     _ x: Int, _ y: Int
 ) -> Int {
-    guard let rctxPtr = rctxPtr else {return 0 }
-    let rctx = Unmanaged<RenderContext>
-        .fromOpaque(rctxPtr).takeUnretainedValue()
-    let pickedID = rctx.getPickedID(x, y)
-    return pickedID
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr else { return 0 }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        let pickedID = rctx.getPickedID(x, y)
+        return pickedID
+    }
 }

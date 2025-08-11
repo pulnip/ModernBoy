@@ -9,10 +9,6 @@ add_library(MetalContext SHARED ${SWIFT_SOURCES})
 
 target_compile_options(RenderBackend PRIVATE
     -Wall -Wextra
-    -fsanitize=address,leak
-)
-target_link_options(RenderBackend PRIVATE
-    -fsanitize=address,leak
 )
 
 target_compile_definitions(RenderBackend PRIVATE
@@ -25,6 +21,7 @@ target_include_directories(RenderBackend PRIVATE
     ${gsl-lite_INCLUDE_DIRS}
 )
 target_link_libraries(RenderBackend PRIVATE
+    $<IF:$<CONFIG:DEBUG>, sanitizer,>
     MetalContext
     # SDL3
     SDL3::SDL3

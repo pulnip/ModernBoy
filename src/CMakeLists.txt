@@ -1,8 +1,8 @@
-add_library(sanitizers INTERFACE)
-target_compile_options(sanitizers INTERFACE
+add_library(sanitizer INTERFACE)
+target_compile_options(sanitizer INTERFACE
     -fsanitize=address,leak -fno-omit-frame-pointer
 )
-target_link_options(sanitizers INTERFACE
+target_link_options(sanitizer INTERFACE
     -fsanitize=address
 )
 

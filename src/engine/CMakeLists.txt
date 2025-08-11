@@ -46,7 +46,7 @@ PRIVATE
     # Assimp
     assimp::assimp
 PUBLIC
-    $<IF:$<CONFIG:DEBUG>, sanitizers,>
+    $<IF:$<CONFIG:DEBUG>, sanitizer,>
     # SDL3
     SDL3::SDL3
 )

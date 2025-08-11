@@ -34,7 +34,7 @@ void Scheduler::prepareScheduling(){
 
     const size_t totalTasks = std::accumulate(
         taskCounts.cbegin(), taskCounts.cend(), 0);
-    taskSchedule.resize(totalTasks);
+    taskSchedule.reserve(totalTasks);
     std::vector<size_t> numScheduled(taskCounts.size(), 0);
 
     // Round-Robin with Proportional Fairness

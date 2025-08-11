@@ -7,7 +7,6 @@ add_library(UIModule STATIC
 
 target_compile_options(UIModule PRIVATE
     -Wall -Wextra
-    -fsanitize=address,leak
 )
 target_compile_definitions(UIModule PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
@@ -20,6 +19,7 @@ target_include_directories(UIModule PRIVATE
 )
 
 target_link_libraries(UIModule PRIVATE
+    $<IF:$<CONFIG:DEBUG>, sanitizer,>
     # SDL3
     SDL3::SDL3
     # ImGui

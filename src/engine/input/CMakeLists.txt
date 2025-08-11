@@ -5,7 +5,6 @@ add_library(InputModule STATIC
 
 target_compile_options(InputModule PRIVATE
     -Wall -Wextra
-    -fsanitize=address,leak
 )
 target_compile_definitions(InputModule PRIVATE
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
@@ -15,6 +14,7 @@ target_include_directories(InputModule PRIVATE
     ${CMAKE_SOURCE_DIR}/include
 )
 target_link_libraries(InputModule PRIVATE
+    $<IF:$<CONFIG:DEBUG>, sanitizer,>
     # SDL3
     SDL3::SDL3
 )

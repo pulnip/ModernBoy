@@ -9,7 +9,7 @@ PRIVATE
 )
 
 target_link_libraries(Game PRIVATE
-    sanitizers
+    $<IF:$<CONFIG:DEBUG>, sanitizer,>
     Core
     Engine
 )
