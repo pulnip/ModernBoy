@@ -10,6 +10,7 @@
 #include "camera_ray_system.hpp"
 #include "control_system.hpp"
 #include "debug_system.hpp"
+#include "game_command_bus.hpp"
 #include "draw_system.hpp"
 #include "input_system.hpp"
 #include "physics_system.hpp"
@@ -47,11 +48,16 @@ namespace ModernBoy::Game
         DeltaTime getDeltaTime() const;
 
     private:
+        void operator()(ActivateSystem);
+
+    private:
         Engine& engine;
 
     public:
         EntityRegistry registry;
+
     private:
+        GameCommandBus commandBus;
         IntentService playerIntent;
         IntentService editorIntent;
         RayService rayService;

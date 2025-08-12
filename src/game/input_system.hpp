@@ -12,16 +12,20 @@ namespace ModernBoy::Game
         PlayerInputSystem(
             Interface::InputService&,
             Interface::EngineCommandBus&,
+            GameCommandBus&,
             EntityRegistry&,
             IntentService&);
 
-        void update(DeltaTime);
+        void update();
 
     private:
         Interface::InputService& inputService;
         Interface::EngineCommandBus& commandBus;
+        GameCommandBus& gameCommandBus;
         EntityRegistry& registry;
         IntentService& intentService;
+
+        bool isUIMode = false;
     };
 
     class EditorInputSystem{
@@ -29,16 +33,20 @@ namespace ModernBoy::Game
         EditorInputSystem(
             Interface::InputService&,
             Interface::EngineCommandBus&,
+            GameCommandBus&,
             EntityRegistry&,
             IntentService&);
 
-        void update(DeltaTime);
+        void update();
 
     private:
         Interface::InputService& inputService;
         Interface::EngineCommandBus& commandBus;
+        GameCommandBus& gameCommandBus;
         EntityRegistry& registry;
         IntentService& intentService;
+
+        bool isUIMode = false;
     };
 
     class InputSystem{
@@ -46,10 +54,11 @@ namespace ModernBoy::Game
         InputSystem(
             Interface::InputService&,
             Interface::EngineCommandBus&,
+            GameCommandBus&,
             EntityRegistry&,
             IntentService&, IntentService&);
 
-        void update(DeltaTime);
+        void update();
 
     private:
         PlayerInputSystem playerInputSystem;

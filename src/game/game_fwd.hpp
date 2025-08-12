@@ -12,6 +12,7 @@ namespace ModernBoy::Game
     class Context;
     class EntityRegistry;
 
+    class GameCommandBus;
     class RayService;
     class IntentService;
 

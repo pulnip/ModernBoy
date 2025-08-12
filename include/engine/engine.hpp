@@ -89,7 +89,7 @@ namespace ModernBoy
         NativePtr getRenderEncoder();
 #endif
     private:
-        void operator()(Interface::SetCursorMode);
+        void operator()(Interface::SetMouseMode);
 
     private:
         EntityID id_seed = 0;

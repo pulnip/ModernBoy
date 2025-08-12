@@ -12,12 +12,12 @@ namespace ModernBoy::Interface
         ABSOLUTE
     };
 
-    struct SetCursorMode{
-        CursorMode mode;
+    struct SetMouseMode{
+        bool isRelative;
     };
 
     using EngineCommand = std::variant<
-        SetCursorMode>;
+        SetMouseMode>;
 
     class EngineCommandBus{
     public:

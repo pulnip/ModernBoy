@@ -30,8 +30,8 @@ void PlayerControlSystem::update(DeltaTime deltaTime){
         auto forward_ground = ground_forward(tf.rotation);
 
         for(const auto& intent: moveIntents){
-            auto dx = right_ground * dt * intent.move.x;
-            auto dz = forward_ground * dt * intent.move.z;
+            auto dx = 10 * intent.move.x * dt * right_ground;
+            auto dz = 10 * intent.move.z * dt * forward_ground;
 
             tf.position += dx + dz;
         }
@@ -63,7 +63,7 @@ void EditorControlSystem::update(DeltaTime deltaTime){
 
     for(auto [id, bit, tf, _2]: registry.query<Transform, Editor>()){
         for (const auto& intent : moveIntents) {
-            Vec3 local = intent.move * dt;
+            Vec3 local = 10 * intent.move * dt;
             Vec3 world = rotate(local, tf.rotation);
             tf.position += world;
         }

@@ -13,11 +13,14 @@ namespace ModernBoy::Game
 
         void update(DeltaTime);
 
+        void setActive(bool activate);
+
     private:
+        bool isActive = false;
+
         EntityRegistry& registry;
         ModernBoy::Interface::InputService& inputService;
         RayService& rayService;
-
     };
 }
 

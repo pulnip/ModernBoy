@@ -1,7 +1,8 @@
 #include "entity_registry.hpp"
-#include "input_system.hpp"
 #include "engine/interface/engine_command_bus.hpp"
 #include "engine/interface/input_service.hpp"
+#include "game_command_bus.hpp"
+#include "input_system.hpp"
 #include "intent_service.hpp"
 
 using namespace ModernBoy;
@@ -11,56 +12,56 @@ using namespace ModernBoy::Input;
 
 PlayerInputSystem::PlayerInputSystem(
     InputService& inputSrv, EngineCommandBus& bus,
+    GameCommandBus& gameCommandBus,
     EntityRegistry& registry, IntentService& intentSrv)
-:inputService(inputSrv), commandBus(bus)
+:inputService(inputSrv), commandBus(bus), gameCommandBus(gameCommandBus)
 ,registry(registry), intentService(intentSrv){}
 
 EditorInputSystem::EditorInputSystem(
     InputService& inputSrv, EngineCommandBus& bus,
+    GameCommandBus& gameCommandBus,
     EntityRegistry& registry, IntentService& intentSrv)
-:inputService(inputSrv), commandBus(bus)
+:inputService(inputSrv), commandBus(bus), gameCommandBus(gameCommandBus)
 ,registry(registry), intentService(intentSrv){}
 
 InputSystem::InputSystem(
     InputService& inputSrv, EngineCommandBus& bus,
-    EntityRegistry& registry,
+    GameCommandBus& gameCommandBus, EntityRegistry& registry,
     IntentService& playerItt, IntentService& editorItt)
-:playerInputSystem(inputSrv, bus, registry, playerItt)
-,editorInputSystem(inputSrv, bus, registry, editorItt){}
+:playerInputSystem(inputSrv, bus, gameCommandBus, registry, playerItt)
+,editorInputSystem(inputSrv, bus, gameCommandBus, registry, editorItt){}
 
-void InputSystem::update(DeltaTime deltaTime){
-    playerInputSystem.update(deltaTime);
-    editorInputSystem.update(deltaTime);
+void InputSystem::update(){
+    playerInputSystem.update();
+    editorInputSystem.update();
 }
 
-inline auto mouseToSphere(Vec2 mpos){
-    auto d2 = norm_squared(mpos);
-    if(d2 <= 1.0f){
-        auto z = std::sqrt(std::max(0.0f, 1.0f - d2));
-        return normalize(asVec3(mpos, z));
-    }
-    else{
-        auto d = std::sqrt(d2);
-        auto z = 1.0f / (2.0f * d);
-        return normalize(asVec3(z/d * mpos, z));
-    }
-}
+void PlayerInputSystem::update(){
+    const auto& input = inputService.snapshot();
 
-void PlayerInputSystem::update(DeltaTime deltaTime){
-    auto dt = deltaTime.count() / 1'000'000.0f;
-    auto input = inputService.snapshot();
+    if(input.keyboard[KEY_ALT] == Pressed){
+        isUIMode = !isUIMode;
+
+        commandBus.write(SetMouseMode{
+            .isRelative = !isUIMode
+        });
+        gameCommandBus.write(ActivateSystem{
+            .targetSystem = CAMERA_RAY,
+            .activate = isUIMode
+        });
+    }
 
     for(auto [_1, _2, _3]: registry.query<Player>()){
         float dx=0, dz=0;
 
         if(input.keyboard[KEY_A] == Held)
-            dx -= 10;
+            dx -= 1;
         if(input.keyboard[KEY_D] == Held)
-            dx += 10;
+            dx += 1;
         if(input.keyboard[KEY_W] == Held)
-            dz += 10;
+            dz += 1;
         if(input.keyboard[KEY_S] == Held)
-            dz -= 10;
+            dz -= 1;
 
         if(dx != 0 || dz != 0){
             intentService.write(MoveIntent{.move=Vec3{
@@ -68,50 +69,51 @@ void PlayerInputSystem::update(DeltaTime deltaTime){
             }});
         }
 
-        if(input.mouse.pos0 != input.mouse.pos){
+        if(!isUIMode && (input.mouse.pos0 != input.mouse.pos)){
             intentService.write(LookIntent{
                 .yaw = input.mouse.dpos.x,
                 .pitch = input.mouse.dpos.y
             });
         }
 
-        if(input.keyboard[KEY_CTRL] == Pressed)
-            commandBus.write(SetCursorMode{
-                .mode=CursorMode::ABSOLUTE});
-        else if(input.keyboard[KEY_CTRL] == Released)
-            commandBus.write(SetCursorMode{
-                .mode=CursorMode::RELATIVE});
-
-        if(input.keyboard[KEY_CTRL] == None){
-            if(input.mouse.pos0 != input.mouse.pos){
-                intentService.write(LookIntent{
-                    .yaw = input.mouse.dpos.x,
-                    .pitch = input.mouse.dpos.y
-                });
-            }
-        }
+        if(!isUIMode && norm_squared(input.mouse.dpos) > 1e-6)
+            intentService.write(LookIntent{
+                .yaw = input.mouse.dpos.x,
+                .pitch = input.mouse.dpos.y
+            });
     }
 }
 
-void EditorInputSystem::update(DeltaTime deltaTime){
-    auto dt = deltaTime.count() / 1'000'000.0f;
-    auto input = inputService.snapshot();
+void EditorInputSystem::update(){
+    const auto& input = inputService.snapshot();
+
+    if(input.keyboard[KEY_ALT] == Pressed){
+        isUIMode = !isUIMode;
+
+        commandBus.write(SetMouseMode{
+            .isRelative = !isUIMode
+        });
+        gameCommandBus.write(ActivateSystem{
+            .targetSystem = CAMERA_RAY,
+            .activate = isUIMode
+        });
+    }
 
     for(auto [_1, _2, _3]: registry.query<Editor>()){
         float dx=0, dy=0, dz=0;
 
         if(input.keyboard[KEY_A] == Held)
-            dx -= 10;
+            dx -= 1;
         if(input.keyboard[KEY_D] == Held)
-            dx += 10;
+            dx += 1;
         if(input.keyboard[KEY_SHIFT] == Held)
-            dy -= 10;
+            dy -= 1;
         if(input.keyboard[KEY_SPACE] == Held)
-            dy += 10;
+            dy += 1;
         if(input.keyboard[KEY_W] == Held)
-            dz += 10;
+            dz += 1;
         if(input.keyboard[KEY_S] == Held)
-            dz -= 10;
+            dz -= 1;
 
         if(dx != 0 || dy != 0 || dz != 0){
             intentService.write(MoveIntent{.move=Vec3{
@@ -119,20 +121,10 @@ void EditorInputSystem::update(DeltaTime deltaTime){
             }});
         }
 
-        if(input.keyboard[KEY_CTRL] == Pressed)
-            commandBus.write(SetCursorMode{
-                .mode=CursorMode::ABSOLUTE});
-        else if(input.keyboard[KEY_CTRL] == Released)
-            commandBus.write(SetCursorMode{
-                .mode=CursorMode::RELATIVE});
-
-        if(input.keyboard[KEY_CTRL] == None){
-            if(input.mouse.pos0 != input.mouse.pos){
-                intentService.write(LookIntent{
-                    .yaw = input.mouse.dpos.x,
-                    .pitch = input.mouse.dpos.y
-                });
-            }
-        }
+        if(!isUIMode && norm_squared(input.mouse.dpos) > 1e-6)
+            intentService.write(LookIntent{
+                .yaw = input.mouse.dpos.x,
+                .pitch = input.mouse.dpos.y
+            });
     }
 }

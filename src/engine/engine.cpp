@@ -222,6 +222,6 @@ NativePtr Engine::getRenderEncoder(){
 }
 #endif
 
-void Engine::operator()(SetCursorMode cmd){
-    inputDevice.setMouseMode(cmd.mode==CursorMode::RELATIVE);
+void Engine::operator()(SetMouseMode cmd){
+    inputDevice.setMouseMode(cmd.isRelative);
 }

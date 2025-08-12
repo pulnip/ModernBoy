@@ -13,6 +13,9 @@ CameraRaySystem::CameraRaySystem(EntityRegistry& registry,
 ,rayService(raySrv){}
 
 void CameraRaySystem::update(DeltaTime deltaTime){
+    if(!isActive)
+        return;
+
     auto dt = deltaTime.count() / 1'000'000.0f;
 
     for(auto [id, bit, tf, cam]: registry.query<Transform, Camera>()){
@@ -29,5 +32,8 @@ void CameraRaySystem::update(DeltaTime deltaTime){
         };
         rayService.write(ray);
     }
+}
 
+void CameraRaySystem::setActive(bool activate){
+    isActive = activate;
 }

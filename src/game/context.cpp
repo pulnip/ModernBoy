@@ -11,12 +11,18 @@ Context::Context(Engine& engine)
 ,camRay(registry, engine.inputService, rayService)
 ,control(registry, playerIntent, editorIntent)
 ,input(engine.inputService, engine.engineCommandBus,
-    registry, playerIntent, editorIntent)
+    commandBus, registry, playerIntent, editorIntent)
 ,physics(registry, rayService, engine.debugDrawService)
 ,lifespan(registry){}
 
 void Context::update(DeltaTime dt){
-    input.update(dt);
+    auto commands = commandBus.drainCommands();
+    for(const auto& cmd: commands)
+        std::visit([this](const auto& c){
+            (*this)(c);
+        }, cmd);
+
+    input.update();
     control.update(dt);
     action.update(dt);
     // auto actionFut = action.update(dt);
@@ -59,5 +65,15 @@ const std::vector<DrawTask>& Context::getBuffer() const{
 
 DeltaTime Context::getDeltaTime() const{
     return engine.getDeltaTime();
+}
+
+void Context::operator()(ActivateSystem command){
+    switch (command.targetSystem){
+    case CAMERA_RAY:
+        camRay.setActive(command.activate);
+        break;
+    default:
+        GameWarn("Disabling Target System Not Implemented");
+    }
 }
 
