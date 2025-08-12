@@ -30,7 +30,7 @@ namespace ModernBoy
 
     namespace Interface{
         class InputService;
-        class DebugDrawService;
+        class DrawService;
         class EngineCommandBus;
     }
 

@@ -1,7 +1,7 @@
 #include "engine/physics/physics.hpp"
 #include "context.hpp"
 #include "physics_system.hpp"
-#include "engine/interface/debug_draw_service.hpp"
+#include "engine/interface/draw_service.hpp"
 #include "ray_service.hpp"
 
 using namespace ModernBoy;
@@ -9,7 +9,7 @@ using namespace ModernBoy::Game;
 using namespace ModernBoy::Interface;
 
 PhysicsSystem::PhysicsSystem(EntityRegistry& registry,
-    RayService& raySrv, DebugDrawService& ddSrv)
+    RayService& raySrv, DrawService& ddSrv)
 :registry(registry), raycast(registry, raySrv, ddSrv){}
 
 void PhysicsSystem::update(DeltaTime deltaTime){
@@ -150,7 +150,7 @@ std::vector<BoxColliderProxy> PhysicsSystem::getBoxColliderProxies(){
 }
 
 RaycastSystem::RaycastSystem(EntityRegistry& registry,
-    RayService& raySrv, DebugDrawService& ddSrv)
+    RayService& raySrv, DrawService& ddSrv)
 :registry(registry), rayService(raySrv)
 ,debugDrawService(ddSrv){}
 

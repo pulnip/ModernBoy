@@ -7,7 +7,7 @@ file(GLOB ALL_SOURCES "*.cpp")
 add_library(Engine STATIC
     ${ALL_SOURCES}
     physics/physics.cpp
-    interface/debug_draw_service.cpp
+    interface/draw_service.cpp
     interface/engine_command_bus.cpp
     interface/input_service.cpp
 )

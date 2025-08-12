@@ -13,7 +13,7 @@
 #include "engine/render/renderer.hpp"
 #include "engine/ui/user_interface.hpp"
 #include "engine/interface/input_service.hpp"
-#include "engine/interface/debug_draw_service.hpp"
+#include "engine/interface/draw_service.hpp"
 #include "engine/interface/engine_command_bus.hpp"
 #include "scheduler.hpp"
 #include "event.hpp"
@@ -108,7 +108,7 @@ namespace ModernBoy
         ObjectManager objectManager;
 
         Interface::InputService inputService;
-        Interface::DebugDrawService debugDrawService;
+        Interface::DrawService debugDrawService;
         Interface::EngineCommandBus engineCommandBus;
 
         // App Subsystem

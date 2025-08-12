@@ -14,7 +14,7 @@ using namespace ModernBoy::Interface;
 Renderer::Renderer(SDL_Window* window,
     MeshManager& meshManager, TextureManager& textureManager,
     ShaderManager& shaderManager, World& world,
-    DebugDrawService& ddSrv)
+    DrawService& ddSrv)
 #if defined(USE_DIRECTX)
 :context(window),
 #elif defined(USE_METAL)

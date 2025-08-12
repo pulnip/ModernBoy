@@ -3,7 +3,7 @@
 
 #include "engine/fwd.hpp"
 #include "game_fwd.hpp"
-#include "engine/interface/debug_draw_service.hpp"
+#include "engine/interface/draw_service.hpp"
 
 namespace ModernBoy::Game
 {

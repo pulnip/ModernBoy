@@ -1,5 +1,5 @@
-#ifndef MODERNBOY_INTERFACE_DEBUGDRAWSERVICE_HPP
-#define MODERNBOY_INTERFACE_DEBUGDRAWSERVICE_HPP
+#ifndef MODERNBOY_INTERFACE_DRAWSERVICE_HPP
+#define MODERNBOY_INTERFACE_DRAWSERVICE_HPP
 
 #include <mutex>
 #include <vector>
@@ -7,10 +7,10 @@
 
 namespace ModernBoy::Interface
 {
-    class DebugDrawService{
+    class DrawService{
     public:
-        DebugDrawService() = default;
-        ~DebugDrawService() = default;
+        DrawService() = default;
+        ~DrawService() = default;
 
         void write(const Line&);
         void write(const Sphere&);
@@ -26,4 +26,4 @@ namespace ModernBoy::Interface
     };
 }
 
-#endif // MODERNBOY_INTERFACE_DEBUGDRAWSERVICE_HPP
+#endif // MODERNBOY_INTERFACE_DRAWSERVICE_HPP
