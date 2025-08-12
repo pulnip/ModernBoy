@@ -50,7 +50,7 @@ meshManager(), textureManager(),
 shaderManager(), moduleManager(),
 // subsystems
 renderer(window, meshManager, textureManager,
-    shaderManager, world, debugDrawService),
+    shaderManager, world, viewService, drawService),
 userInterface(window, renderer, *this),
 inputDevice(window, inputService),
 scriptInvoker(world.registry, moduleManager,
@@ -194,7 +194,7 @@ Engine::query<Script::Module>(const std::string& name){
     return moduleManager.getHandle(name);
 }
 
-FunctionID Engine::registerFunction(
+Script::FunctionID Engine::registerFunction(
     const std::string& funcName
 ){
     return scriptInvoker.registerFunction(funcName);

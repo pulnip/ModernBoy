@@ -41,9 +41,6 @@ namespace ModernBoy::Game
         template<Event event>
         void on();
 
-        template<typename Task>
-        const std::vector<Task>& getBuffer() const;
-
         DeltaTime getDeltaTime() const;
 
     private:

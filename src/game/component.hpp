@@ -38,7 +38,7 @@ namespace ModernBoy::Game
     );
     DEFINE_COMPONENT(Action,
         ModuleHandle moduleHandle;
-        FunctionID updateFunc;
+        Script::FunctionID updateFunc;
     );
     DEFINE_COMPONENT(ScriptObject,
         ObjectHandle handle;
@@ -174,8 +174,6 @@ namespace ModernBoy::Game
         X(              Ran,              RAN)
 
     #define COMPOSIT_PAIRS \
-        X(                 DrawTask,             DRAW) \
-        X(                 ViewTask,             VIEW) \
         X(               ActionTask,           ACTION)
 
     #define ASSERT_TRIVIAL(type, name) static_assert(std::is_trivially_copyable_v<type>);

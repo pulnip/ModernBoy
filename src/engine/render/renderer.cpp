@@ -3,8 +3,9 @@
 #include "engine/resource_manager.hpp"
 #include "engine/render/renderer.hpp"
 #include "engine/engine.hpp"
-#include "engine/task.hpp"
 #include "engine/render/command.hpp"
+#include "engine/interface/draw_service.hpp"
+#include "engine/interface/view_service.hpp"
 
 using namespace std::chrono_literals;
 using namespace ModernBoy;
@@ -14,7 +15,7 @@ using namespace ModernBoy::Interface;
 Renderer::Renderer(SDL_Window* window,
     MeshManager& meshManager, TextureManager& textureManager,
     ShaderManager& shaderManager, World& world,
-    DrawService& ddSrv)
+    ViewService& viewSrv, DrawService& drawSrv)
 #if defined(USE_DIRECTX)
 :context(window),
 #elif defined(USE_METAL)
@@ -25,7 +26,8 @@ context(createRenderContext(metalLayer,
 #endif
 meshManager(meshManager), textureManager(textureManager), 
 shaderManager(shaderManager), world(world), ema(0ms),
-ddService(ddSrv), sphereMesh("Sphere", metalLayer){}
+viewService(viewSrv), drawService(drawSrv),
+sphereMesh("Sphere", metalLayer){}
 
 Renderer::~Renderer(){
 #if defined(USE_METAL)
@@ -34,38 +36,30 @@ Renderer::~Renderer(){
 #endif
 }
 
-using ViewTasks = std::vector<ViewTask>;
-using DrawTasks = std::vector<DrawTask>;
-using Tasks = std::pair<ViewTasks, DrawTasks>;
-using RenderQueue = LockFreeQueue<RenderCommand>;
-using RenderCommands = std::vector<RenderCommand>;
-
-static void sortTask(DrawTasks& tasks);
-
 void Renderer::update(DeltaTime){
     auto started = std::chrono::steady_clock::now();
-    auto debugSpheres = ddService.drainSpheres();
+    auto debugSpheres = drawService.drainSpheres();
 
-    auto drawTasks = world.getBuffer<DrawTask>();
-    sortTask(drawTasks);
+    auto meshObjects = drawService.drainMeshObjects();
+    auto cameraObjects = viewService.drainCameraObjects();
 
-    for(const auto& view: world.getBuffer<ViewTask>()){
-        setView(view);
+    for(const auto& cameraObj: cameraObjects){
+        setView(cameraObj);
 
         auto shaderHandle = invalidResourceHandle();
         auto textureHandle = invalidResourceHandle();
-        for(const auto& draw: drawTasks){
-            if(draw.shaderHandle != shaderHandle){
-                shaderHandle = draw.shaderHandle;
+        for(const auto& meshObj: meshObjects){
+            if(meshObj.shaderHandle != shaderHandle){
+                shaderHandle = meshObj.shaderHandle;
                 setShader(shaderHandle);
             }
-            if(draw.texHandle != textureHandle){
-                textureHandle = draw.texHandle;
+            if(meshObj.texHandle != textureHandle){
+                textureHandle = meshObj.texHandle;
                 setTexture(textureHandle);
             }
-            drawMesh(draw.position, draw.rotation,
-                draw.scale, draw.meshHandle, draw.alpha,
-                static_cast<int>(draw.entity));
+            drawMesh(meshObj.position, meshObj.rotation,
+                meshObj.scale, meshObj.meshHandle, meshObj.alpha,
+                static_cast<int>(meshObj.entity));
         }
 
         for(const auto& [pos, radius, color]: debugSpheres){
@@ -130,17 +124,17 @@ void Renderer::updateEMA(TaskTime elapsed){
     ema = TaskTime(blended);
 }
 
-void Renderer::setView(const ViewTask& task){
-    const auto& viewPos = task.position;
-    const auto& viewQuat = task.rotation;
+void Renderer::setView(const CameraObject& camObj){
+    const auto& viewPos = camObj.position;
+    const auto& viewQuat = camObj.rotation;
     RenderTrace("Set View, pos: {}, {}, {}",
         viewPos.x, viewPos.y, viewPos.z);
 
 #if defined(USE_DIRECTX)
-    context.setView(task.fov, viewPos, viewQuat);
+    context.setView(camObj.fov, viewPos, viewQuat);
 #elif defined(USE_METAL)
     RenderContext_setView(context ,
-        viewPos.x, viewPos.y, viewPos.z, task.fov,
+        viewPos.x, viewPos.y, viewPos.z, camObj.fov,
         viewQuat.x, viewQuat.y, viewQuat.z, viewQuat.w
     );
 #endif
@@ -205,7 +199,7 @@ void Renderer::drawMesh(
 }
 void Renderer::onFrameEnd(){
     RenderTrace("Frame End");
-    auto debugLines = ddService.drainLines();
+    auto debugLines = drawService.drainLines();
 
 #if defined(USE_DIRECTX)
     context.onFrameEnd();
@@ -241,14 +235,3 @@ NativePtr Renderer::getRenderEncoder(){
     return RenderContext_getRenderEncoder(context);
 }
 #endif
-
-static void sortTask(DrawTasks& tasks){
-    // sort by shader-texture-mesh order
-    std::ranges::sort(tasks,
-        [](const auto& lhs, const auto& rhs){
-            return lhs.shaderHandle < rhs.shaderHandle ||
-                lhs.texHandle < rhs.texHandle ||
-                lhs.meshHandle < rhs.meshHandle;
-        }
-    );
-}

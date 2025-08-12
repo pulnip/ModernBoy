@@ -13,6 +13,7 @@
 #include "engine/render/renderer.hpp"
 #include "engine/ui/user_interface.hpp"
 #include "engine/interface/input_service.hpp"
+#include "engine/interface/view_service.hpp"
 #include "engine/interface/draw_service.hpp"
 #include "engine/interface/engine_command_bus.hpp"
 #include "scheduler.hpp"
@@ -68,16 +69,10 @@ namespace ModernBoy
         template<typename Resrc>
         ABNORMAL_FLAG remove(ResourceHandle);
 
-        // get task of Subsystem
-        template<typename Task>
-        const std::vector<Task>& getBuffer() const{
-            return world.getBuffer<Task>();
-        }
-
         DeltaTime getDeltaTime() const;
 
         // AssetLoader helper
-        FunctionID registerFunction(const std::string& funcName);
+        Script::FunctionID registerFunction(const std::string& funcName);
         // UserInterface helper
 #if defined(USE_DIRECTX)
         NativePtr getDevice();
@@ -108,7 +103,8 @@ namespace ModernBoy
         ObjectManager objectManager;
 
         Interface::InputService inputService;
-        Interface::DrawService debugDrawService;
+        Interface::ViewService viewService;
+        Interface::DrawService drawService;
         Interface::EngineCommandBus engineCommandBus;
 
         // App Subsystem

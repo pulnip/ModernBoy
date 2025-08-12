@@ -6,13 +6,14 @@
 #include "engine/interface.hpp"
 #include "core/thread/generator.hpp"
 #include "game_fwd.hpp"
-#include "engine/task.hpp"
 
 namespace ModernBoy::Game
 {
     class DrawSystem{
     public:
-        DrawSystem(EntityRegistry& registry);
+        DrawSystem(EntityRegistry&,
+            Interface::ViewService&,
+            Interface::DrawService&);
 
         // size_t yield_count() noexcept;
 
@@ -22,10 +23,8 @@ namespace ModernBoy::Game
     private:
         EntityRegistry& registry;
 
-        std::vector<ViewTask> viewTasks;
-        std::vector<DrawTask> drawTasks;
-
-    friend class Context;
+        Interface::ViewService& viewService;
+        Interface::DrawService& drawService;
     }; // static_assert(Schedulable<DrawSystem>);
 } // namespace ModernBoy::Game
 

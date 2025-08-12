@@ -30,6 +30,8 @@ namespace ModernBoy
 
     namespace Interface{
         class InputService;
+        struct CameraObject;
+        class ViewService;
         class DrawService;
         class EngineCommandBus;
     }

@@ -7,13 +7,11 @@
 #include <unordered_set>
 #include <SDL3/SDL_video.h>
 #include "engine/fwd.hpp"
-#include "engine/task.hpp"
 #include "core/alias.hpp"
 #include "engine/interface.hpp"
 #include "core/thread/lock_free_queue.hpp"
 #include "core/thread/generator.hpp"
 #include "engine/render/command.hpp"
-#include "engine/interface/draw_service.hpp"
 #if defined(USE_DIRECTX)
 #include "engine/render/dx11/context.hpp"
 #elif defined(USE_METAL)
@@ -30,7 +28,8 @@ namespace ModernBoy::Render
     public:
         Renderer(SDL_Window*, MeshManager&,
             TextureManager&, ShaderManager&,
-            World&, Interface::DrawService&);
+            World&, Interface::ViewService&,
+            Interface::DrawService&);
         ~Renderer();
 
         TaskTime expectedExecTime();
@@ -60,7 +59,7 @@ namespace ModernBoy::Render
     private:
         void updateEMA(TaskTime);
 
-        void setView(const ViewTask& task);
+        void setView(const Interface::CameraObject&);
         void setShader(ShaderHandle handle);
         void setTexture(TextureHandle handle);
         void drawMesh(const Vec3& position,
@@ -88,7 +87,8 @@ namespace ModernBoy::Render
 
         TaskTime ema;
 
-        Interface::DrawService& ddService;
+        Interface::ViewService& viewService;
+        Interface::DrawService& drawService;
         Mesh sphereMesh;
     };
 } // namespace ModernBoy::Render

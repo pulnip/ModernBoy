@@ -6,14 +6,15 @@ using namespace ModernBoy;
 using namespace ModernBoy::Game;
 
 Context::Context(Engine& engine)
-:engine(engine), draw(registry)
-,action(registry, engine.scriptInvoker)
-,camRay(registry, engine.inputService, rayService)
-,control(registry, playerIntent, editorIntent)
-,input(engine.inputService, engine.engineCommandBus,
-    commandBus, registry, playerIntent, editorIntent)
-,physics(registry, rayService, engine.debugDrawService)
-,lifespan(registry){}
+:engine(engine),
+draw(registry, engine.viewService, engine.drawService),
+action(registry, engine.scriptInvoker),
+camRay(registry, engine.inputService, rayService),
+control(registry, playerIntent, editorIntent),
+input(engine.inputService, engine.engineCommandBus,
+    commandBus, registry, playerIntent, editorIntent),
+physics(registry, rayService, engine.drawService),
+lifespan(registry){}
 
 void Context::update(DeltaTime dt){
     auto commands = commandBus.drainCommands();
@@ -48,15 +49,6 @@ uint32_t Context::issueID(){
 
 DeltaTime Context::getDeltaTime(){
     return engine.getDeltaTime();
-}
-
-template<>
-const std::vector<ViewTask>& Context::getBuffer() const{
-    return draw.viewTasks;
-}
-template<>
-const std::vector<DrawTask>& Context::getBuffer() const{
-    return draw.drawTasks;
 }
 
 DeltaTime Context::getDeltaTime() const{
