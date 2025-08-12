@@ -9,7 +9,6 @@
 #include "action_system.hpp"
 #include "camera_ray_system.hpp"
 #include "control_system.hpp"
-#include "debug_system.hpp"
 #include "game_command_bus.hpp"
 #include "draw_system.hpp"
 #include "input_system.hpp"
@@ -62,7 +61,6 @@ namespace ModernBoy::Game
         IntentService editorIntent;
         RayService rayService;
 
-        DebugSystem debug;
         DrawSystem draw;
         ActionSystem action;
         CameraRaySystem camRay;
