@@ -11,7 +11,7 @@ namespace ModernBoy::Game
         CameraRaySystem(EntityRegistry&,
             ModernBoy::Interface::InputService&, RayService&);
 
-        void update(DeltaTime);
+        void update();
 
         void setActive(bool activate);
 

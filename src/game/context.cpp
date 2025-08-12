@@ -28,7 +28,7 @@ void Context::update(DeltaTime dt){
     // auto actionFut = action.update(dt);
     // while(!actionFut.done())
     //     actionFut.next();
-    camRay.update(dt);
+    camRay.update();
 
     physics.update(dt);
     // auto physicsFut = physics.update(dt);
@@ -40,7 +40,7 @@ void Context::update(DeltaTime dt){
     // while(!debugFut.done())
     //     debugFut.next();
 
-    draw.update(dt);
+    draw.update();
     // auto drawFut = draw.update(dt);
     // while(!drawFut.done())
     //     drawFut.next();

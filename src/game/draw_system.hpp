@@ -16,7 +16,7 @@ namespace ModernBoy::Game
 
         // size_t yield_count() noexcept;
 
-        void update(DeltaTime);
+        void update();
         // Generator<void> update(DeltaTime dt);
 
     private:

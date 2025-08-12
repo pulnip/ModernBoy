@@ -10,7 +10,7 @@ using namespace ModernBoy::Game;
 DrawSystem::DrawSystem(EntityRegistry& registry)
 :registry(registry){}
 
-void DrawSystem::update(DeltaTime){
+void DrawSystem::update(){
     viewTasks.clear();
     drawTasks.clear();
 

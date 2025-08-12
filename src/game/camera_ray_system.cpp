@@ -12,11 +12,9 @@ CameraRaySystem::CameraRaySystem(EntityRegistry& registry,
 :registry(registry), inputService(inputSrv)
 ,rayService(raySrv){}
 
-void CameraRaySystem::update(DeltaTime deltaTime){
+void CameraRaySystem::update(){
     if(!isActive)
         return;
-
-    auto dt = deltaTime.count() / 1'000'000.0f;
 
     for(auto [id, bit, tf, cam]: registry.query<Transform, Camera>()){
         auto mouseState = inputService.snapshot().mouse;
