@@ -9,6 +9,11 @@ struct Line {
     var color: simd_float4
 }
 
+struct Point {
+    var position: simd_float3
+    var color: simd_float4
+}
+
 struct ViewConstant {
     var viewMat: simd_float4x4
     var projMat: simd_float4x4
@@ -35,6 +40,7 @@ class RenderContext {
     var commandBuffer: MTLCommandBuffer?
     var renderEncoder: MTLRenderCommandEncoder?
     var drawable: CAMetalDrawable?
+    var secondaryEncoders: [MTLRenderCommandEncoder] = []
 
     var idCommandBuffer: MTLCommandBuffer?
     var idRenderEncoder: MTLRenderCommandEncoder?
@@ -42,6 +48,14 @@ class RenderContext {
     var shaderLib: MTLLibrary
     var idShader: Shader
     var lineShader: Shader
+    var pointShader: Shader
+    var pointComputeShader: ComputeShader
+
+    let nCopies = 100
+    var numPoint: Int
+
+    var inBuf: MTLBuffer
+    var outBuf: MTLBuffer
 
     init(_ layer: CAMetalLayer, _ libPath: String) {
         self.layer = layer
@@ -60,7 +74,19 @@ class RenderContext {
             layer.device!,
             shaderLib.makeFunction(name: "vertex_line")!,
             shaderLib.makeFunction(name: "fragment_line")!,
-            false
+            vertexDescriptor: nil,
+            useDepth: false
+        )
+        pointShader = Shader(
+            layer.device!,
+            shaderLib.makeFunction(name: "vertex_points")!,
+            shaderLib.makeFunction(name: "fragment_points")!,
+            vertexDescriptor: nil,
+            useDepth: false
+        )
+        pointComputeShader = ComputeShader(
+            layer.device!,
+            shaderLib.makeFunction(name: "expand_points")!
         )
 
         let dsd = MTLDepthStencilDescriptor()
@@ -91,6 +117,24 @@ class RenderContext {
         )
         ptd.usage = [.renderTarget, .shaderRead]
         pickingTexture = layer.device!.makeTexture(descriptor: ptd)
+
+        let pts: [Point] = [
+            Point(position: simd_float3(-1.0, 1.0, 0.0), color: simd_float4(0, 0, 0, 1)),
+            Point(position: simd_float3(-0.5, 1.0, 0.0), color: simd_float4(1, 0, 0, 1)),
+            Point(position: simd_float3(+0.0, 1.0, 0.0), color: simd_float4(0, 1, 0, 1)),
+            Point(position: simd_float3(+0.5, 1.0, 0.0), color: simd_float4(0, 0, 1, 1)),
+            Point(position: simd_float3(+1.0, 1.0, 0.0), color: simd_float4(1, 1, 1, 1)),
+        ]
+        numPoint = pts.count
+
+        inBuf = layer.device!.makeBuffer(
+            length: MemoryLayout<Point>.stride * numPoint,
+            options: .storageModeShared)!
+        let byteCount = pts.count * MemoryLayout<Point>.stride
+        inBuf.contents().copyMemory(from: pts, byteCount: byteCount)
+        outBuf = layer.device!.makeBuffer(
+            length: MemoryLayout<Point>.stride * numPoint * nCopies,
+            options: .storageModePrivate)!
     }
     deinit {
         renderEncoder?.endEncoding()
@@ -120,11 +164,12 @@ class RenderContext {
 
         renderPassDesc = rpd
         commandBuffer = commandQueue.makeCommandBuffer()
-        renderEncoder = commandBuffer?
-            .makeRenderCommandEncoder(descriptor: rpd)
-        renderEncoder!.setDepthStencilState(depthStencilState)
-        renderEncoder?.setCullMode(.back)
-        renderEncoder!.setFragmentSamplerState(sampler, index: 0)
+        // renderEncoder = commandBuffer?
+        //     .makeRenderCommandEncoder(descriptor: rpd)
+        // renderEncoder!.setDepthStencilState(depthStencilState)
+        // renderEncoder?.setCullMode(.back)
+        // renderEncoder!.setFragmentSamplerState(sampler, index: 0)
+        renderEncoder = nil
 
         // ID pass for mouse picking
         let prpd = MTLRenderPassDescriptor()
@@ -148,15 +193,57 @@ class RenderContext {
         idRenderEncoder?.setRenderPipelineState(idShader.pipelineState)
     }
 
+    private func ensureMainEncoder() -> MTLRenderCommandEncoder? {
+        if let enc = renderEncoder { return enc }
+        guard let rpd = renderPassDesc,
+            let cmd = commandBuffer
+        else { return nil }
+        let enc = cmd.makeRenderCommandEncoder(descriptor: rpd)
+        enc?.setDepthStencilState(depthStencilState)
+        enc?.setCullMode(.back)
+        enc?.setFragmentSamplerState(sampler, index: 0)
+        renderEncoder = enc
+        return enc
+    }
+
+    func beginSecondaryPass(
+        loadAction: MTLLoadAction = .load, clearColor: MTLClearColor? = nil,
+        useDepth: Bool = false
+    ) -> MTLRenderCommandEncoder? {
+        guard let drawable = drawable,
+            let commandBuffer = commandBuffer
+        else { return nil }
+        let rpd = MTLRenderPassDescriptor()
+        rpd.colorAttachments[0].texture = drawable.texture
+        rpd.colorAttachments[0].storeAction = .store
+        rpd.colorAttachments[0].loadAction = loadAction
+        if let clearColor = clearColor {
+            rpd.colorAttachments[0].clearColor = clearColor
+        }
+        if useDepth, let dsTexture = dsTexture {
+            rpd.depthAttachment.texture = dsTexture
+            rpd.depthAttachment.loadAction = .load
+            rpd.depthAttachment.storeAction = .dontCare
+        }
+        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd)
+        encoder?.setCullMode(.none)
+        if let encoder = encoder {
+            secondaryEncoders.append(encoder)
+        }
+        return encoder
+    }
+
     var viewConstant: ViewConstant?
 
     func setView(_ viewPos: simd_float3, _ fov: Float, _ viewQuat: simd_float4) {
         let aspectRatio = Float(layer.bounds.width / layer.bounds.height)
         var viewPosition = viewPos
-        renderEncoder!.setFragmentBytes(
-            &viewPosition,
-            length: MemoryLayout<simd_float3>.stride,
-            index: 0)
+        if let encoder = ensureMainEncoder() {
+            encoder.setFragmentBytes(
+                &viewPosition,
+                length: MemoryLayout<simd_float3>.stride,
+                index: 0)
+        }
         let viewMat = viewMatrix(viewPos, viewQuat)
 
         let projMat = perspectiveMatrix(
@@ -164,26 +251,32 @@ class RenderContext {
         viewConstant = ViewConstant(
             viewMat: viewMat, projMat: projMat)
         if var vc = viewConstant {
-            renderEncoder?.setVertexBytes(
-                &vc,
-                length: MemoryLayout<ViewConstant>.stride, index: 1)
+            if let encoder = ensureMainEncoder() {
+                encoder.setVertexBytes(
+                    &vc,
+                    length: MemoryLayout<ViewConstant>.stride, index: 1)
+            }
             idRenderEncoder?.setVertexBytes(
                 &vc,
                 length: MemoryLayout<ViewConstant>.stride, index: 1)
         }
     }
     func setShader(_ shader: Shader) {
-        shader.bind(encoder: renderEncoder)
+        if let encoder = ensureMainEncoder() {
+            shader.bind(encoder: encoder)
+        }
     }
     func setTexture(_ texture: Texture) {
-        texture.bind(encoder: renderEncoder)
+        if let encoder = ensureMainEncoder() {
+            texture.bind(encoder: encoder)
+        }
     }
     func draw(
         _ modelMat: simd_float4x4, _ mesh: Mesh, _ alpha: Float,
         _ id: Int, _ useUV: Bool, _ color: simd_float4
     ) {
-        guard let encoder = self.renderEncoder,
-            let idEncoder = self.idRenderEncoder
+        guard let encoder = ensureMainEncoder() else { return }
+        guard let idEncoder = idRenderEncoder
         else { return }
         var modelConstant = ModelConstant(
             modelMat: modelMat, normalMat: normal(modelMat))
@@ -273,31 +366,50 @@ class RenderContext {
 
         // Debug Line pass
         if count > 0, let lines = lines {
-            let lrpd = MTLRenderPassDescriptor()
-            lrpd.colorAttachments[0].texture = drawable.texture
-            lrpd.colorAttachments[0].loadAction = .load
-            lrpd.colorAttachments[0].storeAction = .store
+            if let lineEncoder = beginSecondaryPass(loadAction: .load, useDepth: false) {
+                lineEncoder.setCullMode(.none)
+                lineEncoder.setRenderPipelineState(lineShader.pipelineState)
+                lineEncoder.setVertexBytes(
+                    &(viewConstant!),
+                    length: MemoryLayout<ViewConstant>.stride, index: 1)
+                let lineBuffer = layer.device?.makeBuffer(
+                    bytes: lines, length: MemoryLayout<Line>.stride * count)
+                lineEncoder.setVertexBuffer(lineBuffer, offset: 0, index: 0)
+                lineEncoder.drawPrimitives(
+                    type: .line,
+                    vertexStart: 0, vertexCount: count * 2)
+                lineEncoder.endEncoding()
+            }
+        }
+        if numPoint > 0 {
+            let cce = commandBuffer.makeComputeCommandEncoder()
+            let tg = MTLSize(width: 1, height: 1, depth: 1)
+            let grid = MTLSize(width: numPoint, height: 1, depth: 1)
+            pointComputeShader.encode(
+                cce!,
+                {
+                    encoder,
+                    pipeline in
+                    encoder.setBuffer(inBuf, offset: 0, index: 0)
+                    encoder.setBuffer(outBuf, offset: 0, index: 1)
+                    var numPointU32 = UInt32(numPoint)
+                    var nCopiesU32 = UInt32(nCopies)
+                    encoder.setBytes(&numPointU32, length: MemoryLayout<UInt32>.stride, index: 2)
+                    encoder.setBytes(&nCopiesU32, length: MemoryLayout<UInt32>.stride, index: 3)
+                    var dir = simd_float3(0, 1, 0)
+                    var step: Float = 0.02
+                    encoder.setBytes(&dir, length: MemoryLayout<simd_float3>.stride, index: 4)
+                    encoder.setBytes(&step, length: MemoryLayout<Float>.stride, index: 5)
+                }, grid: grid, tg: tg)
 
-            let lineEncoder =
-                commandBuffer
-                .makeRenderCommandEncoder(descriptor: lrpd)
-            lineEncoder?.setCullMode(.none)
-
-            lineEncoder?.setRenderPipelineState(lineShader.pipelineState)
-
-            lineEncoder?.setVertexBytes(
-                &(viewConstant!),
-                length: MemoryLayout<ViewConstant>.stride,
-                index: 1)
-
-            let lineBuffer = layer.device?.makeBuffer(
-                bytes: lines, length: MemoryLayout<Line>.stride * count)
-            lineEncoder?.setVertexBuffer(lineBuffer, offset: 0, index: 0)
-
-            lineEncoder?.drawPrimitives(
-                type: .line, vertexStart: 0,
-                vertexCount: count * 2)
-            lineEncoder?.endEncoding()
+            if let re = beginSecondaryPass(loadAction: .load, useDepth: false) {
+                pointShader.bind(encoder: re)
+                re.setVertexBuffer(outBuf, offset: 0, index: 0)
+                var mvp = viewConstant!.projMat * viewConstant!.viewMat
+                re.setVertexBytes(&mvp, length: MemoryLayout<matrix_float4x4>.stride, index: 1)
+                re.drawPrimitives(type: .point, vertexStart: 0, vertexCount: numPoint * nCopies)
+                re.endEncoding()
+            }
         }
 
         commandBuffer.present(drawable)
@@ -311,6 +423,7 @@ class RenderContext {
         self.drawable = nil
         self.renderPassDesc = nil
 
+        secondaryEncoders.removeAll()
         self.idRenderEncoder = nil
         self.idCommandBuffer = nil
     }

@@ -51,3 +51,16 @@ vertex FS_Input_Line vertex_line(uint vid [[vertex_id]],
 
     return output;
 }
+
+vertex FS_Input_Point vertex_points(uint vid [[vertex_id]],
+    device const Point* pts       [[buffer(0)]],
+    constant float4x4& mvp        [[buffer(1)]]
+){
+    FS_Input_Point output;
+
+    Point point = pts[vid];
+    output.position = mvp * float4(point.position, 1.0);
+    output.color = point.color;
+    output.psize = 1.0;
+    return output;
+}

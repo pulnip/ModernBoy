@@ -34,7 +34,7 @@ if(RENDER_BACKEND STREQUAL "DirectX")
     unset(PIXEL_SHADERS)
 elseif(RENDER_BACKEND STREQUAL "Metal")
     set(AIR_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../shaders)
-    set(METAL_SHADERS vs.metal fs.metal)
+    set(METAL_SHADERS vs.metal fs.metal cs.metal)
 
     foreach(SHADER_FILE IN LISTS METAL_SHADERS)
         get_filename_component(SHADER ${SHADER_FILE} NAME_WE)

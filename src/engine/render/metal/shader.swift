@@ -20,6 +20,22 @@ class Shader {
     init(
         _ device: MTLDevice,
         _ vsFunc: MTLFunction, _ fsFunc: MTLFunction,
+        vertexDescriptor: MTLVertexDescriptor?,
+        useDepth: Bool = true
+    ) {
+        let pipelineDesc = MTLRenderPipelineDescriptor()
+        pipelineDesc.vertexFunction = vsFunc
+        pipelineDesc.fragmentFunction = fsFunc
+        pipelineDesc.vertexDescriptor = vertexDescriptor
+        pipelineDesc.colorAttachments[0].pixelFormat = .rgba8Unorm
+        pipelineDesc.depthAttachmentPixelFormat = useDepth ? .depth32Float_stencil8 : .invalid
+        pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineDesc)
+    }
+
+    // Convenience initializer for mesh-style shaders (with standard vertex attributes)
+    convenience init(
+        _ device: MTLDevice,
+        _ vsFunc: MTLFunction, _ fsFunc: MTLFunction,
         _ useDepth: Bool = true
     ) {
         let vertexDesc = MTLVertexDescriptor()
@@ -35,16 +51,9 @@ class Shader {
         vertexDesc.layouts[0].stride = MemoryLayout<Vertex>.stride
         vertexDesc.layouts[0].stepRate = 1
         vertexDesc.layouts[0].stepFunction = .perVertex
-
-        let pipelineDesc = MTLRenderPipelineDescriptor()
-        pipelineDesc.vertexFunction = vsFunc
-        pipelineDesc.fragmentFunction = fsFunc
-        pipelineDesc.vertexDescriptor = vertexDesc
-        pipelineDesc.colorAttachments[0].pixelFormat = .rgba8Unorm
-        pipelineDesc.depthAttachmentPixelFormat = useDepth ? .depth32Float_stencil8 : .invalid
-
-        pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineDesc)
+        self.init(device, vsFunc, fsFunc, vertexDescriptor: vertexDesc, useDepth: useDepth)
     }
+
     func bind(encoder: MTLRenderCommandEncoder?) {
         guard let encoder = encoder else { return }
         encoder.setRenderPipelineState(pipelineState)
@@ -58,6 +67,32 @@ class Shader {
             length: MemoryLayout<RimConstant>.stride,
             index: 1
         )
+    }
+}
+
+class ComputeShader {
+    var pipelineState: MTLComputePipelineState
+
+    init(
+        _ device: MTLDevice, _ cpFunc: MTLFunction
+    ) {
+        let pipelineDesc = MTLComputePipelineDescriptor()
+        pipelineDesc.computeFunction = cpFunc
+        pipelineState = try! device.makeComputePipelineState(
+            descriptor: pipelineDesc,
+            options: [],
+            reflection: nil
+        )
+    }
+    func encode(
+        _ encoder: MTLComputeCommandEncoder,
+        _ bind: (MTLComputeCommandEncoder, MTLComputePipelineState) -> Void,
+        grid: MTLSize, tg: MTLSize
+    ) {
+        encoder.setComputePipelineState(pipelineState)
+        bind(encoder, pipelineState)
+        encoder.dispatchThreads(grid, threadsPerThreadgroup: tg)
+        encoder.endEncoding()
     }
 }
 

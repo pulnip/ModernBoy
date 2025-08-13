@@ -60,3 +60,9 @@ fragment float4 fragment_line(
 ){
     return float4(input.color.rgb, 1.0);
 }
+
+fragment float4 fragment_points(
+    FS_Input_Point input       [[stage_in]]
+){
+    return float4(input.color.rgb, 1.0);
+}
