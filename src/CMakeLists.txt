@@ -35,3 +35,10 @@ if(APPLE AND (CMAKE_GENERATOR MATCHES "Ninja"))
             VERBATIM)
     endif()
 endif()
+
+add_executable(MeshConverter tool/mesh_converter.cpp)
+target_link_libraries(MeshConverter
+PRIVATE
+    assimp::assimp
+)
+add_executable(MeshViewer tool/mesh_viewer.cpp)
