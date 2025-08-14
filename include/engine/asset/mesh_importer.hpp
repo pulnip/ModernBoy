@@ -17,6 +17,7 @@ namespace ModernBoy::Asset
         const std::filesystem::path& inputPath,
         const CookOptions& options = {}
     )->CookedMesh;
+
     auto serialize(const CookedMesh&,
         const std::filesystem::path& outputPath)->void;
 } // namespace ModernBoy::Asset
