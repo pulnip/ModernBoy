@@ -11,6 +11,7 @@ add_library(Engine STATIC
     interface/draw_service.cpp
     interface/engine_command_bus.cpp
     interface/input_service.cpp
+    asset/mesh_importer.cpp
 )
 
 target_compile_options(Engine
