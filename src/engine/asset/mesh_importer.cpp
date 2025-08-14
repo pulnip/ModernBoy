@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 struct RawScene{
     std::unique_ptr<aiScene, void(*)(aiScene*)> scene{
         nullptr, [](aiScene* s){
-            if(s) aiReleaseImport(s); 
+            if(s) aiReleaseImport(s);
         }
     };
 };
@@ -26,47 +26,48 @@ static auto import(const fs::path& inputPath)->RawScene;
 static auto extractAxisInfo(const RawScene&)->AxisInfo;
 static auto buildTransform(
     const AxisInfo& src, const AxisInfo& dst)->Mat4;
-static auto buildMesh(const RawScene&,
-    const Mat4&, bool flipV)->CookedMesh;
+static auto buildMesh(const RawScene&, const AxisInfo& dst)->CookedMesh;
 
 auto Asset::importModelFile(const fs::path& inputPath,
     const CookOptions& options
 )->CookedMesh{
     auto rawScene = import(inputPath);
 
-    auto axisInfo = extractAxisInfo(rawScene);
-    Mat4 mat = buildTransform(axisInfo, options.axes);
-
-    return buildMesh(rawScene, mat, options.axes.flipV);
+    return buildMesh(rawScene, options.axes);
 }
+
+static auto extractHeader(const CookedMesh&)->Header;
 
 void Asset::serialize(const CookedMesh& cooked, const fs::path& outputPath){
     std::ofstream ofs(outputPath, std::ios::binary);
     if(!ofs)
         throw std::runtime_error("failed to open output file");
 
-    Header header = cooked.header; // start from defaults
-    const char magic[]="MBMESH\1";
-    std::memcpy(header.magic, magic, 8);
-
-    header.version       = 1;
-    header.numVertex   = static_cast<uint32_t>(cooked.vertices.size());
-    header.numIndex    = static_cast<uint32_t>(cooked.indices.size());
-    header.numSubmesh  = static_cast<uint32_t>(cooked.submeshInfoTable.size());
-    header.numMaterial = static_cast<uint32_t>(cooked.materialInfoTable.size());
-    header.verticesSectionStride  = static_cast<uint32_t>(sizeof(Vertex));
-    header.indicesSectionStride   = static_cast<uint32_t>(sizeof(uint32_t));
+    Header header = extractHeader(cooked);
 
     ofs.write(reinterpret_cast<const char*>(&header), sizeof(header));
+    ofs.write(reinterpret_cast<const char*>(&cooked.axisInfo), sizeof(cooked.axisInfo));
+    ofs.write(reinterpret_cast<const char*>(&cooked.aabb), sizeof(cooked.aabb));
+
+    if(!cooked.submeshInfoTable.empty())
+        ofs.write(reinterpret_cast<const char*>(cooked.submeshInfoTable.data()),
+            cooked.submeshInfoTable.size()*sizeof(SubmeshInfo));
+    if(!cooked.materialInfoTable.empty())
+        ofs.write(reinterpret_cast<const char*>(cooked.materialInfoTable.data()),
+            cooked.materialInfoTable.size()*sizeof(MaterialInfo));
+    if(!cooked.textureInfoTable.empty())
+        ofs.write(reinterpret_cast<const char*>(cooked.textureInfoTable.data()),
+            cooked.textureInfoTable.size()*sizeof(TextureInfo));
+
     if(!cooked.vertices.empty()) 
         ofs.write(reinterpret_cast<const char*>(cooked.vertices.data()),
             cooked.vertices.size()*sizeof(Vertex));
     if(!cooked.indices.empty())
         ofs.write(reinterpret_cast<const char*>(cooked.indices.data()),
             cooked.indices.size()*sizeof(uint32_t));
-    if(!cooked.submeshInfoTable.empty())
-        ofs.write(reinterpret_cast<const char*>(cooked.submeshInfoTable.data()),
-            cooked.submeshInfoTable.size()*sizeof(SubmeshInfo));
+    if(!cooked.pixels.empty())
+        ofs.write(reinterpret_cast<const char*>(cooked.pixels.data()),
+            cooked.pixels.size()*sizeof(uint8_t));
 }
 
 static auto import(const fs::path& inputPath)->RawScene{
@@ -135,25 +136,34 @@ static float Det3x3(const aiMatrix3x3& aiMat){
          + aiMat.a3*(aiMat.b1*aiMat.c2 - aiMat.b2*aiMat.c1);
 }
 
-static void computeAABB(CookedMesh& mesh){
+static AABB computeAABB(const CookedMesh& mesh){
+    AABB aabb{};
+    if(mesh.vertices.empty()) return aabb;
+    aabb.min = mesh.vertices[0].position;
+    aabb.max = mesh.vertices[0].position;
     for(const auto& v: mesh.vertices){
-        mesh.aabb.min.x = std::min(mesh.aabb.min.x, v.position.x);
-        mesh.aabb.min.y = std::min(mesh.aabb.min.y, v.position.y);
-        mesh.aabb.min.z = std::min(mesh.aabb.min.z, v.position.z);
+        aabb.min.x = std::min(aabb.min.x, v.position.x);
+        aabb.min.y = std::min(aabb.min.y, v.position.y);
+        aabb.min.z = std::min(aabb.min.z, v.position.z);
 
-        mesh.aabb.min.x = std::max(mesh.aabb.min.x, v.position.x);
-        mesh.aabb.min.y = std::max(mesh.aabb.min.y, v.position.y);
-        mesh.aabb.min.z = std::max(mesh.aabb.min.z, v.position.z);
+        aabb.max.x = std::max(aabb.max.x, v.position.x);
+        aabb.max.y = std::max(aabb.max.y, v.position.y);
+        aabb.max.z = std::max(aabb.max.z, v.position.z);
     }
+
+    return aabb;
 }
 
 static auto buildMesh(const RawScene& scene,
-    const Mat4& mat, bool flipV
+    const AxisInfo& dstAxisInfo
 )->CookedMesh{
     auto aiScene = scene.scene.get();
     CookedMesh out{};
     if(!scene.scene || !scene.scene->mRootNode)
         return out;
+
+    auto srcAxisInfo = extractAxisInfo(scene);
+    Mat4 mat = buildTransform(srcAxisInfo, dstAxisInfo);
 
     const aiMatrix4x4 aiMat = toAi(mat);
 
@@ -186,16 +196,16 @@ static auto buildMesh(const RawScene& scene,
                 if(m->HasNormals()){
                     aiVector3D n = N3 * m->mNormals[v]; n.Normalize();
                     for(int i=0; i<3; ++i)
-                        vx.position[i] = n[i];
+                        vx.normal[i] = n[i];
                 }
                 if(m->HasTangentsAndBitangents()){
                     aiVector3D t = N3 * m->mTangents[v]; t.Normalize();
                     for(int i=0; i<3; ++i)
-                        vx.position[i] = t[i];
+                        vx.tangent[i] = t[i];
                 }
                 if(m->HasTextureCoords(0)){
                     vx.texcoord.x = m->mTextureCoords[0][v].x;
-                    vx.texcoord.y = flipV ?
+                    vx.texcoord.y = dstAxisInfo.flipV ?
                         (1.0f - m->mTextureCoords[0][v].y) :
                         m->mTextureCoords[0][v].y;
                 }
@@ -220,12 +230,18 @@ static auto buildMesh(const RawScene& scene,
                     }
                 }
             }
-            SubmeshInfo sm{};
 
-            sm.indicesSectionIndex = baseIndex;
-            sm.indexCount = (uint32_t)out.indices.size() - sm.indicesSectionIndex;
-            sm.materialTableIndex = m->mMaterialIndex;
-            out.submeshInfoTable.push_back(sm);
+            SubmeshInfo smi{
+                .entrySize = sizeof(SubmeshInfo),
+                .verticesSectionIndex = baseVertex,
+                .vertexCount = static_cast<uint32_t>(
+                    out.vertices.size() - baseVertex),
+                .indicesSectionIndex = baseIndex,
+                .indexCount = static_cast<uint32_t>(
+                    out.indices.size() - baseIndex),
+                .materialTableIndex = m->mMaterialIndex
+            };
+            out.submeshInfoTable.push_back(smi);
         }
 
         for(unsigned c=0; c<node->mNumChildren; ++c){
@@ -235,11 +251,64 @@ static auto buildMesh(const RawScene& scene,
 
     visit(aiScene->mRootNode, aiMatrix4x4());
 
-    out.header.numVertex = (uint32_t)out.vertices.size();
-    out.header.numIndex = (uint32_t)out.indices.size();
-    out.header.numSubmesh = (uint32_t)out.submeshInfoTable.size();
-    out.header.numMaterial = (uint32_t)out.materialInfoTable.size();
+    out.header = extractHeader(out);
+    out.axisInfo = dstAxisInfo;
+    out.aabb = computeAABB(out);
 
-    computeAABB(out);
     return out;
+}
+
+static auto extractHeader(const CookedMesh& cooked)->Header{
+    Header header;
+
+    const char magic[]="MBMESH\1";
+    std::memcpy(header.magic, magic, 8);
+    header.version = 1;
+
+    header.submeshTableStride = sizeof(SubmeshInfo);
+    header.submeshTableByteOffset =
+        sizeof(Header) + sizeof(AxisInfo) + sizeof(AABB);
+    header.numSubmesh = static_cast<uint32_t>(
+        cooked.submeshInfoTable.size());
+    header.submeshTableByteSize = static_cast<uint32_t>(
+        cooked.submeshInfoTable.size() * sizeof(SubmeshInfo));
+
+    header.materialTableStride = sizeof(MaterialInfo);
+    header.materialTableByteOffset =
+        header.submeshTableByteOffset + header.submeshTableByteSize;
+    header.numMaterial = static_cast<uint32_t>(
+        cooked.materialInfoTable.size());
+    header.materialTableByteSize = static_cast<uint32_t>(
+        cooked.materialInfoTable.size() * sizeof(MaterialInfo));
+
+    header.textureInfoTableStride = sizeof(TextureInfo);
+    header.textureInfoTableByteOffset =
+        header.materialTableByteOffset + header.materialTableByteSize;
+    header.numTexture = static_cast<uint32_t>(
+        cooked.textureInfoTable.size());
+    header.textureInfoTableByteSize = static_cast<uint32_t>(
+        cooked.textureInfoTable.size() * sizeof(TextureInfo));
+
+    header.verticesSectionStride = sizeof(Vertex);
+    header.verticesSectionByteOffset =
+        header.textureInfoTableByteOffset + header.textureInfoTableByteSize;
+    header.numVertex = static_cast<uint32_t>(
+        cooked.vertices.size());
+    header.verticesSectionByteSize = static_cast<uint32_t>(
+        cooked.vertices.size() * sizeof(Vertex));
+
+    header.indicesSectionStride = sizeof(uint32_t);
+    header.indicesSectionByteOffset =
+        header.verticesSectionByteOffset + header.verticesSectionByteSize;
+    header.numIndex = static_cast<uint32_t>(
+        cooked.indices.size());
+    header.indicesSectionByteSize = static_cast<uint32_t>(
+        cooked.indices.size() * sizeof(uint32_t));
+
+    header.pixelsSectionByteOffset =
+        header.indicesSectionByteOffset + header.indicesSectionByteSize;
+    header.pixelsSectionByteSize = static_cast<uint32_t>(
+        cooked.pixels.size() * sizeof(uint8_t));
+
+    return header;
 }
