@@ -122,6 +122,7 @@
         "buffer": "cpp",
         "socket": "cpp",
         "typeindex": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "filesystem": "cpp"
     }
 }

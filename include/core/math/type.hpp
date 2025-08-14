@@ -1,6 +1,7 @@
 #ifndef MODERNBOY_COMMON_TYPE_HPP
 #define MODERNBOY_COMMON_TYPE_HPP
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -13,17 +14,29 @@ namespace ModernBoy
     union Vec2{
         float v[2];
         struct{ float x, y; };
+
+        inline auto operator[](Index i)->float&{ return v[i]; }
+        inline const float& operator[](Index i) const{ return v[i]; }
     }; static_assert(std::is_trivially_copyable_v<Vec2>);
     union Vec3{
         float v[3];
         struct{ float x, y, z; };
         struct{ float r, g, b; };
+
+        inline auto operator[](Index i)->float&{ return v[i]; }
+        inline const float& operator[](Index i) const{ return v[i]; }
     }; static_assert(std::is_trivially_copyable_v<Vec3>);
     union Vec4{
         float v[4];
         struct{ float x, y, z, w; };
         struct{ float r, g, b, a; };
+
+        inline auto operator[](Index i)->float&{ return v[i]; }
+        inline const float& operator[](Index i) const{ return v[i]; }
     }; static_assert(std::is_trivially_copyable_v<Vec4>);
+
+    using Mat4 = std::array<Vec4, 4>;
+    static_assert(std::is_trivially_copyable_v<Mat4>);
 
     constexpr auto asVec3(Vec2 v2, float z=0.0f){
         return Vec3{.x=v2.x, .y=v2.y, .z=z};
@@ -85,6 +98,14 @@ namespace ModernBoy
     constexpr auto unitZ(){
         return Vec3{.x=0.0f, .y=0.0f, .z=1.0f}; }
 
+    constexpr auto unitMat(){
+        return Mat4{
+            Vec4{.x=1.0f, .y=0.0f, .z=0.0f, .w=0.0f},
+            Vec4{.x=0.0f, .y=1.0f, .z=0.0f, .w=0.0f},
+            Vec4{.x=0.0f, .y=0.0f, .z=1.0f, .w=0.0f},
+            Vec4{.x=0.0f, .y=0.0f, .z=0.0f, .w=1.0f}
+        };
+    }
 
     constexpr auto operator+(Vec3 lhs, Vec3 rhs){
         return Vec3{.x=lhs.x+rhs.x, .y=lhs.y+rhs.y, .z=lhs.z+rhs.z};
