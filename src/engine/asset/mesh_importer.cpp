@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <fstream>
 #include <functional>
 #include <memory>
 #include <print>
 #include <string>
+#include <vector>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -143,6 +145,231 @@ void Asset::serialize(const CookedMesh& cooked, const fs::path& outputPath){
     }
 }
 
+auto Asset::loadModelFile(const fs::path& inputPath)->CookedMesh{
+    CookedMesh cooked{};
+
+    std::ifstream ifs(inputPath, std::ios::binary);
+    if(!ifs) throw std::runtime_error("failed to open .mbmesh file");
+
+    // Read fixed header + axis + aabb
+    Header H{}; AxisInfo AX{}; AABB AA{};
+    ifs.read(reinterpret_cast<char*>(&H), sizeof(H));
+    if(!ifs) throw std::runtime_error("failed to read mbmesh header");
+
+    // Basic magic/version checks
+    const char expectedMagic[8] = "MBMESH\1";
+    if(std::memcmp(H.magic, expectedMagic, 8) != 0)
+        throw std::runtime_error("invalid mbmesh magic");
+    if(H.version != 1)
+        throw std::runtime_error("unsupported mbmesh version");
+
+    ifs.read(reinterpret_cast<char*>(&AX), sizeof(AX));
+    if(!ifs) throw std::runtime_error("failed to read axis info");
+    ifs.read(reinterpret_cast<char*>(&AA), sizeof(AA));
+    if(!ifs) throw std::runtime_error("failed to read aabb");
+
+    // Validate strides
+    if(H.submeshTableStride && H.submeshTableStride != sizeof(SubmeshInfo))
+        throw std::runtime_error("Submesh stride mismatch");
+    if(H.materialTableStride && H.materialTableStride != sizeof(MaterialInfo))
+        throw std::runtime_error("Material stride mismatch");
+    if(H.textureInfoTableStride && H.textureInfoTableStride != sizeof(TextureInfo))
+        throw std::runtime_error("TextureInfo stride mismatch");
+    if(H.verticesSectionStride && H.verticesSectionStride != sizeof(Vertex))
+        throw std::runtime_error("Vertex stride mismatch");
+    if(H.indicesSectionStride && H.indicesSectionStride != sizeof(uint32_t))
+        throw std::runtime_error("Index stride mismatch");
+
+    auto read_at = [&](uint32_t offset, void* dst, uint32_t bytes){
+        if(bytes == 0) return;
+        ifs.seekg(static_cast<std::streamoff>(offset), std::ios::beg);
+        if(!ifs) throw std::runtime_error("seek failed while reading mbmesh");
+        ifs.read(reinterpret_cast<char*>(dst), bytes);
+        if(!ifs) throw std::runtime_error("read failed while reading mbmesh");
+    };
+
+    // Submesh table
+    cooked.submeshInfoTable.resize(H.numSubmesh);
+    if(H.submeshTableByteSize && H.numSubmesh){
+        read_at(H.submeshTableByteOffset,
+            cooked.submeshInfoTable.data(),
+            H.numSubmesh * sizeof(SubmeshInfo));
+    }
+
+    // Material table
+    cooked.materialInfoTable.resize(H.numMaterial);
+    if(H.materialTableByteSize && H.numMaterial){
+        read_at(H.materialTableByteOffset,
+            cooked.materialInfoTable.data(),
+            H.numMaterial * sizeof(MaterialInfo));
+    }
+
+    // Texture info table
+    cooked.textureInfoTable.resize(H.numTexture);
+    if(H.textureInfoTableByteSize && H.numTexture){
+        read_at(H.textureInfoTableByteOffset,
+            cooked.textureInfoTable.data(),
+            H.numTexture * sizeof(TextureInfo));
+    }
+
+    // Vertices
+    cooked.vertices.resize(H.numVertex);
+    if(H.verticesSectionByteSize && H.numVertex){
+        read_at(H.verticesSectionByteOffset,
+            cooked.vertices.data(),
+            H.numVertex * sizeof(Vertex));
+    }
+
+    // Indices
+    cooked.indices.resize(H.numIndex);
+    if(H.indicesSectionByteSize && H.numIndex){
+        read_at(H.indicesSectionByteOffset,
+            cooked.indices.data(),
+            H.numIndex * sizeof(uint32_t));
+    }
+
+    // Pixels blob
+    cooked.pixels.resize(H.pixelsSectionByteSize);
+    if(H.pixelsSectionByteSize){
+        read_at(H.pixelsSectionByteOffset,
+            cooked.pixels.data(),
+            H.pixelsSectionByteSize);
+    }
+
+    // Assign header, axis, aabb
+    cooked.header = H;
+    cooked.axisInfo = AX;
+    cooked.aabb = AA;
+
+    return cooked;
+}
+
+void Asset::printLoadedMesh(const CookedMesh& cooked){
+    using std::println;
+
+    const auto& H = cooked.header;
+
+    // Header block
+    println("mbmesh");
+    println("├─ header");
+    // Magic as ASCII up to 6 chars, then show raw byte 6 as \\x01 style if present
+    std::string magicAscii;
+    for(int i=0;i<8;++i){
+        unsigned char c = (unsigned char)H.magic[i];
+        if(c>=32 && c<=126) magicAscii.push_back((char)c);
+        else{
+            char tmp[8];
+            std::snprintf(tmp, sizeof(tmp), "\\x%02X", c);
+            magicAscii += tmp;
+        }
+    }
+    println("│  ├─ magic         : {}", magicAscii);
+    println("│  ├─ version       : {}", H.version);
+    println("│  ├─ vertexCount   : {}", cooked.vertices.size());
+    println("│  ├─ indexCount    : {} ({} triangles)", cooked.indices.size(), cooked.indices.size()/3);
+    println("│  ├─ submeshCount  : {}", cooked.submeshInfoTable.size());
+    println("│  ├─ materialCount : {}", cooked.materialInfoTable.size());
+    println("│  └─ vertexStride  : {} bytes", (unsigned)sizeof(Vertex));
+
+    // Layout block (best-effort; relies on Vertex having these fields in this order)
+    println("├─ layout");
+    println("│  ├─ pos     @{} (float3)", (unsigned)offsetof(Vertex, position));
+    println("│  ├─ normal  @{} (float3)", (unsigned)offsetof(Vertex, normal));
+    println("│  ├─ uv0     @{} (float2)", (unsigned)offsetof(Vertex, texcoord));
+    println("│  ├─ tangent @{} (float3)", (unsigned)offsetof(Vertex, tangent));
+    println("│  └─ stride  ={}", (unsigned)sizeof(Vertex));
+
+    // Offsets block
+    auto hexOff = [](uint32_t off){ char b[32]; std::snprintf(b,sizeof(b),"0x%08X",off); return std::string(b); };
+    auto human = [](uint64_t n){ char b[64]; const char* u[] = {"B","KB","MB","GB"}; double v=n; int k=0; while(v>=1024.0 && k<3){ v/=1024.0; ++k;} std::snprintf(b,sizeof(b),"%.2f %s", v, u[k]); return std::string(b); };
+    println("├─ offsets");
+    println("│  ├─ submeshes: {} ({})", hexOff(H.submeshTableByteOffset), human(H.submeshTableByteSize));
+    println("│  ├─ materials: {} ({})", hexOff(H.materialTableByteOffset), human(H.materialTableByteSize));
+    println("│  ├─ textures : {} ({})", hexOff(H.textureInfoTableByteOffset), human(H.textureInfoTableByteSize));
+    println("│  ├─ vertices : {} ({})", hexOff(H.verticesSectionByteOffset), human(H.verticesSectionByteSize));
+    println("│  ├─ indices  : {} ({})",  hexOff(H.indicesSectionByteOffset),  human(H.indicesSectionByteSize));
+    println("│  └─ pixels   : {} ({})",  hexOff(H.pixelsSectionByteOffset),   human(H.pixelsSectionByteSize));
+
+    // Geometry validity checks
+    println("├─ geometry");
+    uint32_t maxIdx = 0; uint32_t oor = 0; uint32_t degenerates = 0;
+    const uint32_t vcount = (uint32_t)cooked.vertices.size();
+    for(uint32_t i=0;i<(uint32_t)cooked.indices.size(); ++i){
+        uint32_t idx = cooked.indices[i];
+        maxIdx = std::max(maxIdx, idx);
+        if(idx >= vcount) ++oor;
+    }
+    for(uint32_t t=0; t+2 < (uint32_t)cooked.indices.size(); t+=3){
+        uint32_t i0=cooked.indices[t], i1=cooked.indices[t+1], i2=cooked.indices[t+2];
+        if(i0==i1 || i1==i2 || i2==i0){ ++degenerates; continue; }
+        const auto& a = cooked.vertices[i0].position;
+        const auto& b = cooked.vertices[i1].position;
+        const auto& c = cooked.vertices[i2].position;
+        Vec3 cr=cross(b-a, c-a);
+        float area2 = std::sqrt(cr.x*cr.x + cr.y*cr.y + cr.z*cr.z);
+        if(area2 < 1e-6f) ++degenerates;
+    }
+    println("│  ├─ indexRange       : [0..{}] {}", maxIdx, (maxIdx < 65536? "OK (U16-capable)":"(needs U32)"));
+    println("│  ├─ degenerateTris   : {}", degenerates);
+    println("│  └─ outOfRangeIndices: {}", oor);
+
+    // Attribute stats
+    auto statLen = [](auto getter, const std::vector<Vertex>& verts){
+        double sum=0; double minv=1e9, maxv=-1e9; size_t n=0;
+        for(const auto& v: verts){
+            Vec3 vv = getter(v);
+            double L = std::sqrt((double)vv.x*vv.x + (double)vv.y*vv.y + (double)vv.z*vv.z);
+            if(!std::isfinite(L)) continue;
+            sum += L; minv = std::min(minv, L); maxv = std::max(maxv, L); ++n;
+        }
+        return std::tuple<double,double,double,size_t>(n?sum/n:0.0, n?minv:0.0, n?maxv:0.0, n);
+    };
+    auto [navg,nmin,nmax,nn] = statLen([](const Vertex& v){ return v.normal; }, cooked.vertices);
+    auto [tavg,tmin,tmax,tn] = statLen([](const Vertex& v){ return asVec3(v.tangent);}, cooked.vertices);
+
+    double maxAbsDot = 0.0;
+    for(const auto& v: cooked.vertices){
+        const Vec3& n = v.normal; const Vec3 t = asVec3(v.tangent);
+        double dot = (double)n.x*t.x + (double)n.y*t.y + (double)n.z*t.z;
+        double nL = std::sqrt((double)n.x*n.x + (double)n.y*n.y + (double)n.z*n.z);
+        double tL = std::sqrt((double)t.x*t.x + (double)t.y*t.y + (double)t.z*t.z);
+        if(nL>0 && tL>0){ maxAbsDot = std::max(maxAbsDot, std::abs(dot/(nL*tL))); }
+    }
+
+    println("├─ attributes");
+    println("│  ├─ |N| length       : avg={:.3f} min={:.3f} max={:.3f} {}", navg, nmin, nmax, (std::abs(navg-1.0)<=0.01 && nmin>0.95 && nmax<1.05? "(OK)":""));
+    println("│  ├─ |T| length       : avg={:.3f} min={:.3f} max={:.3f} {}", tavg, tmin, tmax, (tavg>0?"(OK)":""));
+    println("│  └─ dot(N,T)         : max|.|={:.3f} {}", maxAbsDot, (maxAbsDot<=0.05?"(orthogonal)":""));
+
+    // UV stats
+    double umin= std::numeric_limits<double>::infinity(), umax=-umin;
+    double vmin= std::numeric_limits<double>::infinity(), vmax=-vmin;
+    for(const auto& v: cooked.vertices){ umin = std::min(umin,(double)v.texcoord.x); umax = std::max(umax,(double)v.texcoord.x); vmin = std::min(vmin,(double)v.texcoord.y); vmax = std::max(vmax,(double)v.texcoord.y); }
+    println("├─ uv0");
+    println("│  ├─ U range          : [{:.2f}..{:.2f}]{}", umin, umax, (umin<0.0||umax>1.0?" (tiling/bleed risk)":""));
+    println("│  └─ V range          : [{:.2f}..{:.2f}] (flipV={})", vmin, vmax, cooked.axisInfo.flipV?"true":"false");
+
+    // Bounds
+    const auto& B = cooked.aabb;
+    auto radius = [&](){ double dx=B.max.x-B.min.x, dy=B.max.y-B.min.y, dz=B.max.z-B.min.z; return 0.5*std::sqrt(dx*dx+dy*dy+dz*dz); }();
+    auto cx = 0.5*(B.min.x+B.max.x), cy = 0.5*(B.min.y+B.max.y), cz = 0.5*(B.min.z+B.max.z);
+    println("├─ bounds");
+    println("│  ├─ AABB             : min({:.3f},{:.3f},{:.3f}) max({:.3f},{:.3f},{:.3f})", B.min.x,B.min.y,B.min.z, B.max.x,B.max.y,B.max.z);
+    println("│  └─ sphere           : center({:.3f},{:.3f},{:.3f}) radius={:.3f}", cx,cy,cz, radius);
+
+    // Submeshes
+    println("├─ submeshes[{}]", cooked.submeshInfoTable.size());
+    for(size_t i=0;i<cooked.submeshInfoTable.size(); ++i){
+        const auto& s = cooked.submeshInfoTable[i];
+        println("│  ├─ [{}] off={} cnt={} mat={} ({} tris)", i, s.indicesSectionIndex, s.indexCount, s.materialTableIndex, s.indexCount/3);
+    }
+
+    // Axes (we only have target axis in file)
+    const auto& AX = cooked.axisInfo;
+    auto handStr = (AX.hand==AxisInfo::RH?"RH":"LH");
+    println("└─ axes               : {},{},{} unit={} flipV={}", handStr, char(AX.up), char(AX.forward), AX.unit, AX.flipV?"true":"false");
+}
+
 static auto import(const fs::path& inputPath)->RawScene{
     Assimp::Importer importer;
     RawScene rawScene;
@@ -158,8 +385,9 @@ static auto import(const fs::path& inputPath)->RawScene{
     const aiScene* loaded = importer.ReadFile(
         inputPath.string(), flags);
     if(!loaded){
-        throw std::runtime_error(std::string{
-            "Assimp failed: "} + importer.GetErrorString()
+        throw std::runtime_error(
+            std::string("Assimp failed: ") +
+            std::string(importer.GetErrorString())
         );
     }
     aiScene* orphaned = importer.GetOrphanedScene();

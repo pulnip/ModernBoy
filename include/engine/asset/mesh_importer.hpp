@@ -13,6 +13,7 @@ namespace ModernBoy::Asset
         bool generateTangents = true;
     };
 
+    // convert .fbx, ... to .mbmesh
     auto importModelFile(
         const std::filesystem::path& inputPath,
         const CookOptions& options = {}
@@ -20,6 +21,13 @@ namespace ModernBoy::Asset
 
     auto serialize(const CookedMesh&,
         const std::filesystem::path& outputPath)->void;
+
+    // load .mbmesh to memory
+    auto loadModelFile(
+        const std::filesystem::path& inputPath
+    )->CookedMesh;
+
+    void printLoadedMesh(const CookedMesh&);
 } // namespace ModernBoy::Asset
 
 #endif // MODERNBOY_ASSET_MESHIMPORTER_HPP

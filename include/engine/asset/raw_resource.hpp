@@ -5,7 +5,7 @@
 
 namespace ModernBoy::Asset
 {
-    union Vertex{
+    struct Vertex{
         Vec3 position;
         Vec3 normal;
         Vec2 texcoord;
