@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "util/object_pool.hpp"
+#include "core/memory/object_pool.hpp"
 
 using ModernBoy::ObjectPoolV2;
 
@@ -97,4 +97,14 @@ TEST(ObjectPoolV2, RemoveAndReuseWithEntity) {
     auto handle3 = pool.emplace(300);
     EXPECT_EQ(handle3.index, handle1.index);
     EXPECT_EQ(pool[handle3].id, 300);
+}
+
+
+TEST(ObjectPoolV2, ConstAccess){
+    ObjectPoolV2<int> pool;
+    auto handle = pool.emplace(42);
+    const auto& cref = pool;
+    EXPECT_EQ(cref[handle], 42);
+    pool.remove(handle);
+    EXPECT_THROW(cref[handle], std::out_of_range);
 }

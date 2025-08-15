@@ -1,6 +1,6 @@
-#include "game/lifespan_system.hpp"
-#include "task.hpp"
-#include "game/entity_registry.hpp"
+#include "lifespan_system.hpp"
+#include "engine/task.hpp"
+#include "entity_registry.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;

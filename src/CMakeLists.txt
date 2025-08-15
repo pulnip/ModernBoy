@@ -1,57 +1,30 @@
-add_subdirectory(${BACKEND_SOURCE_DIR})
-add_subdirectory(common)
+add_library(sanitizer INTERFACE)
+target_compile_options(sanitizer INTERFACE
+    -fsanitize=address,leak -fno-omit-frame-pointer
+)
+target_link_options(sanitizer INTERFACE
+    -fsanitize=address
+)
+
+add_subdirectory(core)
 add_subdirectory(game)
-add_subdirectory(input)
-add_subdirectory(render)
+add_subdirectory(engine)
 add_subdirectory(shader)
-add_subdirectory(script)
-add_subdirectory(util)
-add_subdirectory(ui)
+add_subdirectory(tool)
 
-file(GLOB ALL_SOURCES "*.cpp")
-add_executable(${PROJECT_NAME}
-    ${ALL_SOURCES}
-)
-
+add_executable(${PROJECT_NAME} main.cpp)
 target_compile_options(${PROJECT_NAME} PRIVATE
-    -Wall -Wextra
-    -fsanitize=address,leak
+PRIVATE
+    $<IF:$<CONFIG:DEBUG>, -Wall -Wextra,>
 )
-target_link_options(${PROJECT_NAME} PRIVATE
-    -fsanitize=address,leak
-)
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${ImGui_INCLUDE_DIRS}
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-    ${CMAKE_SOURCE_DIR}/include
-    # gsl-lite
-    ${gsl-lite_INCLUDE_DIRS}
-    # ImGui
-    ${ImGui_INCLUDE_DIRS}
-    # toml++
-    ${CMAKE_SOURCE_DIR}/external/tomlplusplus/include
-    # stb
-    ${CMAKE_SOURCE_DIR}/external/stb
-)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    CommonModule
+    Core
+    Engine
     Game
-    RenderBackend
-    RenderModule
-    InputModule
-    ScriptModule
-    Util
-    UIModule
-    # SDL3
-    SDL3::SDL3
-    # SDL3_image
-    SDL3_image::SDL3_image
-    # ImGui
-    ${ImGui_LIBS}
-    # Assimp
-    assimp::assimp
 )
 
 if(APPLE AND (CMAKE_GENERATOR MATCHES "Ninja"))

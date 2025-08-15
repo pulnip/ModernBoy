@@ -1,0 +1,58 @@
+#ifndef MODERNBOY_SCHEDULER_HPP
+#define MODERNBOY_SCHEDULER_HPP
+
+#include <array>
+#include <variant>
+#include <vector>
+#include "engine/fwd.hpp"
+#include "interface.hpp"
+
+namespace ModernBoy
+{
+    class Scheduler{
+    public:
+        Scheduler(Engine& engine);
+
+        void prepareScheduling();
+        // task update phase
+        void prepareFrame();
+        // entity update phase
+        void updateFrame();
+
+        DeltaTime getDeltaTime() const;
+
+        void prepareAllPhase(Schedulable auto& schedulable){
+            auto count = schedulable.yield_count();
+
+            taskCounts.push_back(count);
+            updateCounts.push_back(count);
+
+            taskGenerators.push_back(schedulable.updateTask(deltaTime));
+            updateGenerators.push_back(schedulable.update(deltaTime));
+        }
+        void prepareTaskPhase(Schedulable auto& schedulable){
+            taskCounts.push_back(schedulable.yield_count());
+            taskGenerators.push_back(schedulable.updateTask(deltaTime));
+
+        }
+        void prepareUpdatePhase(Schedulable auto& schedulable){
+            updateCounts.push_back(schedulable.yield_count());
+            updateGenerators.push_back(schedulable.update(deltaTime));
+        }
+
+    private:
+        Engine& engine;
+
+        std::vector<size_t> taskCounts;
+        std::vector<size_t> updateCounts;
+        std::vector<Generator<void>> taskGenerators;
+        std::vector<Generator<void>> updateGenerators;
+        std::vector<size_t> taskSchedule;
+        std::vector<size_t> updateSchedule;
+
+        Timepoint lastTick;
+        DeltaTime deltaTime;
+    };
+} // namespace ModernBoy
+
+#endif // MODERNBOY_SCHEDULER_HPP

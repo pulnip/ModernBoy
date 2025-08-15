@@ -4,13 +4,14 @@ name = "Dummy"
 max = 100
 regen = 2.0
 [entities.transform]
-position = [0.0, 0.0, 5.0]
+position = [0.0, 2.0, 5.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [1.0, 1.0, 1.0]
 [entities.model]
 mesh = "Sphere"
 texture = "asset/world_map.jpg"
-shader = "default"
+vsFunc = "vertex_main"
+fsFunc = "fragment_main"
 [entities.script]
 module="component"
 type = "Movable"
@@ -18,12 +19,12 @@ type = "Movable"
 velocity = [0.0, 0.0, 0.0]
 useGravity = false
 mass = 1
-    [entities.rigidbody.material]
-    bounciness = 1.0
-    friction = 0
 [entities.sphereCollider]
 position = [0.0, 0.0, 0.0]
 radius = 1
+    [entities.sphereCollider.material]
+    bounciness = 1.0
+    friction = 0
 
 [[entities]]
 name = "Cuby1"
@@ -34,82 +35,78 @@ scale    = [0.5, 0.5, 0.5]
 [entities.model]
 mesh = "Cube"
 texture = "asset/metal_logo.png"
-shader = "asset/shader/ModernBoy.metallib"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]
 useGravity = false
 mass = 1
-    [entities.rigidbody.material]
-    bounciness = 1.0
-    friction = 0
 [entities.boxCollider]
 position = [0.0, 0.0, 0.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [1.0, 1.0, 1.0]
+    [entities.boxCollider.material]
+    bounciness = 1.0
+    friction = 0
 
 
 [[entities]]
 name = "Cuby2"
 [entities.transform]
-position = [1.5, 0.5, 0.0]
+position = [1.5, 1.0, 0.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.model]
 mesh = "Cube"
 texture = "asset/metal_logo.png"
-shader = "default"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]
 useGravity = false
 mass = 1
-    [entities.rigidbody.material]
-    bounciness = 1.0
-    friction = 0
 [entities.sphereCollider]
 position = [0.0, 0.0, 0.0]
 radius = 0.5
+    [entities.boxCollider.material]
+    bounciness = 1.0
+    friction = 0
 
 [[entities]]
 name = "Cuby3"
 [entities.transform]
-position = [-0.5, 0.5, 1.5]
+position = [-0.5, 1.0, 1.5]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.model]
 mesh = "Cube"
 texture = "asset/metal_logo.png"
-shader = "default"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]
 useGravity = false
 mass = 1
-    [entities.rigidbody.material]
-    bounciness = 1.0
-    friction = 0
 [entities.sphereCollider]
 position = [0.0, 0.0, 0.0]
 radius = 0.5
+    [entities.boxCollider.material]
+    bounciness = 1.0
+    friction = 0
 
 [[entities]]
 name = "Cuby4"
 [entities.transform]
-position = [1.0, 0.5, 1.0]
+position = [1.0, 1.0, 1.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.model]
 mesh = "Cube"
 texture = "asset/metal_logo.png"
-shader = "default"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]
 useGravity = false
 mass = 1
-    [entities.rigidbody.material]
-    bounciness = 1.0
-    friction = 0
-[entities.sphereCollider]
+[entities.boxCollider]
 position = [0.0, 0.0, 0.0]
 radius = 0.5
+    [entities.boxCollider.material]
+    bounciness = 1.0
+    friction = 0
 
 [[entities]]
 name = "Floor"
@@ -120,18 +117,17 @@ scale    = [100.0, 1.0, 100.0]
 [entities.model]
 mesh = "Cube"
 texture = "asset/Farback01.png"
-shader = "default"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]
 useGravity = false
 mass = 1
-    [entities.rigidbody.material]
-    bounciness = 1.0
-    friction = 0
 [entities.boxCollider]
 position = [0.0, 0.0, 0.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [1.0, 1.0, 1.0]
+    [entities.boxCollider.material]
+    bounciness = 1.0
+    friction = 0
 
 [[entities]]
 name = "Camera0"

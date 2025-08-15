@@ -1,143 +1,155 @@
 {
-  "version": 6,
-  "configurePresets": [
-    {
-      "name": "x64",
-      "hidden": true,
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "toolset": {
-        "value": "host=x64",
-        "strategy": "external"
-      }
-    },
-    {
-      "name": "Ninja",
-      "hidden": true,
-      "generator": "Ninja Multi-Config",
-      "cacheVariables": {
-        "CMAKE_MAKE_PROGRAM": "ninja"
-      }
-    },
-    {
-      "name": "x64-base",
-      "hidden": true,
-      "inherits": [
-        "x64",
-        "Ninja"
-      ],
-      "binaryDir": "${sourceDir}/build"
-    },
-    {
-      "name": "GNUC",
-      "inherits": "x64-base",
-      "cacheVariables": {
-          "CMAKE_C_COMPILER": "gcc",
-          "CMAKE_CXX_COMPILER": "g++"
-      }
-    },
-    {
-      "name": "Clang",
-      "inherits": "x64-base",
-      "cacheVariables": {
-        "CMAKE_C_COMPILER": "clang",
-        "CMAKE_CXX_COMPILER": "clang++"
-      }
-    }
-  ],
-  "buildPresets": [
-    {
-      "name": "GNUC-Debug",
-      "configurePreset": "GNUC",
-      "configuration": "Debug"
-    },
-    {
-      "name": "GNUC-RelWithDebInfo",
-      "configurePreset": "GNUC",
-      "configuration": "RelWithDebInfo"
-    },
-    {
-      "name": "GNUC-Release",
-      "configurePreset": "GNUC",
-      "configuration": "Release"
-    },
-    {
-      "name": "Clang-Debug",
-      "configurePreset": "Clang",
-      "configuration": "Debug"
-    },
-    {
-      "name": "Clang-RelWithDebInfo",
-      "configurePreset": "Clang",
-      "configuration": "RelWithDebInfo"
-    },
-    {
-      "name": "Clang-Release",
-      "configurePreset": "Clang",
-      "configuration": "Release"
-    }
-  ],
-  "testPresets": [
-    {
-      "name": "test-base",
-      "hidden": true,
-      "output": {
-        "outputOnFailure": true
-      },
-      "execution": {
-        "timeout": 100,
-        "stopOnFailure": true
-      }
-    },
-    {
-      "name": "GNUC",
-      "inherits": "test-base",
-      "configurePreset": "GNUC",
-      "configuration": "Debug"
-    },
-    {
-      "name": "Clang",
-      "inherits": "test-base",
-      "configurePreset": "Clang",
-      "configuration": "Debug"
-    }
-  ],
-  "workflowPresets": [
-    {
-      "name": "GNUC",
-      "steps": [
+    "version": 6,
+    "configurePresets": [
         {
-          "type": "configure",
-          "name": "GNUC"
+            "name": "x64",
+            "hidden": true,
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "host=x64",
+                "strategy": "external"
+            }
         },
         {
-          "type": "build",
-          "name": "GNUC-Release"
+            "name": "Ninja",
+            "hidden": true,
+            "generator": "Ninja Multi-Config",
+            "cacheVariables": {
+                "CMAKE_MAKE_PROGRAM": "ninja"
+            }
         },
         {
-          "type": "test",
-          "name": "GNUC"
+            "name": "x64-base",
+            "hidden": true,
+            "inherits": [
+                "x64",
+                "Ninja"
+            ],
+            "binaryDir": "${sourceDir}/build"
+        },
+        {
+            "name": "GNUC",
+            "inherits": "x64-base",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++"
+            }
+        },
+        {
+            "name": "Clang",
+            "inherits": "x64-base",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++"
+            }
+        },
+        {
+            "name": "Clang 20.1.8 arm64-apple-darwin24.6.0",
+            "displayName": "Clang 20.1.8 arm64-apple-darwin24.6.0",
+            "description": "컴파일러를 사용하는 중: C = /opt/homebrew/opt/llvm/bin/clang, CXX = /opt/homebrew/opt/llvm/bin/clang++",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "/opt/homebrew/opt/llvm/bin/clang",
+                "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
         }
-      ]
-    },
-    {
-      "name": "Clang",
-      "steps": [
+    ],
+    "buildPresets": [
         {
-          "type": "configure",
-          "name": "Clang"
+            "name": "GNUC-Debug",
+            "configurePreset": "GNUC",
+            "configuration": "Debug"
         },
         {
-          "type": "build",
-          "name": "Clang-Release"
+            "name": "GNUC-RelWithDebInfo",
+            "configurePreset": "GNUC",
+            "configuration": "RelWithDebInfo"
         },
         {
-          "type": "test",
-          "name": "Clang"
+            "name": "GNUC-Release",
+            "configurePreset": "GNUC",
+            "configuration": "Release"
+        },
+        {
+            "name": "Clang-Debug",
+            "configurePreset": "Clang",
+            "configuration": "Debug"
+        },
+        {
+            "name": "Clang-RelWithDebInfo",
+            "configurePreset": "Clang",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "Clang-Release",
+            "configurePreset": "Clang",
+            "configuration": "Release"
         }
-      ]
-    }
-  ]
+    ],
+    "testPresets": [
+        {
+            "name": "test-base",
+            "hidden": true,
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "timeout": 100,
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "GNUC",
+            "inherits": "test-base",
+            "configurePreset": "GNUC",
+            "configuration": "Debug"
+        },
+        {
+            "name": "Clang",
+            "inherits": "test-base",
+            "configurePreset": "Clang",
+            "configuration": "Debug"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "GNUC",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "GNUC"
+                },
+                {
+                    "type": "build",
+                    "name": "GNUC-Release"
+                },
+                {
+                    "type": "test",
+                    "name": "GNUC"
+                }
+            ]
+        },
+        {
+            "name": "Clang",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "Clang"
+                },
+                {
+                    "type": "build",
+                    "name": "Clang-Release"
+                },
+                {
+                    "type": "test",
+                    "name": "Clang"
+                }
+            ]
+        }
+    ]
 }

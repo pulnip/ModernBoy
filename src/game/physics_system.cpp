@@ -1,35 +1,41 @@
-#include "physics.hpp"
-#include "game/context.hpp"
-#include "game/physics_system.hpp"
+#include "engine/physics/physics.hpp"
+#include "context.hpp"
+#include "physics_system.hpp"
+#include "engine/interface/draw_service.hpp"
+#include "ray_service.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
+using namespace ModernBoy::Interface;
 
-PhysicsSystem::PhysicsSystem(EntityRegistry& registry)
-:registry(registry){}
+PhysicsSystem::PhysicsSystem(EntityRegistry& registry,
+    RayService& raySrv, DrawService& ddSrv)
+:registry(registry), raycast(registry, raySrv, ddSrv){}
 
-void PhysicsSystem::update(DeltaTime dt){
-    auto dt_ = dt.count() / 1'000'000.0f;
+void PhysicsSystem::update(DeltaTime deltaTime){
+    auto dt = deltaTime.count() / 1'000'000.0f;
 
     sphere2sphereCollision();
     box2boxCollision();
 
-    simulateGravity(dt);
+    simulateGravity(deltaTime);
 
     for(auto [id, bit, tc, rc]: registry.query<Transform, Rigidbody>()){
-        tc.position += rc.velocity * dt_;
+        tc.position += rc.velocity * dt;
     }
+
+    raycast.update(deltaTime);
 }
 
-void PhysicsSystem::simulateGravity(DeltaTime dt){
-    auto dt_ = dt.count() / 1'000'000.0f;
+void PhysicsSystem::simulateGravity(DeltaTime deltaTime){
+    auto dt = deltaTime.count() / 1'000'000.0f;
 
     for(auto [id, bit, tf, rb]: registry.query<Transform, Rigidbody>()){
         if(bit & GROUNDED_BIT)
             continue;
         if(!rb.useGravity)
             continue;
-        rb.velocity += 0.5*dt_ * Vec3{.x=0, .y=-1, .z=0};
+        rb.velocity += 0.5*dt * Vec3{.x=0, .y=-1, .z=0};
     }
 }
 
@@ -142,3 +148,34 @@ std::vector<BoxColliderProxy> PhysicsSystem::getBoxColliderProxies(){
         flat.emplace_back(id, bit, &tf, &rb, &bc);
     return flat;
 }
+
+RaycastSystem::RaycastSystem(EntityRegistry& registry,
+    RayService& raySrv, DrawService& ddSrv)
+:registry(registry), rayService(raySrv)
+,debugDrawService(ddSrv){}
+
+void RaycastSystem::update(DeltaTime){
+    // auto dt = deltaTime.count() / 1'000'000.0f;
+    auto rays = rayService.drainRays();
+
+    for(auto [id, bit, c_tf, sc]: registry.query<Transform ,SphereCollider>()){
+        RaycastHit result;
+
+        for(const auto& ray: rays){
+            if(raycastSphere(ray, c_tf.position+sc.position, sc.radius, result)){
+                debugDrawService.write(Line{
+                    .from = asVec4(ray.point),
+                    .to = asVec4(result.point),
+                    .color = Vec4{.r=1, .g=0, .b=0, .a=1}
+                });
+    
+                debugDrawService.write(Sphere{
+                    .point = result.point,
+                    .radius = 0.1,
+                    .color = Vec4{.r=1, .g=0, .b=0, .a=1}
+                });
+            }
+        }
+    }
+}
+

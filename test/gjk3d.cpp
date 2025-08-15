@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "physics.hpp"
+#include "engine/physics/physics.hpp"
 #include <vector>
 
 using namespace ModernBoy;

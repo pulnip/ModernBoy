@@ -1,25 +1,26 @@
 #include <cassert>
-#include "log.hpp"
-#include "game/entity_registry.hpp"
-#include "game/draw_system.hpp"
-#include "game/component.hpp"
+#include "engine/log.hpp"
+#include "engine/interface/view_service.hpp"
+#include "engine/interface/draw_service.hpp"
+#include "entity_registry.hpp"
+#include "draw_system.hpp"
+#include "component.hpp"
 
 using namespace ModernBoy;
+using namespace ModernBoy::Interface;
 using namespace ModernBoy::Game;
 
-DrawSystem::DrawSystem(EntityRegistry& registry)
-:registry(registry){}
+DrawSystem::DrawSystem(EntityRegistry& registry,
+    ViewService& viewSrv, DrawService& drawSrv)
+:registry(registry), viewService(viewSrv), drawService(drawSrv){}
 
-void DrawSystem::update(DeltaTime){
-    viewTasks.clear();
-    drawTasks.clear();
-
+void DrawSystem::update(){
     for(const auto [id, bit, tc, cc]: registry.query<
         Transform, Camera>()
     ){
         assert(tc.entity == cc.entity);
         if(cc.isActive)
-            viewTasks.emplace_back(ViewTask{
+            viewService.write(CameraObject{
                 tc.position, tc.rotation, tc.scale,
                 cc.type, cc.fov, cc.nearPlane, cc.farPlane,
                 cc.projection});
@@ -28,12 +29,13 @@ void DrawSystem::update(DeltaTime){
     ){
         assert(tc.entity == mc.entity);
         if(mc.isActive)
-            drawTasks.emplace_back(DrawTask{
+            drawService.write(MeshObject{
                 tc.position, tc.rotation, tc.scale,
                 mc.alpha,
                 mc.handle,
                 mc.textureHandle,
-                mc.shaderHandle});
+                mc.shaderHandle,
+                id});
     }
 }
 

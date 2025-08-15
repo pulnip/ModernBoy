@@ -8,15 +8,21 @@ constant float3 lightSpecular = float3(0.5);
 constant float3 lightAmbient = float3(0.2);
 
 fragment float4 fragment_main(
-    FS_Input input                [[stage_in]],
-    constant float3& viewPosition [[buffer(0)]],
-    texture2d<float> tex          [[texture(0)]],
-    sampler samp                  [[sampler(0)]],
-    constant RimConstant& rimc    [[buffer(1)]],
-    constant float& alpha         [[buffer(2)]]
+    FS_Input input                 [[stage_in]],
+    constant float3& viewPosition  [[buffer(0)]],
+    texture2d<float> tex           [[texture(0)]],
+    sampler samp                   [[sampler(0)]],
+    constant RimConstant& rimc     [[buffer(1)]],
+    constant float& alpha          [[buffer(2)]],
+    constant float4& myIDColor     [[buffer(3)]],
+    constant float4& pickedIDColor [[buffer(4)]],
+    constant bool& useUV           [[buffer(5)]],
+    constant float4& plainColor    [[buffer(6)]]
 ){
     float2 uv = input.uv.xy;
-    float4 color = tex.sample(samp, uv);
+    float4 color = plainColor;
+    if(useUV)
+        color = tex.sample(samp, uv);
 
     PhongLight light{
         lightDirection,
@@ -32,6 +38,31 @@ fragment float4 fragment_main(
     float3 lightingColor = phongColor + rimColor;
 
     float3 red = float3(1.0, 0.0, 0.0);
+    float m = 0.0;
+    if((myIDColor == pickedIDColor).x)
+        m = 0.5;
+    float3 mixed = mix(lightingColor, red, m);
 
-    return float4(mix(red, lightingColor, alpha), color.a);
+    // float3 white = float3(0.0, 0.0, 0.0);
+    return float4(mixed, color.a);
+    // return float4(mix(white, mixed, alpha), color.a);
+}
+
+fragment float4 fragment_id(
+    FS_Input input             [[stage_in]],
+    constant float4 &myIDColor [[buffer(0)]]
+){
+    return myIDColor;
+}
+
+fragment float4 fragment_line(
+    FS_Input_Line input        [[stage_in]]
+){
+    return float4(input.color.rgb, 1.0);
+}
+
+fragment float4 fragment_points(
+    FS_Input_Point input       [[stage_in]]
+){
+    return float4(input.color.rgb, 1.0);
 }

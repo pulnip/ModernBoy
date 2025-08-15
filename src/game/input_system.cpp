@@ -1,70 +1,130 @@
-#include "input/chord.hpp"
-#include "game/entity_registry.hpp"
-#include "game/input_system.hpp"
+#include "entity_registry.hpp"
+#include "engine/interface/engine_command_bus.hpp"
+#include "engine/interface/input_service.hpp"
+#include "game_command_bus.hpp"
+#include "input_system.hpp"
+#include "intent_service.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;
+using namespace ModernBoy::Interface;
 using namespace ModernBoy::Input;
 
-InputSystem::InputSystem(EntityRegistry& registry,
-    ModernBoy::Input::Chord& input)
-:registry(registry), input(input){}
+PlayerInputSystem::PlayerInputSystem(
+    InputService& inputSrv, EngineCommandBus& bus,
+    GameCommandBus& gameCommandBus,
+    EntityRegistry& registry, IntentService& intentSrv)
+:inputService(inputSrv), commandBus(bus), gameCommandBus(gameCommandBus)
+,registry(registry), intentService(intentSrv){}
 
-void InputSystem::update(DeltaTime dt){
-    auto dt_ = dt.count() / 1'000'000.0f;
+EditorInputSystem::EditorInputSystem(
+    InputService& inputSrv, EngineCommandBus& bus,
+    GameCommandBus& gameCommandBus,
+    EntityRegistry& registry, IntentService& intentSrv)
+:inputService(inputSrv), commandBus(bus), gameCommandBus(gameCommandBus)
+,registry(registry), intentService(intentSrv){}
 
-    for(auto [id, bit, tc, _1]: registry.query<Transform, Player>()){
-        if(input.query(KEY_A, Held))
-            tc.position -= 10 * dt_ * ground_right(tc.rotation);
-        if(input.query(KEY_D, Held))
-            tc.position += 10 * dt_ * ground_right(tc.rotation);
-        if(input.query(KEY_W, Held))
-            tc.position += 10 * dt_ * ground_forward(tc.rotation);
-        if(input.query(KEY_S, Held))
-            tc.position -= 10 * dt_ * ground_forward(tc.rotation);
+InputSystem::InputSystem(
+    InputService& inputSrv, EngineCommandBus& bus,
+    GameCommandBus& gameCommandBus, EntityRegistry& registry,
+    IntentService& playerItt, IntentService& editorItt)
+:playerInputSystem(inputSrv, bus, gameCommandBus, registry, playerItt)
+,editorInputSystem(inputSrv, bus, gameCommandBus, registry, editorItt){}
 
-        if(input.query(KEY_Q, Held))
-            tc.rotation = rotateY(-3.14/2 * dt_) * tc.rotation;
-        if(input.query(KEY_E, Held))
-            tc.rotation = rotateY( 3.14/2 * dt_) * tc.rotation;
-        // if(input.query(KEY_SPACE, Pressed))
-        //     jump;
+void InputSystem::update(){
+    playerInputSystem.update();
+    editorInputSystem.update();
+}
+
+void PlayerInputSystem::update(){
+    const auto& input = inputService.snapshot();
+
+    if(input.keyboard[KEY_ALT] == Pressed){
+        isUIMode = !isUIMode;
+
+        commandBus.write(SetMouseMode{
+            .isRelative = !isUIMode
+        });
+        gameCommandBus.write(ActivateSystem{
+            .targetSystem = CAMERA_RAY,
+            .activate = isUIMode
+        });
     }
 
-    for(auto [id, bit, tc, _2]: registry.query<Transform, Editor>()){
-        if(input.query(KEY_A, Held))
-            tc.position -= 10 * dt_ * right(tc.rotation);
-        if(input.query(KEY_D, Held))
-            tc.position += 10 * dt_ * right(tc.rotation);
-        if(input.query(KEY_W, Held))
-            tc.position += 10 * dt_ * forward(tc.rotation);
-        if(input.query(KEY_S, Held))
-            tc.position -= 10 * dt_ * forward(tc.rotation);
-        if(input.query(KEY_SPACE, Held))
-            tc.position += 10 * dt_ * up(tc.rotation);
-        if(input.query(KEY_SHIFT, Held))
-            tc.position -= 10 * dt_ * up(tc.rotation);
+    for(auto [_1, _2, _3]: registry.query<Player>()){
+        float dx=0, dz=0;
 
-        Vec2 mouse_move = input.mouse();
+        if(input.keyboard[KEY_A] == Held)
+            dx -= 1;
+        if(input.keyboard[KEY_D] == Held)
+            dx += 1;
+        if(input.keyboard[KEY_W] == Held)
+            dz += 1;
+        if(input.keyboard[KEY_S] == Held)
+            dz -= 1;
 
-        if(norm_squared(mouse_move) > 0){
-            Vec3 mouse_vec{
-                .x = mouse_move.x,
-                .y = -mouse_move.y,
-                .z = 0
-            };
-
-            Vec3 axis = normalize(cross(Vec3{{0, 0, 1}}, mouse_vec));
-
-            float theta = norm(mouse_move) / 10.0f;
-            Vec4 mouse_quat = axisAngle(axis, theta * dt_);
-    
-            tc.rotation = tc.rotation * mouse_quat;
+        if(dx != 0 || dz != 0){
+            intentService.write(MoveIntent{.move=Vec3{
+                .x=dx, .y=0, .z=dz
+            }});
         }
 
-        if(input.query(KEY_Q, Held))
-            tc.rotation = tc.rotation * rotateZ( 3.14/2 * dt_);
-        if(input.query(KEY_E, Held))
-            tc.rotation = tc.rotation * rotateZ(-3.14/2 * dt_);
+        if(!isUIMode && (input.mouse.pos0 != input.mouse.pos)){
+            intentService.write(LookIntent{
+                .yaw = input.mouse.dpos.x,
+                .pitch = input.mouse.dpos.y
+            });
+        }
+
+        if(!isUIMode && norm_squared(input.mouse.dpos) > 1e-6)
+            intentService.write(LookIntent{
+                .yaw = input.mouse.dpos.x,
+                .pitch = input.mouse.dpos.y
+            });
+    }
+}
+
+void EditorInputSystem::update(){
+    const auto& input = inputService.snapshot();
+
+    if(input.keyboard[KEY_ALT] == Pressed){
+        isUIMode = !isUIMode;
+
+        commandBus.write(SetMouseMode{
+            .isRelative = !isUIMode
+        });
+        gameCommandBus.write(ActivateSystem{
+            .targetSystem = CAMERA_RAY,
+            .activate = isUIMode
+        });
+    }
+
+    for(auto [_1, _2, _3]: registry.query<Editor>()){
+        float dx=0, dy=0, dz=0;
+
+        if(input.keyboard[KEY_A] == Held)
+            dx -= 1;
+        if(input.keyboard[KEY_D] == Held)
+            dx += 1;
+        if(input.keyboard[KEY_SHIFT] == Held)
+            dy -= 1;
+        if(input.keyboard[KEY_SPACE] == Held)
+            dy += 1;
+        if(input.keyboard[KEY_W] == Held)
+            dz += 1;
+        if(input.keyboard[KEY_S] == Held)
+            dz -= 1;
+
+        if(dx != 0 || dy != 0 || dz != 0){
+            intentService.write(MoveIntent{.move=Vec3{
+                .x=dx, .y=dy, .z=dz
+            }});
+        }
+
+        if(!isUIMode && norm_squared(input.mouse.dpos) > 1e-6)
+            intentService.write(LookIntent{
+                .yaw = input.mouse.dpos.x,
+                .pitch = input.mouse.dpos.y
+            });
     }
 }
