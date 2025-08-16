@@ -8,6 +8,7 @@ namespace ModernBoy
 {
     using Index = size_t;
     using ID = uint32_t;
+    using UUID = uint64_t;
     using ABNORMAL_FLAG = bool;
 } // namespace ModernBoy
 

@@ -113,6 +113,68 @@ namespace ModernBoy
         size_t size() const{ return pool.size(); }
         size_t capacity() const{ return pool.capacity(); }
     };
+
+    // ensure uniqueness of Resource
+    template<typename Resource>
+    class ResourceManagerV2{
+    private:
+        // storage class
+        ObjectPoolV2<Resource> pool;
+
+        std::unordered_map<UUID, HandleV2> uuidToHandle;
+        std::unordered_map<HandleV2, UUID> handleToUUID;
+
+    public:
+        ResourceManagerV2() = default;
+
+        bool isExist(UUID uuid){
+            auto it = uuidToHandle.find(uuid);
+            return it != uuidToHandle.end();
+        }
+
+        template<typename... Args>
+        [[nodiscard]] HandleV2 emplace(
+            UUID uuid, Args... args
+        ){
+            AppDebug("try to load: {}", uuid);
+            if(isExist(uuid)){
+                AppDebug("    already loaded.", uuid);
+                return uuidToHandle.at(uuid);
+            }
+
+            auto handle = pool.emplace(std::forward<Args>(args)...);
+
+            uuidToHandle.emplace(std::make_pair(uuid, handle));
+            handleToUUID.emplace(std::make_pair(handle, uuid));
+
+            AppDebug("    successfully loaded.", uuid);
+            return handle;
+        }
+        void unload(HandleV2 handle){
+            pool.remove(handle);
+
+            auto uuid = handleToUUID.at(handle);
+
+            handleToUUID.erase(handle);
+            uuidToHandle.erase(uuid);
+        }
+
+        auto& get(HandleV2 handle){
+            return pool[handle];
+        }
+        const auto& get(HandleV2 handle) const{
+            return pool[handle];
+        }
+        auto& get(UUID id){
+            return pool[uuidToHandle.at(id)];
+        }
+        const auto& get(UUID id) const{
+            return pool[uuidToHandle.at(id)];
+        }
+
+        size_t size() const{ return pool.size(); }
+        size_t capacity() const{ return pool.capacity(); }
+    };
 } // namespace ModernBoy
 
 #endif // MODERNBOY_RESOURCE_MANAGER_HPP
