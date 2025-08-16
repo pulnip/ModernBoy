@@ -7,7 +7,7 @@ struct Vertex {
     var position: simd_float3
     var normal: simd_float3
     var uv: simd_float2
-    // var tangent: simd_float3
+    var tangent: simd_float3
 }
 
 class Mesh {
@@ -49,7 +49,7 @@ public func createMesh(
 
     var vertices: [Vertex] = []
     for i in 0..<numVertices {
-        let base = Int(i * 8)
+        let base = Int(i * 11)
         let position = simd_float3(
             packedVertices[base + 0], packedVertices[base + 1],
             packedVertices[base + 2])
@@ -58,13 +58,13 @@ public func createMesh(
             packedVertices[base + 5])
         let uv = simd_float2(
             packedVertices[base + 6], packedVertices[base + 7])
-        // let tangent = simd_float3(
-        //     packedVertices[base + 8], packedVertices[base + 9],
-        //     packedVertices[base + 10])
+        let tangent = simd_float3(
+            packedVertices[base + 8], packedVertices[base + 9],
+            packedVertices[base + 10])
         vertices.append(
             Vertex(
                 position: position, normal: normal,
-                uv: uv))  //, tangent: tangent))
+                uv: uv, tangent: tangent))
     }
     var indices: [UInt32]? = nil
     if let indicesPtr = indicesPtr, numIndices > 0 {

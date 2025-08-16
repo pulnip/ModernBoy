@@ -7,6 +7,7 @@ struct Vertex{
     float3 position             [[attribute(0)]];
     float3 normal               [[attribute(1)]];
     float2 uv                   [[attribute(2)]];
+    float3 tangent              [[attribute(3)]];
 };
 struct Line{
     float3 from                 [[attribute(0)]];
