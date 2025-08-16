@@ -5,21 +5,12 @@
 #include "engine/raw_resource.hpp"
 #include "engine/render/metal/mesh.hpp"
 
-
-#ifdef __cplusplus
 extern "C"{
-#endif
-
-    extern void* createMesh(const void* layerPtr,
-        const float* vertices, int numVertices,
-        const uint32_t* indices, int numIndices
-    );
+    extern void* createMesh(const void* rctxPtr,
+        const float* vertices, int32_t numVertices,
+        const uint32_t* indices, int32_t numIndices);
     extern void destroyMesh(const void* meshPtr);
-    extern void* makeTriangle(const void* layerPtr);
-
-#ifdef __cplusplus
 }
-#endif
 
 using namespace ModernBoy;
 using namespace ModernBoy::Metal;
@@ -36,8 +27,9 @@ void Mesh::moveFrom(Mesh&& other){
     other.meshPtr.clear();
 }
 
-Mesh::Mesh(const std::string& fileName,
-    NativePtr metalLayer){
+Mesh::Mesh(NativePtr rctxPtr,
+    const std::string& fileName)
+{
     auto rawMesh = import<RawMesh>(fileName);
     meshPtr.reserve(rawMesh.size());
 
@@ -45,7 +37,7 @@ Mesh::Mesh(const std::string& fileName,
         auto vertices = toFloats(part.vertices);
 
         meshPtr.emplace_back(createMesh(
-            metalLayer,
+            rctxPtr,
             vertices.data(), vertices.size() / 8,
             part.indices.data(), part.indices.size()
         ));

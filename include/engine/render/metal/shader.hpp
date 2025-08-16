@@ -12,7 +12,8 @@ namespace ModernBoy::Metal
 
         Shader(NativePtr renderContext,
             const std::string& vsFuncName = "vertex_main",
-            const std::string& fsFuncName = "fragment_main");
+            const std::string& fsFuncName = "fragment_main",
+            bool useDepth = true);
         ~Shader();
 
         Shader()=default;

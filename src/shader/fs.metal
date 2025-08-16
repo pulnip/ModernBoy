@@ -10,19 +10,20 @@ constant float3 lightAmbient = float3(0.2);
 fragment float4 fragment_main(
     FS_Input input                 [[stage_in]],
     constant float3& viewPosition  [[buffer(0)]],
-    texture2d<float> tex           [[texture(0)]],
-    sampler samp                   [[sampler(0)]],
-    constant RimConstant& rimc     [[buffer(1)]],
-    constant float& alpha          [[buffer(2)]],
-    constant float4& myIDColor     [[buffer(3)]],
-    constant float4& pickedIDColor [[buffer(4)]],
-    constant bool& useUV           [[buffer(5)]],
-    constant float4& plainColor    [[buffer(6)]]
+    constant float4& myIDColor     [[buffer(1)]],
+    constant float4& pickedIDColor [[buffer(2)]],
+    constant float4& debugColor    [[buffer(3)]],
+    constant float& debugAlpha     [[buffer(4)]],
+    texture2d<float> baseColor     [[texture(0)]],
+    // texture2d<float> texNormal     [[texture(1)]],
+    // texture2d<float> texMR         [[texture(2)]],
+    // texture2d<float> texEmissive   [[texture(3)]],
+    sampler samp                   [[sampler(0)]]
 ){
     float2 uv = input.uv.xy;
-    float4 color = plainColor;
-    if(useUV)
-        color = tex.sample(samp, uv);
+    float4 color = debugColor;
+    if(color.x!=-1)
+        color = baseColor.sample(samp, uv);
 
     PhongLight light{
         lightDirection,
@@ -33,9 +34,9 @@ fragment float4 fragment_main(
 
     float3 phongColor = phongLighting(color.rgb, input.normal,
         input.worldPosition, viewPosition, light);
-    float3 rimColor = rimLighting(color.rgb, input.normal,
-        input.worldPosition, viewPosition, rimc);
-    float3 lightingColor = phongColor + rimColor;
+    // float3 rimColor = rimLighting(color.rgb, input.normal,
+    //     input.worldPosition, viewPosition, rimc);
+    float3 lightingColor = phongColor; // + rimColor;
 
     float3 red = float3(1.0, 0.0, 0.0);
     float m = 0.0;
@@ -45,12 +46,12 @@ fragment float4 fragment_main(
 
     // float3 white = float3(0.0, 0.0, 0.0);
     return float4(mixed, color.a);
-    // return float4(mix(white, mixed, alpha), color.a);
+    // return float4(mix(white, mixed, debugAlpha), color.a);
 }
 
 fragment float4 fragment_id(
     FS_Input input             [[stage_in]],
-    constant float4 &myIDColor [[buffer(0)]]
+    constant float4 &myIDColor [[buffer(1)]]
 ){
     return myIDColor;
 }

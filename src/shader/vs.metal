@@ -4,9 +4,9 @@
 using namespace metal;
 
 struct Vertex{
-    float4 position             [[attribute(0)]];
-    float4 normal               [[attribute(1)]];
-    float4 uv                   [[attribute(2)]];
+    float3 position             [[attribute(0)]];
+    float3 normal               [[attribute(1)]];
+    float2 uv                   [[attribute(2)]];
 };
 struct Line{
     float3 from                 [[attribute(0)]];
@@ -25,11 +25,11 @@ struct ModelConstant{
 
 vertex FS_Input vertex_main(uint vid [[vertex_id]],
     constant Vertex* vertices     [[buffer(0)]],
-    constant ViewConstant& view   [[buffer(1)]],
-    constant ModelConstant& model [[buffer(2)]]
+    constant ViewConstant& view   [[buffer(3)]],
+    constant ModelConstant& model [[buffer(4)]]
 ){
     FS_Input output;
-    output.worldPosition = (model.trs*vertices[vid].position).xyz;
+    output.worldPosition = (model.trs*float4(vertices[vid].position, 1.0)).xyz;
     output.position = view.proj * view.trs * float4(output.worldPosition, 1.0);
     output.normal = model.normal * vertices[vid].normal.xyz;
     output.uv = vertices[vid].uv.xy;

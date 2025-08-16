@@ -83,6 +83,8 @@ namespace ModernBoy
     using ModuleHandle = ResourceHandle;
     // using ObjectHandle = ResourceHandle;
     using ObjectHandle = HandleV2;
+    using MeshHandleV2 = HandleV2;
+    using MaterialHandle = HandleV2;
 
     template<typename Resource>
     class ResourceManager;

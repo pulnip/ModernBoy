@@ -17,7 +17,7 @@ namespace ModernBoy::Metal
         Mesh& operator=(const Mesh&)=delete;
         Mesh& operator=(Mesh&&);
 
-        Mesh(const std::string& fileName, NativePtr metalLayer);
+        Mesh(NativePtr rctxPtr, const std::string& fileName);
         Mesh(MeshPartPtr partPtr):meshPtr({partPtr}){}
         ~Mesh();
 

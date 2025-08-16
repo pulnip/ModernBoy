@@ -1,33 +1,21 @@
 #include <utility>
 #include "engine/render/metal/shader.hpp"
 
-#ifdef __cplusplus
 extern "C"{
-#endif
-
     extern void* createShader(void* rctxPtr,
-        const char* vsFuncName,
-        const char* fsFuncName);
+        const char* vsFuncName, const char* fsFuncName,
+        bool useDepth);
     extern void destroyShader(const void* shaderPtr);
-
-    extern void Shader_setRimPower(
-        void* shaderPtr, float rimPower
-    );
-    extern void Shader_setRimStrength(
-        void* shaderPtr, float rimStrength
-    );
-
-#ifdef __cplusplus
 }
-#endif
 
 using namespace ModernBoy::Metal;
 
 Shader::Shader(NativePtr renderContext,
     const std::string& vsFuncName,
-    const std::string& fsFuncName)
+    const std::string& fsFuncName,
+    bool useDepth)
 :shaderPtr(createShader(renderContext,
-    vsFuncName.c_str(), fsFuncName.c_str())){}
+    vsFuncName.c_str(), fsFuncName.c_str(), useDepth)){}
 Shader::~Shader(){
     if(shaderPtr != nullptr){
         destroyShader(shaderPtr);

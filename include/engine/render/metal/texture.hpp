@@ -8,8 +8,10 @@ namespace ModernBoy::Metal
     struct Texture{
         NativePtr texture;
 
-        Texture(const std::string& fileName,
-            NativePtr layerPtr);
+        Texture(NativePtr rctxPtr,
+            const std::string& fileName);
+        Texture(NativePtr rctxPtr,
+            uint8_t* pixel, int width, int height);
         ~Texture();
 
         Texture()=default;

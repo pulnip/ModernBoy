@@ -20,3 +20,11 @@ struct Point{
     float3 position;
     float4 color;
 };
+
+struct Material{
+    float4 baseColorFactor;
+    float3 emissiveFactor;
+    float metallic;
+    float roughness;
+    int flags;
+};

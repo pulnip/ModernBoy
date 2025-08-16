@@ -5,17 +5,13 @@
 #include "engine/render/metal/texture.hpp"
 #include "engine/engine.hpp"
 
-#ifdef __cplusplus
 extern "C"{
-#endif
-
-    extern void* createTexture(const char* filePath,
-        const void* layerPtr);
+    extern void* createTextureFromPath(const void* rctxPtr,
+        const char* filePath);
+    extern void* createTextureFromPixel(const void* rctxPtr,
+        uint8_t* pixels, int32_t width, int32_t height);
     extern void destroyTexture(const void* texturePtr);
-
-#ifdef __cplusplus
 }
-#endif
 
 using namespace ModernBoy;
 using namespace ModernBoy::Metal;
@@ -36,8 +32,13 @@ Texture::~Texture(){
     }
 }
 
-Texture::Texture(const std::string& fileName,
-            NativePtr layerPtr)
-:texture(createTexture(fileName.c_str(), layerPtr)){
+Texture::Texture(NativePtr rctxPtr,
+    const std::string& fileName)
+:texture(createTextureFromPath(rctxPtr, fileName.c_str())){
+    AppTrace("  Texture: Ptr: {}", texture);
+}
+Texture::Texture(NativePtr rctxPtr,
+    uint8_t* pixel, int width, int height)
+:texture(createTextureFromPixel(rctxPtr, pixel, width, height)){
     AppTrace("  Texture: Ptr: {}", texture);
 }

@@ -27,7 +27,7 @@ context(createRenderContext(metalLayer,
 meshManager(meshManager), textureManager(textureManager), 
 shaderManager(shaderManager), world(world), ema(0ms),
 viewService(viewSrv), drawService(drawSrv),
-sphereMesh("Sphere", metalLayer){}
+sphereMesh(context, "Sphere"){}
 
 Renderer::~Renderer(){
 #if defined(USE_METAL)

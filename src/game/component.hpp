@@ -36,6 +36,11 @@ namespace ModernBoy::Game
         TextureHandle textureHandle;
         ShaderHandle shaderHandle;
     );
+    DEFINE_COMPONENT(Mesh,
+        MeshHandleV2 handle;
+        float alpha;
+        MaterialHandle materialHandle;
+    );
     DEFINE_COMPONENT(Action,
         ModuleHandle moduleHandle;
         Script::FunctionID updateFunc;

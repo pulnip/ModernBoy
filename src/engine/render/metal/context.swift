@@ -65,34 +65,35 @@ class RenderContext {
 
         let libURL = URL(fileURLWithPath: libPath)
         shaderLib = try! layer.device!.makeLibrary(URL: libURL)
-        idShader = Shader(
-            layer.device!,
-            shaderLib.makeFunction(name: "vertex_main")!,
-            shaderLib.makeFunction(name: "fragment_id")!
-        )
-        lineShader = Shader(
-            layer.device!,
-            shaderLib.makeFunction(name: "vertex_line")!,
-            shaderLib.makeFunction(name: "fragment_line")!,
-            vertexDescriptor: nil,
-            useDepth: false
-        )
-        pointShader = Shader(
-            layer.device!,
-            shaderLib.makeFunction(name: "vertex_points")!,
-            shaderLib.makeFunction(name: "fragment_points")!,
-            vertexDescriptor: nil,
-            useDepth: false
-        )
-        pointComputeShader = ComputeShader(
-            layer.device!,
-            shaderLib.makeFunction(name: "expand_points")!
-        )
 
         let dsd = MTLDepthStencilDescriptor()
         dsd.depthCompareFunction = .less
         dsd.isDepthWriteEnabled = true
         depthStencilState = layer.device!.makeDepthStencilState(descriptor: dsd)
+
+        idShader = Shader(
+            device: layer.device!,
+            vsFunc: shaderLib.makeFunction(name: "vertex_main")!,
+            fsFunc: shaderLib.makeFunction(name: "fragment_id")!,
+            depthState: depthStencilState
+        )
+        lineShader = Shader(
+            device: layer.device!,
+            vsFunc: shaderLib.makeFunction(name: "vertex_line")!,
+            fsFunc: shaderLib.makeFunction(name: "fragment_line")!,
+            depthState: nil
+        )
+        pointShader = Shader(
+            device: layer.device!,
+            vsFunc: shaderLib.makeFunction(name: "vertex_points")!,
+            fsFunc: shaderLib.makeFunction(name: "fragment_points")!,
+            vertexDesc: nil,
+            depthState: nil
+        )
+        pointComputeShader = ComputeShader(
+            layer.device!,
+            shaderLib.makeFunction(name: "expand_points")!
+        )
 
         let desc = MTLSamplerDescriptor()
         desc.minFilter = .linear
@@ -135,10 +136,6 @@ class RenderContext {
         outBuf = layer.device!.makeBuffer(
             length: MemoryLayout<Point>.stride * numPoint * nCopies,
             options: .storageModePrivate)!
-    }
-    deinit {
-        renderEncoder?.endEncoding()
-        idRenderEncoder?.endEncoding()
     }
 
     func frameStart(
@@ -236,13 +233,13 @@ class RenderContext {
     var viewConstant: ViewConstant?
 
     func setView(_ viewPos: simd_float3, _ fov: Float, _ viewQuat: simd_float4) {
-        let aspectRatio = Float(layer.bounds.width / layer.bounds.height)
+        let aspectRatio = Float(layer.drawableSize.width / layer.drawableSize.height)
         var viewPosition = viewPos
         if let encoder = ensureMainEncoder() {
             encoder.setFragmentBytes(
                 &viewPosition,
                 length: MemoryLayout<simd_float3>.stride,
-                index: 0)
+                index: Binding.viewPosition)
         }
         let viewMat = viewMatrix(viewPos, viewQuat)
 
@@ -254,11 +251,13 @@ class RenderContext {
             if let encoder = ensureMainEncoder() {
                 encoder.setVertexBytes(
                     &vc,
-                    length: MemoryLayout<ViewConstant>.stride, index: 1)
+                    length: MemoryLayout<ViewConstant>.stride,
+                    index: Binding.viewConstant)
             }
             idRenderEncoder?.setVertexBytes(
                 &vc,
-                length: MemoryLayout<ViewConstant>.stride, index: 1)
+                length: MemoryLayout<ViewConstant>.stride,
+                index: Binding.viewConstant)
         }
     }
     func setShader(_ shader: Shader) {
@@ -282,47 +281,47 @@ class RenderContext {
             modelMat: modelMat, normalMat: normal(modelMat))
         encoder.setVertexBytes(
             &modelConstant,
-            length: MemoryLayout<ModelConstant>.stride, index: 2)
+            length: MemoryLayout<ModelConstant>.stride, index: Binding.modelConstant)
 
         var a = alpha
         encoder.setFragmentBytes(
             &a,
             length: MemoryLayout<Float>.stride,
-            index: 2)
+            index: Binding.debugAlpha)
 
         var myIdColor = simd_float4(Float(id) / 255.0, 0, 0, 0)
         var pickedIDColor = simd_float4(Float(pickedID) / 255.0, 0, 0, 0)
-        var useUV = useUV
         var color = color
 
         encoder.setFragmentBytes(
             &myIdColor,
             length: MemoryLayout<simd_float4>.stride,
-            index: 3)
+            index: Binding.myIDColor)
         encoder.setFragmentBytes(
             &pickedIDColor,
             length: MemoryLayout<simd_float4>.stride,
-            index: 4)
-        encoder.setFragmentBytes(
-            &useUV,
-            length: MemoryLayout<Bool>.stride,
-            index: 5)
+            index: Binding.pickedIDColor)
         encoder.setFragmentBytes(
             &color,
             length: MemoryLayout<simd_float4>.stride,
-            index: 6)
-        encoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
+            index: Binding.debugColor)
+        encoder.setVertexBuffer(
+            mesh.vertexBuffer, offset: 0,
+            index: Binding.vertexObjectBuffer)
 
         if !useUV {
             idEncoder.setVertexBytes(
                 &modelConstant,
-                length: MemoryLayout<ModelConstant>.stride, index: 2)
+                length: MemoryLayout<ModelConstant>.stride,
+                index: Binding.modelConstant)
             idRenderEncoder?.setFragmentBytes(
                 &myIdColor,
                 length: MemoryLayout<simd_float4>.stride,
-                index: 0)
+                index: Binding.myIDColor)
 
-            idEncoder.setVertexBuffer(mesh.vertexBuffer, offset: 0, index: 0)
+            idEncoder.setVertexBuffer(
+                mesh.vertexBuffer, offset: 0,
+                index: Binding.vertexObjectBuffer)
         }
 
         if let indexBuffer = mesh.indexBuffer,
@@ -441,7 +440,8 @@ class RenderContext {
     }
 
     func createShader(
-        _ vsFuncName: String, _ fsFuncName: String
+        vsFuncName: String, fsFuncName: String,
+        depthState: MTLDepthStencilState?
     ) -> Shader? {
         let vsFunc = shaderLib.makeFunction(name: vsFuncName)
         let fsFunc = shaderLib.makeFunction(name: fsFuncName)
@@ -451,7 +451,9 @@ class RenderContext {
             let fsFn = fsFunc
         else { return nil }
 
-        return Shader(dev, vsFn, fsFn)
+        return Shader(
+            device: dev,
+            vsFunc: vsFn, fsFunc: fsFn, depthState: depthState)
     }
 
     private func ensureSurfaceTexturesMatchDrawableSize() {
@@ -577,10 +579,10 @@ public func RenderContext_setTexture(
         else { return }
         let rctx = Unmanaged<RenderContext>
             .fromOpaque(rctxPtr).takeUnretainedValue()
-        let shader = Unmanaged<Texture>
+        let texture = Unmanaged<Texture>
             .fromOpaque(texPtr).takeUnretainedValue()
 
-        rctx.setTexture(shader)
+        rctx.setTexture(texture)
     }
 }
 @_cdecl("RenderContext_draw")
@@ -632,8 +634,8 @@ public func RenderContext_getDevice(
         guard let rctxPtr = rctxPtr else { return nil }
         let rctx = Unmanaged<RenderContext>
             .fromOpaque(rctxPtr).takeUnretainedValue()
-        if let desc = rctx.layer.device {
-            return UnsafeRawPointer(Unmanaged.passUnretained(desc).toOpaque())
+        if let device = rctx.layer.device {
+            return UnsafeRawPointer(Unmanaged.passUnretained(device).toOpaque())
         }
         return nil
     }

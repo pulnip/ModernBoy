@@ -89,7 +89,7 @@ MeshHandle Engine::append<Mesh, const std::string&>
     return meshManager.emplace(meshFile);
 #elif defined(USE_METAL)
     return meshManager.emplace(
-        meshFile, meshFile, renderer.metalLayer
+        meshFile, renderer.context, meshFile
     );
 #endif
 }
@@ -100,7 +100,7 @@ TextureHandle Engine::append<Texture, const std::string&>
     return textureManager.emplace(textureFile);
 #elif defined(USE_METAL)
     return textureManager.emplace(
-        textureFile, textureFile, renderer.metalLayer
+        textureFile, renderer.context, textureFile 
     );
 #endif
 }
