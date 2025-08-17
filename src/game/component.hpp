@@ -31,13 +31,13 @@ namespace ModernBoy::Game
         Vec4 color;
     );
     DEFINE_COMPONENT(Model,
-        ResourceHandle handle;
+        MeshHandle meshHandle;
         float alpha;
         TextureHandle textureHandle;
         ShaderHandle shaderHandle;
     );
     DEFINE_COMPONENT(Mesh,
-        MeshHandleV2 handle;
+        MeshHandle handle;
         float alpha;
         MaterialHandle materialHandle;
     );

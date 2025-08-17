@@ -32,7 +32,7 @@ void DrawSystem::update(){
             drawService.write(MeshObject{
                 tc.position, tc.rotation, tc.scale,
                 mc.alpha,
-                mc.handle,
+                mc.meshHandle,
                 mc.textureHandle,
                 mc.shaderHandle,
                 id});

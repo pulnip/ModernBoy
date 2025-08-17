@@ -141,7 +141,7 @@ namespace ModernBoy
             }
         }
 
-        HandleV2 push(T&& t){
+        Handle push(T&& t){
             Index freeIndex = std::numeric_limits<uint32_t>::max();
 
             if(freeIndexes.size() > 0){
@@ -162,11 +162,11 @@ namespace ModernBoy
         }
 
         template<typename... Args>
-        HandleV2 emplace(Args... args){
+        Handle emplace(Args... args){
             return push(T(std::forward<Args>(args)...));
         }
 
-        void remove(HandleV2 handle){
+        void remove(Handle handle){
             if( (handle.index > slots.size()) ||
                 (slots[handle.index].generation != handle.generation)
             )
@@ -198,7 +198,7 @@ namespace ModernBoy
             slots.clear();
         }
 
-        T& operator[](HandleV2 handle){
+        T& operator[](Handle handle){
             if( (handle.index > slots.size()) ||
                 (slots[handle.index].generation != handle.generation)
             )
@@ -208,7 +208,7 @@ namespace ModernBoy
                 ));
             return *slots[handle.index].get();
         }
-        const T& operator[](HandleV2 handle) const{
+        const T& operator[](Handle handle) const{
             if( (handle.index > slots.size()) ||
                 (slots[handle.index].generation != handle.generation)
             )

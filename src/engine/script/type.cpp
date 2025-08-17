@@ -61,8 +61,7 @@ void Object::moveFrom(Object&& other){
     other.object = nullptr;
 }
 
-Object::Object([[maybe_unused]] const std::string& instanceName,
-    const std::string& typeName,
+Object::Object(const std::string& typeName,
     asIScriptModule* module_,
     asIScriptEngine* engine
 ){

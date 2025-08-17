@@ -77,26 +77,25 @@ namespace ModernBoy
     }
     using World = Game::Context;
 
-    using MeshHandle = ResourceHandle;
-    using TextureHandle = ResourceHandle;
-    using ShaderHandle = ResourceHandle;
-    using ModuleHandle = ResourceHandle;
-    // using ObjectHandle = ResourceHandle;
-    using ObjectHandle = HandleV2;
-    using MeshHandleV2 = HandleV2;
-    using MaterialHandle = HandleV2;
+    using MeshHandle = Handle;
+    using TextureHandle = Handle;
+    using ShaderHandle = Handle;
+    using ModuleHandle = Handle;
+    using ObjectHandle = Handle;
+    using MeshHandle = Handle;
+    using MaterialHandle = Handle;
 
-    template<typename Resource>
+    // template<typename Resource>
+    // class ResourceManager;
+    template<typename Resource, typename Key=UUID>
     class ResourceManager;
-    template<typename T>
-    class ObjectPoolV2;
 
     using MeshManager = ResourceManager<Mesh>;
     using TextureManager = ResourceManager<Texture>;
     using ShaderManager = ResourceManager<Shader>;
-    using ModuleManager = ResourceManager<Module>;
+    using ModuleManager = ResourceManager<Module, std::string>;
     // using ObjectManager = ResourceManager<Object>;
-    using ObjectManager = ObjectPoolV2<Object>;
+    using ObjectManager = ResourceManager<Object>;
 }
 
 #endif // MODERNBOY_FWD_HPP

@@ -110,14 +110,14 @@ std::optional<ModelDescriptor> parse(toml::node_view<const toml::node> view){
     };
 }
 Model AssetLoader::load(const ModelDescriptor& md){
-    auto mesh = engine.append<Mesh>(md.mesh);
-    auto texture = engine.append<Texture>(md.texture);
-    auto shader = engine.append<Shader>(md.vsFunc, md.fsFunc);
+    auto mesh = engine.appendV2<Mesh>(md.mesh);
+    auto texture = engine.appendV2<Texture>(md.texture);
+    auto shader = engine.appendV2<Shader>(md.vsFunc, md.fsFunc);
 
     return Model{
         .entity = invalidEntityID(),
         .isActive = true,
-        .handle = mesh,
+        .meshHandle = mesh,
         .alpha = 1.0,
         .textureHandle = texture,
         .shaderHandle = shader,
@@ -295,7 +295,7 @@ std::optional<ModuleDescriptor> parse(const toml::node& node){
 }
 
 void AssetLoader::load(const ModuleDescriptor& md){
-    engine.append<Script::Module>(
+    engine.appendV2<Script::Module>(
         md.module_, md.files);
 }
 

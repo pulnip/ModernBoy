@@ -61,7 +61,6 @@ assetLoader(*this), lastTick(std::chrono::time_point_cast<
     std::chrono::microseconds>(steady_clock::now())){}
 
 void Engine::shutdown(){
-    objectManager.clear();
     SDL_DestroyWindow(window);
     window = nullptr;
 }
@@ -83,40 +82,40 @@ void Engine::on<Event::OnFrameEnd>(){
 }
 
 template<>
-MeshHandle Engine::append<Mesh, const std::string&>
+MeshHandle Engine::appendV2<Mesh, const std::string&>
 (const std::string& meshFile){
 #if defined(USE_DIRECTX)
     return meshManager.emplace(meshFile);
 #elif defined(USE_METAL)
     return meshManager.emplace(
-        meshFile, renderer.context, meshFile
+        issueID(), renderer.context, meshFile
     );
 #endif
 }
 template<>
-TextureHandle Engine::append<Texture, const std::string&>
+TextureHandle Engine::appendV2<Texture, const std::string&>
 (const std::string& textureFile){
 #if defined(USE_DIRECTX)
     return textureManager.emplace(textureFile);
 #elif defined(USE_METAL)
     return textureManager.emplace(
-        textureFile, renderer.context, textureFile 
+        issueID(), renderer.context, textureFile 
     );
 #endif
 }
 template<>
-ShaderHandle Engine::append<Shader, const std::string&, const std::string&>
+ShaderHandle Engine::appendV2<Shader, const std::string&, const std::string&>
 (const std::string& vsFuncName, const std::string& fsFuncName){
 #if defined(USE_DIRECTX)
     return shaderManager.emplace(shaderFile);
 #elif defined(USE_METAL)
-    return shaderManager.emplace(fsFuncName, renderer.context,
+    return shaderManager.emplace(issueID(), renderer.context,
         vsFuncName, fsFuncName
     );
 #endif
 }
 template<>
-ModuleHandle Engine::append<Module,
+ModuleHandle Engine::appendV2<Module,
     const std::string&, const std::vector<std::string>&>
 (const std::string& moduleFile, const std::vector<std::string>& funcs){
     return moduleManager.emplace(moduleFile, moduleFile, funcs,
@@ -127,7 +126,7 @@ ObjectHandle Engine::appendV2<Object, const std::string&, const std::string&>
 (const std::string& moduleName, const std::string& typeName){
 
     return objectManager.emplace(
-        std::format("{}{}", typeName, issueID()), typeName,
+        issueID(), typeName,
         moduleManager.get(moduleName).module_,
         scriptInvoker.scriptEngine);
 }
@@ -173,25 +172,20 @@ void Engine::update(){
 }
 
 template<> Mesh&
-Engine::query(ResourceHandle handle){
+Engine::query(Handle handle){
     return meshManager.get(handle);
 }
 template<> Texture&
-Engine::query(ResourceHandle handle){
+Engine::query(Handle handle){
     return textureManager.get(handle);
 }
 template<> Shader&
-Engine::query(ResourceHandle handle){
+Engine::query(Handle handle){
     return shaderManager.get(handle);
 }
 template<> Script::Module&
-Engine::query(ResourceHandle handle){
+Engine::query(Handle handle){
     return moduleManager.get(handle);
-}
-
-template<> ResourceHandle
-Engine::query<Script::Module>(const std::string& name){
-    return moduleManager.getHandle(name);
 }
 
 Script::FunctionID Engine::registerFunction(

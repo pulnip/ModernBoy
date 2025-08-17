@@ -355,50 +355,30 @@ namespace ModernBoy
     };
     auto projection(const std::string& text)->Projection;
 
-    enum class ResourceType: uint8_t{
-        INVALID      = uint8_t(-1),
-        MESH         = 0,
-        TEXTURE      = 1,
-        SHADER       = 2,
-        MODULE       = 3,
-        OBJECT       = 4,
-        NUM_RESOURCE = 5,
-    };
-
-    struct ResourceHandle{
-        ResourceType type;
-
-        Index index;
-    }; static_assert(std::is_trivially_copyable_v<ResourceHandle>);
-
-    constexpr auto invalidResourceHandle(){
-        return ResourceHandle{
-            .type = ResourceType::INVALID,
-            .index = std::numeric_limits<size_t>::max()};
-    }
-    constexpr auto isValid(ResourceHandle handle){
-        return handle.index != std::numeric_limits<size_t>::max();
-    }
-    constexpr auto operator==(const ResourceHandle& lhs, const ResourceHandle& rhs){
-        return lhs.index==rhs.index;
-    }
-    constexpr auto operator!=(const ResourceHandle& lhs, const ResourceHandle& rhs){
-        return !(lhs==rhs);
-    }
-    constexpr auto operator<(const ResourceHandle& lhs, const ResourceHandle& rhs){
-        return lhs.index<rhs.index;
-    }
-
-    struct HandleV2{
+    struct Handle{
         Index index;
         uint32_t generation;
     };
-    constexpr auto operator==(HandleV2 lhs, HandleV2 rhs){
+        constexpr auto invalidHandle(){
+        return Handle{
+            .index = std::numeric_limits<size_t>::max(),
+            .generation = std::numeric_limits<uint32_t>::max()};
+    }
+    constexpr auto operator==(Handle lhs, Handle rhs){
         return lhs.index==rhs.index && lhs.generation==rhs.generation;
     }
-    constexpr auto operator!=(HandleV2 lhs, HandleV2 rhs){
+    constexpr auto operator!=(Handle lhs, Handle rhs){
         return !(lhs==rhs);
     }
+    constexpr auto operator<(const Handle lhs, const Handle rhs){
+        return lhs.index<rhs.index;
+    }
+    struct HandleHash{
+        std::size_t operator()(const Handle& handle) const {
+            // 간단한 해시: x와 y를 섞어서 반환
+            return std::hash<Index>()(handle.index) ^ (std::hash<uint32_t>()(handle.generation) << 1);
+        }
+    };
 
     struct Ray{
         Vec3 point;

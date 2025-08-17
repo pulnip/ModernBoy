@@ -49,25 +49,16 @@ namespace ModernBoy
 
         // append by resource construction argument
         template<typename Resrc, typename... Args>
-        ResourceHandle append(Args&&...);
-        template<typename Resrc, typename... Args>
-        HandleV2 appendV2(Args&&...);
+        Handle appendV2(Args&&...);
         // append by resource filename
         // template<typename Resrc>
         // uint32_t append(const std::string&);
 
         // get resource from handle
         template<typename Resrc>
-        Resrc& query(ResourceHandle);
+        Resrc& query(Handle);
         template<typename Resrc>
-        const Resrc& query(ResourceHandle) const;
-        // get handle from resource name
-        template<typename Resrc>
-        ResourceHandle query(const std::string&);
-
-        // unlink handle from resource
-        template<typename Resrc>
-        ABNORMAL_FLAG remove(ResourceHandle);
+        const Resrc& query(Handle) const;
 
         DeltaTime getDeltaTime() const;
 

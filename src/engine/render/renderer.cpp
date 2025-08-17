@@ -46,8 +46,8 @@ void Renderer::update(DeltaTime){
     for(const auto& cameraObj: cameraObjects){
         setView(cameraObj);
 
-        auto shaderHandle = invalidResourceHandle();
-        auto textureHandle = invalidResourceHandle();
+        auto shaderHandle = invalidHandle();
+        auto textureHandle = invalidHandle();
         for(const auto& meshObj: meshObjects){
             if(meshObj.shaderHandle != shaderHandle){
                 shaderHandle = meshObj.shaderHandle;
@@ -73,40 +73,6 @@ void Renderer::update(DeltaTime){
     auto elapsed = std::chrono::steady_clock::now() - started;
     updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
 }
-
-// Generator<void> Renderer::update(DeltaTime){
-//     auto started = std::chrono::steady_clock::now();
-
-//     auto drawTasks = world.getBuffer<DrawTask>();
-//     sortTask(drawTasks);
-//     co_yield 0;
-
-//     for(const auto& view: world.getBuffer<ViewTask>()){
-//         setView(view);
-//         co_yield 0;
-
-//         auto shaderHandle = invalidResourceHandle();
-//         auto textureHandle = invalidResourceHandle();
-//         for(const auto& draw: drawTasks){
-//             if(draw.shaderHandle != shaderHandle){
-//                 shaderHandle = draw.shaderHandle;
-//                 setShader(shaderHandle);
-//             }
-//             if(draw.texHandle != textureHandle){
-//                 textureHandle = draw.texHandle;
-//                 setTexture(textureHandle);
-//             }
-//             drawMesh(draw.position, draw.rotation,
-//                 draw.scale, draw.meshHandle, draw.alpha);
-//             co_yield 0;
-//         }
-//     }
-
-//     auto elapsed = std::chrono::steady_clock::now() - started;
-//     updateEMA(std::chrono::duration_cast<TaskTime>(elapsed));
-//     co_return;
-// }
-
 void Renderer::onFrameStart(){
     RenderTrace("Frame Start");
 #if defined(USE_DIRECTX)
@@ -163,7 +129,7 @@ void Renderer::drawMesh(
     const Vec3& scale, MeshHandle handle,
     float alpha, int id
 ){
-    RenderTrace("draw type: {}, index: {}", static_cast<int>(handle.type), handle.index);
+    RenderTrace("index: {}", handle.index);
     const auto& mesh = meshManager.get(handle);
 
     for(const auto partPtr: mesh.meshPtr){
