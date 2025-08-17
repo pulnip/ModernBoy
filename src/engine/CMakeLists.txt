@@ -41,6 +41,7 @@ PRIVATE
 target_link_libraries(Engine
 PRIVATE
     Core
+    AssetModule
     InputModule
     LogModule
     RenderBackend
