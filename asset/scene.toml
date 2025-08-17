@@ -1,0 +1,157 @@
+[[entities]]
+name = "Dummy"
+[entities.transform]
+position = [0.0, 2.0, 5.0]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [1.0, 1.0, 1.0]
+[entities.mesh]
+id = "embedded:sphere"
+    [entities.mesh.material_override]
+    baseColor = "file:asset/world_map.jpg"
+    [entities.mesh.shader]
+    # explicitly use shader module
+    module = "file:shader/ModernBoy.metallib"
+    vsFunc = "vertex_main"
+    fsFunc = "fragment_main"
+[entities.script]
+module = "component"
+type   = "Movable"
+[entities.rigidbody]
+velocity   = [0.0, 0.0, 0.0]
+useGravity = false
+mass       = 1
+[entities.sphereCollider]
+position = [0.0, 0.0, 0.0]
+radius   = 1
+    [entities.sphereCollider.material]
+    bounciness = 1.0
+    friction   = 0
+
+[[entities]]
+name = "Cuby1"
+[entities.transform]
+position = [-1.5, 20.0, 0.0]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [0.5, 0.5, 0.5]
+[entities.mesh]
+id = "embedded:cube"
+    [entities.mesh.material_override]
+    baseColor = "file:asset/metal_logo.png"
+    # explicitly use default shader
+    [entities.mesh.shader]
+    module = "embedded:default"
+    vsFunc = "vertex_main"
+    fsFunc = "fragment_main"
+[entities.rigidbody]
+velocity   = [0.0, 0.0, 0.0]
+useGravity = false
+mass       = 1
+[entities.boxCollider]
+position = [0.0, 0.0, 0.0]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [1.0, 1.0, 1.0]
+    [entities.boxCollider.material]
+    bounciness = 1.0
+    friction   = 0
+
+
+[[entities]]
+name = "Cuby2"
+[entities.transform]
+position = [1.5, 1.0, 0.0]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [0.5, 0.5, 0.5]
+[entities.mesh]
+id = "embedded:cube"
+    [entities.mesh.material_override]
+    baseColor = "file:asset/metal_logo.png"
+    # implicitly use default shader
+[entities.rigidbody]
+velocity   = [0.0, 0.0, 0.0]
+useGravity = false
+mass       = 1
+[entities.sphereCollider]
+position = [0.0, 0.0, 0.0]
+radius = 0.5
+    [entities.sphereCollider.material]
+    bounciness = 1.0
+    friction   = 0
+
+[[entities]]
+name = "Cuby3"
+[entities.transform]
+position = [-0.5, 1.0, 1.5]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [0.5, 0.5, 0.5]
+[entities.mesh]
+id = "embedded:cube"
+    [entities.mesh.material_override]
+    baseColor = "file:asset/metal_logo.png"
+[entities.rigidbody]
+velocity   = [0.0, 0.0, 0.0]
+useGravity = false
+mass       = 1
+[entities.sphereCollider]
+position = [0.0, 0.0, 0.0]
+radius   = 0.5
+    [entities.sphereCollider.material]
+    bounciness = 1.0
+    friction   = 0
+
+[[entities]]
+name = "Cuby4"
+[entities.transform]
+position = [1.0, 1.0, 1.0]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [0.5, 0.5, 0.5]
+[entities.mesh]
+id = "embedded:cube"
+    [entities.mesh.material_override]
+    baseColor = "file:asset/metal_logo.png"
+[entities.rigidbody]
+velocity   = [0.0, 0.0, 0.0]
+useGravity = false
+mass       = 1
+[entities.boxCollider]
+position = [0.0, 0.0, 0.0]
+radius   = 0.5
+[entities.boxCollider.material]
+bounciness = 1.0
+friction   = 0
+
+[[entities]]
+name = "Floor"
+[entities.transform]
+position = [0.0, -1.0, 0.0]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [100.0, 1.0, 100.0]
+[entities.mesh]
+id = "embedded:cube"
+    [entities.mesh.material_override]
+    baseColor = "file:asset/Farback01.png"
+[entities.rigidbody]
+velocity   = [0.0, 0.0, 0.0]
+useGravity = false
+mass       = 1
+[entities.boxCollider]
+position = [0.0, 0.0, 0.0]
+rotation = [0.0, 0.0, 0.0, 1.0]
+scale    = [1.0, 1.0, 1.0]
+    [entities.boxCollider.material]
+    bounciness = 1.0
+    friction   = 0
+
+[[entities]]
+name = "Camera0"
+[entities.transform]
+position = [0.0, 5.0, -4.5]
+rotation = [0.3826834, 0.0, 0.0, 0.9238795]
+scale    = [1.0, 1.0, 1.0]
+[entities.camera]
+type       = "MainCamera"
+fov        = 45.0
+nearPlane  = 0.1
+farPlane   = 100.0
+projection = "perspective"
+# [entities.player]
+[entities.editor]

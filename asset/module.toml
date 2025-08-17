@@ -1,0 +1,9 @@
+[options]
+
+[[module]]
+name = "component"
+files = [
+    "src/script/component.as",
+    "src/script/movable.as",
+]
+includes = []
