@@ -18,9 +18,17 @@ namespace ModernBoy::Asset
         const std::filesystem::path& inputPath,
         const CookOptions& options = {}
     )->CookedMesh;
+    auto extractHeader(const CookedMesh& cooked)->Header;
 
     auto serialize(const CookedMesh&,
         const std::filesystem::path& outputPath)->void;
+
+    // --- Test-friendly helpers ---
+    // Serialize to an in-memory buffer (no filesystem needed)
+    auto serializeToBuffer(const CookedMesh&) -> std::vector<uint8_t>;
+
+    // Load a CookedMesh from an in-memory buffer
+    auto loadFromBuffer(const std::vector<uint8_t>&) -> CookedMesh;
 
     // load .mbmesh to memory
     auto loadModelFile(

@@ -1,9 +1,12 @@
 #include <algorithm>
+#include <cstring>
+#include <format>
 #include <fstream>
 #include <functional>
 #include <memory>
 #include <print>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -68,12 +71,9 @@ auto Asset::importModelFile(const fs::path& inputPath,
     return buildMesh(rawScene, options.axes);
 }
 
-static auto extractHeader(const CookedMesh&)->Header;
-
-void Asset::serialize(const CookedMesh& cooked, const fs::path& outputPath){
-    std::ofstream ofs(outputPath, std::ios::binary);
+static void writeCooked(std::ostream& ofs, const CookedMesh& cooked){
     if(!ofs)
-        throw std::runtime_error("failed to open output file");
+        throw std::runtime_error("failed to open output stream");
 
     Header header = extractHeader(cooked);
 
@@ -145,11 +145,22 @@ void Asset::serialize(const CookedMesh& cooked, const fs::path& outputPath){
     }
 }
 
-auto Asset::loadModelFile(const fs::path& inputPath)->CookedMesh{
+void Asset::serialize(const CookedMesh& cooked, const fs::path& outputPath){
+    std::ofstream ofs(outputPath, std::ios::binary);
+    writeCooked(ofs, cooked);
+}
+
+auto Asset::serializeToBuffer(const CookedMesh& cooked) -> std::vector<uint8_t>{
+    std::ostringstream oss(std::ios::binary);
+    writeCooked(oss, cooked);
+    const std::string blob = oss.str();
+    return std::vector<uint8_t>(blob.begin(), blob.end());
+}
+
+static CookedMesh readCooked(std::istream& ifs){
     CookedMesh cooked{};
 
-    std::ifstream ifs(inputPath, std::ios::binary);
-    if(!ifs) throw std::runtime_error("failed to open .mbmesh file");
+    if(!ifs) throw std::runtime_error("failed to open .mbmesh stream");
 
     // Read fixed header + axis + aabb
     Header H{}; AxisInfo AX{}; AABB AA{};
@@ -242,6 +253,16 @@ auto Asset::loadModelFile(const fs::path& inputPath)->CookedMesh{
     cooked.aabb = AA;
 
     return cooked;
+}
+
+auto Asset::loadModelFile(const fs::path& inputPath) -> CookedMesh{
+    std::ifstream ifs(inputPath, std::ios::binary);
+    return readCooked(ifs);
+}
+
+auto Asset::loadFromBuffer(const std::vector<uint8_t>& buf) -> CookedMesh{
+    std::istringstream iss(std::string(reinterpret_cast<const char*>(buf.data()), buf.size()), std::ios::binary);
+    return readCooked(iss);
 }
 
 void Asset::printLoadedMesh(const CookedMesh& cooked){
@@ -669,7 +690,8 @@ static uint32_t appendTexture(CookedMesh& out, TextureUsage usage,
     }else{
         fs::path full = baseDir / fs::path(texPath.C_Str());
         if(!loadTextureRGBA8FromPath(full, w, h, rgba)){
-            throw std::runtime_error(std::string{"Failed to load external texture: "} + full.string());
+            throw std::runtime_error(
+                std::format("Failed to load external texture: {}", full.string()));
         }
     }
 
@@ -690,7 +712,7 @@ static uint32_t appendTexture(CookedMesh& out, TextureUsage usage,
     return texInfoIndex;
 }
 
-static auto extractHeader(const CookedMesh& cooked)->Header{
+auto Asset::extractHeader(const CookedMesh& cooked)->Header{
     Header header;
 
     const char magic[]="MBMESH\1";
