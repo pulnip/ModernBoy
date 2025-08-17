@@ -13,6 +13,7 @@ let package = Package(
             name: "ModernBoy",
             path: "src/engine/render/metal",
             exclude: [
+                "material.cpp",
                 "mesh.cpp",
                 "shader.cpp",
                 "texture.cpp",
