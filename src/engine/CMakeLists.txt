@@ -1,5 +1,6 @@
 add_subdirectory(asset)
 add_subdirectory(input)
+add_subdirectory(log)
 add_subdirectory(render)
 add_subdirectory(script)
 add_subdirectory(ui)
@@ -40,9 +41,10 @@ PRIVATE
 target_link_libraries(Engine
 PRIVATE
     Core
+    InputModule
+    LogModule
     RenderBackend
     RenderModule
-    InputModule
     ScriptModule
     UIModule
     # ImGui
