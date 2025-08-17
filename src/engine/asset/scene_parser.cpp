@@ -295,7 +295,13 @@ SceneDescriptor Asset::buildScene(const TempScene& temp, const BinderRegistry& r
         for(const auto& e: plan.errors){
             AppError("Scene bind error at {}:{} - {}", e.location.line, e.location.column, e.msg);
         }
-        // throw Exception... later?
+
+        std::string all;
+        all.reserve(plan.errors.size() * 64);
+        for (const auto& e: plan.errors) {
+            all += std::format("{}:{} - {}\n", e.location.line, e.location.column, e.msg);
+        }
+        throw std::runtime_error(all);
     }
 
     // Freeze(Create SoA + connect index)

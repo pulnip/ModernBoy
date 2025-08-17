@@ -19,6 +19,7 @@ PRIVATE
 target_link_libraries(${PROJECT_NAME}Test
 PRIVATE
     Core
+    AssetModule
     GTest::gtest_main
     GTest::gmock_main
     SDL3::SDL3
