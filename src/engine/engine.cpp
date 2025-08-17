@@ -82,7 +82,7 @@ void Engine::on<Event::OnFrameEnd>(){
 }
 
 template<>
-MeshHandle Engine::appendV2<Mesh, const std::string&>
+MeshHandle Engine::append<Mesh, const std::string&>
 (const std::string& meshFile){
 #if defined(USE_DIRECTX)
     return meshManager.emplace(meshFile);
@@ -93,7 +93,7 @@ MeshHandle Engine::appendV2<Mesh, const std::string&>
 #endif
 }
 template<>
-TextureHandle Engine::appendV2<Texture, const std::string&>
+TextureHandle Engine::append<Texture, const std::string&>
 (const std::string& textureFile){
 #if defined(USE_DIRECTX)
     return textureManager.emplace(textureFile);
@@ -104,7 +104,7 @@ TextureHandle Engine::appendV2<Texture, const std::string&>
 #endif
 }
 template<>
-ShaderHandle Engine::appendV2<Shader, const std::string&, const std::string&>
+ShaderHandle Engine::append<Shader, const std::string&, const std::string&>
 (const std::string& vsFuncName, const std::string& fsFuncName){
 #if defined(USE_DIRECTX)
     return shaderManager.emplace(shaderFile);
@@ -115,14 +115,14 @@ ShaderHandle Engine::appendV2<Shader, const std::string&, const std::string&>
 #endif
 }
 template<>
-ModuleHandle Engine::appendV2<Module,
+ModuleHandle Engine::append<Module,
     const std::string&, const std::vector<std::string>&>
 (const std::string& moduleFile, const std::vector<std::string>& funcs){
     return moduleManager.emplace(moduleFile, moduleFile, funcs,
         scriptInvoker.scriptEngine);
 }
 template<>
-ObjectHandle Engine::appendV2<Object, const std::string&, const std::string&>
+ObjectHandle Engine::append<Object, const std::string&, const std::string&>
 (const std::string& moduleName, const std::string& typeName){
 
     return objectManager.emplace(

@@ -110,9 +110,9 @@ std::optional<ModelDescriptor> parse(toml::node_view<const toml::node> view){
     };
 }
 Model AssetLoader::load(const ModelDescriptor& md){
-    auto mesh = engine.appendV2<Mesh>(md.mesh);
-    auto texture = engine.appendV2<Texture>(md.texture);
-    auto shader = engine.appendV2<Shader>(md.vsFunc, md.fsFunc);
+    auto mesh = engine.append<Mesh>(md.mesh);
+    auto texture = engine.append<Texture>(md.texture);
+    auto shader = engine.append<Shader>(md.vsFunc, md.fsFunc);
 
     return Model{
         .entity = invalidEntityID(),
@@ -134,7 +134,7 @@ std::optional<ScriptDescriptor> parse(toml::node_view<const toml::node> view){
     };
 }
 Game::ScriptObject AssetLoader::load(const ScriptDescriptor& sd){
-    auto objectHandle = engine.appendV2<Object>(sd.module_, sd.type);
+    auto objectHandle = engine.append<Object>(sd.module_, sd.type);
     return Game::ScriptObject{
         .entity = invalidEntityID(),
         .isActive = true,
@@ -295,7 +295,7 @@ std::optional<ModuleDescriptor> parse(const toml::node& node){
 }
 
 void AssetLoader::load(const ModuleDescriptor& md){
-    engine.appendV2<Script::Module>(
+    engine.append<Script::Module>(
         md.module_, md.files);
 }
 
