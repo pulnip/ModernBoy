@@ -9,7 +9,7 @@
 using namespace ModernBoy;
 using namespace ModernBoy::Asset;
 
-const VNode* findField(const ValueArena& a,
+static const VNode* findField(const ValueArena& a,
     const VTable& table, const char* key
 ){
     auto it = table.fields.find(key);
@@ -19,7 +19,7 @@ const VNode* findField(const ValueArena& a,
     return &a.nodes[it->second];
 }
 
-std::optional<float> asFloat(const VNode& n){
+static std::optional<float> asFloat(const VNode& n){
     if (auto f = std::get_if<VFloat>(&n))
         return static_cast<float>(f->v);
     if (auto i = std::get_if<VInt>(&n))  
@@ -27,7 +27,7 @@ std::optional<float> asFloat(const VNode& n){
     return std::nullopt;
 }
 
-SourceLocation getLoc(const VNode& n){
+static SourceLocation getLoc(const VNode& n){
     return std::visit(
         [](auto const& x) -> SourceLocation {
             return x.location;
@@ -35,7 +35,7 @@ SourceLocation getLoc(const VNode& n){
 }
 
 template<unsigned N>
-std::optional<std::conditional_t<N==3, Vec3, Vec4>> readVec(
+static std::optional<std::conditional_t<N==3, Vec3, Vec4>> readVec(
     const ValueArena& arena,
     const VTable& table, const char* key,
     std::conditional_t<N==3, Vec3, Vec4> def, BindPlan& plan
@@ -77,6 +77,36 @@ std::optional<std::conditional_t<N==3, Vec3, Vec4>> readVec(
     return std::nullopt;
 }
 
+static std::optional<std::string> readString(
+    const ValueArena& arena,
+    const VTable& table, const char* key,
+    std::string def, BindPlan& plan
+){
+    const VNode* n = findField(arena, table, key);
+    if(!n)
+        return def;
+
+    if(auto str = std::get_if<VString>(n))
+        return str->v;
+
+    plan.errors.push_back({
+        std::format("{} should be string", key),
+        getLoc(*n)
+    });
+    return std::nullopt;
+}
+
+static std::optional<ResourceReference> readResRefString(
+    const ValueArena& arena, const VTable& table,
+    const char* key, BindPlan& plan
+){
+    auto s = readString(arena, table, key, "", plan);
+    if(!s)
+        return std::nullopt;
+
+    return ResourceReference{ .schemePath = *s };
+}
+
 // transform binder
 class TransformBinder: public IComponentBinder{
 public:
@@ -109,6 +139,88 @@ public:
             const uint32_t idx = desc.pushTransform(p.desc);
             entity.transformIndex = idx;
             entity.mask.set((size_t)ComponentKind::Transform);
+        }
+    }
+};
+
+class MeshBinder: public IComponentBinder{
+private:
+    static std::optional<MaterialDescriptor> readMaterial(
+        const ValueArena& arena, const VTable& src, BindPlan& plan
+    ){
+        if(const VNode* n = findField(arena, src, "material_override")){
+            if(const VTable* mt = std::get_if<VTable>(n)){
+                auto base = readResRefString(arena, *mt, "baseColor", plan);
+
+                MaterialDescriptor md{
+                    .baseColor = *base
+                };
+                return md;
+            } else{
+                plan.errors.push_back({"material_override must be a table", getLoc(*n)});
+            }
+        }
+
+        return std::nullopt;
+    }
+    static std::optional<ShaderDescriptor> readShader(
+        const ValueArena& arena, const VTable& src, BindPlan& plan
+    ){
+        if(const VNode* n = findField(arena, src, "shader")){
+            if(const VTable* mt = std::get_if<VTable>(n)){
+                auto mod = readResRefString(arena, *mt, "module", plan);
+                auto vs = readString(arena, *mt, "vsFunc", "", plan);
+                auto fs = readString(arena, *mt, "fsFunc", "", plan);
+
+                if(!mod || !vs || !fs)
+                    return std::nullopt;
+
+                ShaderDescriptor sd{
+                    .module_ = *mod,
+                    .vsFunc = *vs,
+                    .fsFunc = *fs
+                };
+                return sd;
+            } else{
+                plan.errors.push_back({"shader must be a table", getLoc(*n)});
+            }
+        }
+
+        return std::nullopt;
+    }
+
+public:
+    void validateAndPlan(const ValueArena& arena,
+        const VTable& src, size_t entityIndex, BindPlan& plan
+    ) override{
+        auto msh = readString(arena, src, "id", "", plan);
+
+        if(!msh)
+            return;
+
+        MeshDescriptor desc{};
+        desc.id.schemePath = *msh;
+
+        if(auto mat = readMaterial(arena, src, plan))
+            desc.material_override = *mat;
+
+        if(auto sh = readShader(arena, src, plan))
+            desc.shader = *sh;
+
+        plan.meshes.push_back(PlannedMesh{
+            .desc = desc,
+            .entityIndex = entityIndex,
+            .location = src.location
+        });
+    }
+
+    static void freeze(SceneDescriptor& desc, BindPlan& plan){
+        for(const auto& p: plan.meshes){
+            auto& entity = desc.entities[p.entityIndex];
+
+            const uint32_t idx = desc.pushMesh(p.desc);
+            entity.meshIndex = idx;
+            entity.mask.set((size_t)ComponentKind::Mesh);
         }
     }
 };
@@ -306,6 +418,7 @@ SceneDescriptor Asset::buildScene(const TempScene& temp, const BinderRegistry& r
 
     // Freeze(Create SoA + connect index)
     TransformBinder::freeze(out, plan);
+    MeshBinder::freeze(out, plan);
     // Other ComponentBinder::freeze...
 
     return out;
@@ -314,6 +427,7 @@ SceneDescriptor Asset::buildScene(const TempScene& temp, const BinderRegistry& r
 BinderRegistry Asset::makeDefaultBinderRegistry(){
     BinderRegistry reg;
     reg.emplace("transform", std::make_unique<TransformBinder>());
+    reg.emplace("mesh", std::make_unique<MeshBinder>());
     // register Other Components...
     return reg;
 }

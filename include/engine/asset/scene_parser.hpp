@@ -71,8 +71,7 @@ namespace ModernBoy::Asset
     enum class ComponentKind: uint8_t{
         Transform = 0,
         Mesh = 1,
-        Material = 2,
-        Count = 3
+        Count = 2
     };
     constexpr auto INVALID = std::numeric_limits<uint32_t>::max();
 
@@ -82,11 +81,18 @@ namespace ModernBoy::Asset
     struct TransformDescriptor{
         DEFINE_TRANSFORM;
     };
-    struct MeshDescriptor{
-        ResourceReference mesh;
-    };
     struct MaterialDescriptor{
-        ResourceReference material;
+        ResourceReference baseColor;
+    };
+    struct ShaderDescriptor{
+        ResourceReference module_;
+        std::string vsFunc;
+        std::string fsFunc;
+    };
+    struct MeshDescriptor{
+        ResourceReference id;
+        MaterialDescriptor material_override;
+        ShaderDescriptor shader;
     };
 
     struct Entity{
@@ -106,6 +112,10 @@ namespace ModernBoy::Asset
             transforms.push_back(desc);
             return static_cast<uint32_t>(transforms.size() - 1);
         }
+        inline uint32_t pushMesh(const MeshDescriptor& desc){
+            meshes.push_back(desc);
+            return static_cast<uint32_t>(meshes.size() - 1);
+        }
     };
 
     // bind/freeze plan
@@ -119,9 +129,15 @@ namespace ModernBoy::Asset
         size_t entityIndex = std::numeric_limits<size_t>::max();
         SourceLocation location{};
     };
+    struct PlannedMesh{
+        MeshDescriptor desc;
+        size_t entityIndex = std::numeric_limits<size_t>::max();
+        SourceLocation location{};
+    };
 
     struct BindPlan{
         std::vector<PlannedTransform> transforms;
+        std::vector<PlannedMesh> meshes;
         std::vector<BindError> errors;
     };
 

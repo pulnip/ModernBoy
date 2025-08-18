@@ -75,8 +75,6 @@ static CookedMesh makeTinyMesh(){
 TEST(MeshImporter, RoundTripBuffer){
     CookedMesh src = makeTinyMesh();
 
-    printLoadedMesh(src);
-
     auto buf = serializeToBuffer(src);
     auto dst = loadFromBuffer(buf);
 
