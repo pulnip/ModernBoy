@@ -34,6 +34,25 @@ static SourceLocation getLoc(const VNode& n){
         }, n);
 }
 
+static std::optional<bool> readBool(
+    const ValueArena& arena, const VTable& table,
+    BindPlan& plan, const char* key,
+    std::optional<bool> def = std::nullopt
+){
+    const VNode* n = findField(arena, table, key);
+    if(!n)
+        return def;
+
+    if(auto bl = std::get_if<VBool>(n))
+        return bl->v;
+
+    plan.errors.push_back({
+        std::format("{} should be boolean", key),
+        getLoc(*n)
+    });
+    return std::nullopt;
+}
+
 static std::optional<double> readFloat(
     const ValueArena& arena, const VTable& table,
     BindPlan& plan, const char* key,
