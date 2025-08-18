@@ -20,6 +20,10 @@ namespace ModernBoy
     class Engine;
     class AssetLoader;
 
+    namespace Asset{
+        class AssetLoader;
+    }
+
     namespace Render{
         class Renderer;
     }

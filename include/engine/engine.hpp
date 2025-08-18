@@ -110,6 +110,7 @@ namespace ModernBoy
         // std::vector<Index> schedule;
 
     public:
+        friend Asset::AssetLoader;
         friend AssetLoader;
         friend Game::Context;
         friend Script::TypeHelper;
