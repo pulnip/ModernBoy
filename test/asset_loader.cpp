@@ -9,23 +9,17 @@ using namespace ModernBoy;
 using namespace ModernBoy::Asset;
 
 const MeshDescriptor desc1{
-    .id = ResourceReference{
-        .schemePath = "test:mesh1.mbmesh"
-    },
+    .id = "test:mesh1.mbmesh",
     .material_override = MaterialDescriptor{},
     .shader = ShaderDescriptor{}
 };
 const MeshDescriptor desc2{
-    .id = ResourceReference{
-        .schemePath = "test:mesh2.mbmesh"
-    },
+    .id = "test:mesh2.mbmesh",
     .material_override = MaterialDescriptor{},
     .shader = ShaderDescriptor{}
 };
 const MeshDescriptor desc3{
-    .id = ResourceReference{
-        .schemePath = "embedTest:cube"
-    },
+    .id = "embedTest:cube",
     .material_override = MaterialDescriptor{},
     .shader = ShaderDescriptor{}
 };

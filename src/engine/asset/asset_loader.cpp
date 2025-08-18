@@ -15,12 +15,12 @@ void Asset::AssetLoader::load(const SceneDescriptor& desc){
 
 void Asset::AssetLoader::load(const std::vector<MeshDescriptor>& meshes){
     for(const auto& meshDesc: meshes){
-        if(table.contains(meshDesc.id.schemePath))
+        if(table.contains(meshDesc.id))
             continue;
 
-        auto colon_pos = meshDesc.id.schemePath.find(':');
-        auto scheme = meshDesc.id.schemePath.substr(0, colon_pos);
-        auto path = meshDesc.id.schemePath.substr(colon_pos + 1);
+        auto colon_pos = meshDesc.id.find(':');
+        auto scheme = meshDesc.id.substr(0, colon_pos);
+        auto path = meshDesc.id.substr(colon_pos + 1);
 
         auto id = issueID();
 
@@ -34,6 +34,6 @@ void Asset::AssetLoader::load(const std::vector<MeshDescriptor>& meshes){
                 id, renderContext, path);
         }
 
-        table.try_emplace(meshDesc.id.schemePath, id);
+        table.try_emplace(meshDesc.id, id);
     }
 }

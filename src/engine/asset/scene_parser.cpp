@@ -34,11 +34,32 @@ static SourceLocation getLoc(const VNode& n){
         }, n);
 }
 
+static std::optional<double> readFloat(
+    const ValueArena& arena, const VTable& table,
+    BindPlan& plan, const char* key,
+    std::optional<double> def = std::nullopt
+){
+    const VNode* n = findField(arena, table, key);
+    if(!n)
+        return def;
+
+    if(auto flt = std::get_if<VFloat>(n))
+        return flt->v;
+    else if(auto num = std::get_if<VInt>(n))
+        return num->v;
+
+    plan.errors.push_back({
+        std::format("{} should be number", key),
+        getLoc(*n)
+    });
+    return std::nullopt;
+}
+
 template<unsigned N>
 static std::optional<std::conditional_t<N==3, Vec3, Vec4>> readVec(
-    const ValueArena& arena,
-    const VTable& table, const char* key,
-    std::conditional_t<N==3, Vec3, Vec4> def, BindPlan& plan
+    const ValueArena& arena, const VTable& table,
+    BindPlan& plan, const char* key,
+    std::optional<std::conditional_t<N==3, Vec3, Vec4>> def = std::nullopt
 ){
     const VNode* n = findField(arena, table, key);
     if(!n)
@@ -78,9 +99,9 @@ static std::optional<std::conditional_t<N==3, Vec3, Vec4>> readVec(
 }
 
 static std::optional<std::string> readString(
-    const ValueArena& arena,
-    const VTable& table, const char* key,
-    std::string def, BindPlan& plan
+    const ValueArena& arena, const VTable& table,
+    BindPlan& plan, const char* key,
+    std::optional<std::string> def = std::nullopt
 ){
     const VNode* n = findField(arena, table, key);
     if(!n)
@@ -96,26 +117,15 @@ static std::optional<std::string> readString(
     return std::nullopt;
 }
 
-static std::optional<ResourceReference> readResRefString(
-    const ValueArena& arena, const VTable& table,
-    const char* key, BindPlan& plan
-){
-    auto s = readString(arena, table, key, "", plan);
-    if(!s)
-        return std::nullopt;
-
-    return ResourceReference{ .schemePath = *s };
-}
-
 // transform binder
 class TransformBinder: public IComponentBinder{
 public:
     void validateAndPlan(const ValueArena& arena,
         const VTable& src, size_t entityIndex, BindPlan& plan
     ) override{
-        auto pos = readVec<3>(arena, src, "position", zeros(), plan);
-        auto rot = readVec<4>(arena, src, "rotation", unitQuat(), plan);
-        auto scl = readVec<3>(arena, src, "scale", ones(), plan);
+        auto pos = readVec<3>(arena, src, plan, "position", zeros());
+        auto rot = readVec<4>(arena, src, plan, "rotation", unitQuat());
+        auto scl = readVec<3>(arena, src, plan, "scale", ones());
 
         if(!pos || !rot || !scl)
             return;
@@ -150,7 +160,7 @@ private:
     ){
         if(const VNode* n = findField(arena, src, "material_override")){
             if(const VTable* mt = std::get_if<VTable>(n)){
-                auto base = readResRefString(arena, *mt, "baseColor", plan);
+                auto base = readString(arena, *mt, plan, "baseColor");
 
                 MaterialDescriptor md{
                     .baseColor = *base
@@ -168,9 +178,12 @@ private:
     ){
         if(const VNode* n = findField(arena, src, "shader")){
             if(const VTable* mt = std::get_if<VTable>(n)){
-                auto mod = readResRefString(arena, *mt, "module", plan);
-                auto vs = readString(arena, *mt, "vsFunc", "", plan);
-                auto fs = readString(arena, *mt, "fsFunc", "", plan);
+                auto mod = readString(arena, *mt, plan,
+                    "module", "file:shader/ModernBoy.metallib");
+                auto vs = readString(arena, *mt, plan,
+                    "vsFunc", "vertex_main");
+                auto fs = readString(arena, *mt, plan,
+                    "fsFunc", "fragment_main");
 
                 if(!mod || !vs || !fs)
                     return std::nullopt;
@@ -193,13 +206,14 @@ public:
     void validateAndPlan(const ValueArena& arena,
         const VTable& src, size_t entityIndex, BindPlan& plan
     ) override{
-        auto msh = readString(arena, src, "id", "", plan);
+        auto msh = readString(arena, src, plan,
+            "id", "embedded:cube");
 
         if(!msh)
             return;
 
         MeshDescriptor desc{};
-        desc.id.schemePath = *msh;
+        desc.id = *msh;
 
         if(auto mat = readMaterial(arena, src, plan))
             desc.material_override = *mat;

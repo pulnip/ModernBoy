@@ -75,22 +75,19 @@ namespace ModernBoy::Asset
     };
     constexpr auto INVALID = std::numeric_limits<uint32_t>::max();
 
-    struct ResourceReference{
-        std::string schemePath;
-    };
     struct TransformDescriptor{
         DEFINE_TRANSFORM;
     };
     struct MaterialDescriptor{
-        ResourceReference baseColor;
+        std::string baseColor;
     };
     struct ShaderDescriptor{
-        ResourceReference module_;
+        std::string module_;
         std::string vsFunc;
         std::string fsFunc;
     };
     struct MeshDescriptor{
-        ResourceReference id;
+        std::string id;
         MaterialDescriptor material_override;
         ShaderDescriptor shader;
     };

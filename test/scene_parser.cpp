@@ -45,7 +45,7 @@ TEST(SceneParser, ParseSimpleMesh){
     ASSERT_EQ(scene.entities.size(), 1);
     EXPECT_EQ(scene.entities[0].name, "Box");
     EXPECT_NE(scene.entities[0].meshIndex, INVALID);
-    EXPECT_EQ(scene.meshes[0].id.schemePath, id);
+    EXPECT_EQ(scene.meshes[0].id, id);
 }
 TEST(SceneParser, ParseComplexMesh){
     std::string tomlText = R"(
@@ -69,9 +69,9 @@ TEST(SceneParser, ParseComplexMesh){
     ASSERT_EQ(scene.entities.size(), 1);
     EXPECT_EQ(scene.entities[0].name, "Box");
     EXPECT_NE(scene.entities[0].meshIndex, INVALID);
-    EXPECT_EQ(scene.meshes[0].id.schemePath, std::string("embedded:cube"));
-    EXPECT_EQ(scene.meshes[0].material_override.baseColor.schemePath, std::string("embedded:red"));
-    EXPECT_EQ(scene.meshes[0].shader.module_.schemePath, std::string("file:shader/ModernBoy.metallib"));
+    EXPECT_EQ(scene.meshes[0].id, std::string("embedded:cube"));
+    EXPECT_EQ(scene.meshes[0].material_override.baseColor, std::string("embedded:red"));
+    EXPECT_EQ(scene.meshes[0].shader.module_, std::string("file:shader/ModernBoy.metallib"));
     EXPECT_EQ(scene.meshes[0].shader.vsFunc, std::string("vertex_main"));
     EXPECT_EQ(scene.meshes[0].shader.fsFunc, std::string("fragment_main"));
 }
@@ -148,7 +148,7 @@ TEST(SceneParser, ParseMultipleProperties){
     EXPECT_EQ(tr.scale, (Vec3{.x=2, .y=2, .z=2}));
     ASSERT_FALSE(scene.meshes.empty());
     auto& msh = scene.meshes[scene.entities[0].meshIndex];
-    EXPECT_EQ(msh.id.schemePath, id);
+    EXPECT_EQ(msh.id, id);
 }
 
 TEST(SceneParser, ParseMultipleEntitiesWithMultipleProperties){
@@ -191,14 +191,14 @@ TEST(SceneParser, ParseMultipleEntitiesWithMultipleProperties){
     EXPECT_EQ(tr1.rotation, unitQuat());
     EXPECT_EQ(tr1.scale, (Vec3{.x=2, .y=2, .z=2}));
     auto& msh1 = scene.meshes[scene.entities[0].meshIndex];
-    EXPECT_EQ(msh1.id.schemePath, std::string("embedded:cube"));
+    EXPECT_EQ(msh1.id, std::string("embedded:cube"));
 
     auto& tr2 = scene.transforms[scene.entities[1].transformIndex];
     EXPECT_EQ(tr2.position, (Vec3{.x=15, .y=25, .z=35}));
     EXPECT_EQ(tr2.rotation, unitQuat());
     EXPECT_EQ(tr2.scale, (Vec3{.x=1.5, .y=1.5, .z=1.5}));
     auto& msh2 = scene.meshes[scene.entities[1].meshIndex];
-    EXPECT_EQ(msh2.id.schemePath, std::string("file:asset/lamp.fbx"));
+    EXPECT_EQ(msh2.id, std::string("file:asset/lamp.fbx"));
 }
 
 TEST(SceneParser, ThrowsOnInvalidVecLength){
