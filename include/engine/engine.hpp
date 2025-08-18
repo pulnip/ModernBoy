@@ -1,11 +1,11 @@
 #ifndef MODERNBOY_APP_STATE_HPP
 #define MODERNBOY_APP_STATE_HPP
 
-#include <SDL3/SDL_video.h>
 #include "core/alias.hpp"
 #include "../../src/game/context.hpp"
 #include "event.hpp"
 #include "resource_manager.hpp"
+#include "engine/fwd.hpp"
 #include "engine/asset_loader.hpp"
 #include "engine/script/type.hpp"
 #include "engine/script/invoker.hpp"
@@ -23,7 +23,6 @@
 #include "engine/render/dx11/texture.hpp"
 #include "engine/render/dx11/shader.hpp"
 #elif defined(USE_METAL)
-#include "SDL3/SDL_metal.h"
 #include "engine/render/metal/mesh.hpp"
 #include "engine/render/metal/texture.hpp"
 #include "engine/render/metal/shader.hpp"

@@ -2,7 +2,7 @@
 #define MODERNBOY_INPUT_CHORD_HPP
 
 #include <atomic>
-#include <SDL3/SDL_video.h>
+#include "engine/fwd.hpp"
 #include "engine/interface.hpp"
 #include "engine/input/state.hpp"
 

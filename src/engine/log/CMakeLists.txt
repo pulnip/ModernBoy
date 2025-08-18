@@ -7,6 +7,6 @@ PUBLIC
 PRIVATE
 )
 target_link_libraries(LogModule
-PUBLIC
+PRIVATE
     SDL3::SDL3
 )

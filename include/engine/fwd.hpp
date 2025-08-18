@@ -5,6 +5,9 @@
 #include "core/alias.hpp"
 #include "core/math/type.hpp"
 
+struct SDL_Window;
+using SDL_MetalView = void*;
+
 namespace ModernBoy
 {
     using EntityID = ID;

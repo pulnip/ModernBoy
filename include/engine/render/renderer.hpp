@@ -5,7 +5,6 @@
 #include <chrono>
 #include <map>
 #include <unordered_set>
-#include <SDL3/SDL_video.h>
 #include "engine/fwd.hpp"
 #include "core/alias.hpp"
 #include "engine/interface.hpp"
@@ -15,7 +14,6 @@
 #if defined(USE_DIRECTX)
 #include "engine/render/dx11/context.hpp"
 #elif defined(USE_METAL)
-#include <SDL3/SDL_metal.h>
 #include "engine/render/metal/context.h"
 #include "engine/render/metal/mesh.hpp"
 #elif defined(USE_OPENGL)

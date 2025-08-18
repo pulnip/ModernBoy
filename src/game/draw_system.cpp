@@ -1,5 +1,5 @@
 #include <cassert>
-#include "engine/log.hpp"
+#include "engine/log/log.hpp"
 #include "engine/interface/view_service.hpp"
 #include "engine/interface/draw_service.hpp"
 #include "entity_registry.hpp"

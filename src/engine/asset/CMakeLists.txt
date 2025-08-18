@@ -13,6 +13,5 @@ target_link_libraries(AssetModule
 PRIVATE
     Core
     LogModule
-    SDL3::SDL3
     assimp::assimp
 )

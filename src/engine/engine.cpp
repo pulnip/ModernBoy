@@ -3,6 +3,11 @@
 #include <format>
 #include <vector>
 #include <SDL3/SDL_init.h>
+#include <SDL3/SDL_log.h>
+#include <SDL3/SDL_video.h>
+#if defined(USE_METAL)
+#include <SDL3/SDL_metal.h>
+#endif
 #include "engine/engine.hpp"
 
 using namespace std::chrono;

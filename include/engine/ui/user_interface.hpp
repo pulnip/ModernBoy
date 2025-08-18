@@ -2,7 +2,7 @@
 #define MODERNBOY_UI_USER_INTERFACE_HPP
 
 #include <unordered_map>
-#include <SDL3/SDL_video.h>
+#include "engine/fwd.hpp"
 #include "engine/interface.hpp"
 #include "engine/ui/controller.hpp"
 

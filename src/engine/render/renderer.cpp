@@ -1,5 +1,8 @@
 #include <algorithm>
-#include "engine/log.hpp"
+#if defined(USE_METAL)
+#include <SDL3/SDL_metal.h>
+#endif
+#include "engine/log/log.hpp"
 #include "engine/resource_manager.hpp"
 #include "engine/render/renderer.hpp"
 #include "engine/engine.hpp"

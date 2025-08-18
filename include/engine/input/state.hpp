@@ -6,7 +6,6 @@
 #include <limits>
 #include <unordered_map>
 #include <vector>
-#include <SDL3/SDL_keycode.h>
 #include "core/math/type.hpp"
 #include "engine/fwd.hpp"
 
@@ -90,8 +89,6 @@ namespace ModernBoy::Input
     bool isValid(KeyCode keyCode);
     bool isValid(KeyState keyState);
 
-    SDL_Scancode convert(KeyCode code);
-    KeyCode convert(SDL_Scancode code);
     KeyCode toKey(const std::string& text);
     std::string toText(KeyCode keyCode);
 

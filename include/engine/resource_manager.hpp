@@ -10,7 +10,7 @@
 #include "core/math/type.hpp"
 #include "engine/fwd.hpp"
 #include "core/memory/object_pool.hpp"
-#include "engine/log.hpp"
+#include "engine/log/log.hpp"
 
 namespace ModernBoy
 {

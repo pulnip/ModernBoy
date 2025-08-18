@@ -4,7 +4,7 @@
 #include <ranges>
 #include <tuple>
 #include <unordered_map>
-#include "engine/log.hpp"
+#include "engine/log/log.hpp"
 #include "core/memory/dynamic_vector.hpp"
 #include "game_fwd.hpp"
 #include "component.hpp"

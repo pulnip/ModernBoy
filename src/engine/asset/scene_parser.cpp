@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <unordered_set>
 #include <toml++/toml.hpp>
-#include "engine/log.hpp"
+#include "engine/log/log.hpp"
 #include "engine/asset/scene_parser.hpp"
 
 using namespace ModernBoy;

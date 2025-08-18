@@ -1,10 +1,8 @@
 #ifndef MODERNBOY_LOG_HPP
 #define MODERNBOY_LOG_HPP
 
-#include <string>
-#include <SDL3/SDL_log.h>
-
 #include <format>
+#include <string>
 
 namespace ModernBoy
 {
@@ -19,13 +17,13 @@ namespace ModernBoy
         None        = 6
     };
     enum class LogCategory{
-        App         = SDL_LOG_CATEGORY_APPLICATION,
-        Render      = SDL_LOG_CATEGORY_RENDER,
-        Input       = SDL_LOG_CATEGORY_INPUT,
-        Script      = SDL_LOG_CATEGORY_CUSTOM,
-        Game        = SDL_LOG_CATEGORY_CUSTOM + 1,
-        Network     = SDL_LOG_CATEGORY_CUSTOM + 2,
-        UI          = SDL_LOG_CATEGORY_CUSTOM + 3,
+        App         = 0,
+        Render      = 1,
+        Input       = 2,
+        Script      = 3,
+        Game        = 4,
+        Network     = 5,
+        UI          = 6,
     };
     constexpr auto NUM_LOG_CATEGORY = 7;
 

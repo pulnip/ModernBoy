@@ -1,6 +1,6 @@
 #include <print>
 #include <SDL3/SDL_log.h>
-#include "engine/log.hpp"
+#include "engine/log/log.hpp"
 
 using namespace ModernBoy;
 

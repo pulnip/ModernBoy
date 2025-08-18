@@ -8,7 +8,7 @@
 #include <toml++/toml.h>
 #include "core/math/type.hpp"
 #include "core/string/helper.hpp"
-#include "engine/log.hpp"
+#include "engine/log/log.hpp"
 #include "engine/asset_loader.hpp"
 #include "engine/engine.hpp"
 #include "../../src/game/component.hpp"
