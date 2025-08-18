@@ -63,7 +63,7 @@ static uint32_t appendTexture(CookedMesh& out,
     aiTextureType type, unsigned texIndex,
     const fs::path& baseDir);
 
-auto Asset::importModelFile(const fs::path& inputPath,
+auto Asset::importMeshFile(const fs::path& inputPath,
     const CookOptions& options
 )->CookedMesh{
     auto rawScene = import(inputPath);
@@ -255,7 +255,7 @@ static CookedMesh readCooked(std::istream& ifs){
     return cooked;
 }
 
-auto Asset::loadModelFile(const fs::path& inputPath) -> CookedMesh{
+auto Asset::loadMeshFile(const fs::path& inputPath) -> CookedMesh{
     std::ifstream ifs(inputPath, std::ios::binary);
     return readCooked(ifs);
 }

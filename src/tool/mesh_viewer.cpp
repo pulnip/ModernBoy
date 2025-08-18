@@ -30,7 +30,7 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-    auto imported = loadModelFile(target);
+    auto imported = loadMeshFile(target);
     printLoadedMesh(imported);
 
     return 0;

@@ -14,7 +14,7 @@ namespace ModernBoy::Asset
     };
 
     // convert .fbx, ... to .mbmesh
-    auto importModelFile(
+    auto importMeshFile(
         const std::filesystem::path& inputPath,
         const CookOptions& options = {}
     )->CookedMesh;
@@ -31,7 +31,7 @@ namespace ModernBoy::Asset
     auto loadFromBuffer(const std::vector<uint8_t>&) -> CookedMesh;
 
     // load .mbmesh to memory
-    auto loadModelFile(
+    auto loadMeshFile(
         const std::filesystem::path& inputPath
     )->CookedMesh;
 

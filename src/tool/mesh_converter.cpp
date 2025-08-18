@@ -45,7 +45,7 @@ auto main(int argc, char* argv[])->int{
 
     for(char& c : ext) c = (char)std::tolower((unsigned char)c);
     if(ext == ".fbx" || ext == ".gltf" || ext == ".glb"){
-        auto imported = importModelFile(input_path);
+        auto imported = importMeshFile(input_path);
         serialize(imported, output_path);
         return 0;
     } else {
