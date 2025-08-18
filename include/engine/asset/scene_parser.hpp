@@ -71,7 +71,13 @@ namespace ModernBoy::Asset
     enum class ComponentKind: uint8_t{
         Transform = 0,
         Mesh = 1,
-        Count = 2
+        Rigidbody = 2,
+        BoxCollider = 3,
+        SphereCollider = 4,
+        Camera = 5,
+        Player = 6,
+        Editor = 7,
+        Count = 8
     };
     constexpr auto INVALID = std::numeric_limits<uint32_t>::max();
 
@@ -91,17 +97,55 @@ namespace ModernBoy::Asset
         MaterialDescriptor material_override;
         ShaderDescriptor shader;
     };
+    struct RigidbodyDescriptor{
+        Vec3 velocity;
+        bool useGravity;
+        double mass;
+    };
+    struct ColliderMaterialDescriptor{
+        double bounciness;
+        double friction;
+    };
+    struct BoxColliderDescriptor{
+        DEFINE_TRANSFORM;
+        ColliderMaterialDescriptor material;
+    };
+    struct SphereColliderDescriptor{
+        Vec3 position;
+        double radius;
+        ColliderMaterialDescriptor material;
+    };
+    struct CameraDescriptor{
+        std::string type;
+        double fov;
+        double nearPlane, farPlane;
+        std::string projection;
+    };
+    struct PlayerDescriptor{};
+    struct EditorDescriptor{};
 
     struct Entity{
         std::string name;
         std::bitset<(size_t)8> mask;
         uint32_t transformIndex = INVALID;
         uint32_t meshIndex = INVALID;
+        uint32_t rigidbodyIndex = INVALID;
+        uint32_t boxColliderIndex = INVALID;
+        uint32_t sphereColliderIndex = INVALID;
+        uint32_t cameraIndex = INVALID;
+        uint32_t playerIndex = INVALID;
+        uint32_t editorIndex = INVALID;
     };
     struct SceneDescriptor{
         // SoA
         std::vector<TransformDescriptor> transforms;
         std::vector<MeshDescriptor> meshes;
+        std::vector<RigidbodyDescriptor> rigidbodies;
+        std::vector<BoxColliderDescriptor> boxColliders;
+        std::vector<SphereColliderDescriptor> sphereColliders;
+        std::vector<CameraDescriptor> cameras;
+        std::vector<PlayerDescriptor> players;
+        std::vector<EditorDescriptor> editors;
 
         std::vector<Entity> entities;
 
@@ -112,6 +156,30 @@ namespace ModernBoy::Asset
         inline uint32_t pushMesh(const MeshDescriptor& desc){
             meshes.push_back(desc);
             return static_cast<uint32_t>(meshes.size() - 1);
+        }
+        inline uint32_t pushRigidbody(const RigidbodyDescriptor& desc){
+            rigidbodies.push_back(desc);
+            return static_cast<uint32_t>(rigidbodies.size() - 1);
+        }
+        inline uint32_t pushBoxCollider(const BoxColliderDescriptor& desc){
+            boxColliders.push_back(desc);
+            return static_cast<uint32_t>(boxColliders.size() - 1);
+        }
+        inline uint32_t pushSphereCollider(const SphereColliderDescriptor& desc){
+            sphereColliders.push_back(desc);
+            return static_cast<uint32_t>(sphereColliders.size() - 1);
+        }
+        inline uint32_t pushCamera(const CameraDescriptor& desc){
+            cameras.push_back(desc);
+            return static_cast<uint32_t>(cameras.size() - 1);
+        }
+        inline uint32_t pushPlayer(const PlayerDescriptor& desc){
+            players.push_back(desc);
+            return static_cast<uint32_t>(players.size() - 1);
+        }
+        inline uint32_t pushEditor(const EditorDescriptor& desc){
+            editors.push_back(desc);
+            return static_cast<uint32_t>(editors.size() - 1);
         }
     };
 
@@ -131,10 +199,46 @@ namespace ModernBoy::Asset
         size_t entityIndex = std::numeric_limits<size_t>::max();
         SourceLocation location{};
     };
+    struct PlannedRigidbody{
+        RigidbodyDescriptor desc;
+        size_t entityIndex = std::numeric_limits<size_t>::max();
+        SourceLocation location{};
+    };
+    struct PlannedBoxCollider{
+        BoxColliderDescriptor desc;
+        size_t entityIndex = std::numeric_limits<size_t>::max();
+        SourceLocation location{};
+    };
+    struct PlannedSphereCollider{
+        SphereColliderDescriptor desc;
+        size_t entityIndex = std::numeric_limits<size_t>::max();
+        SourceLocation location{};
+    };
+    struct PlannedCamera{
+        CameraDescriptor desc;
+        size_t entityIndex = std::numeric_limits<size_t>::max();
+        SourceLocation location{};
+    };
+    struct PlannedPlayer{
+        PlayerDescriptor desc;
+        size_t entityIndex = std::numeric_limits<size_t>::max();
+        SourceLocation location{};
+    };
+    struct PlannedEditor{
+        EditorDescriptor desc;
+        size_t entityIndex = std::numeric_limits<size_t>::max();
+        SourceLocation location{};
+    };
 
     struct BindPlan{
         std::vector<PlannedTransform> transforms;
         std::vector<PlannedMesh> meshes;
+        std::vector<PlannedRigidbody> rigidbodies;
+        std::vector<PlannedBoxCollider> boxColliders;
+        std::vector<PlannedSphereCollider> sphereColliders;
+        std::vector<PlannedCamera> cameras;
+        std::vector<PlannedPlayer> players;
+        std::vector<PlannedEditor> editors;
         std::vector<BindError> errors;
     };
 
