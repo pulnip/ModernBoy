@@ -12,17 +12,20 @@ namespace ModernBoy::Asset
 
     class AssetLoader{
     public:
-        AssetLoader(Engine&);
+        AssetLoader(MeshManager&,
+            NativePtr renderContext);
 
         void load(const SceneDescriptor&);
+        inline ResolveTable& get_table(){ return table; }
+        inline const ResolveTable& get_table() const{ return table; }
 
     private:
         inline UUID issueID(){ return uuid++; }
-        inline ResolveTable& get(){ return table; }
 
         void load(const std::vector<MeshDescriptor>&);
 
-        Engine& engine;
+        MeshManager& meshManager;
+        NativePtr renderContext;
         UUID uuid = 0;
         ResolveTable table;
     };

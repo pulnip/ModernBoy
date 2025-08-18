@@ -7,21 +7,27 @@ file(GLOB SWIFT_SOURCES "*.swift")
 add_library(RenderBackend STATIC ${CPP_SOURCES})
 add_library(MetalContext SHARED ${SWIFT_SOURCES})
 
-target_compile_options(RenderBackend PRIVATE
+target_compile_options(RenderBackend
+PRIVATE
     -Wall -Wextra
 )
 
-target_compile_definitions(RenderBackend PRIVATE
+target_compile_definitions(RenderBackend
+PUBLIC
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )
 
-target_include_directories(RenderBackend PRIVATE
+target_include_directories(RenderBackend
+PUBLIC
     ${CMAKE_SOURCE_DIR}/include
+PRIVATE
     # gsl-lite
     ${gsl-lite_INCLUDE_DIRS}
 )
-target_link_libraries(RenderBackend PRIVATE
+target_link_libraries(RenderBackend
+PUBLIC
     $<IF:$<CONFIG:DEBUG>, sanitizer,>
+PRIVATE
     MetalContext
     # SDL3
     SDL3::SDL3

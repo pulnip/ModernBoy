@@ -2,6 +2,7 @@
 #define MODERNBOY_METAL_MESH_HPP
 
 #include <cstdint>
+#include "engine/asset/asset_format.hpp"
 #include "engine/fwd.hpp"
 
 namespace ModernBoy::Metal
@@ -18,6 +19,7 @@ namespace ModernBoy::Metal
         Mesh& operator=(Mesh&&);
 
         Mesh(NativePtr rctxPtr, const std::string& fileName);
+        Mesh(NativePtr rctxPtr, const Asset::CookedMesh&);
         Mesh(MeshPartPtr partPtr):meshPtr({partPtr}){}
         ~Mesh();
 

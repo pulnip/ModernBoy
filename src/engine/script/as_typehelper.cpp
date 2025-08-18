@@ -1,7 +1,6 @@
 #include <print>
 #include <angelscript.h>
 #include "core/math/type.hpp"
-#include "engine/raw_resource.hpp"
 #include "engine/script/as_typehelper.hpp"
 #include "engine/script/invoker.hpp"
 #include "engine/input/device.hpp"

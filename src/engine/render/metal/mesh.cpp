@@ -2,7 +2,8 @@
 #include <utility>
 #include <vector>
 #include "core/alias.hpp"
-#include "engine/raw_resource.hpp"
+#include "engine/asset/mesh_importer.hpp"
+#include "engine/asset/raw_resource.hpp"
 #include "engine/render/metal/mesh.hpp"
 
 extern "C"{
@@ -28,7 +29,7 @@ void Mesh::moveFrom(Mesh&& other){
 Mesh::Mesh(NativePtr rctxPtr,
     const std::string& fileName)
 {
-    auto rawMesh = import<RawMesh>(fileName);
+    auto rawMesh = Asset::importEmbedded<Asset::RawMesh>(fileName);
     meshPtr.reserve(rawMesh.size());
 
     for(const auto& part: rawMesh){
@@ -39,6 +40,7 @@ Mesh::Mesh(NativePtr rctxPtr,
         ));
     }
 }
+Mesh::Mesh(NativePtr, const Asset::CookedMesh&){}
 Mesh::~Mesh(){
     for(const auto& part: meshPtr)
         destroyMesh(part);

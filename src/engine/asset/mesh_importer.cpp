@@ -1,9 +1,11 @@
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <format>
 #include <fstream>
 #include <functional>
 #include <memory>
+#include <numbers>
 #include <print>
 #include <string>
 #include <sstream>
@@ -15,6 +17,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include "engine/asset/mesh_importer.hpp"
+
 
 using namespace ModernBoy;
 using namespace ModernBoy::Asset;
@@ -770,4 +773,197 @@ auto Asset::extractHeader(const CookedMesh& cooked)->Header{
     cur += header.pixelsSectionByteSize;
 
     return header;
+}
+
+RawMesh Asset::createTriangle(){
+    Vertices vertices = {
+        {
+            {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
+            {0.5f, 0.0f}, {0.0f, -1.0f, 0.0f}
+        },{
+            {-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
+            {0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}
+        },{
+            {1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
+            {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}
+        }
+    };
+    Indices indices = {1, 0, 2};
+
+    return { RawMeshPart(vertices, indices) };
+
+}
+RawMesh Asset::createRectangle(){
+    Vertices vertices = {
+        {
+            {-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, -1.0f}, 
+            {0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}
+        },{
+            {0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, -1.0f},
+            {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}
+        },{
+            {0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, -1.0f},
+            {1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}
+        },{
+            {-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, -1.0f},
+            {0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}
+        }
+    };
+    Indices indices = {
+        0, 2, 1,
+        0, 3, 2
+    };
+
+    return { RawMeshPart(vertices, indices) };
+}
+RawMesh Asset::createCube(){
+    Vertices vertices = {
+        // front
+        {
+            {-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f},
+            {0.0f, 1.0f}, {},
+        },{
+            { 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f},
+            {1.0f, 1.0f}, {}
+        },{
+            { 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f},
+            {1.0f, 0.0f}, {}
+        },{
+            {-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f},
+            {0.0f, 0.0f}, {}
+        },
+        // back
+        {
+            {-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f},
+            {0.0f, 1.0f}, {}
+        },{
+            { 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f},
+            {1.0f, 1.0f}, {}
+        },{
+            { 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f},
+            {1.0f, 0.0f}, {}
+        },{
+            {-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f},
+            {0.0f, 0.0f}, {}
+        },
+        // left
+        {
+            {-0.5f,  0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f}, {}
+        },{
+            {-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f},
+            {1.0f, 1.0f}, {}
+        },{
+            {-0.5f, -0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f},
+            {1.0f, 0.0f}, {}
+        },{
+            {-0.5f,  0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f}, {}
+        },
+        // right
+        {
+            { 0.5f,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f}, {}
+        },{
+            { 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f},
+            {1.0f, 1.0f}, {}
+        },{
+            { 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f},
+            {1.0f, 0.0f}, {}
+        },{
+            { 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f}, {}
+        },
+        // bottom
+        {
+            {-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f},
+            {0.0f, 1.0f}, {}
+        },{
+            { 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f},
+            {1.0f, 1.0f}, {}
+        },{
+            { 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f},
+            {1.0f, 0.0f}, {}
+        },{
+            {-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f},
+            {0.0f, 0.0f}, {}
+        },
+        // top
+        {
+            {-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f},
+            {0.0f, 1.0f}, {}
+        },{
+            { 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f},
+            {1.0f, 1.0f}, {}
+        },{
+            { 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f},
+            {1.0f, 0.0f}, {}
+        },{
+            {-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f},
+            {0.0f, 0.0f}, {}
+        }
+    };
+    Indices indices = {
+        // front
+         2,  0,  3,
+         1,  0,  2,
+        // back
+         4,  5,  6,
+         6,  7,  4,
+        // left
+        11,  8,  9,
+         9, 10, 11,
+        // right
+        13, 12, 14,
+        15, 14, 12,
+        // bottom
+        16, 17, 18,
+        18, 19, 16,
+        // top
+        21, 20, 22,
+        22, 20, 23
+    };
+
+    return { RawMeshPart(vertices, indices) };
+}
+RawMesh Asset::createSphere(float radius,
+    int numSlices, int numStacks
+){
+    Vertices vertices;
+    Indices indices;
+
+    const float dTheta = 2 * std::numbers::pi / numSlices;
+    const float dPhi = std::numbers::pi / numStacks;
+
+    for(int i=0; i<=numStacks; ++i){
+        const auto y = radius * cos(dPhi * i);
+        const auto rad = radius * sin(dPhi * i);
+        const auto v = static_cast<float>(i) / numStacks;
+        for(int j=0; j<=numSlices; ++j){
+            const auto x = rad * cos(dTheta * j);
+            const auto z = rad * sin(dTheta * j);
+            const auto u = static_cast<float>(j)/numSlices;
+
+            vertices.emplace_back(RawVertex{
+                {x, y, z}, {x, y, z},
+                {u, v}, {}
+            });
+        }
+    }
+    for(int i=0; i<numStacks; ++i){
+        const auto base = (numSlices+1) * i;
+        for(int j=0; j<numSlices; ++j){
+            const uint32_t topLeft = base + j;
+            const uint32_t topRight = base + (j+1);
+            const uint32_t bottomLeft = base+(numSlices+1) + j;
+            const uint32_t bottomRight = base+(numSlices+1) + (j+1);
+            Indices rect{
+                topLeft, topRight, bottomRight,
+                topLeft, bottomRight, bottomLeft
+            };
+            indices.append_range(rect);
+        }
+    }
+
+    return { RawMeshPart(vertices, indices) };
 }

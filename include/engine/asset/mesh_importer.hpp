@@ -2,6 +2,7 @@
 #define MODERNBOY_ASSET_MESHIMPORTER_HPP
 
 #include <filesystem>
+#include <format>
 #include "core/math/type.hpp"
 #include "engine/asset/asset_format.hpp"
 
@@ -36,6 +37,35 @@ namespace ModernBoy::Asset
     )->CookedMesh;
 
     void printLoadedMesh(const CookedMesh&);
+
+    // Embeded Mesh for shader test
+    // ToDo. change to CookedMesh or ...
+    RawMesh createTriangle();
+    RawMesh createRectangle();
+    RawMesh createCube();
+    RawMesh createSphere(float radius=1.0f,
+        int numSlices=32, int numStacks=16);
+
+    template<typename Resource>
+    Resource importEmbedded(const std::string& fileName){
+        RawMesh rawMesh;
+
+        if(fileName.compare("Triangle") == 0)
+            rawMesh = createTriangle();
+        else if(fileName.compare("Rectangle") == 0)
+            rawMesh = createRectangle();
+        else if(fileName.compare("Cube") == 0)
+            rawMesh = createCube();
+        else if(fileName.compare("Sphere") == 0)
+            rawMesh = createSphere();
+        else
+            throw std::runtime_error(
+                std::format("Not Implemented Type: ${}",
+                fileName)
+            );
+    
+        return rawMesh;
+    }
 } // namespace ModernBoy::Asset
 
 #endif // MODERNBOY_ASSET_MESHIMPORTER_HPP

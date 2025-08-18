@@ -1,4 +1,5 @@
 add_library(AssetModule SHARED
+    asset_loader.cpp
     mesh_importer.cpp
     scene_parser.cpp
 )
@@ -10,6 +11,8 @@ PRIVATE
     ${CMAKE_SOURCE_DIR}/external/tomlplusplus/include
 )
 target_link_libraries(AssetModule
+PUBLIC
+    RenderBackend
 PRIVATE
     Core
     LogModule
