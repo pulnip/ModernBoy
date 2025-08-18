@@ -50,6 +50,23 @@ namespace ModernBoy
             AppDebug("    successfully loaded.", uuid);
             return handle;
         }
+        [[nodiscard]] Handle push(
+            Key uuid, Resource&& resource
+        ){
+            AppDebug("try to load: {}", uuid);
+            if(isExist(uuid)){
+                AppDebug("    already loaded.", uuid);
+                return uuidToHandle.at(uuid);
+            }
+
+            auto handle = pool.emplace(std::move(resource));
+
+            uuidToHandle.emplace(std::make_pair(uuid, handle));
+            handleToUUID.emplace(std::make_pair(handle, uuid));
+
+            AppDebug("    successfully loaded.", uuid);
+            return handle;
+        }
         void unload(Handle handle){
             pool.remove(handle);
 
