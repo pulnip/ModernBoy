@@ -21,15 +21,15 @@ namespace ModernBoy
         // storage class
         ObjectPoolV2<Resource> pool;
 
-        std::unordered_map<Key, Handle> uuidToHandle;
-        std::unordered_map<Handle, Key, HandleHash> handleToUUID;
+        std::unordered_map<Key, Handle> keyToHandle;
+        std::unordered_map<Handle, Key, HandleHash> handleToKey;
 
     public:
         ResourceManager() = default;
 
         bool isExist(Key uuid){
-            auto it = uuidToHandle.find(uuid);
-            return it != uuidToHandle.end();
+            auto it = keyToHandle.find(uuid);
+            return it != keyToHandle.end();
         }
 
         template<typename... Args>
@@ -39,13 +39,13 @@ namespace ModernBoy
             AppDebug("try to load: {}", uuid);
             if(isExist(uuid)){
                 AppDebug("    already loaded.", uuid);
-                return uuidToHandle.at(uuid);
+                return keyToHandle.at(uuid);
             }
 
             auto handle = pool.emplace(std::forward<Args>(args)...);
 
-            uuidToHandle.emplace(std::make_pair(uuid, handle));
-            handleToUUID.emplace(std::make_pair(handle, uuid));
+            keyToHandle.emplace(std::make_pair(uuid, handle));
+            handleToKey.emplace(std::make_pair(handle, uuid));
 
             AppDebug("    successfully loaded.", uuid);
             return handle;
@@ -56,13 +56,13 @@ namespace ModernBoy
             AppDebug("try to load: {}", uuid);
             if(isExist(uuid)){
                 AppDebug("    already loaded.", uuid);
-                return uuidToHandle.at(uuid);
+                return keyToHandle.at(uuid);
             }
 
             auto handle = pool.emplace(std::move(resource));
 
-            uuidToHandle.emplace(std::make_pair(uuid, handle));
-            handleToUUID.emplace(std::make_pair(handle, uuid));
+            keyToHandle.emplace(std::make_pair(uuid, handle));
+            handleToKey.emplace(std::make_pair(handle, uuid));
 
             AppDebug("    successfully loaded.", uuid);
             return handle;
@@ -70,10 +70,10 @@ namespace ModernBoy
         void unload(Handle handle){
             pool.remove(handle);
 
-            auto uuid = handleToUUID.at(handle);
+            auto uuid = handleToKey.at(handle);
 
-            handleToUUID.erase(handle);
-            uuidToHandle.erase(uuid);
+            handleToKey.erase(handle);
+            keyToHandle.erase(uuid);
         }
 
         auto& get(Handle handle){
@@ -83,10 +83,16 @@ namespace ModernBoy
             return pool[handle];
         }
         auto& get(Key id){
-            return pool[uuidToHandle.at(id)];
+            return pool[keyToHandle.at(id)];
         }
         const auto& get(Key id) const{
-            return pool[uuidToHandle.at(id)];
+            return pool[keyToHandle.at(id)];
+        }
+        Handle getHandle(Key id) const{
+            return keyToHandle[id];
+        }
+        Key getKey(Handle handle) const{
+            return handleToKey[handle];
         }
 
         size_t size() const{ return pool.size(); }
