@@ -95,7 +95,7 @@ namespace ModernBoy::Asset
     };
     struct MeshDescriptor{
         std::string id;
-        std::optional<std::vector<MaterialDescriptor>> material_override = std::nullopt;
+        std::vector<MaterialDescriptor> material_override;
         std::optional<ShaderDescriptor> shader = std::nullopt;
     };
     struct RigidbodyDescriptor{

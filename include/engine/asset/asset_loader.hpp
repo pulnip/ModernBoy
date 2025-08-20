@@ -1,11 +1,11 @@
 #ifndef MODERNBOY_ASSET_ASSETLOADER_HPP
 #define MODERNBOY_ASSET_ASSETLOADER_HPP
 
-#include <set>
+#include <map>
 #include <vector>
 #include "engine/fwd.hpp"
+#include "engine/asset/asset_format.hpp"
 #include "engine/asset/scene_parser.hpp"
-#include "engine/asset/mesh_importer.hpp"
 
 namespace ModernBoy::Asset
 {
@@ -15,6 +15,13 @@ namespace ModernBoy::Asset
         Unknown=2
     };
 
+    struct MeshWork{
+        SchemeKind kind=SchemeKind::Unknown;
+        std::string id;
+        std::string path;
+        UUID uuid;
+        std::vector<MaterialDescriptor> material_override;
+    };
     struct WorkItem{
         SchemeKind kind=SchemeKind::Unknown;
         std::string id;
@@ -39,7 +46,8 @@ namespace ModernBoy::Asset
 
     class AssetLoader{
     public:
-        AssetLoader(MeshManager&, TextureManager&,
+        AssetLoader(SubmeshManager&, MeshManager&,
+            TextureManager&, MaterialTable&, MaterialSetTable&,
             ShaderManager&, NativePtr renderContext);
 
         void load(const SceneDescriptor&);
@@ -48,29 +56,53 @@ namespace ModernBoy::Asset
 
     private:
         inline UUID issueID(){ return uuid++; }
-        UUID issueUUID();
+        inline void remember(const std::string& id, UUID uuid){
+            table.try_emplace(id, uuid);
+        }
 
         void load(const std::vector<MeshDescriptor>&);
-        void collectWorkItemFromDescriptor(
-            const std::string& id,
-            std::vector<WorkItem>&);
-        CookedMesh loadCookedOrImport(const std::string& path);
-        std::vector<UUID> createTexturesFromMesh(
-            const CookedMesh&, const std::string& baseID);
-        void createMaterialFromMesh(
-            const CookedMesh&, const std::vector<UUID>& texIDs);
-        void processMeshFile(const WorkItem&);
-        void processMeshEmbedded(const WorkItem&);
-        void processTexture(const WorkItem&);
+
+        // 1. load planning
+        void collectWorkItems(const MeshDescriptor&,
+            std::vector<MeshWork>& meshWorks,
+            std::vector<WorkItem>& matWorks,
+            std::vector<WorkItem>& shaderWorks
+        );
+
+        // 2. register to ResourceManager and load
+        void processMeshFile(const MeshWork&);
+        void processMeshEmbedded(const MeshWork&);
+        void processMaterial(const WorkItem&);
         void processShader(const WorkItem&);
 
+        auto createTexturesFromMesh(
+            const CookedMesh&,
+            const std::string& baseID
+        ) -> std::vector<TextureHandle>;
+        void createMaterialFromTextures(
+            const std::vector<TextureHandle>& handles
+        );
+
+        auto loadCookedOrImport(
+            const std::string& path
+        ) -> CookedMesh;
+        auto loadMaterial(
+            const std::string& baseID
+        ) -> std::vector<TextureHandle>;
+
+        SubmeshManager& submeshManager;
         MeshManager& meshManager;
         TextureManager& textureManager;
+        MaterialTable& materialTable;
+        MaterialSetTable& materialSetTable;
         ShaderManager& shaderManager;
-        std::set<std::vector<TextureHandle>, TextureVectorComparator> materialSets;
         NativePtr renderContext;
-        UUID uuid = 0;
+
         ResolveTable table;
+        // material 중복 제거
+        std::map<std::vector<TextureHandle>, UUID,
+            TextureVectorComparator> materialToUUID;
+        UUID uuid = 0;
     };
 } // namespace ModernBoy::Asset
 

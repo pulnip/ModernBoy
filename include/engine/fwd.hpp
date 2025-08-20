@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <unordered_map>
+#include <vector>
 #include "core/alias.hpp"
 #include "core/math/type.hpp"
 
@@ -93,11 +94,11 @@ namespace ModernBoy
     using MeshHandle = Handle;
     using SubmeshHandle = Handle;
     using TextureHandle = Handle;
+    using MaterialHandle = Handle;
+    using MaterialSetHandle = Handle;
     using ShaderHandle = Handle;
     using ModuleHandle = Handle;
     using ObjectHandle = Handle;
-    using MeshHandle = Handle;
-    using MaterialHandle = Handle;
 
     // template<typename Resource>
     // class ResourceManager;
@@ -107,6 +108,8 @@ namespace ModernBoy
     using SubmeshManager = ResourceManager<Submesh>;
     using MeshManager = ResourceManager<Mesh>;
     using TextureManager = ResourceManager<Texture>;
+    using MaterialTable = std::unordered_map<UUID, std::vector<TextureHandle>>;
+    using MaterialSetTable = std::unordered_map<UUID, std::vector<UUID>>;
     using ShaderManager = ResourceManager<Shader>;
     using ModuleManager = ResourceManager<Module, std::string>;
     // using ObjectManager = ResourceManager<Object>;

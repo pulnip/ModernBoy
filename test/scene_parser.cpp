@@ -55,6 +55,7 @@ TEST(SceneParser, ParseComplexMesh){
         id = "embedded:cube"
             [[entities.mesh.material_override]]
             baseColor = "embedded:red"
+            targetSlot = "*"
             [entities.mesh.shader]
             module = "file:shader/ModernBoy.metallib"
             vsFunc = "vertex_main"
@@ -70,8 +71,8 @@ TEST(SceneParser, ParseComplexMesh){
     EXPECT_EQ(scene.entities[0].name, "Box");
     EXPECT_NE(scene.entities[0].meshIndex, INVALID);
     EXPECT_EQ(scene.meshes[0].id, std::string("embedded:cube"));
-    EXPECT_TRUE(scene.meshes[0].material_override.has_value());
-    EXPECT_EQ(scene.meshes[0].material_override.value()[0].baseColor, std::string("embedded:red"));
+    EXPECT_TRUE(scene.meshes[0].material_override.size() > 0);
+    EXPECT_EQ(scene.meshes[0].material_override[0].baseColor, std::string("embedded:red"));
     EXPECT_TRUE(scene.meshes[0].shader.has_value());
     EXPECT_EQ(scene.meshes[0].shader.value().module_, std::string("file:shader/ModernBoy.metallib"));
     EXPECT_EQ(scene.meshes[0].shader.value().vsFunc, std::string("vertex_main"));

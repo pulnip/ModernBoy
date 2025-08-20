@@ -58,3 +58,22 @@ Mesh::~Mesh(){
     for(const auto& part: meshPtr)
         destroyMesh(part);
 }
+
+Submesh::Submesh(Submesh&& other){ moveFrom(std::move(other)); }
+Submesh& Submesh::operator=(Submesh&& other){
+    moveFrom(std::move(other));
+    return *this;
+}
+void Submesh::moveFrom(Submesh&& other){
+    meshPtr = other.meshPtr;
+}
+
+Submesh::Submesh(NativePtr rctxPtr,
+    std::span<Asset::Vertex>,
+    std::span<uint32_t>
+){
+        
+}
+Submesh::~Submesh(){}
+
+

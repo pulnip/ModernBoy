@@ -21,6 +21,7 @@ namespace ModernBoy::Metal
 
         Mesh(NativePtr rctxPtr, const std::string& fileName);
         Mesh(NativePtr rctxPtr, const Asset::CookedMesh&);
+        Mesh(const std::vector<SubmeshHandle>&){}
         Mesh(MeshPartPtr partPtr):meshPtr({partPtr}){}
         ~Mesh();
 
@@ -32,7 +33,6 @@ namespace ModernBoy::Metal
     struct Submesh{
         NativePtr meshPtr;
 
-        Submesh() = default;
         Submesh()=default;
         Submesh(const Submesh&)=delete;
         Submesh(Submesh&& mesh);
@@ -43,6 +43,10 @@ namespace ModernBoy::Metal
             std::span<Asset::Vertex>,
             std::span<uint32_t>);
         ~Submesh();
+
+    private:
+        // Move semantics
+        void moveFrom(Submesh&&);
     };
 }
 
