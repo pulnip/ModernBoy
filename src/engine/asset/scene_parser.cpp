@@ -656,7 +656,7 @@ SceneDescriptor Asset::buildScene(const TempScene& temp, const BinderRegistry& r
 
             auto it = registry.find(compName);
             if(it == registry.end()){
-                AppWarn("Unknown component {} on entity {}", compName, te.name);
+                AppWarn("Unknown component '{}' on entity '{}'", compName, te.name);
                 continue;
             }
 

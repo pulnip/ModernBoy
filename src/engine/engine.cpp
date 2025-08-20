@@ -8,6 +8,7 @@
 #if defined(USE_METAL)
 #include <SDL3/SDL_metal.h>
 #endif
+#include "engine/asset/scene_parser.hpp"
 #include "engine/engine.hpp"
 
 using namespace std::chrono;
@@ -67,6 +68,14 @@ assetLoader2(submeshManager, meshManager, textureManager,
     materialTable, materialSetTable, shaderManager, renderer.context),
 lastTick(std::chrono::time_point_cast<
     std::chrono::microseconds>(steady_clock::now())){}
+
+void Engine::start(){
+    auto temp = Asset::parseSceneFromFile("asset/scene.toml");
+
+    auto registry = Asset::makeDefaultBinderRegistry();
+    auto scene = Asset::buildScene(temp, registry);
+
+}
 
 void Engine::shutdown(){
     SDL_DestroyWindow(window);

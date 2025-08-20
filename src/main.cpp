@@ -18,14 +18,18 @@ using namespace ModernBoy::OpenGL;
 #endif
 
 Engine& engine(){
-    static Engine appState = createEngine();
-    return appState;
+    static Engine engine = createEngine();
+
+    return engine;
 }
 
 SDL_AppResult SDL_AppInit([[maybe_unused]] void** appState,
     [[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    *appState = &engine();
+    auto& e = engine();
+    e.start();
+
+    *appState = &e;
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }

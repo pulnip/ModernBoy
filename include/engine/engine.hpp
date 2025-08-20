@@ -37,6 +37,8 @@ namespace ModernBoy
     public:
         Engine(SDL_Window* window);
         ~Engine() = default;
+
+        void start();
         void shutdown();
 
         void update();
