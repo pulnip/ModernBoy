@@ -10,17 +10,17 @@ using namespace ModernBoy::Asset;
 
 const MeshDescriptor desc1{
     .id = "test:mesh1.mbmesh",
-    .material_override = MaterialDescriptor{},
+    .material_override = {},
     .shader = ShaderDescriptor{}
 };
 const MeshDescriptor desc2{
     .id = "test:mesh2.mbmesh",
-    .material_override = MaterialDescriptor{},
+    .material_override = {},
     .shader = ShaderDescriptor{}
 };
 const MeshDescriptor desc3{
     .id = "embedTest:cube",
-    .material_override = MaterialDescriptor{},
+    .material_override = {},
     .shader = ShaderDescriptor{}
 };
 

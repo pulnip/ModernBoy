@@ -174,22 +174,32 @@ public:
 
 class MeshBinder: public IComponentBinder{
 private:
-    static std::optional<MaterialDescriptor> readMaterial(
+    static std::optional<std::vector<MaterialDescriptor>> readMaterial(
         const ValueArena& arena, const VTable& src, BindPlan& plan
     ){
         if(const VNode* n = findField(arena, src, "material_override")){
-            if(const VTable* mt = std::get_if<VTable>(n)){
-                auto base = readString(arena, *mt, plan, "baseColor");
+            if(const VArray* arr = std::get_if<VArray>(n)){
+                std::vector<MaterialDescriptor> out;
+                out.reserve(arr->elements.size());
+                for(size_t idx: arr->elements){
+                    const VNode& elm = arena.nodes[idx];
 
-                if(!base)
-                    return std::nullopt;
+                    if(const VTable* t = std::get_if<VTable>(&elm)){
+                        auto base = readString(arena, *t, plan, "baseColor");
+                        if(!base)
+                            return std::nullopt;
 
-                MaterialDescriptor md{
-                    .baseColor = *base
-                };
-                return md;
+                        out.push_back(MaterialDescriptor{
+                            .baseColor = *base
+                        });
+                    } else{
+                        plan.errors.push_back({"material_override entries must be tables", getLoc(elm)});
+                    }
+                }
+
+                return out;
             } else{
-                plan.errors.push_back({"material_override must be a table", getLoc(*n)});
+                plan.errors.push_back({"material_override must be a array", getLoc(*n)});
             }
         }
 

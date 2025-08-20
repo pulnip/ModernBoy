@@ -35,7 +35,7 @@ rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.mesh]
 id = "embedded:cube"
-    [entities.mesh.material_override]
+    [[entities.mesh.material_override]]
     baseColor = "file:asset/metal_logo.png"
     # explicitly use default shader
     [entities.mesh.shader]
