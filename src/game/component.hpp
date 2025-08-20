@@ -37,13 +37,9 @@ namespace ModernBoy::Game
         ShaderHandle shaderHandle;
     );
     DEFINE_COMPONENT(Mesh,
-        MeshHandle handle;
         float alpha;
-        MaterialHandle materialHandle;
-    );
-    DEFINE_COMPONENT(Action,
-        ModuleHandle moduleHandle;
-        Script::FunctionID updateFunc;
+        UUID mesh;
+        UUID materialSet;
     );
     DEFINE_COMPONENT(ScriptObject,
         ObjectHandle handle;
@@ -126,7 +122,6 @@ namespace ModernBoy::Game
         X(          CAMERA) \
         X(           COLOR) \
         X(            MESH) \
-        X(          ACTION) \
         X(          SCRIPT) \
         X(           INPUT) \
         X(        LIFESPAN) \
@@ -154,7 +149,6 @@ namespace ModernBoy::Game
         X(           Camera,           CAMERA) \
         X(            Color,            COLOR) \
         X(            Model,             MESH) \
-        X(           Action,           ACTION) \
         X(     ScriptObject,           SCRIPT) \
         X(            Input,            INPUT) \
         X(         LifeSpan,         LIFESPAN) \
@@ -177,9 +171,6 @@ namespace ModernBoy::Game
         X(         Grounded,         GROUNDED) \
         X(           Walked,           WALKED) \
         X(              Ran,              RAN)
-
-    #define COMPOSIT_PAIRS \
-        X(               ActionTask,           ACTION)
 
     #define ASSERT_TRIVIAL(type, name) static_assert(std::is_trivially_copyable_v<type>);
     #define X ASSERT_TRIVIAL
@@ -223,7 +214,6 @@ namespace ModernBoy::Game
         consteval ArchetypeBit bit_of<type>(){ return name##_BIT; }
     #define X TYPE_TO_BIT
     ARCHETYPE_PAIRS
-    COMPOSIT_PAIRS
     #undef X
 
     constexpr bool subset(ArchetypeBit a, ArchetypeBit b){
