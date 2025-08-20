@@ -50,17 +50,17 @@ namespace ModernBoy::Asset
     Resource importEmbedded(const std::string& fileName){
         RawMesh rawMesh;
 
-        if(fileName.compare("Triangle") == 0)
+        if(fileName.compare("triangle") == 0)
             rawMesh = createTriangle();
-        else if(fileName.compare("Rectangle") == 0)
+        else if(fileName.compare("tectangle") == 0)
             rawMesh = createRectangle();
-        else if(fileName.compare("Cube") == 0)
+        else if(fileName.compare("cube") == 0)
             rawMesh = createCube();
-        else if(fileName.compare("Sphere") == 0)
+        else if(fileName.compare("sphere") == 0)
             rawMesh = createSphere();
         else
             throw std::runtime_error(
-                std::format("Not Implemented Type: ${}",
+                std::format("Not Implemented Embedded Type: {}",
                 fileName)
             );
     

@@ -7,6 +7,7 @@
 #include "resource_manager.hpp"
 #include "engine/fwd.hpp"
 #include "engine/asset/asset_loader.hpp"
+#include "engine/asset/scene_loader.hpp"
 #include "engine/asset_loader.hpp"
 #include "engine/script/type.hpp"
 #include "engine/script/invoker.hpp"
@@ -109,6 +110,7 @@ namespace ModernBoy
         Game::Context world;
         AssetLoader assetLoader;
         Asset::AssetLoader assetLoader2;
+        Asset::SceneLoader sceneLoader;
 
         Timepoint lastTick;
         DeltaTime deltaTime;

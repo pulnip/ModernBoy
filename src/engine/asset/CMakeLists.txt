@@ -1,6 +1,7 @@
 add_library(AssetModule SHARED
     asset_loader.cpp
     mesh_importer.cpp
+    scene_loader.cpp
     scene_parser.cpp
 )
 target_include_directories(AssetModule

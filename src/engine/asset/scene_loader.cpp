@@ -28,7 +28,7 @@ namespace{
         const ResolveTable& table
     ){
         auto meshUUID = table.at(desc.id);
-        auto materialSetUUID = table.at(std::format("{}:matrialSet", desc.id));
+        auto materialSetUUID = table.at(std::format("{}:materialSet", desc.id));
 
         return Game::Mesh{
             .entity = invalidEntityID(),
@@ -53,15 +53,6 @@ namespace{
         return Game::PhysicsMaterial{
             .bounciness = static_cast<float>(desc.bounciness),
             .friction = static_cast<float>(desc.friction),
-        };
-    }
-    auto convert(const SphereColliderDescriptor& desc){
-        return Game::SphereCollider{
-            .entity = invalidEntityID(),
-            .isActive = true,
-            .position = desc.position,
-            .radius = static_cast<float>(desc.radius),
-            .material = convert(desc.material)
         };
     }
     auto convert(const SphereColliderDescriptor& desc){
@@ -183,5 +174,8 @@ void SceneLoader::loadScene(const SceneDescriptor& desc,
             }
             editor = convert(desc.editors[entity.editorIndex]);
         }
+
+        registry.createEntity(transform, mesh, rigidbody,
+            sphereCollider, boxCollider, camera, player, editor);
     }
 }

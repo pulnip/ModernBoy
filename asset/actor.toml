@@ -8,7 +8,7 @@ position = [0.0, 2.0, 5.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [1.0, 1.0, 1.0]
 [entities.model]
-mesh = "Sphere"
+mesh = "sphere"
 texture = "asset/world_map.jpg"
 vsFunc = "vertex_main"
 fsFunc = "fragment_main"
@@ -33,7 +33,7 @@ position = [-1.5, 20.0, 0.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.model]
-mesh = "Cube"
+mesh = "cube"
 texture = "asset/metal_logo.png"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]
@@ -55,7 +55,7 @@ position = [1.5, 1.0, 0.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.model]
-mesh = "Cube"
+mesh = "cube"
 texture = "asset/metal_logo.png"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]
@@ -75,7 +75,7 @@ position = [-0.5, 1.0, 1.5]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.model]
-mesh = "Cube"
+mesh = "cube"
 texture = "asset/metal_logo.png"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]
@@ -95,7 +95,7 @@ position = [1.0, 1.0, 1.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.model]
-mesh = "Cube"
+mesh = "cube"
 texture = "asset/metal_logo.png"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]
@@ -115,7 +115,7 @@ position = [0.0, -1.0, 0.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [100.0, 1.0, 100.0]
 [entities.model]
-mesh = "Cube"
+mesh = "cube"
 texture = "asset/Farback01.png"
 [entities.rigidbody]
 velocity = [0.0, 0.0, 0.0]

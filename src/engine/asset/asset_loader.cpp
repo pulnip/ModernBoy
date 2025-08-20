@@ -184,7 +184,6 @@ void Asset::AssetLoader::collectWorkItems(const MeshDescriptor& meshDesc,
 // Process a "file" scheme on mesh id
 void Asset::AssetLoader::processMeshFile(const MeshWork& item
 ){
-    std::unordered_map<std::string, uint32_t> materialNameToIndex;
     CookedMesh cooked = loadCookedOrImport(item.path);
 
     // submesh
@@ -213,6 +212,8 @@ void Asset::AssetLoader::processMeshFile(const MeshWork& item
     auto meshHandle = meshManager.emplace(
         item.uuid, mesh);
     (void) meshHandle;
+
+    std::unordered_map<std::string, uint32_t> materialNameToIndex;
 
     for(Index i=0; i<cooked.materialInfoTable.size(); ++i)
         materialNameToIndex.try_emplace(cooked.materialNameTable[i], i);
@@ -308,60 +309,49 @@ CookedMesh Asset::AssetLoader::loadCookedOrImport(
         return importMeshFile(path);
 }
 
-std::vector<TextureHandle> Asset::AssetLoader::createTexturesFromMesh(
-    const CookedMesh& mesh, const std::string& baseID
-){
-    std::vector<TextureHandle> textureHandles;
-    textureHandles.reserve(mesh.textureInfoTable.size());
-
-    for(Index i=0; i<mesh.textureInfoTable.size(); ++i){
-        const auto& ti   = mesh.textureInfoTable[i];
-        const size_t off = ti.pixelSectionIndex;
-        const size_t sz  = ti.pixelCount;
-
-        if(off > mesh.pixels.size() || sz > mesh.pixels.size() - off){
-            AppWarn("texture[{}] OOR: base={}, size={}, total={}", i, off, sz, mesh.pixels.size());
-            continue;
-        }
-
-        auto texID = issueID();
-        table.try_emplace(std::format("{}:texture{}:{}",
-            baseID, i, usageToStr(ti.usage)), texID);
-
-        const auto pixelBase = mesh.textureInfoTable[i].pixelSectionIndex;
-        const auto w = mesh.textureInfoTable[i].width;
-        const auto h = mesh.textureInfoTable[i].height;
-        if(pixelBase + static_cast<size_t>(w) * h > mesh.pixels.size()) {
-            AppWarn("texture pixel span out of range: idx={}, size={}",
-                pixelBase, mesh.pixels.size());
-            return {};
-        }
-
-        auto handle = textureManager.emplace(
-            texID,
-            renderContext,
-            std::span<const uint8_t>{
-                &mesh.pixels[pixelBase],
-                static_cast<size_t>(w) * h },
-            w, h
-        );
-        textureHandles.push_back(handle);
-    }
-
-    return textureHandles;
-}
-
-void Asset::AssetLoader::createMaterialFromTextures(
-    const std::vector<TextureHandle>& textures
-){
-    materialToUUID.try_emplace(textures, issueID());
-}
-
 // Process an "embedded" scheme on mesh id
 void Asset::AssetLoader::processMeshEmbedded(const MeshWork& item){
     auto handle = meshManager.emplace(
         item.uuid, renderContext, item.path);
     (void)handle;
+
+    std::vector<UUID> materialSet(1);
+    std::unordered_map<std::string, uint32_t> materialNameToIndex;
+    materialNameToIndex.try_emplace("*", 0);
+
+    for(const auto& matDesc: item.material_override){
+        auto it = materialNameToIndex.find(matDesc.targetSlot);
+        if(it == materialNameToIndex.end()){
+            AppWarn("Target slot '{}' not exist on mesh:",
+                matDesc.targetSlot, item.id);
+            continue;
+        }
+
+        auto [_, override_index] = *it;
+        // check material already loaded
+        auto tit = table.find(matDesc.baseColor);
+        if(tit != table.end()){
+            const auto& [_2, uuid] = *tit;
+            
+            materialSet[override_index] = uuid;
+        }
+
+        auto texID = issueID();
+        auto handle = textureManager.emplace(
+            texID, renderContext, matDesc.baseColor
+        );
+        std::vector<TextureHandle> material;
+        material.push_back(handle);
+
+        auto matID = issueID();
+        remember(matDesc.baseColor, matID);
+        materialTable.try_emplace(matID, material);
+        materialSet[override_index] = matID;
+    }
+
+    auto matSetID = issueID();
+    remember(std::format("{}:materialSet", item.id), matSetID);
+    materialSetTable.try_emplace(matSetID, materialSet);
 }
 
 void Asset::AssetLoader::processMaterial(const WorkItem& item){
@@ -372,7 +362,7 @@ void Asset::AssetLoader::processMaterial(const WorkItem& item){
 
 void Asset::AssetLoader::processShader(const WorkItem& item){
     auto handle = shaderManager.emplace(
-        item.uuid, renderContext, item.path);
+        item.uuid, renderContext);
     (void)handle;
 }
 

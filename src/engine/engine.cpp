@@ -66,6 +66,7 @@ world(*this),
 assetLoader(*this), \
 assetLoader2(submeshManager, meshManager, textureManager,
     materialTable, materialSetTable, shaderManager, renderer.context),
+sceneLoader(world.registry),
 lastTick(std::chrono::time_point_cast<
     std::chrono::microseconds>(steady_clock::now())){}
 
@@ -75,6 +76,8 @@ void Engine::start(){
     auto registry = Asset::makeDefaultBinderRegistry();
     auto scene = Asset::buildScene(temp, registry);
 
+    assetLoader2.load(scene);
+    sceneLoader.loadScene(scene, assetLoader2.get_table());
 }
 
 void Engine::shutdown(){

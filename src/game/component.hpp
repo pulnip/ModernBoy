@@ -121,6 +121,7 @@ namespace ModernBoy::Game
         X(       TRANSFORM) \
         X(          CAMERA) \
         X(           COLOR) \
+        X(           MODEL) \
         X(            MESH) \
         X(          SCRIPT) \
         X(           INPUT) \
@@ -148,7 +149,8 @@ namespace ModernBoy::Game
         X(        Transform,        TRANSFORM) \
         X(           Camera,           CAMERA) \
         X(            Color,            COLOR) \
-        X(            Model,             MESH) \
+        X(            Model,            MODEL) \
+        X(             Mesh,             MESH) \
         X(     ScriptObject,           SCRIPT) \
         X(            Input,            INPUT) \
         X(         LifeSpan,         LIFESPAN) \
@@ -190,7 +192,7 @@ namespace ModernBoy::Game
     #define X DECL_BIT
     ARCHETYPES
     #undef X
-    constexpr auto DRAW_BIT    = TRANSFORM_BIT |      MESH_BIT;
+    constexpr auto DRAW_BIT    = TRANSFORM_BIT |     MODEL_BIT;
     constexpr auto VIEW_BIT    = TRANSFORM_BIT |    CAMERA_BIT;
     constexpr auto PHYSICS_BIT = TRANSFORM_BIT | RIGIDBODY_BIT;
 
