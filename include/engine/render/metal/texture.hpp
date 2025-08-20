@@ -1,6 +1,7 @@
 #ifndef MODERNBOY_METAL_TEXTURE_HPP
 #define MODERNBOY_METAL_TEXTURE_HPP
 
+#include <span>
 #include "engine/fwd.hpp"
 
 namespace ModernBoy::Metal
@@ -11,7 +12,7 @@ namespace ModernBoy::Metal
         Texture(NativePtr rctxPtr,
             const std::string& fileName);
         Texture(NativePtr rctxPtr,
-            uint8_t* pixel, int width, int height);
+            std::span<const uint8_t> pixel, int width, int height);
         ~Texture();
 
         Texture()=default;

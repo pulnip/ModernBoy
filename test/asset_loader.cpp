@@ -3,6 +3,8 @@
 #include "engine/asset/asset_loader.hpp"
 #if defined(USE_METAL)
 #include "engine/render/metal/mesh.hpp"
+#include "engine/render/metal/texture.hpp"
+#include "engine/render/metal/shader.hpp"
 #endif
 
 using namespace ModernBoy;
@@ -24,9 +26,12 @@ const MeshDescriptor desc3{
     .shader = ShaderDescriptor{}
 };
 
+TextureManager textureManager;
+ShaderManager shaderManager;
+
 TEST(AssetLoader, LoadsFileOnce){
     MeshManager meshManager;
-    Asset::AssetLoader loader(meshManager, nullptr);
+    Asset::AssetLoader loader(meshManager, textureManager, shaderManager, nullptr);
 
     SceneDescriptor scene;
     scene.meshes.push_back(desc1);
@@ -40,7 +45,7 @@ TEST(AssetLoader, LoadsFileOnce){
 
 TEST(AssetLoader, LoadsEmbedded){
     MeshManager meshManager;
-    Asset::AssetLoader loader(meshManager, nullptr);
+    Asset::AssetLoader loader(meshManager, textureManager, shaderManager, nullptr);
 
     SceneDescriptor scene;
 
@@ -56,7 +61,7 @@ TEST(AssetLoader, LoadsEmbedded){
 
 TEST(AssetLoader, AssignsUniqueIDs) {
     MeshManager meshManager;
-    Asset::AssetLoader loader(meshManager, nullptr);
+    Asset::AssetLoader loader(meshManager, textureManager, shaderManager, nullptr);
 
     SceneDescriptor scene;
     scene.meshes.push_back(desc1);

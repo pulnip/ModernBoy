@@ -2,6 +2,7 @@
 #define MODERNBOY_FWD_HPP
 
 #include <chrono>
+#include <unordered_map>
 #include "core/alias.hpp"
 #include "core/math/type.hpp"
 
@@ -22,6 +23,9 @@ namespace ModernBoy
 
     namespace Asset{
         class AssetLoader;
+
+        struct SceneDescriptor;
+        using ResolveTable = std::unordered_map<std::string, UUID>;
     }
 
     namespace Render{

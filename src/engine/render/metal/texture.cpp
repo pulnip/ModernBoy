@@ -9,7 +9,7 @@ extern "C"{
     extern void* createTextureFromPath(const void* rctxPtr,
         const char* filePath);
     extern void* createTextureFromPixel(const void* rctxPtr,
-        uint8_t* pixels, int32_t width, int32_t height);
+        const uint8_t* pixels, int32_t width, int32_t height);
     extern void destroyTexture(const void* texturePtr);
 }
 
@@ -38,7 +38,7 @@ Texture::Texture(NativePtr rctxPtr,
     AppTrace("  Texture: Ptr: {}", texture);
 }
 Texture::Texture(NativePtr rctxPtr,
-    uint8_t* pixel, int width, int height)
-:texture(createTextureFromPixel(rctxPtr, pixel, width, height)){
+    std::span<const uint8_t> pixel, int width, int height)
+:texture(createTextureFromPixel(rctxPtr, pixel.data(), width, height)){
     AppTrace("  Texture: Ptr: {}", texture);
 }

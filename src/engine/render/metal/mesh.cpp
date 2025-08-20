@@ -40,7 +40,20 @@ Mesh::Mesh(NativePtr rctxPtr,
         ));
     }
 }
-Mesh::Mesh(NativePtr, const Asset::CookedMesh&){}
+Mesh::Mesh(NativePtr rctxPtr, const Asset::CookedMesh& cooked){
+    for(const auto& submesh: cooked.submeshInfoTable){
+        auto vertices = &cooked.vertices[submesh.verticesSectionIndex];
+        auto indices = &cooked.indices[submesh.indicesSectionIndex];
+
+        meshPtr.emplace_back(createMesh(
+            rctxPtr,
+            reinterpret_cast<const float*>(vertices),
+            submesh.vertexCount,
+            indices, submesh.indexCount
+        ));
+    }
+}
+
 Mesh::~Mesh(){
     for(const auto& part: meshPtr)
         destroyMesh(part);

@@ -89,10 +89,10 @@ namespace ModernBoy
             return pool[keyToHandle.at(id)];
         }
         Handle getHandle(Key id) const{
-            return keyToHandle[id];
+            return keyToHandle.at(id);
         }
         Key getKey(Handle handle) const{
-            return handleToKey[handle];
+            return handleToKey.at(handle);
         }
 
         size_t size() const{ return pool.size(); }
