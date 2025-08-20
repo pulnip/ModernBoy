@@ -63,10 +63,12 @@ namespace ModernBoy
     namespace Metal
     {
         struct Mesh;
+        struct Submesh;
         struct Texture;
         struct Shader;
         struct RenderContext;
     }
+    using Submesh = Metal::Submesh;
     using Mesh = Metal::Mesh;
     using Texture = Metal::Texture;
     using Shader = Metal::Shader;
@@ -89,6 +91,7 @@ namespace ModernBoy
     using World = Game::Context;
 
     using MeshHandle = Handle;
+    using SubmeshHandle = Handle;
     using TextureHandle = Handle;
     using ShaderHandle = Handle;
     using ModuleHandle = Handle;
@@ -101,6 +104,7 @@ namespace ModernBoy
     template<typename Resource, typename Key=UUID>
     class ResourceManager;
 
+    using SubmeshManager = ResourceManager<Submesh>;
     using MeshManager = ResourceManager<Mesh>;
     using TextureManager = ResourceManager<Texture>;
     using ShaderManager = ResourceManager<Shader>;

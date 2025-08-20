@@ -2,6 +2,7 @@
 #define MODERNBOY_METAL_MESH_HPP
 
 #include <cstdint>
+#include <span>
 #include "engine/asset/asset_format.hpp"
 #include "engine/fwd.hpp"
 
@@ -26,6 +27,22 @@ namespace ModernBoy::Metal
     private:
         // Move semantics
         void moveFrom(Mesh&&);
+    };
+
+    struct Submesh{
+        NativePtr meshPtr;
+
+        Submesh() = default;
+        Submesh()=default;
+        Submesh(const Submesh&)=delete;
+        Submesh(Submesh&& mesh);
+        Submesh& operator=(const Submesh&)=delete;
+        Submesh& operator=(Submesh&&);
+
+        Submesh(NativePtr rctxPtr,
+            std::span<Asset::Vertex>,
+            std::span<uint32_t>);
+        ~Submesh();
     };
 }
 
