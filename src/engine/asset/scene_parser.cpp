@@ -186,11 +186,13 @@ private:
 
                     if(const VTable* t = std::get_if<VTable>(&elm)){
                         auto base = readString(arena, *t, plan, "baseColor");
-                        if(!base)
+                        auto tgt = readString(arena, *t, plan, "targetSlot");
+                        if(!base || !tgt)
                             return std::nullopt;
 
                         out.push_back(MaterialDescriptor{
-                            .baseColor = *base
+                            .baseColor = *base,
+                            .targetSlot = *tgt
                         });
                     } else{
                         plan.errors.push_back({"material_override entries must be tables", getLoc(elm)});

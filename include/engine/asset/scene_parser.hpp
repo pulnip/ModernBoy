@@ -86,6 +86,7 @@ namespace ModernBoy::Asset
     };
     struct MaterialDescriptor{
         std::string baseColor;
+        std::string targetSlot;
     };
     struct ShaderDescriptor{
         std::string module_;

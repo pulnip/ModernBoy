@@ -6,8 +6,9 @@ rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [1.0, 1.0, 1.0]
 [entities.mesh]
 id = "embedded:sphere"
-    [entities.mesh.material_override]
+    [[entities.mesh.material_override]]
     baseColor = "file:asset/world_map.jpg"
+    targetSlot = "*"
     [entities.mesh.shader]
     # explicitly use shader module
     module = "file:shader/ModernBoy.metallib"
@@ -37,6 +38,7 @@ scale    = [0.5, 0.5, 0.5]
 id = "embedded:cube"
     [[entities.mesh.material_override]]
     baseColor = "file:asset/metal_logo.png"
+    targetSlot = "*"
     # explicitly use default shader
     [entities.mesh.shader]
     module = "embedded:default"
@@ -54,7 +56,6 @@ scale    = [1.0, 1.0, 1.0]
     bounciness = 1.0
     friction   = 0
 
-
 [[entities]]
 name = "Cuby2"
 [entities.transform]
@@ -63,8 +64,9 @@ rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.mesh]
 id = "embedded:cube"
-    [entities.mesh.material_override]
+    [[entities.mesh.material_override]]
     baseColor = "file:asset/metal_logo.png"
+    targetSlot = "*"
     # implicitly use default shader
 [entities.rigidbody]
 velocity   = [0.0, 0.0, 0.0]
@@ -85,8 +87,9 @@ rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.mesh]
 id = "embedded:cube"
-    [entities.mesh.material_override]
+    [[entities.mesh.material_override]]
     baseColor = "file:asset/metal_logo.png"
+    targetSlot = "*"
 [entities.rigidbody]
 velocity   = [0.0, 0.0, 0.0]
 useGravity = false
@@ -106,8 +109,9 @@ rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.5, 0.5, 0.5]
 [entities.mesh]
 id = "embedded:cube"
-    [entities.mesh.material_override]
+    [[entities.mesh.material_override]]
     baseColor = "file:asset/metal_logo.png"
+    targetSlot = "*"
 [entities.rigidbody]
 velocity   = [0.0, 0.0, 0.0]
 useGravity = false
@@ -127,8 +131,9 @@ rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [100.0, 1.0, 100.0]
 [entities.mesh]
 id = "embedded:cube"
-    [entities.mesh.material_override]
+    [[entities.mesh.material_override]]
     baseColor = "file:asset/Farback01.png"
+    targetSlot = "*"
 [entities.rigidbody]
 velocity   = [0.0, 0.0, 0.0]
 useGravity = false
