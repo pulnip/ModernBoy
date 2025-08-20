@@ -6,6 +6,7 @@
 #include "event.hpp"
 #include "resource_manager.hpp"
 #include "engine/fwd.hpp"
+#include "engine/asset/asset_loader.hpp"
 #include "engine/asset_loader.hpp"
 #include "engine/script/type.hpp"
 #include "engine/script/invoker.hpp"
@@ -83,8 +84,11 @@ namespace ModernBoy
 #elif defined(USE_OPENGL)
 #endif
         // Resource Managers
+        SubmeshManager submeshManager;
         MeshManager meshManager;
         TextureManager textureManager;
+        MaterialTable materialTable;
+        MaterialSetTable materialSetTable;
         ShaderManager shaderManager;
         ModuleManager moduleManager;
         ObjectManager objectManager;
@@ -102,6 +106,7 @@ namespace ModernBoy
 
         Game::Context world;
         AssetLoader assetLoader;
+        Asset::AssetLoader assetLoader2;
 
         Timepoint lastTick;
         DeltaTime deltaTime;

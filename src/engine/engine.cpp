@@ -62,7 +62,10 @@ scriptInvoker(world.registry, moduleManager,
     objectManager, *this),
 // others
 world(*this),
-assetLoader(*this), lastTick(std::chrono::time_point_cast<
+assetLoader(*this), \
+assetLoader2(submeshManager, meshManager, textureManager,
+    materialTable, materialSetTable, shaderManager, renderer.context),
+lastTick(std::chrono::time_point_cast<
     std::chrono::microseconds>(steady_clock::now())){}
 
 void Engine::shutdown(){
