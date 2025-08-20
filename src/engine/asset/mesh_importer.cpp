@@ -18,10 +18,8 @@
 #include <stb_image.h>
 #include "engine/asset/mesh_importer.hpp"
 
-
 using namespace ModernBoy;
 using namespace ModernBoy::Asset;
-
 
 namespace fs = std::filesystem;
 
@@ -102,9 +100,40 @@ static void writeCooked(std::ostream& ofs, const CookedMesh& cooked){
         uint32_t cur = tellu32();
         if(cur < header.materialTableByteOffset)
             writeZeroPadding(ofs, header.materialTableByteOffset - cur);
-        if(!cooked.materialInfoTable.empty())
-            ofs.write(reinterpret_cast<const char*>(cooked.materialInfoTable.data()),
-                      cooked.materialInfoTable.size()*sizeof(MaterialInfo));
+
+        if(!cooked.materialInfoTable.empty()){
+            std::vector<MaterialInfo> mats = cooked.materialInfoTable;
+
+            uint32_t nameCur = header.materialNameByteOffset;
+            const size_t n = mats.size();
+            for(size_t i=0;i<n;++i){
+                const uint32_t sz = (i < cooked.materialNameTable.size())
+                    ? static_cast<uint32_t>(cooked.materialNameTable[i].size())
+                    : 0u;
+                mats[i].nameByteOffset = (sz>0) ? nameCur : 0u;
+                mats[i].nameByteSize   = sz;
+                nameCur += sz;
+            }
+        
+            ofs.write(reinterpret_cast<const char*>(mats.data()),
+                      mats.size()*sizeof(MaterialInfo));
+        }
+    }
+
+    // Material names blob (aligned)
+    {
+        uint32_t cur2 = tellu32();
+        if(cur2 < header.materialNameByteOffset)
+            writeZeroPadding(ofs, header.materialNameByteOffset - cur2);
+
+        if(header.materialNameByteSize){
+            for(const auto& s : cooked.materialNameTable){
+                if(!s.empty()){
+                    // not null-terminated
+                    ofs.write(s.data(), static_cast<std::streamsize>(s.size()));
+                }
+            }
+        }
     }
 
     // Texture info table (aligned)
@@ -216,6 +245,34 @@ static CookedMesh readCooked(std::istream& ifs){
         read_at(H.materialTableByteOffset,
             cooked.materialInfoTable.data(),
             H.numMaterial * sizeof(MaterialInfo));
+    }
+
+    // Material names blob
+    if(H.materialNameByteSize){
+        std::vector<char> nameBlob(H.materialNameByteSize);
+        read_at(H.materialNameByteOffset, nameBlob.data(), H.materialNameByteSize);
+
+        cooked.materialNameTable.resize(H.numMaterial);
+        for(uint32_t i=0;i<H.numMaterial;++i){
+            const auto& mi = cooked.materialInfoTable[i];
+            if(mi.nameByteSize == 0){
+                cooked.materialNameTable[i].clear();
+                continue;
+            }
+            if(mi.nameByteOffset < H.materialNameByteOffset){
+                cooked.materialNameTable[i].clear();
+                continue;
+            }
+            uint32_t rel = mi.nameByteOffset - H.materialNameByteOffset;
+            if(rel + mi.nameByteSize <= H.materialNameByteSize){
+                cooked.materialNameTable[i].assign(
+                    nameBlob.data()+rel,
+                    nameBlob.data()+rel+mi.nameByteSize
+                );
+            } else{
+                cooked.materialNameTable[i].clear();
+            }
+        }
     }
 
     // Texture info table
@@ -385,7 +442,12 @@ void Asset::printLoadedMesh(const CookedMesh& cooked){
     println("├─ submeshes[{}]", cooked.submeshInfoTable.size());
     for(size_t i=0;i<cooked.submeshInfoTable.size(); ++i){
         const auto& s = cooked.submeshInfoTable[i];
-        println("│  ├─ [{}] off={} cnt={} mat={} ({} tris)", i, s.indicesSectionIndex, s.indexCount, s.materialTableIndex, s.indexCount/3);
+        const char* mname = (s.materialTableIndex < cooked.materialNameTable.size())
+            ? cooked.materialNameTable[s.materialTableIndex].c_str() : "";
+        println("│  ├─ [{}] off={} cnt={} mat={} {} ({} tris)",
+            i, s.indicesSectionIndex, s.indexCount, s.materialTableIndex,
+            (std::strlen(mname)? std::format("({})", mname): std::string()),
+            s.indexCount/3);
     }
 
     // Axes (we only have target axis in file)
@@ -495,6 +557,7 @@ static auto buildMesh(const RawScene& scene,
 
     if(aiScene->HasMaterials()){
         out.materialInfoTable.resize(aiScene->mNumMaterials);
+        out.materialNameTable.resize(aiScene->mNumMaterials);
     }
 
     if(aiScene->HasMaterials()){
@@ -529,6 +592,12 @@ static auto buildMesh(const RawScene& scene,
             mi.type = count ? MaterialType::PBR : MaterialType::Unlit;
             mi.textureInfoTableIndex = start;
             mi.textureCount = count;
+            aiString aiName = mat->GetName();
+            if(aiName.length > 0){
+                out.materialNameTable[i] = std::string(aiName.C_Str());
+            } else{
+                out.materialNameTable[i] = std::format("Material{}", i);
+            }
             out.materialInfoTable[i] = mi;
         }
     }
@@ -741,6 +810,15 @@ auto Asset::extractHeader(const CookedMesh& cooked)->Header{
     header.numMaterial = static_cast<uint32_t>(cooked.materialInfoTable.size());
     header.materialTableByteSize = header.numMaterial * sizeof(MaterialInfo);
     cur += header.materialTableByteSize;
+
+    // Material name blob section
+    cur = alignUp(cur);
+    header.materialNameByteOffset = cur;
+    uint32_t nameBlobSize = 0;
+    for(const auto& s: cooked.materialNameTable)
+        nameBlobSize += static_cast<uint32_t>(s.size()); // without null
+    header.materialNameByteSize = nameBlobSize;
+    cur += header.materialNameByteSize;
 
     // Texture info table
     header.textureInfoTableStride = sizeof(TextureInfo);

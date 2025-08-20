@@ -33,6 +33,9 @@ namespace ModernBoy::Asset
         uint32_t numMaterial = 0;
         uint32_t materialTableByteSize = 0;
 
+        uint32_t materialNameByteOffset = 0;
+        uint32_t materialNameByteSize = 0;
+
         uint32_t textureInfoTableStride = 0;
         uint32_t textureInfoTableByteOffset = 0;
         uint32_t numTexture = 0;
@@ -84,6 +87,8 @@ namespace ModernBoy::Asset
         MaterialType type;
         uint32_t textureInfoTableIndex = 0;
         uint32_t textureCount = 0;
+        uint32_t nameByteOffset = 0;
+        uint32_t nameByteSize = 0;
     };
 
     enum TextureUsage: uint16_t{
@@ -116,6 +121,7 @@ namespace ModernBoy::Asset
         // information Tables (16 byte aligned on file.)
         std::vector<SubmeshInfo> submeshInfoTable;
         std::vector<MaterialInfo> materialInfoTable;
+        std::vector<std::string> materialNameTable;
         std::vector<TextureInfo> textureInfoTable;
 
         std::vector<Vertex> vertices;
