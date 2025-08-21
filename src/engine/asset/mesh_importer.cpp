@@ -14,7 +14,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/cimport.h>
-#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include "engine/asset/mesh_importer.hpp"
 

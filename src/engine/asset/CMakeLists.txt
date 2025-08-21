@@ -1,8 +1,7 @@
+file(GLOB ALL_SOURCES "*.cpp")
+
 add_library(AssetModule SHARED
-    asset_loader.cpp
-    mesh_importer.cpp
-    scene_loader.cpp
-    scene_parser.cpp
+    ${ALL_SOURCES}
 )
 target_include_directories(AssetModule
 PUBLIC
