@@ -20,6 +20,7 @@ namespace ModernBoy::Asset
         std::string id;
         std::string path;
         std::vector<MaterialDescriptor> material_override;
+        ShaderDescriptor shader;
     };
     struct WorkItem{
         SchemeKind kind=SchemeKind::Unknown;

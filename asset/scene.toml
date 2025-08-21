@@ -10,7 +10,6 @@ id = "embedded:sphere"
     baseColor = "file:asset/world_map.jpg"
     targetSlot = "*"
     [entities.mesh.shader]
-    # explicitly use shader module
     module = "file:shader/ModernBoy.metallib"
     vsFunc = "vertex_main"
     fsFunc = "fragment_main"
@@ -39,9 +38,8 @@ id = "embedded:cube"
     [[entities.mesh.material_override]]
     baseColor = "file:asset/metal_logo.png"
     targetSlot = "*"
-    # explicitly use default shader
     [entities.mesh.shader]
-    module = "embedded:default"
+    module = "file:shader/ModernBoy.metallib"
     vsFunc = "vertex_main"
     fsFunc = "fragment_main"
 [entities.rigidbody]
@@ -67,7 +65,10 @@ id = "embedded:cube"
     [[entities.mesh.material_override]]
     baseColor = "file:asset/metal_logo.png"
     targetSlot = "*"
-    # implicitly use default shader
+    [entities.mesh.shader]
+    module = "file:shader/ModernBoy.metallib"
+    vsFunc = "vertex_main"
+    fsFunc = "fragment_main"
 [entities.rigidbody]
 velocity   = [0.0, 0.0, 0.0]
 useGravity = false
@@ -90,6 +91,10 @@ id = "embedded:cube"
     [[entities.mesh.material_override]]
     baseColor = "file:asset/metal_logo.png"
     targetSlot = "*"
+    [entities.mesh.shader]
+    module = "file:shader/ModernBoy.metallib"
+    vsFunc = "vertex_main"
+    fsFunc = "fragment_main"
 [entities.rigidbody]
 velocity   = [0.0, 0.0, 0.0]
 useGravity = false
@@ -112,6 +117,10 @@ id = "embedded:cube"
     [[entities.mesh.material_override]]
     baseColor = "file:asset/metal_logo.png"
     targetSlot = "*"
+    [entities.mesh.shader]
+    module = "file:shader/ModernBoy.metallib"
+    vsFunc = "vertex_main"
+    fsFunc = "fragment_main"
 [entities.rigidbody]
 velocity   = [0.0, 0.0, 0.0]
 useGravity = false
@@ -134,6 +143,10 @@ id = "embedded:cube"
     [[entities.mesh.material_override]]
     baseColor = "file:asset/Farback01.png"
     targetSlot = "*"
+    [entities.mesh.shader]
+    module = "file:shader/ModernBoy.metallib"
+    vsFunc = "vertex_main"
+    fsFunc = "fragment_main"
 [entities.rigidbody]
 velocity   = [0.0, 0.0, 0.0]
 useGravity = false

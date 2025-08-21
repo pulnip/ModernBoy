@@ -84,6 +84,7 @@ void Asset::AssetLoader::load(const std::vector<MeshDescriptor>& meshes){
             processMeshEmbedded(work);
             break;
         default:
+            table.try_emplace(work.id, issueID());
             AppWarn("id without scheme detected: {}", work.id);
             break;
         }
@@ -128,7 +129,8 @@ void Asset::AssetLoader::collectWorkItems(const MeshDescriptor& meshDesc,
             .kind = kind,
             .id = meshDesc.id,
             .path = path,
-            .material_override = meshDesc.material_override
+            .material_override = meshDesc.material_override,
+            .shader = meshDesc.shader
         };
         meshWorks.push_back(std::move(meshWork));
 
@@ -160,17 +162,15 @@ void Asset::AssetLoader::collectWorkItems(const MeshDescriptor& meshDesc,
     }
 
     {
-        if(meshDesc.shader){
-            const auto& sd = *meshDesc.shader;
-            auto [kind, path] = splitSchemeAndPath(sd.module_);
-            if(kind != SchemeKind::Unknown){
-                WorkItem shaderWork{
-                    .kind = kind,
-                    .id = sd.module_,
-                    .path = path,
-                };
-                shaderWorks.push_back(std::move(shaderWork));
-            }
+        const auto& sd = meshDesc.shader;
+        auto [kind, path] = splitSchemeAndPath(sd.module_);
+        if(kind != SchemeKind::Unknown){
+            WorkItem shaderWork{
+                .kind = kind,
+                .id = sd.module_,
+                .path = path,
+            };
+            shaderWorks.push_back(std::move(shaderWork));
         }
     }
 }
@@ -275,7 +275,17 @@ void Asset::AssetLoader::processMeshFile(const MeshWork& item
 
     auto materialSetID = issueID();
     remember(std::format("{}:materialSet", item.id), materialSetID);
-    meshTable.try_emplace(meshID, mesh);
+    materialSetTable.try_emplace(meshID, mesh);
+
+    auto shader_it = table.find(item.shader.module_);
+    if(shader_it != table.end())
+        return;
+
+    auto shaderID = issueID();
+    remember(item.shader.module_, shaderID);
+    auto handle = shaderManager.emplace(shaderID, renderContext,
+        item.shader.vsFunc, item.shader.fsFunc, true);
+    (void)handle;
 }
 
 CookedMesh Asset::AssetLoader::loadCookedOrImport(
@@ -310,6 +320,10 @@ void Asset::AssetLoader::processMeshEmbedded(const MeshWork& item){
             meshID, renderContext, vertices, indices);
         (void)handle;
     }
+
+    auto meshID = issueID();
+    remember(std::format("{}:mesh", item.id), meshID);
+    meshTable.try_emplace(meshID, mesh);
 
     std::vector<MaterialHandle> materialSet(1);
     std::unordered_map<std::string, uint32_t> materialSlotToIndex;

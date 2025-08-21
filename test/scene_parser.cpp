@@ -73,10 +73,9 @@ TEST(SceneParser, ParseComplexMesh){
     EXPECT_EQ(scene.meshes[0].id, std::string("embedded:cube"));
     EXPECT_TRUE(scene.meshes[0].material_override.size() > 0);
     EXPECT_EQ(scene.meshes[0].material_override[0].baseColor, std::string("embedded:red"));
-    EXPECT_TRUE(scene.meshes[0].shader.has_value());
-    EXPECT_EQ(scene.meshes[0].shader.value().module_, std::string("file:shader/ModernBoy.metallib"));
-    EXPECT_EQ(scene.meshes[0].shader.value().vsFunc, std::string("vertex_main"));
-    EXPECT_EQ(scene.meshes[0].shader.value().fsFunc, std::string("fragment_main"));
+    EXPECT_EQ(scene.meshes[0].shader.module_, std::string("file:shader/ModernBoy.metallib"));
+    EXPECT_EQ(scene.meshes[0].shader.vsFunc, std::string("vertex_main"));
+    EXPECT_EQ(scene.meshes[0].shader.fsFunc, std::string("fragment_main"));
 }
 
 TEST(SceneParser, ParseEntityWithoutComponent){

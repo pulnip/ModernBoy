@@ -27,7 +27,7 @@ namespace{
     auto convert(const MeshDescriptor& desc,
         const ResolveTable& table
     ){
-        auto meshUUID = table.at(desc.id);
+        auto meshUUID = table.at(std::format("{}:mesh", desc.id));
         auto materialSetUUID = table.at(std::format("{}:materialSet", desc.id));
 
         return Game::Mesh{
@@ -35,7 +35,10 @@ namespace{
             .isActive = true,
             .alpha = 1.0,
             .mesh = meshUUID,
-            .materialSet = materialSetUUID
+            .materialSet = materialSetUUID,
+            .shaderHandle = {
+                table.at(desc.shader.module_)
+            }
         };
     }
 
