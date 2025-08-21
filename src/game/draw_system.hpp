@@ -12,6 +12,7 @@ namespace ModernBoy::Game
     class DrawSystem{
     public:
         DrawSystem(EntityRegistry&,
+            const MeshTable&, const MaterialSetTable&,
             Interface::ViewService&,
             Interface::DrawService&);
 
@@ -22,6 +23,8 @@ namespace ModernBoy::Game
 
     private:
         EntityRegistry& registry;
+        const MeshTable& meshTable;
+        const MaterialSetTable& materialSetTable;
 
         Interface::ViewService& viewService;
         Interface::DrawService& drawService;

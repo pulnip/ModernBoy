@@ -7,7 +7,8 @@ using namespace ModernBoy::Game;
 
 Context::Context(Engine& engine)
 :engine(engine),
-draw(registry, engine.viewService, engine.drawService),
+draw(registry, engine.meshTable, engine.materialSetTable,
+    engine.viewService, engine.drawService),
 action(registry, engine.scriptInvoker),
 camRay(registry, engine.inputService, rayService),
 control(registry, playerIntent, editorIntent),

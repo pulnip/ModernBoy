@@ -40,6 +40,7 @@ namespace ModernBoy::Game
         float alpha;
         UUID mesh;
         UUID materialSet;
+        ShaderHandle shaderHandle;
     );
     DEFINE_COMPONENT(ScriptObject,
         ObjectHandle handle;

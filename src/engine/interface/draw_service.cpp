@@ -19,6 +19,11 @@ void DrawService::write(const MeshObject& obj){
     meshObjects.push_back(obj);
 }
 
+void DrawService::write(const MeshDrawCall& drawCall){
+    std::lock_guard lock(drawCallMtx);
+    drawCalls.push_back(drawCall);
+}
+
 std::vector<Line> DrawService::drainLines(){
     std::vector<Line> out;
     {
@@ -47,12 +52,31 @@ std::vector<MeshObject> DrawService::drainMeshObjects(){
     return out;
 }
 
+std::vector<MeshDrawCall> DrawService::drainDrawCalls(){
+    std::vector<MeshDrawCall> out;
+    {
+        std::lock_guard lock(drawCallMtx);
+        sortDrawCalls();
+    }
+    return out;
+}
+
 void DrawService::sortMeshObjects(){
     std::ranges::sort(meshObjects,
         [](const auto& lhs, const auto& rhs){
             return lhs.shaderHandle < rhs.shaderHandle ||
                 lhs.texHandle < rhs.texHandle ||
                 lhs.meshHandle < rhs.meshHandle;
+        }
+    );
+}
+
+void DrawService::sortDrawCalls(){
+    std::ranges::sort(drawCalls,
+        [](const auto& lhs, const auto& rhs){
+            return lhs.shaderHandle < rhs.shaderHandle ||
+                lhs.materialHandle < rhs.materialHandle ||
+                lhs.submeshHandle < rhs.submeshHandle;
         }
     );
 }

@@ -11,8 +11,12 @@ using namespace ModernBoy::Interface;
 using namespace ModernBoy::Game;
 
 DrawSystem::DrawSystem(EntityRegistry& registry,
+    const MeshTable& meshTable,
+    const MaterialSetTable& materialSetTable,
     ViewService& viewSrv, DrawService& drawSrv)
-:registry(registry), viewService(viewSrv), drawService(drawSrv){}
+:registry(registry), meshTable(meshTable),
+materialSetTable(materialSetTable),
+viewService(viewSrv), drawService(drawSrv){}
 
 void DrawSystem::update(){
     for(const auto [id, bit, tc, cc]: registry.query<
@@ -36,6 +40,20 @@ void DrawSystem::update(){
                 mc.textureHandle,
                 mc.shaderHandle,
                 id});
+    }
+    for(const auto [id, bit, tc, mc]: registry.query<Transform, Mesh>()){
+        const auto& submeshes = meshTable.at(mc.mesh);
+        const auto& materials = materialSetTable.at(mc.materialSet);
+        for(Index i=0; i<submeshes.size(); ++i){
+            drawService.write(MeshDrawCall{
+                tc.position, tc.rotation, tc.scale,
+                mc.alpha, submeshes[i],
+                materials[i],
+                mc.shaderHandle,
+                id
+            });
+        }
+
     }
 }
 
