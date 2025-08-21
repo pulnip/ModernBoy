@@ -63,8 +63,9 @@ scriptInvoker(world.registry, moduleManager,
     objectManager, *this),
 // others
 world(*this),
-assetLoader(*this), \
-assetLoader2(submeshManager, meshManager, textureManager,
+assetLoader(*this),
+assetLoader2(submeshManager, materialManager,
+    meshManager, textureManager,
     materialTable, materialSetTable, shaderManager, renderer.context),
 sceneLoader(world.registry),
 lastTick(std::chrono::time_point_cast<

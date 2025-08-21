@@ -65,12 +65,14 @@ namespace ModernBoy
     {
         struct Mesh;
         struct Submesh;
+        struct UnlitMaterial;
         struct Texture;
         struct Shader;
         struct RenderContext;
     }
     using Submesh = Metal::Submesh;
     using Mesh = Metal::Mesh;
+    using Material = Metal::UnlitMaterial;
     using Texture = Metal::Texture;
     using Shader = Metal::Shader;
     using RenderContext = Metal::RenderContext;
@@ -109,6 +111,7 @@ namespace ModernBoy
     using MeshManager = ResourceManager<Mesh>;
     using TextureManager = ResourceManager<Texture>;
     using MaterialTable = std::unordered_map<UUID, std::vector<TextureHandle>>;
+    using MaterialManager = ResourceManager<Material>;
     using MaterialSetTable = std::unordered_map<UUID, std::vector<UUID>>;
     using ShaderManager = ResourceManager<Shader>;
     using ModuleManager = ResourceManager<Module, std::string>;

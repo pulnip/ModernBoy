@@ -12,99 +12,97 @@ struct MaterialConstants {
 }
 
 protocol Material {
-    var renderShader: Shader { get }
-
     func bind(encoder: MTLRenderCommandEncoder)
 }
 
-final class PBRMaterial: Material {
-    let renderShader: Shader
-
-    var baseColorMap: Texture
-    var normalMap: Texture?
-    var mrMap: Texture?
-    var emissiveMap: Texture?
+final class UnlitMaterial: Material {
+    var baseColorMap: MTLTexture
 
     let samplerState: MTLSamplerState
 
     var materialConstants = MaterialConstants()
-    // var constantBuffer: MTLBuffer
 
     init(
-        _ shader: Shader, _ baseColor: Texture, _ sampler: MTLSamplerState,
-        normal: Texture?, mr: Texture?, emissive: Texture?
+        _ baseColor: MTLTexture, _ sampler: MTLSamplerState,
     ) {
-        renderShader = shader
         baseColorMap = baseColor
-        normalMap = normal
-        mrMap = mr
-        emissiveMap = emissive
 
         samplerState = sampler
     }
     func bind(encoder: MTLRenderCommandEncoder) {
-        renderShader.bind(encoder: encoder)
-
         encoder.setFragmentBytes(
             &materialConstants,
             length: MemoryLayout<MaterialConstants>.stride,
             index: Binding.fragmentMaterialBuffer)
 
-        baseColorMap.bind(encoder: encoder)
-        if let t = normalMap { t.bind(encoder: encoder) }
-        if let t = mrMap { t.bind(encoder: encoder) }
-        if let t = emissiveMap { t.bind(encoder: encoder) }
+        encoder.setFragmentTexture(baseColorMap, index: 0)
 
         encoder.setFragmentSamplerState(samplerState, index: Binding.samplerCommon)
     }
 }
 
-@_cdecl("createPBRMaterial")
-public func createPBRMaterial(
+@_cdecl("createUnlitMaterialFromPath")
+public func createUnlitMaterialFromPath(
     _ rctxPtr: UnsafeRawPointer?,
-    _ shaderPtr: UnsafeRawPointer?,
-    _ baseColorPtr: UnsafeRawPointer?,
-    _ normalPtr: UnsafeRawPointer?,
-    _ mrPtr: UnsafeRawPointer?,
-    _ emissivePtr: UnsafeRawPointer?
+    _ baseColorFilePath: UnsafePointer<CChar>?,
 ) -> UnsafeRawPointer? {
     guard let rctxPtr = rctxPtr,
-        let shaderPtr = shaderPtr,
-        let baseColorPtr = baseColorPtr
+        let baseColorFilePath = baseColorFilePath
     else { return nil }
 
     let rctx = Unmanaged<RenderContext>
         .fromOpaque(rctxPtr).takeUnretainedValue()
-    let shader = Unmanaged<Shader>
-        .fromOpaque(shaderPtr).takeUnretainedValue()
-    let baseColor = Unmanaged<Texture>
-        .fromOpaque(baseColorPtr).takeUnretainedValue()
+    let baseColorPath = String(cString: baseColorFilePath)
+    let baseColorURL = URL(fileURLWithPath: baseColorPath)
+    let loader = MTKTextureLoader(device: rctx.layer.device!)
 
-    var normalMap: Texture? = nil
-    var mrMap: Texture? = nil
-    var emissiveMap: Texture? = nil
+    let options: [MTKTextureLoader.Option: Any] = [.SRGB: false]
+    let baseColor = try? loader.newTexture(
+        URL: baseColorURL, options: options
+    )
 
-    if let t = normalPtr {
-        normalMap = Unmanaged<Texture>
-            .fromOpaque(t).takeUnretainedValue()
-    }
-    if let t = mrPtr {
-        mrMap = Unmanaged<Texture>
-            .fromOpaque(t).takeUnretainedValue()
-    }
-    if let t = emissivePtr {
-        emissiveMap = Unmanaged<Texture>
-            .fromOpaque(t).takeUnretainedValue()
-    }
-
-    let material = PBRMaterial(
-        shader, baseColor, rctx.sampler,
-        normal: normalMap, mr: mrMap, emissive: emissiveMap)
+    let material = UnlitMaterial(
+        baseColor!, rctx.sampler)
     return UnsafeRawPointer(Unmanaged.passRetained(material).toOpaque())
 }
-@_cdecl("destroyPBRMaterial")
-public func destroyMaterial(_ ptr: UnsafeRawPointer?) {
+@_cdecl("createUnlitMaterialFromPixel")
+public func createUnlitMaterialFromPixel(
+    _ rctxPtr: UnsafeRawPointer?,
+    _ pixels: UnsafePointer<UInt8>?,
+    _ width: Int32, _ height: Int32
+) -> UnsafeRawPointer? {
+    guard let rctxPtr = rctxPtr,
+        let pixels = pixels
+    else { return nil }
+
+    let rctx = Unmanaged<RenderContext>
+        .fromOpaque(rctxPtr).takeUnretainedValue()
+    let device = rctx.layer.device!
+
+    let texDesc = MTLTextureDescriptor.texture2DDescriptor(
+        pixelFormat: .rgba8Unorm,
+        width: Int(width),
+        height: Int(height),
+        mipmapped: false
+    )
+    texDesc.usage = [.shaderRead, .shaderWrite]
+
+    let baseColor = device.makeTexture(descriptor: texDesc)
+    let region = MTLRegionMake2D(0, 0, Int(width), Int(height))
+    baseColor?.replace(
+        region: region,
+        mipmapLevel: 0,
+        withBytes: pixels,
+        bytesPerRow: Int(width) * 4  // R8G8B8A8
+    )
+
+    let material = UnlitMaterial(
+        baseColor!, rctx.sampler)
+    return UnsafeRawPointer(Unmanaged.passRetained(material).toOpaque())
+}
+@_cdecl("destroyUnlitMaterial")
+public func destroyUnlitMaterial(_ ptr: UnsafeRawPointer?) {
     if let ptr = ptr {
-        Unmanaged<PBRMaterial>.fromOpaque(ptr).release()
+        Unmanaged<UnlitMaterial>.fromOpaque(ptr).release()
     }
 }

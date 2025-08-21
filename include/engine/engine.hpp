@@ -25,6 +25,7 @@
 #include "engine/render/dx11/texture.hpp"
 #include "engine/render/dx11/shader.hpp"
 #elif defined(USE_METAL)
+#include "engine/render/metal/material.hpp"
 #include "engine/render/metal/mesh.hpp"
 #include "engine/render/metal/texture.hpp"
 #include "engine/render/metal/shader.hpp"
@@ -88,6 +89,8 @@ namespace ModernBoy
 #endif
         // Resource Managers
         SubmeshManager submeshManager;
+        MaterialManager materialManager;
+
         MeshManager meshManager;
         TextureManager textureManager;
         MaterialTable materialTable;

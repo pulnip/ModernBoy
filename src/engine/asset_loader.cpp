@@ -230,8 +230,8 @@ std::optional<Editor> parse(toml::node_view<const toml::node> view){
 }
 
 AssetLoader::AssetLoader(Engine& engine):engine(engine){
-    loadAction("asset/action.toml");
-    loadAsset("asset/actor.toml");
+    // loadAction("asset/action.toml");
+    // loadAsset("asset/actor.toml");
 }
 
 void AssetLoader::loadAsset(const std::string& fileName){

@@ -55,12 +55,14 @@ namespace{
     }
 }
 
-Asset::AssetLoader::AssetLoader(SubmeshManager& submeshManager,
+Asset::AssetLoader::AssetLoader(
+    SubmeshManager& submeshManager, MaterialManager& materialManager,
     MeshManager& meshManager, TextureManager& texManager,
     MaterialTable& materialTable, MaterialSetTable& materialSetTable,
     ShaderManager& shaderManager, NativePtr renderContext)
-:submeshManager(submeshManager), meshManager(meshManager), textureManager(texManager),
-materialTable(materialTable), materialSetTable(materialSetTable),
+:submeshManager(submeshManager), materialManager(materialManager),
+meshManager(meshManager), textureManager(texManager),
+materialSetTable(materialSetTable),
 shaderManager(shaderManager), renderContext(renderContext){}
 
 void Asset::AssetLoader::load(const SceneDescriptor& desc){
@@ -229,7 +231,7 @@ void Asset::AssetLoader::processMeshFile(const MeshWork& item
         const auto& materialName = cooked.materialNameTable[i];
 
         // check material already loaded
-        auto it = table.find(std::format("{}:{}", item.id, materialName));
+        auto it = table.find(materialName);
         if(it != table.end()){
             const auto [_2, uuid] = *it;
             materialSet[i] = uuid;
@@ -237,30 +239,20 @@ void Asset::AssetLoader::processMeshFile(const MeshWork& item
         }
 
         // not loaded, so loading process start
-        std::vector<TextureHandle> material(materialInfo.textureCount);
-        // texture
-        for(Index j=0; j<materialInfo.textureCount; ++j){
-            const auto& textureInfo = cooked.textureInfoTable[
-                materialInfo.textureInfoTableIndex + j];
-
-            std::span<uint8_t> pixels(
-                cooked.pixels.begin() + textureInfo.pixelSectionIndex,
-                textureInfo.pixelCount
-            );
-            auto texID = issueID();
-            remember(std::format("{}:{}:{}", item.id, materialName, i), texID);
-
-            material[j] = textureManager.emplace(
-                texID, renderContext, pixels,
-                textureInfo.width, textureInfo.height
-            );
-        }
+        const auto& textureInfo = cooked.textureInfoTable[
+            materialInfo.textureInfoTableIndex + 0];
+        
+        std::span<uint8_t> pixels(
+            cooked.pixels.begin() + textureInfo.pixelSectionIndex,
+            textureInfo.pixelCount
+        );
 
         auto matID = issueID();
-        remember(std::format("{}:{}", item.id, materialName), matID);
-        materialToUUID.try_emplace(material, matID);
-
-        materialTable.try_emplace(matID, material);
+        remember(materialName, matID);
+        auto handle = materialManager.emplace(
+            matID, renderContext, pixels,
+            textureInfo.width, textureInfo.height);
+        (void)handle;
         materialSet[i] = matID;
     }
     // override material
@@ -281,16 +273,12 @@ void Asset::AssetLoader::processMeshFile(const MeshWork& item
             materialSet[override_index] = uuid;
         }
 
-        auto texID = issueID();
-        auto handle = textureManager.emplace(
-            texID, renderContext, matDesc.baseColor
-        );
-        std::vector<TextureHandle> material;
-        material.push_back(handle);
-
         auto matID = issueID();
+        auto [matScheme, matPath] = splitSchemeAndPath(matDesc.baseColor);
         remember(matDesc.baseColor, matID);
-        materialTable.try_emplace(matID, material);
+        auto handle = materialManager.emplace(matID,
+            renderContext, matPath);
+        (void)handle;
         materialSet[override_index] = matID;
     }
 
@@ -336,16 +324,15 @@ void Asset::AssetLoader::processMeshEmbedded(const MeshWork& item){
             materialSet[override_index] = uuid;
         }
 
-        auto texID = issueID();
-        auto handle = textureManager.emplace(
-            texID, renderContext, matDesc.baseColor
-        );
+        auto matID = issueID();
+        auto [matScheme, matPath] = splitSchemeAndPath(matDesc.baseColor);
+        remember(matDesc.baseColor, matID);
+        auto handle = materialManager.emplace(
+            matID, renderContext, matPath);
+        (void)handle;
         std::vector<TextureHandle> material;
         material.push_back(handle);
 
-        auto matID = issueID();
-        remember(matDesc.baseColor, matID);
-        materialTable.try_emplace(matID, material);
         materialSet[override_index] = matID;
     }
 

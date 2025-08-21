@@ -5,39 +5,53 @@
 #include "engine/render/metal/material.hpp"
 #include "engine/engine.hpp"
 
-extern "C"{
-    extern void* createPBRMaterial(const void* rctxPtr,
-        const void* shaderPtr,
-        const void* baseColorPtr, const void* normalPtr,
-        const void* mrPtr, const void* emissivePtr);
-    extern void destroyMaterial(const void* materialPtr);
-}
-
 using namespace ModernBoy;
 using namespace ModernBoy::Metal;
 
-PBRMaterial::PBRMaterial(PBRMaterial&& other){
-    moveFrom(std::move(other)); }
-PBRMaterial& PBRMaterial::operator=(PBRMaterial&& other){
-    moveFrom(std::move(other));
-    return *this;
+extern "C"{
+    extern NativePtr createUnlitMaterialFromPath(
+        const NativePtr rctxPtr,
+        const char* baseColorFilePath);
+    extern NativePtr createUnlitMaterialFromPixel(
+        const NativePtr rctxPtr, const uint8_t* pixels,
+        int32_t width, int32_t height);
+    extern void destroyUnlitMaterial(
+        NativePtr nativeMaterial);
 }
-void PBRMaterial::moveFrom(PBRMaterial&& other){
-    material = other.material;
-    other.material = nullptr;
+
+UnlitMaterial::UnlitMaterial(
+    NativePtr rctxPtr,
+    const std::string& filePath)
+:material(createUnlitMaterialFromPath(
+    rctxPtr, filePath.c_str())
+){
+    AppDebug("UnlitMaterial: {}", filePath);
 }
-PBRMaterial::~PBRMaterial(){
+UnlitMaterial::UnlitMaterial(
+    NativePtr rctxPtr,
+    std::span<uint8_t> pixels,
+    int width, int height)
+:material(createUnlitMaterialFromPixel(
+    rctxPtr, pixels.data(), width, height)
+){
+    AppTrace("UnlitMaterial: Ptr: {}", material);
+}
+
+UnlitMaterial::~UnlitMaterial(){
     if(material != nullptr){
-        AppTrace("  PBRMaterial {} destroyed", material);
-        destroyMaterial(material);
+        AppTrace("UnlitMaterial {} destroyed", material);
+        destroyUnlitMaterial(material);
     }
 }
 
-PBRMaterial::PBRMaterial(NativePtr rctxPtr, NativePtr shaderPtr,
-    NativePtr baseColorPtr, NativePtr normalPtr,
-    NativePtr mrPtr, NativePtr emissivePtr)
-:material(createPBRMaterial(rctxPtr, shaderPtr,
-    baseColorPtr, normalPtr, mrPtr, emissivePtr))
-{
-    AppTrace("  PBRMaterial: Ptr: {}", material);
+UnlitMaterial::UnlitMaterial(UnlitMaterial&& other){
+    moveFrom(std::move(other)); }
+UnlitMaterial& UnlitMaterial::operator=(UnlitMaterial&& other){
+    moveFrom(std::move(other));
+    return *this;
 }
+void UnlitMaterial::moveFrom(UnlitMaterial&& other){
+    material = other.material;
+    other.material = nullptr;
+}
+

@@ -1,28 +1,30 @@
 #ifndef MODERNBOY_METAL_MATERIAL_HPP
 #define MODERNBOY_METAL_MATERIAL_HPP
 
+#include <span>
 #include "engine/fwd.hpp"
 
 namespace ModernBoy::Metal
 {
-    struct PBRMaterial{
+    struct UnlitMaterial{
         NativePtr material;
 
-        PBRMaterial(NativePtr rctxPtr, NativePtr shaderPtr,
-            // Textures
-            NativePtr baseColorPtr, NativePtr normalPtr,
-            NativePtr mrPtr, NativePtr emissivePtr);
-        ~PBRMaterial();
+        UnlitMaterial(NativePtr rctxPtr,
+            const std::string& filePath);
+        UnlitMaterial(NativePtr rctxPtr,
+            std::span<uint8_t> pixels,
+            int width, int height);
+        ~UnlitMaterial();
 
-        PBRMaterial()=default;
-        PBRMaterial(const PBRMaterial&)=delete;
-        PBRMaterial(PBRMaterial&&);
-        PBRMaterial& operator=(const PBRMaterial&)=delete;
-        PBRMaterial& operator=(PBRMaterial&&);
+        UnlitMaterial()=default;
+        UnlitMaterial(const UnlitMaterial&)=delete;
+        UnlitMaterial(UnlitMaterial&&);
+        UnlitMaterial& operator=(const UnlitMaterial&)=delete;
+        UnlitMaterial& operator=(UnlitMaterial&&);
 
     private:
         // Move semantics
-        void moveFrom(PBRMaterial&&);
+        void moveFrom(UnlitMaterial&&);
     };
 }
 

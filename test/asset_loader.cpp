@@ -2,6 +2,7 @@
 #include "engine/resource_manager.hpp"
 #include "engine/asset/asset_loader.hpp"
 #if defined(USE_METAL)
+#include "engine/render/metal/material.hpp"
 #include "engine/render/metal/mesh.hpp"
 #include "engine/render/metal/texture.hpp"
 #include "engine/render/metal/shader.hpp"
@@ -27,6 +28,7 @@ const MeshDescriptor desc3{
 };
 
 SubmeshManager submeshManager;
+MaterialManager materialManager;
 MeshManager meshManager;
 TextureManager textureManager;
 MaterialTable materialTable;
@@ -34,7 +36,8 @@ MaterialSetTable materialSetTable;
 ShaderManager shaderManager;
 
 TEST(AssetLoader, LoadsFileOnce){
-    Asset::AssetLoader loader(submeshManager,
+    Asset::AssetLoader loader(
+        submeshManager, materialManager,
         meshManager, textureManager,
         materialTable, materialSetTable,
         shaderManager, nullptr);
@@ -50,7 +53,8 @@ TEST(AssetLoader, LoadsFileOnce){
 }
 
 TEST(AssetLoader, LoadsEmbedded){
-    Asset::AssetLoader loader(submeshManager,
+    Asset::AssetLoader loader(
+        submeshManager, materialManager,
         meshManager, textureManager,
         materialTable, materialSetTable,
         shaderManager, nullptr);
@@ -68,7 +72,8 @@ TEST(AssetLoader, LoadsEmbedded){
 }
 
 TEST(AssetLoader, AssignsUniqueIDs) {
-    Asset::AssetLoader loader(submeshManager,
+    Asset::AssetLoader loader(
+        submeshManager, materialManager,
         meshManager, textureManager,
         materialTable, materialSetTable,
         shaderManager, nullptr);

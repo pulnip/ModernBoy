@@ -46,8 +46,8 @@ namespace ModernBoy::Asset
 
     class AssetLoader{
     public:
-        AssetLoader(SubmeshManager&, MeshManager&,
-            TextureManager&, MaterialTable&, MaterialSetTable&,
+        AssetLoader(SubmeshManager&, MaterialManager&,
+            MeshManager&, TextureManager&,  MaterialTable&, MaterialSetTable&,
             ShaderManager&, NativePtr renderContext);
 
         void load(const SceneDescriptor&);
@@ -91,9 +91,10 @@ namespace ModernBoy::Asset
         ) -> std::vector<TextureHandle>;
 
         SubmeshManager& submeshManager;
+        MaterialManager& materialManager;
+
         MeshManager& meshManager;
         TextureManager& textureManager;
-        MaterialTable& materialTable;
         MaterialSetTable& materialSetTable;
         ShaderManager& shaderManager;
         NativePtr renderContext;
