@@ -126,9 +126,6 @@ namespace ModernBoy
     public:
         ObjectPoolV2() = default;
         ~ObjectPoolV2(){
-            std::println("slots size: {}, capacity: {}, freeIndexes size: {}, capacity: {}",
-                slots.size(), slots.capacity(), freeIndexes.size(), freeIndexes.capacity());
-
             std::sort(freeIndexes.begin(), freeIndexes.end());
 
             Index freeIdxPtr = 0;
