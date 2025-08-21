@@ -27,19 +27,16 @@ const MeshDescriptor desc3{
     .shader = ShaderDescriptor{}
 };
 
+MeshTable meshTable;
+MaterialSetTable materialSetTable;
 SubmeshManager submeshManager;
 MaterialManager materialManager;
-MeshManager meshManager;
-TextureManager textureManager;
-MaterialTable materialTable;
-MaterialSetTable materialSetTable;
 ShaderManager shaderManager;
 
 TEST(AssetLoader, LoadsFileOnce){
     Asset::AssetLoader loader(
+        meshTable, materialSetTable,
         submeshManager, materialManager,
-        meshManager, textureManager,
-        materialTable, materialSetTable,
         shaderManager, nullptr);
 
     SceneDescriptor scene;
@@ -54,9 +51,8 @@ TEST(AssetLoader, LoadsFileOnce){
 
 TEST(AssetLoader, LoadsEmbedded){
     Asset::AssetLoader loader(
+        meshTable, materialSetTable,
         submeshManager, materialManager,
-        meshManager, textureManager,
-        materialTable, materialSetTable,
         shaderManager, nullptr);
 
     SceneDescriptor scene;
@@ -73,9 +69,8 @@ TEST(AssetLoader, LoadsEmbedded){
 
 TEST(AssetLoader, AssignsUniqueIDs) {
     Asset::AssetLoader loader(
+        meshTable, materialSetTable,
         submeshManager, materialManager,
-        meshManager, textureManager,
-        materialTable, materialSetTable,
         shaderManager, nullptr);
 
     SceneDescriptor scene;

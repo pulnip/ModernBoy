@@ -871,6 +871,7 @@ RawMesh Asset::createTriangle(){
     return { RawMeshPart(vertices, indices) };
 
 }
+
 RawMesh Asset::createRectangle(){
     Vertices vertices = {
         {
@@ -1044,4 +1045,216 @@ RawMesh Asset::createSphere(float radius,
     }
 
     return { RawMeshPart(vertices, indices) };
+}
+
+namespace {
+    FittedMesh createEmbeddedTriangle(){
+        std::vector<Vertex> vertices = {
+            {
+                {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
+                {0.5f, 0.0f}, {0.0f, -1.0f, 0.0f, -1.0f}
+            },{
+                {-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
+                {0.0f, 1.0f}, {0.0f, -1.0f, 0.0f, -1.0f,}
+            },{
+                {1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
+                {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f, -1.0f}
+            }
+        };
+        Indices indices = {1, 0, 2};
+    
+        return {vertices, indices};
+    }
+
+    FittedMesh createEmbeddedRectangle(){
+        std::vector<Vertex> vertices = {
+            {
+                {-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, -1.0f}, 
+                {0.0f, 1.0f}, {0.0f, -1.0f, 0.0f, -1.0f}
+            },{
+                {0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, -1.0f},
+                {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f, -1.0f}
+            },{
+                {0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, -1.0f},
+                {1.0f, 0.0f}, {0.0f, -1.0f, 0.0f, -1.0f}
+            },{
+                {-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, -1.0f},
+                {0.0f, 0.0f}, {0.0f, -1.0f, 0.0f, -1.0f}
+            }
+        };
+        Indices indices = {
+            0, 2, 1,
+            0, 3, 2
+        };
+
+        return FittedMesh{vertices, indices};
+    }
+    FittedMesh createEmbeddedCube(){
+        std::vector<Vertex> vertices = {
+            // front
+            {
+                {-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f},
+                {0.0f, 1.0f}, {},
+            },{
+                { 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f},
+                {1.0f, 1.0f}, {}
+            },{
+                { 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f},
+                {1.0f, 0.0f}, {}
+            },{
+                {-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f},
+                {0.0f, 0.0f}, {}
+            },
+            // back
+            {
+                {-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f},
+                {0.0f, 1.0f}, {}
+            },{
+                { 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f},
+                {1.0f, 1.0f}, {}
+            },{
+                { 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f},
+                {1.0f, 0.0f}, {}
+            },{
+                {-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f},
+                {0.0f, 0.0f}, {}
+            },
+            // left
+            {
+                {-0.5f,  0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f},
+                {0.0f, 1.0f}, {}
+            },{
+                {-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f},
+                {1.0f, 1.0f}, {}
+            },{
+                {-0.5f, -0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f},
+                {1.0f, 0.0f}, {}
+            },{
+                {-0.5f,  0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f},
+                {0.0f, 0.0f}, {}
+            },
+            // right
+            {
+                { 0.5f,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f},
+                {0.0f, 1.0f}, {}
+            },{
+                { 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f},
+                {1.0f, 1.0f}, {}
+            },{
+                { 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f},
+                {1.0f, 0.0f}, {}
+            },{
+                { 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 0.0f},
+                {0.0f, 0.0f}, {}
+            },
+            // bottom
+            {
+                {-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f},
+                {0.0f, 1.0f}, {}
+            },{
+                { 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f},
+                {1.0f, 1.0f}, {}
+            },{
+                { 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f},
+                {1.0f, 0.0f}, {}
+            },{
+                {-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f},
+                {0.0f, 0.0f}, {}
+            },
+            // top
+            {
+                {-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f},
+                {0.0f, 1.0f}, {}
+            },{
+                { 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f},
+                {1.0f, 1.0f}, {}
+            },{
+                { 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f},
+                {1.0f, 0.0f}, {}
+            },{
+                {-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f},
+                {0.0f, 0.0f}, {}
+            }
+        };
+        Indices indices = {
+            // front
+             2,  0,  3,
+             1,  0,  2,
+            // back
+             4,  5,  6,
+             6,  7,  4,
+            // left
+            11,  8,  9,
+             9, 10, 11,
+            // right
+            13, 12, 14,
+            15, 14, 12,
+            // bottom
+            16, 17, 18,
+            18, 19, 16,
+            // top
+            21, 20, 22,
+            22, 20, 23
+        };
+
+        return FittedMesh{vertices, indices};
+    }
+    FittedMesh createEmbeddedSphere(float radius=1.0f,
+        int numSlices=32, int numStacks=16
+    ){
+        std::vector<Vertex> vertices;
+        Indices indices;
+
+        const float dTheta = 2 * std::numbers::pi / numSlices;
+        const float dPhi = std::numbers::pi / numStacks;
+
+        for(int i=0; i<=numStacks; ++i){
+            const auto y = radius * cos(dPhi * i);
+            const auto rad = radius * sin(dPhi * i);
+            const auto v = static_cast<float>(i) / numStacks;
+            for(int j=0; j<=numSlices; ++j){
+                const auto x = rad * cos(dTheta * j);
+                const auto z = rad * sin(dTheta * j);
+                const auto u = static_cast<float>(j)/numSlices;
+
+                vertices.emplace_back(Vertex{
+                    {x, y, z}, {x, y, z},
+                    {u, v}, {}
+                });
+            }
+        }
+        for(int i=0; i<numStacks; ++i){
+            const auto base = (numSlices+1) * i;
+            for(int j=0; j<numSlices; ++j){
+                const uint32_t topLeft = base + j;
+                const uint32_t topRight = base + (j+1);
+                const uint32_t bottomLeft = base+(numSlices+1) + j;
+                const uint32_t bottomRight = base+(numSlices+1) + (j+1);
+                Indices rect{
+                    topLeft, topRight, bottomRight,
+                    topLeft, bottomRight, bottomLeft
+                };
+                indices.append_range(rect);
+            }
+        }
+
+        return FittedMesh{vertices, indices};
+    }
+
+}
+
+auto Asset::loadEmbeddedMesh(const std::string& name)->FittedMesh{
+    if(name.compare("triangle") == 0)
+        return createEmbeddedTriangle();
+    else if(name.compare("tectangle") == 0)
+        return createEmbeddedRectangle();
+    else if(name.compare("cube") == 0)
+        return createEmbeddedCube();
+    else if(name.compare("sphere") == 0)
+        return createEmbeddedSphere();
+    else
+        throw std::runtime_error(
+            std::format("Not Implemented Embedded Type: {}",
+            name)
+        );
 }

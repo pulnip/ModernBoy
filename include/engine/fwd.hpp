@@ -108,15 +108,15 @@ namespace ModernBoy
     class ResourceManager;
 
     using SubmeshManager = ResourceManager<Submesh>;
-    using MeshManager = ResourceManager<Mesh>;
-    using TextureManager = ResourceManager<Texture>;
-    using MaterialTable = std::unordered_map<UUID, std::vector<TextureHandle>>;
+    using MeshTable = std::unordered_map<UUID, std::vector<MeshHandle>>;
     using MaterialManager = ResourceManager<Material>;
-    using MaterialSetTable = std::unordered_map<UUID, std::vector<UUID>>;
+    using MaterialSetTable = std::unordered_map<UUID, std::vector<MaterialHandle>>;
     using ShaderManager = ResourceManager<Shader>;
     using ModuleManager = ResourceManager<Module, std::string>;
-    // using ObjectManager = ResourceManager<Object>;
     using ObjectManager = ResourceManager<Object>;
+
+    using MeshManager = ResourceManager<Mesh>;
+    using TextureManager = ResourceManager<Texture>;
 }
 
 #endif // MODERNBOY_FWD_HPP

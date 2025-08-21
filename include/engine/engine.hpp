@@ -92,8 +92,8 @@ namespace ModernBoy
         MaterialManager materialManager;
 
         MeshManager meshManager;
+        MeshTable meshTable;
         TextureManager textureManager;
-        MaterialTable materialTable;
         MaterialSetTable materialSetTable;
         ShaderManager shaderManager;
         ModuleManager moduleManager;

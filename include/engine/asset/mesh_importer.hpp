@@ -38,6 +38,13 @@ namespace ModernBoy::Asset
 
     void printLoadedMesh(const CookedMesh&);
 
+    struct FittedMesh{
+        std::vector<Vertex> vertices;
+        std::vector<uint32_t> indices;
+    };
+
+    auto loadEmbeddedMesh(const std::string& name)->FittedMesh;
+
     // Embeded Mesh for shader test
     // ToDo. change to CookedMesh or ...
     RawMesh createTriangle();

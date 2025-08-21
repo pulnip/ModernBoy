@@ -19,14 +19,12 @@ namespace ModernBoy::Asset
         SchemeKind kind=SchemeKind::Unknown;
         std::string id;
         std::string path;
-        UUID uuid;
         std::vector<MaterialDescriptor> material_override;
     };
     struct WorkItem{
         SchemeKind kind=SchemeKind::Unknown;
         std::string id;
         std::string path;
-        UUID uuid;
     };
 
     struct TextureVectorComparator{
@@ -46,8 +44,9 @@ namespace ModernBoy::Asset
 
     class AssetLoader{
     public:
-        AssetLoader(SubmeshManager&, MaterialManager&,
-            MeshManager&, TextureManager&,  MaterialTable&, MaterialSetTable&,
+        AssetLoader(
+            MeshTable&, MaterialSetTable&,
+            SubmeshManager&, MaterialManager&,
             ShaderManager&, NativePtr renderContext);
 
         void load(const SceneDescriptor&);
@@ -90,12 +89,10 @@ namespace ModernBoy::Asset
             const std::string& baseID
         ) -> std::vector<TextureHandle>;
 
+        MeshTable& meshTable;
+        MaterialSetTable& materialSetTable;
         SubmeshManager& submeshManager;
         MaterialManager& materialManager;
-
-        MeshManager& meshManager;
-        TextureManager& textureManager;
-        MaterialSetTable& materialSetTable;
         ShaderManager& shaderManager;
         NativePtr renderContext;
 
