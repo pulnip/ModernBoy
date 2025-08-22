@@ -1,267 +1,202 @@
-#include <bit>
+#include <optional>
+#include <vector>
 #include <gtest/gtest.h>
 #include "core/memory/dynamic_vector.hpp"
 
 using namespace ModernBoy;
 
-TEST(DynamicVectorMemory, Trivial){
-    for(size_t c=4; c<=20; c+=4){
-        DynamicVector vec(c);
-        const auto& ref = vec;
+TEST(DynamicVector, ZeroChunkBehaviors){
+    DynamicVector vec(0);
+    EXPECT_EQ(vec.size(), 0u);
+    EXPECT_EQ(vec.capacity(), 0u);
+    vec.clear();
+    EXPECT_EQ(vec.size(), 0u);
 
-        EXPECT_EQ(vec.elmSize(), c);
-        EXPECT_EQ(ref.elmSize(), c);
+    EXPECT_DEATH(vec[0], "");
+}
 
-        EXPECT_EQ(vec.size(), 0);
-        EXPECT_EQ(ref.size(), 0);
-        EXPECT_EQ(vec.begin(), vec.end());
-        EXPECT_EQ(ref.begin(), ref.end());
-        EXPECT_EQ(vec.cbegin(), vec.end());
+TEST(DynamicVector, ReserveAndResize){
+    DynamicVector vec(sizeof(int));
+    EXPECT_EQ(vec.size(), 0u);
+    EXPECT_EQ(vec.capacity(), 0u);
+
+    vec.reserve(4);
+    EXPECT_GE(vec.capacity(), 4u);
+
+    vec.resize(4);
+    EXPECT_EQ(vec.size(), 4u);
+    EXPECT_GE(vec.capacity(), 4u);
+}
+
+TEST(DynamicVector, EmplaceAndAccess){
+    DynamicVector vec(sizeof(int));
+    vec.emplace(10);
+    vec.emplace(20);
+    EXPECT_EQ(vec.size(), 2u);
+
+    int* p0 = static_cast<int*>(vec[0]);
+    int* p1 = static_cast<int*>(vec[1]);
+    EXPECT_EQ(*p0, 10);
+    EXPECT_EQ(*p1, 20);
+}
+
+TEST(DynamicVector, SwapRemoveShrinksAndMoves){
+    DynamicVector vec(sizeof(int));
+    vec.emplace(1);
+    vec.emplace(2);
+    vec.emplace(3);
+    ASSERT_EQ(vec.size(), 3u);
+
+    vec.swap_remove(1);
+    EXPECT_EQ(vec.size(), 2u);
+
+    int* p1 = static_cast<int*>(vec[1]);
+    EXPECT_EQ(*p1, 3);
+}
+
+TEST(DynamicVector, ClearResetsSize){
+    DynamicVector vec(sizeof(int));
+    vec.emplace(5);
+    vec.emplace(6);
+    EXPECT_EQ(vec.size(), 2u);
+
+    vec.clear();
+    EXPECT_EQ(vec.size(), 0u);
+    EXPECT_GE(vec.capacity(), 2u);
+}
+
+TEST(DynamicVector, Iterator){
+    DynamicVector vec(sizeof(int));
+    vec.emplace(7);
+    vec.emplace(8);
+    vec.emplace(9);
+    ASSERT_EQ(vec.size(), 3u);
+
+    std::vector<int> results;
+    for (auto it = vec.begin(); it != vec.end(); ++it){
+        void* raw = *it;
+        int value = *static_cast<int*>(raw);
+        results.push_back(value);
+    }
+
+    std::vector<int> expected = {7, 8, 9};
+    EXPECT_EQ(results, expected);
+}
+
+
+// Composite chunk (int, float, char[4]) tests
+TEST(DynamicVector, CompositeChunkSingleElement){
+    size_t chunkSize = sizeof(int) + sizeof(float) + 4 * sizeof(char);
+    DynamicVector vec(chunkSize);
+    vec.emplace(42, 2.718f, 'h', 'e', 'l', 'o');
+    ASSERT_EQ(vec.size(), 1u);
+
+    void* raw = vec[0];
+    int i = *static_cast<int*>(raw);
+    float f = *reinterpret_cast<float*>(static_cast<char*>(raw) + sizeof(int));
+    char* chars = static_cast<char*>(raw) + sizeof(int) + sizeof(float);
+
+    EXPECT_EQ(i, 42);
+    EXPECT_FLOAT_EQ(f, 2.718f);
+    EXPECT_EQ(chars[0], 'h');
+    EXPECT_EQ(chars[1], 'e');
+    EXPECT_EQ(chars[2], 'l');
+    EXPECT_EQ(chars[3], 'o');
+}
+
+TEST(DynamicVector, CompositeChunkMultipleElements){
+    size_t chunkSize = sizeof(int) + sizeof(float) + 4 * sizeof(char);
+    DynamicVector vec(chunkSize);
+    vec.reserve(3);
+    vec.emplace(1, 1.1f, 'a', 'b', 'c', 'd');
+    vec.emplace(2, 2.2f, 'e', 'f', 'g', 'h');
+    vec.emplace(3, 3.3f, 'i', 'j', 'k', 'l');
+    ASSERT_EQ(vec.size(), 3u);
+
+    for (size_t idx = 0; idx < vec.size(); ++idx){
+        void* raw = vec[idx];
+        int expected_i = static_cast<int>(idx) + 1;
+        float expected_f = expected_i * 1.1f;
+        EXPECT_EQ(*static_cast<int*>(raw), expected_i);
+        EXPECT_FLOAT_EQ(
+            *reinterpret_cast<float*>(static_cast<char*>(raw) + sizeof(int)),
+            expected_f
+        );
+        char* chars = static_cast<char*>(raw) + sizeof(int) + sizeof(float);
+        EXPECT_EQ(chars[0], static_cast<char>('a' + idx * 4));
+        EXPECT_EQ(chars[1], static_cast<char>('b' + idx * 4));
+        EXPECT_EQ(chars[2], static_cast<char>('c' + idx * 4));
+        EXPECT_EQ(chars[3], static_cast<char>('d' + idx * 4));
     }
 }
 
-TEST(DynamicVectorMemory, LinearlyGrowth){
-    for(size_t c=4; c<=20; c+=4){
-        DynamicVector vec(c);
-        const auto& ref = vec;
+TEST(DynamicVector, CompositeChunkSwapRemove){
+    size_t chunkSize = sizeof(int) + sizeof(float) + 4 * sizeof(char);
+    DynamicVector vec(chunkSize);
+    vec.emplace(10, 10.1f, 'x', 'y', 'z', 'w');
+    vec.emplace(20, 20.2f, 'u', 'v', 'w', 'x');
+    vec.emplace(30, 30.3f, 'q', 'r', 's', 't');
+    ASSERT_EQ(vec.size(), 3u);
 
-        for(size_t i=0; i<10; ++i){
-            vec.insertRange(1);
-            EXPECT_EQ(vec.size(), i+1);
-            EXPECT_EQ(ref.size(), i+1);
-        }
+    vec.swap_remove(1);
+    ASSERT_EQ(vec.size(), 2u);
 
-        auto it1 = vec.begin();
-        auto it2 = ref.begin();
-        auto it3 = vec.cbegin();
-        for(size_t i=0; i<10; ++i){
-            ++it1;
-            ++it2;
-            ++it3;
-        }
-        EXPECT_EQ(it1, vec.end());
-        EXPECT_EQ(it2, ref.end());
-        EXPECT_EQ(it3, vec.cend());
-    }
+    void* raw = vec[1];
+    EXPECT_EQ(*static_cast<int*>(raw), 30);
+    EXPECT_FLOAT_EQ(
+        *reinterpret_cast<float*>(static_cast<char*>(raw) + sizeof(int)),
+        30.3f
+    );
+    char* chars = static_cast<char*>(raw) + sizeof(int) + sizeof(float);
+    EXPECT_EQ(chars[0], 'q');
+    EXPECT_EQ(chars[1], 'r');
+    EXPECT_EQ(chars[2], 's');
+    EXPECT_EQ(chars[3], 't');
 }
 
-TEST(DynamicVectorMemory, LinearlyGraduallyGrowth){
-    for(size_t c=4; c<=20; c+=4){
-        DynamicVector vec(c);
-        const auto& ref = vec;
+TEST(DynamicVector, PointerEmplaceAllNonNull){
+    size_t chunkSize = sizeof(int) * 2;
+    DynamicVector vec(chunkSize);
+    int a = 100, b = 200;
+    vec.emplace(&a, &b);
+    ASSERT_EQ(vec.size(), 1u);
 
-        size_t sum = 0;
-        for(size_t i=1; i<=10; ++i){
-            vec.insertRange(i);
-            sum += i;
-            EXPECT_EQ(vec.size(), sum);
-            EXPECT_EQ(ref.size(), sum);
-        }
-    }
+    int* data = static_cast<int*>(vec[0]);
+    EXPECT_EQ(data[0], a);
+    EXPECT_EQ(data[1], b);
 }
 
-TEST(DynamicVectorValue, Trivlal){
-    for(int32_t i=1; i<=5; ++i){
-        DynamicVector vec(4*i);
-        const auto& ref = vec;
-        vec.reserve(1);
+TEST(DynamicVector, PointerEmplaceSkipFirst){
+    size_t chunkSize = sizeof(int) * 2;
+    DynamicVector vec(chunkSize);
+    int a = 100, b = 200;
+    vec.emplace(&a, nullptr, &b, nullptr);
+    ASSERT_EQ(vec.size(), 1u);
 
-        auto ptr1 = vec[0];
-
-        for(int32_t j=0; j<i; ++j){
-            int32_t arr[]={j};
-            memcpy(ptr1, arr, 4);
-            ptr1 = Util::add(ptr1, 4);
-        }
-
-        auto ptr2 = ref[0];
-        for(int32_t j=0; j<i; ++j){
-            int32_t val = -1;
-            memcpy(&val, ptr2, 4);
-            EXPECT_EQ(val, j);
-            ptr2 = Util::add(ptr2, 4);
-        }
-    }
+    int* data = static_cast<int*>(vec[0]);
+    EXPECT_EQ(data[0], a);
+    EXPECT_EQ(data[1], b);
 }
 
-TEST(DynamicVectorMemory, Reuse){
-    for(size_t i=2; i<=20; ++i){
-        DynamicVector vec(4);
-        vec.insertRange(2*i);
+TEST(DynamicVector, OptionalEmplaceAllPresent){
+    size_t chunkSize = sizeof(int) * 2;
+    DynamicVector vec(chunkSize);
+    std::optional<int> a = 300, b = 400;
+    vec.emplace(a, b);
+    ASSERT_EQ(vec.size(), 1u);
 
-        for(Index j=0; j<i; ++j)
-            vec.remove(2*j, 1);
-        for(Index j=0; j<i; ++j)
-            vec.insertRange(1);
-
-        EXPECT_EQ(vec.size(), 2*i);
-        EXPECT_EQ(vec.capacity(), std::bit_ceil(2*i));
-    }
-    for(size_t i=2; i<=20; ++i){
-        DynamicVector vec(4, 2*i);
-
-        for(Index j=0; j<i; ++j)
-            vec.remove(2*j, 1);
-        for(Index j=0; j<i; ++j)
-            vec.insertRange(1);
-
-        EXPECT_EQ(vec.size(), 2*i);
-        EXPECT_EQ(vec.capacity(), std::bit_ceil(2*i));
-    }
+    int* data = static_cast<int*>(vec[0]);
+    EXPECT_EQ(data[0], *a);
+    EXPECT_EQ(data[1], *b);
 }
 
-TEST(DynamicVectorIterator, Trivial){
-    for(size_t c=4; c<=20; ++c){
-        DynamicVector vec(4, c);
+TEST(DynamicVector, OptionalEmplaceSkipSecond){
+    size_t chunkSize = sizeof(int) * 2;
+    DynamicVector vec(chunkSize);
+    std::optional<int> a = 300, b = 400, x = std::nullopt;
+    vec.emplace(x, a, x, b);
+    ASSERT_EQ(vec.size(), 1u);
 
-        for(size_t i=0; i<vec.size(); ++i)
-            memcpy(vec[i], &i, 4);
-
-        size_t count=0;
-        for(const auto& v: vec){
-            int32_t x = -1;
-            memcpy(&x, v.elmMem, 4);
-            EXPECT_EQ(x, count++);
-        }
-        EXPECT_EQ(count, vec.size());
-    }
-}
-
-TEST(DynamicVectorIterator, SkipFreed){
-    for(size_t c=4; c<=20; ++c){
-        DynamicVector vec(4, 2*c);
-
-        vec.remove(c, c);
-
-        size_t count=0;
-        for(const auto& _: vec){
-            ++count;
-        }
-
-        EXPECT_EQ(count, c);
-        EXPECT_EQ(vec.size(), c);
-    }
-    for(size_t c=4; c<=20; ++c){
-        DynamicVector vec(4, 2*c);
-
-        for(size_t i=c; i<2*c; ++i)
-            vec.remove(i, 1);
-
-        size_t count=0;
-        for(const auto& _: vec){
-            ++count;
-        }
-
-        EXPECT_EQ(count, c);
-    }
-}
-
-TEST(DynamicVectorPart, Trivial){
-    uint64_t x = 42;
-    float y = 3.14;
-    double z = 1.414;
-    char w = 'w';
-    constexpr auto elmSize = sizeof(x)+sizeof(y)+sizeof(z)+sizeof(w);
-
-    DynamicVector vec(elmSize, 1);
-    vec.set(0, 0, x, y, z, w);
-
-    uint64_t a = 0;
-    float b = 0;
-    double c = 0;
-    char d = '\0';
-    vec.get(0, 0, a, b, c, d);
-
-    EXPECT_EQ(x, a);
-    EXPECT_EQ(y, b);
-    EXPECT_EQ(z, c);
-    EXPECT_EQ(w, d);
-    EXPECT_ANY_THROW(vec.set(1, 0, x, y, z, w));
-    EXPECT_ANY_THROW(vec.get(1, 0, x, y, z, w));
-
-    a = b = c = d = 0;
-    vec.get(0, 0, a);
-    vec.get(0, sizeof(a), b);
-    vec.get(0, sizeof(a)+sizeof(b), c);
-    vec.get(0, sizeof(a)+sizeof(b)+sizeof(c), d);
-    EXPECT_EQ(x, a);
-    EXPECT_EQ(y, b);
-    EXPECT_EQ(z, c);
-    EXPECT_EQ(w, d);
-}
-
-TEST(DynamicVectorPart, MisPartitioning){
-    uint64_t x = 42;
-    float y = 3.14;
-    double z = 1.414;
-    char w = 'w';
-    constexpr auto elmSize = sizeof(x)+sizeof(y)+sizeof(z)+sizeof(w);
-
-    DynamicVector vec(elmSize, 2);
-    EXPECT_ANY_THROW(vec.set(0, 1, x, y, z, w));
-    EXPECT_ANY_THROW(vec.get(0, 1, x, y, z, w));
-    EXPECT_ANY_THROW(vec.set(1, 1, x, y, z, w));
-    EXPECT_ANY_THROW(vec.get(1, 1, x, y, z, w));
-}
-
-TEST(DynamicVectorPart, InsertMiddle){
-    uint64_t x = 42;
-    float y = 3.14;
-    double z = 1.414;
-    char w = 'w';
-    constexpr auto elmSize = sizeof(x)+sizeof(y)+sizeof(z)+sizeof(w);
-    for(size_t s=1; s<=5; ++s){
-        DynamicVector vec(elmSize, s);
-        for(size_t i=0; i<s; ++i){
-            vec.set(i, 0, x, y, z, w);
-
-            uint64_t a = 0;
-            float b = 0;
-            double c = 0;
-            char d = '\0';
-            vec.get(i, 0, a, b, c, d);
-
-            EXPECT_EQ(x, a);
-            EXPECT_EQ(y, b);
-            EXPECT_EQ(z, c);
-            EXPECT_EQ(w, d);
-
-            vec.remove(i, 1);
-            EXPECT_ANY_THROW(vec.set(i, 0, x, y, z, w));
-            EXPECT_ANY_THROW(vec.get(i, 0, x, y, z, w));
-        }
-    }
-}
-
-TEST(DynamicVectorPart, SparseVector){
-    uint64_t x = 42;
-    float y = 3.14;
-    double z = 1.414;
-    char w = 'w';
-    constexpr auto elmSize = sizeof(x)+sizeof(y)+sizeof(z)+sizeof(w);
-
-    for(size_t s=1; s<=5; ++s){
-        for(size_t i=0; i<s; ++i){
-            DynamicVector vec(elmSize, s);
-
-            if(i > 0)
-                vec.remove(0, i);
-            if(i+1 < s)
-                vec.remove(i+1, s-(i+1));
-            for(size_t j=0; j<s; ++j){
-                if(i==j){
-                    vec.set(j, 0, x, y, z, w);
-                    uint64_t a = 0;
-                    float b = 0;
-                    double c = 0;
-                    char d = '\0';
-                    vec.get(j, 0, a, b, c, d);
-                }
-                else{
-                    EXPECT_ANY_THROW(vec.set(j, 0, x, y, z, w));
-                    EXPECT_ANY_THROW(vec.get(j, 0, x, y, z, w));
-                }
-            }
-        }
-    }
+    int* data = static_cast<int*>(vec[0]);
+    EXPECT_EQ(data[0], *a);
 }

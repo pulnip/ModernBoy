@@ -18,7 +18,7 @@ namespace ModernBoy::Game
 
     template<typename... Ts>
     struct ArchetypeView{
-        using Map = std::unordered_map<ArchetypeBit, DynamicVectorV2>;
+        using Map = std::unordered_map<ArchetypeBit, DynamicVector>;
 
     private:
         Map&         map;
@@ -216,7 +216,7 @@ namespace ModernBoy::Game
 
     class EntityRegistry{
     private:
-        using ArchetypeMap = std::unordered_map<ArchetypeBit, DynamicVectorV2>;
+        using ArchetypeMap = std::unordered_map<ArchetypeBit, DynamicVector>;
         using EntityTable = std::unordered_map<EntityID, EntityInfo>;
 
         ArchetypeMap archetypeMap;
@@ -334,7 +334,7 @@ namespace ModernBoy::Game
         }
 
     private:
-        auto getVector(ArchetypeBit)->DynamicVectorV2&;
+        auto getVector(ArchetypeBit)->DynamicVector&;
 
         template<typename T>
         auto moveChunk(EntityInfo& info, T&& component){
@@ -361,7 +361,7 @@ namespace ModernBoy::Game
             // 2. remove old chunk
             old_vec.swap_remove(info.chunkIndex);
 
-            return std::tuple<Index, DynamicVectorV2&>{new_index, old_vec};
+            return std::tuple<Index, DynamicVector&>{new_index, old_vec};
         }
         template<typename T>
         auto moveChunk(EntityInfo& info){
@@ -387,10 +387,10 @@ namespace ModernBoy::Game
             // 2. remove old chunk
             old_vec.swap_remove(info.chunkIndex);
 
-            return std::tuple<Index, DynamicVectorV2&>{new_index, old_vec};
+            return std::tuple<Index, DynamicVector&>{new_index, old_vec};
         }
 
-        void updateEntityInfo(EntityInfo& updated, DynamicVectorV2& swapped,
+        void updateEntityInfo(EntityInfo& updated, DynamicVector& swapped,
             ArchetypeBit updated_bit, Index updated_index);
 
         auto findEntityFromProperty(ArchetypeBit bit, Index chunkIndex)->EntityTable::iterator;

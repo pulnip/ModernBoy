@@ -44,7 +44,7 @@ void EntityRegistry::destroyEntity(EntityID id){
     entityTable.erase(id);
 }
 
-auto EntityRegistry::getVector(ArchetypeBit bit)->DynamicVectorV2&{
+auto EntityRegistry::getVector(ArchetypeBit bit)->DynamicVector&{
     auto it = archetypeMap.find(bit);
     if(it != archetypeMap.end())
         return it->second;
@@ -69,7 +69,7 @@ auto EntityRegistry::findEntityFromProperty(
     return it;
 }
 
-void EntityRegistry::updateEntityInfo(EntityInfo& updated, DynamicVectorV2& swapped,
+void EntityRegistry::updateEntityInfo(EntityInfo& updated, DynamicVector& swapped,
     ArchetypeBit updated_bit, Index updated_index
 ){
     if(swapped.size() > 0){
