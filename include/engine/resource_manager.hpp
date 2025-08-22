@@ -19,7 +19,7 @@ namespace ModernBoy
     class ResourceManager{
     private:
         // storage class
-        ObjectPoolV2<Resource> pool;
+        ObjectPool<Resource> pool;
 
         std::unordered_map<Key, Handle> keyToHandle;
         std::unordered_map<Handle, Key, HandleHash> handleToKey;

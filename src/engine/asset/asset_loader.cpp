@@ -55,7 +55,7 @@ namespace{
     }
 }
 
-Asset::AssetLoader::AssetLoader(
+AssetLoader::AssetLoader(
     MeshTable& meshTable, MaterialSetTable& materialSetTable,
     SubmeshManager& submeshManager, MaterialManager& materialManager,
     ShaderManager& shaderManager, NativePtr renderContext)
@@ -63,11 +63,11 @@ Asset::AssetLoader::AssetLoader(
 submeshManager(submeshManager), materialManager(materialManager),
 shaderManager(shaderManager), renderContext(renderContext){}
 
-void Asset::AssetLoader::load(const SceneDescriptor& desc){
+void AssetLoader::load(const SceneDescriptor& desc){
     load(desc.entities, desc.meshes);
 }
 
-void Asset::AssetLoader::load(const std::vector<Entity>& entities,
+void AssetLoader::load(const std::vector<Entity>& entities,
     const std::vector<MeshDescriptor>& meshes
 ){
     std::vector<MeshWork> meshWorks;
@@ -123,7 +123,7 @@ void Asset::AssetLoader::load(const std::vector<Entity>& entities,
     }
 }
 
-void Asset::AssetLoader::collectWorkItems(
+void AssetLoader::collectWorkItems(
     const std::string& entityName, const MeshDescriptor& meshDesc,
     std::vector<MeshWork>& meshWorks, std::vector<WorkItem>& matWorks,
     std::vector<WorkItem>& shaderWorks
@@ -183,7 +183,7 @@ void Asset::AssetLoader::collectWorkItems(
 }
 
 // Process a "file" scheme on mesh id
-void Asset::AssetLoader::processMeshFile(const MeshWork& item
+void AssetLoader::processMeshFile(const MeshWork& item
 ){
     CookedMesh cooked = loadCookedOrImport(item.path);
 
@@ -296,7 +296,7 @@ void Asset::AssetLoader::processMeshFile(const MeshWork& item
     (void)handle;
 }
 
-CookedMesh Asset::AssetLoader::loadCookedOrImport(
+CookedMesh AssetLoader::loadCookedOrImport(
     const std::string& path
 ){
     const auto ext = getExtension(path);
@@ -307,7 +307,7 @@ CookedMesh Asset::AssetLoader::loadCookedOrImport(
 }
 
 // Process an "embedded" scheme on mesh id
-void Asset::AssetLoader::processMeshEmbedded(const MeshWork& item){
+void AssetLoader::processMeshEmbedded(const MeshWork& item){
     std::vector<SubmeshHandle> mesh(1);
 
     for(Index i=0; i<1; ++i){
@@ -359,7 +359,7 @@ void Asset::AssetLoader::processMeshEmbedded(const MeshWork& item){
     materialSetTable.try_emplace(materialSetID, materialSet);
 }
 
-void Asset::AssetLoader::processMaterial(const WorkItem& item){
+void AssetLoader::processMaterial(const WorkItem& item){
     auto mat_it = table.find(item.id);
     if(mat_it == table.end()){
         auto matID = issueID();
@@ -371,7 +371,7 @@ void Asset::AssetLoader::processMaterial(const WorkItem& item){
 
 }
 
-void Asset::AssetLoader::processShader(const WorkItem& item){
+void AssetLoader::processShader(const WorkItem& item){
     auto shader_it = table.find(item.id);
     if(shader_it == table.end()){
         auto shaderID = issueID();

@@ -8,7 +8,6 @@
 #include "engine/fwd.hpp"
 #include "engine/asset/asset_loader.hpp"
 #include "engine/asset/scene_loader.hpp"
-#include "engine/asset_loader.hpp"
 #include "engine/script/type.hpp"
 #include "engine/script/invoker.hpp"
 #include "engine/input/device.hpp"
@@ -26,8 +25,7 @@
 #include "engine/render/dx11/shader.hpp"
 #elif defined(USE_METAL)
 #include "engine/render/metal/material.hpp"
-#include "engine/render/metal/mesh.hpp"
-#include "engine/render/metal/texture.hpp"
+#include "engine/render/metal/submesh.hpp"
 #include "engine/render/metal/shader.hpp"
 #elif defined(USE_OPENGL)
 #include "engine/render/opengl/mesh.hpp"
@@ -50,16 +48,6 @@ namespace ModernBoy
         void on();
         template<Event event>
         void on();
-
-        // append by resource construction argument
-        template<typename Resrc, typename... Args>
-        Handle append(Args&&...);
-
-        // get resource from handle
-        template<typename Resrc>
-        Resrc& query(Handle);
-        template<typename Resrc>
-        const Resrc& query(Handle) const;
 
         DeltaTime getDeltaTime() const;
 
@@ -91,9 +79,7 @@ namespace ModernBoy
         SubmeshManager submeshManager;
         MaterialManager materialManager;
 
-        MeshManager meshManager;
         MeshTable meshTable;
-        TextureManager textureManager;
         MaterialSetTable materialSetTable;
         ShaderManager shaderManager;
         ModuleManager moduleManager;
@@ -111,8 +97,7 @@ namespace ModernBoy
         Script::Invoker scriptInvoker;
 
         Game::Context world;
-        AssetLoader assetLoader;
-        Asset::AssetLoader assetLoader2;
+        Asset::AssetLoader assetLoader;
         Asset::SceneLoader sceneLoader;
 
         Timepoint lastTick;
@@ -123,7 +108,6 @@ namespace ModernBoy
 
     public:
         friend Asset::AssetLoader;
-        friend AssetLoader;
         friend Game::Context;
         friend Script::TypeHelper;
     };

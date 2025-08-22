@@ -14,7 +14,7 @@
 #include "engine/render/dx11/context.hpp"
 #elif defined(USE_METAL)
 #include "engine/render/metal/context.h"
-#include "engine/render/metal/mesh.hpp"
+#include "engine/render/metal/submesh.hpp"
 #elif defined(USE_OPENGL)
 #include "engine/render/opengl/context.hpp"
 #endif
@@ -24,8 +24,7 @@ namespace ModernBoy::Render
     class Renderer{
     public:
         Renderer(SDL_Window*, SubmeshManager&,
-            MaterialManager&, MeshManager&,
-            TextureManager&, ShaderManager&,
+            MaterialManager&, ShaderManager&,
             World&, Interface::ViewService&,
             Interface::DrawService&);
         ~Renderer();
@@ -68,15 +67,6 @@ namespace ModernBoy::Render
             const Submesh& mesh, float alpha, int id,
             bool useUV = true,
             const Vec4& color = Vec4{.r=1, .g=0, .b=0, .a=1});
-        void setTexture(TextureHandle handle);
-        void drawMesh(const Vec3& position,
-            const Vec4& rotation, const Vec3& scale,
-            MeshHandle handle, float alpha, int id);
-        void drawMesh(const Vec3& position,
-            const Vec4& rotation, const Vec3& scale,
-            const Mesh& mesh, float alpha, int id,
-            bool useUV = true,
-            const Vec4& color = Vec4{.r=1, .g=0, .b=0, .a=1});
 
     public:
 #if defined(USE_DIRECTX)
@@ -87,8 +77,6 @@ namespace ModernBoy::Render
         NativePtr context;
 #endif
     private:
-        MeshManager& meshManager;
-        TextureManager& textureManager;
         SubmeshManager& submeshManager;
         MaterialManager& materialManager;
         ShaderManager& shaderManager;
@@ -98,8 +86,7 @@ namespace ModernBoy::Render
 
         Interface::ViewService& viewService;
         Interface::DrawService& drawService;
-        Mesh sphereMesh;
-        Submesh sphereMesh_;
+        Submesh sphereMesh;
     };
 } // namespace ModernBoy::Render
 

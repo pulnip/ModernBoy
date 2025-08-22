@@ -30,21 +30,6 @@ namespace ModernBoy::Asset
         std::string path;
     };
 
-    struct TextureVectorComparator{
-        inline bool operator()(
-            const std::vector<TextureHandle>& lhs,
-            const std::vector<TextureHandle>& rhs
-        ) const{
-            if(lhs.size() != rhs.size())
-                return lhs.size() < rhs.size();
-            for(Index i=0; i<lhs.size(); ++i){
-                if(lhs[i] != rhs[i])
-                    return lhs[i] < rhs[i];
-            }
-            return false;
-        }
-    };
-
     class AssetLoader{
     public:
         AssetLoader(
@@ -79,20 +64,9 @@ namespace ModernBoy::Asset
         void processMaterial(const WorkItem&);
         void processShader(const WorkItem&);
 
-        auto createTexturesFromMesh(
-            const CookedMesh&,
-            const std::string& baseID
-        ) -> std::vector<TextureHandle>;
-        void createMaterialFromTextures(
-            const std::vector<TextureHandle>& handles
-        );
-
         auto loadCookedOrImport(
             const std::string& path
         ) -> CookedMesh;
-        auto loadMaterial(
-            const std::string& baseID
-        ) -> std::vector<TextureHandle>;
 
         MeshTable& meshTable;
         MaterialSetTable& materialSetTable;
@@ -102,9 +76,6 @@ namespace ModernBoy::Asset
         NativePtr renderContext;
 
         ResolveTable table;
-        // material 중복 제거
-        std::map<std::vector<TextureHandle>, UUID,
-            TextureVectorComparator> materialToUUID;
         UUID uuid = 0;
     };
 } // namespace ModernBoy::Asset

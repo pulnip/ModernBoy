@@ -68,13 +68,13 @@ void PhysicsSystem::sphere2sphereCollision(){
 
         if(collided_now && !collided_before){
             registry.appendComponent(id, Collided{.entity=id, .isActive=true});
-            auto [mc, has_mc] = registry.query_safe<Model>(id);
+            auto [mc, has_mc] = registry.query_safe<Mesh>(id);
             if(has_mc)
                 mc.alpha = 0.5f;
         }
         else if(!collided_now && collided_before){
             registry.removeComponent<Collided>(id);
-            auto [mc, has_mc] = registry.query_safe<Model>(id);
+            auto [mc, has_mc] = registry.query_safe<Mesh>(id);
             if(has_mc)
                 mc.alpha = 1.0f;
         }
@@ -122,13 +122,13 @@ void PhysicsSystem::box2boxCollision(){
 
         if(collided_now && !collided_before){
             registry.appendComponent(id, Collided{.entity=id, .isActive=true});
-            auto [mc, has_mc] = registry.query_safe<Model>(id);
+            auto [mc, has_mc] = registry.query_safe<Mesh>(id);
             if(has_mc)
                 mc.alpha = 0.0f;
         }
         else if(!collided_now && collided_before){
             registry.removeComponent<Collided>(id);
-            auto [mc, has_mc] = registry.query_safe<Model>(id);
+            auto [mc, has_mc] = registry.query_safe<Mesh>(id);
             if(has_mc)
                 mc.alpha = 1.0f;
         }

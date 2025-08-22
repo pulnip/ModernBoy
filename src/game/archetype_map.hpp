@@ -198,11 +198,6 @@ namespace ModernBoy::Game
             return new_index;
         }
     }; static_assert(std::ranges::range<ArchetypeMap>);
-
-    ArchetypeBit archetype(const Transform*,
-        const Camera*, const Model*,
-        const Input*
-    );
 } // namespace ModernBoy::Game
 
 #endif // MODERNBOY_GAME_ARCHETYPE_MAP_HPP

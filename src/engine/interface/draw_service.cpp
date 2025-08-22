@@ -14,11 +14,6 @@ void DrawService::write(const Sphere& sphere){
     spheres.push_back(sphere);
 }
 
-void DrawService::write(const MeshObject& obj){
-    std::lock_guard lock(meshMtx);
-    meshObjects.push_back(obj);
-}
-
 void DrawService::write(const MeshDrawCall& drawCall){
     std::lock_guard lock(drawCallMtx);
     drawCalls.push_back(drawCall);
@@ -42,16 +37,6 @@ std::vector<Sphere> DrawService::drainSpheres(){
     return out;
 }
 
-std::vector<MeshObject> DrawService::drainMeshObjects(){
-    std::vector<MeshObject> out;
-    {
-        std::lock_guard lock(meshMtx);
-        sortMeshObjects();
-        out.swap(meshObjects);
-    }
-    return out;
-}
-
 std::vector<MeshDrawCall> DrawService::drainDrawCalls(){
     std::vector<MeshDrawCall> out;
     {
@@ -60,16 +45,6 @@ std::vector<MeshDrawCall> DrawService::drainDrawCalls(){
         out.swap(drawCalls);
     }
     return out;
-}
-
-void DrawService::sortMeshObjects(){
-    std::ranges::sort(meshObjects,
-        [](const auto& lhs, const auto& rhs){
-            return lhs.shaderHandle < rhs.shaderHandle ||
-                lhs.texHandle < rhs.texHandle ||
-                lhs.meshHandle < rhs.meshHandle;
-        }
-    );
 }
 
 void DrawService::sortDrawCalls(){

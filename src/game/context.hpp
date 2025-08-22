@@ -65,8 +65,6 @@ namespace ModernBoy::Game
         InputSystem input;
         PhysicsSystem physics;
         LifespanSystem lifespan;
-
-        friend class ModernBoy::AssetLoader;
     };
 } // namespace ModernBoy::Game
 

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "core/memory/object_pool.hpp"
 
-using ModernBoy::ObjectPoolV2;
+using ModernBoy::ObjectPool;
 
 struct RAII {
     static int count;
@@ -26,15 +26,15 @@ struct Entity {
     bool operator==(const Entity& o) const{ return id == o.id; }
 };
 
-TEST(ObjectPoolV2, ReserveWithValue){
-    ObjectPoolV2<int> pool;
+TEST(ObjectPool, ReserveWithValue){
+    ObjectPool<int> pool;
     pool.reserve(5);
     EXPECT_EQ(pool.capacity(), 5);
     EXPECT_EQ(pool.size(), 0);
 }
 
-TEST(ObjectPoolV2, CreateAndDestroyWithValue){
-    ObjectPoolV2<int> pool;
+TEST(ObjectPool, CreateAndDestroyWithValue){
+    ObjectPool<int> pool;
     // emplace
     auto handle1 = pool.emplace(10);
     EXPECT_EQ(pool[handle1], 10);
@@ -52,10 +52,10 @@ TEST(ObjectPoolV2, CreateAndDestroyWithValue){
     EXPECT_EQ(pool[handle3], 30);
 }
 
-TEST(ObjectPoolV2, LifecycleWithRAII){
+TEST(ObjectPool, LifecycleWithRAII){
     RAII::count = 0;
     {
-        ObjectPoolV2<RAII> pool;
+        ObjectPool<RAII> pool;
         EXPECT_EQ(RAII::count, 0);
 
         auto handle1 = pool.emplace();
@@ -72,8 +72,8 @@ TEST(ObjectPoolV2, LifecycleWithRAII){
     EXPECT_EQ(RAII::count, 0);
 }
 
-TEST(ObjectPoolV2, CreateAndReadWithEntity) {
-    ObjectPoolV2<Entity> pool;
+TEST(ObjectPool, CreateAndReadWithEntity) {
+    ObjectPool<Entity> pool;
     auto handle1 = pool.emplace(1);
     EXPECT_EQ(pool[handle1].id, 1);
 
@@ -84,8 +84,8 @@ TEST(ObjectPoolV2, CreateAndReadWithEntity) {
     EXPECT_EQ(pool.size(), 2);
 }
 
-TEST(ObjectPoolV2, RemoveAndReuseWithEntity) {
-    ObjectPoolV2<Entity> pool;
+TEST(ObjectPool, RemoveAndReuseWithEntity) {
+    ObjectPool<Entity> pool;
     auto handle1 = pool.emplace(100);
     auto _ = pool.emplace(200);
     EXPECT_EQ(pool.size(), 2);
@@ -100,8 +100,8 @@ TEST(ObjectPoolV2, RemoveAndReuseWithEntity) {
 }
 
 
-TEST(ObjectPoolV2, ConstAccess){
-    ObjectPoolV2<int> pool;
+TEST(ObjectPool, ConstAccess){
+    ObjectPool<int> pool;
     auto handle = pool.emplace(42);
     const auto& cref = pool;
     EXPECT_EQ(cref[handle], 42);

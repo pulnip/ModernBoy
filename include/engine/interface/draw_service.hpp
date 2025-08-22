@@ -8,15 +8,6 @@
 
 namespace ModernBoy::Interface
 {
-    struct MeshObject{
-        DEFINE_TRANSFORM;
-        float alpha;
-        MeshHandle meshHandle;
-        TextureHandle texHandle;
-        ShaderHandle shaderHandle;
-        EntityID entity;
-    };
-
     struct MeshDrawCall{
         DEFINE_TRANSFORM;
         float alpha;
@@ -33,24 +24,20 @@ namespace ModernBoy::Interface
 
         void write(const Line&);
         void write(const Sphere&);
-        void write(const MeshObject&);
         void write(const MeshDrawCall&);
 
         std::vector<Line> drainLines();
         std::vector<Sphere> drainSpheres();
-        std::vector<MeshObject> drainMeshObjects();
         std::vector<MeshDrawCall> drainDrawCalls();
 
     private:
-        void sortMeshObjects();
         void sortDrawCalls();
 
         std::vector<Line> lines;
         std::vector<Sphere> spheres;
-        std::vector<MeshObject> meshObjects;
         std::vector<MeshDrawCall> drawCalls;
 
-        std::mutex lineMtx, sphereMtx, meshMtx, drawCallMtx;
+        std::mutex lineMtx, sphereMtx, drawCallMtx;
     };
 }
 

@@ -3,8 +3,7 @@
 #include "engine/asset/asset_loader.hpp"
 #if defined(USE_METAL)
 #include "engine/render/metal/material.hpp"
-#include "engine/render/metal/mesh.hpp"
-#include "engine/render/metal/texture.hpp"
+#include "engine/render/metal/submesh.hpp"
 #include "engine/render/metal/shader.hpp"
 #endif
 

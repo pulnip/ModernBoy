@@ -20,7 +20,6 @@ namespace ModernBoy
     using TaskTime = std::chrono::microseconds;
 
     class Engine;
-    class AssetLoader;
 
     namespace Asset{
         class AssetLoader;
@@ -63,17 +62,13 @@ namespace ModernBoy
 #elif defined(USE_METAL)
     namespace Metal
     {
-        struct Mesh;
         struct Submesh;
         struct UnlitMaterial;
-        struct Texture;
         struct Shader;
         struct RenderContext;
     }
     using Submesh = Metal::Submesh;
-    using Mesh = Metal::Mesh;
     using Material = Metal::UnlitMaterial;
-    using Texture = Metal::Texture;
     using Shader = Metal::Shader;
     using RenderContext = Metal::RenderContext;
 #elif defined(USE_OPENGL)
@@ -93,9 +88,7 @@ namespace ModernBoy
     }
     using World = Game::Context;
 
-    using MeshHandle = Handle;
     using SubmeshHandle = Handle;
-    using TextureHandle = Handle;
     using MaterialHandle = Handle;
     using MaterialSetHandle = Handle;
     using ShaderHandle = Handle;
@@ -108,15 +101,12 @@ namespace ModernBoy
     class ResourceManager;
 
     using SubmeshManager = ResourceManager<Submesh>;
-    using MeshTable = std::unordered_map<UUID, std::vector<MeshHandle>>;
+    using MeshTable = std::unordered_map<UUID, std::vector<SubmeshHandle>>;
     using MaterialManager = ResourceManager<Material>;
     using MaterialSetTable = std::unordered_map<UUID, std::vector<MaterialHandle>>;
     using ShaderManager = ResourceManager<Shader>;
     using ModuleManager = ResourceManager<Module, std::string>;
     using ObjectManager = ResourceManager<Object>;
-
-    using MeshManager = ResourceManager<Mesh>;
-    using TextureManager = ResourceManager<Texture>;
 }
 
 #endif // MODERNBOY_FWD_HPP

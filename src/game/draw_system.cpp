@@ -29,18 +29,6 @@ void DrawSystem::update(){
                 cc.type, cc.fov, cc.nearPlane, cc.farPlane,
                 cc.projection});
     }
-    for(const auto [id, bit, tc, mc]: registry.query<Transform, Model>()
-    ){
-        assert(tc.entity == mc.entity);
-        if(mc.isActive)
-            drawService.write(MeshObject{
-                tc.position, tc.rotation, tc.scale,
-                mc.alpha,
-                mc.meshHandle,
-                mc.textureHandle,
-                mc.shaderHandle,
-                id});
-    }
     for(const auto [id, bit, tc, mc]: registry.query<Transform, Mesh>()){
         const auto& submeshes = meshTable.at(mc.mesh);
         const auto& materials = materialSetTable.at(mc.materialSet);

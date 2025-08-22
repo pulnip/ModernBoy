@@ -25,10 +25,6 @@ extern "C"{
         void* nativeContext,
         void* shaderPtr
     );
-    extern void RenderContext_setTexture(
-        void* nativeContext,
-        void* texture
-    );
     extern void RenderContext_setUnlitMaterial(
         void* nativeContext,
         void* material

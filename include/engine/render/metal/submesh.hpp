@@ -8,28 +8,6 @@
 
 namespace ModernBoy::Metal
 {
-    using MeshPartPtr = NativePtr;
-
-    struct Mesh{
-        std::vector<MeshPartPtr> meshPtr;
-
-        Mesh()=default;
-        Mesh(const Mesh&)=delete;
-        Mesh(Mesh&& mesh);
-        Mesh& operator=(const Mesh&)=delete;
-        Mesh& operator=(Mesh&&);
-
-        Mesh(NativePtr rctxPtr, const std::string& fileName);
-        Mesh(NativePtr rctxPtr, const Asset::CookedMesh&);
-        Mesh(const std::vector<SubmeshHandle>&){}
-        Mesh(MeshPartPtr partPtr):meshPtr({partPtr}){}
-        ~Mesh();
-
-    private:
-        // Move semantics
-        void moveFrom(Mesh&&);
-    };
-
     struct Submesh{
         NativePtr nativeMesh;
 

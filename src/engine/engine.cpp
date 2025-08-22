@@ -52,10 +52,9 @@ DeltaTime Engine::getDeltaTime() const{
 Engine::Engine(SDL_Window* window)
 :window(window),
 // resource manager
-meshManager(), textureManager(),
 shaderManager(), moduleManager(),
 // subsystems
-renderer(window, submeshManager, materialManager, meshManager, textureManager,
+renderer(window, submeshManager, materialManager,
     shaderManager, world, viewService, drawService),
 userInterface(window, renderer, *this),
 inputDevice(window, inputService),
@@ -63,8 +62,7 @@ scriptInvoker(world.registry, moduleManager,
     objectManager, *this),
 // others
 world(*this),
-assetLoader(*this),
-assetLoader2(meshTable, materialSetTable,
+assetLoader(meshTable, materialSetTable,
     submeshManager, materialManager,
     shaderManager, renderer.context),
 sceneLoader(world.registry, shaderManager),
@@ -77,8 +75,8 @@ void Engine::start(){
     auto registry = Asset::makeDefaultBinderRegistry();
     auto scene = Asset::buildScene(temp, registry);
 
-    assetLoader2.load(scene);
-    sceneLoader.loadScene(scene, assetLoader2.get_table());
+    assetLoader.load(scene);
+    sceneLoader.loadScene(scene, assetLoader.get_table());
 }
 
 void Engine::shutdown(){
@@ -101,57 +99,6 @@ void Engine::on<Event::OnFrameEnd>(){
     userInterface.onFrameEnd();
     renderer.onFrameEnd();
 }
-
-template<>
-MeshHandle Engine::append<Mesh, const std::string&>
-(const std::string& meshFile){
-#if defined(USE_DIRECTX)
-    return meshManager.emplace(meshFile);
-#elif defined(USE_METAL)
-    return meshManager.emplace(
-        issueID(), renderer.context, meshFile
-    );
-#endif
-}
-template<>
-TextureHandle Engine::append<Texture, const std::string&>
-(const std::string& textureFile){
-#if defined(USE_DIRECTX)
-    return textureManager.emplace(textureFile);
-#elif defined(USE_METAL)
-    return textureManager.emplace(
-        issueID(), renderer.context, textureFile 
-    );
-#endif
-}
-template<>
-ShaderHandle Engine::append<Shader, const std::string&, const std::string&>
-(const std::string& vsFuncName, const std::string& fsFuncName){
-#if defined(USE_DIRECTX)
-    return shaderManager.emplace(shaderFile);
-#elif defined(USE_METAL)
-    return shaderManager.emplace(issueID(), renderer.context,
-        vsFuncName, fsFuncName
-    );
-#endif
-}
-template<>
-ModuleHandle Engine::append<Module,
-    const std::string&, const std::vector<std::string>&>
-(const std::string& moduleFile, const std::vector<std::string>& funcs){
-    return moduleManager.emplace(moduleFile, moduleFile, funcs,
-        scriptInvoker.scriptEngine);
-}
-template<>
-ObjectHandle Engine::append<Object, const std::string&, const std::string&>
-(const std::string& moduleName, const std::string& typeName){
-
-    return objectManager.emplace(
-        issueID(), typeName,
-        moduleManager.get(moduleName).module_,
-        scriptInvoker.scriptEngine);
-}
-
 
 void Engine::update(){
     Timepoint now = std::chrono::time_point_cast<
@@ -190,23 +137,6 @@ void Engine::update(){
     if(proceedTime <= frameTime){
         std::this_thread::sleep_for(frameTime - proceedTime);
     }
-}
-
-template<> Mesh&
-Engine::query(Handle handle){
-    return meshManager.get(handle);
-}
-template<> Texture&
-Engine::query(Handle handle){
-    return textureManager.get(handle);
-}
-template<> Shader&
-Engine::query(Handle handle){
-    return shaderManager.get(handle);
-}
-template<> Script::Module&
-Engine::query(Handle handle){
-    return moduleManager.get(handle);
 }
 
 Script::FunctionID Engine::registerFunction(
