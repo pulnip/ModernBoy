@@ -125,7 +125,16 @@ namespace ModernBoy::Asset
     struct PlayerDescriptor{};
     struct EditorDescriptor{};
 
-    struct Entity{
+    using TransformDescriptors = std::vector<TransformDescriptor>;
+    using MeshDescriptors = std::vector<MeshDescriptor>;
+    using RigidbodyDescriptors = std::vector<RigidbodyDescriptor>;
+    using BoxColliderDescriptors = std::vector<BoxColliderDescriptor>;
+    using SphereColliderDescriptors = std::vector<SphereColliderDescriptor>;
+    using CameraDescriptors = std::vector<CameraDescriptor>;
+    using PlayerDescriptors = std::vector<PlayerDescriptor>;
+    using EditorDescriptors = std::vector<EditorDescriptor>;
+
+    struct EntityDescriptor{
         std::string name;
         std::bitset<(size_t)8> mask;
         uint32_t transformIndex = INVALID;
@@ -137,18 +146,21 @@ namespace ModernBoy::Asset
         uint32_t playerIndex = INVALID;
         uint32_t editorIndex = INVALID;
     };
+
+    using EntityDescriptors = std::vector<EntityDescriptor>;
+
     struct SceneDescriptor{
         // SoA
-        std::vector<TransformDescriptor> transforms;
-        std::vector<MeshDescriptor> meshes;
-        std::vector<RigidbodyDescriptor> rigidbodies;
-        std::vector<BoxColliderDescriptor> boxColliders;
-        std::vector<SphereColliderDescriptor> sphereColliders;
-        std::vector<CameraDescriptor> cameras;
-        std::vector<PlayerDescriptor> players;
-        std::vector<EditorDescriptor> editors;
+        TransformDescriptors transforms;
+        MeshDescriptors meshes;
+        RigidbodyDescriptors rigidbodies;
+        BoxColliderDescriptors boxColliders;
+        SphereColliderDescriptors sphereColliders;
+        CameraDescriptors cameras;
+        PlayerDescriptors players;
+        EditorDescriptors editors;
 
-        std::vector<Entity> entities;
+        EntityDescriptors entities;
 
         inline uint32_t pushTransform(const TransformDescriptor& desc){
             transforms.push_back(desc);

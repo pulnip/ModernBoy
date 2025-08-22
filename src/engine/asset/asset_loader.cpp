@@ -67,15 +67,26 @@ void AssetLoader::load(const SceneDescriptor& desc){
     load(desc.entities, desc.meshes);
 }
 
-void AssetLoader::load(const std::vector<Entity>& entities,
-    const std::vector<MeshDescriptor>& meshes
+void AssetLoader::load(const EntityDescriptors& entities,
+    const MeshDescriptors& meshes
 ){
-    std::vector<MeshWork> meshWorks;
-    std::vector<WorkItem> materialWorks, shaderWorks;
+    MeshWorks meshWorks;
+    MaterialWorks materialWorks;
+    ShaderWorks shaderWorks;
+
+    meshWorks.reserve(entities.size());
+    materialWorks.reserve(entities.size());
+    shaderWorks.reserve(entities.size());
 
     for(const auto& entity: entities){
-        if(entity.meshIndex != INVALID)
-            collectWorkItems(entity.name, meshes[entity.meshIndex], meshWorks, materialWorks, shaderWorks);
+        if(entity.meshIndex != INVALID){
+            meshWorks.push_back(collectMeshWork(
+                entity.name, meshes[entity.meshIndex]));
+            materialWorks.append_range(collectMaterialWorks(
+                entity.name, meshes[entity.meshIndex]));
+            shaderWorks.push_back(collectShaderWork(
+                entity.name, meshes[entity.meshIndex]));
+        }
     }
 
     // Execute meshWork
@@ -123,63 +134,65 @@ void AssetLoader::load(const std::vector<Entity>& entities,
     }
 }
 
-void AssetLoader::collectWorkItems(
-    const std::string& entityName, const MeshDescriptor& meshDesc,
-    std::vector<MeshWork>& meshWorks, std::vector<WorkItem>& matWorks,
-    std::vector<WorkItem>& shaderWorks
-){
-    {
-        auto [kind, path] = splitSchemeAndPath(meshDesc.id);
-        MeshWork meshWork{
-            .entityName = entityName,
-            .kind = kind,
-            .id = meshDesc.id,
-            .path = path,
-            .material_override = meshDesc.material_override,
-            .shader = meshDesc.shader
-        };
-        meshWorks.push_back(std::move(meshWork));
+auto AssetLoader::collectMeshWork(
+    const std::string& entityName,
+    const MeshDescriptor& desc
+)->MeshWork{
+    auto [kind, path] = splitSchemeAndPath(desc.id);
+    MeshWork work{
+        .entityName = entityName,
+        .kind = kind,
+        .id = desc.id,
+        .path = path,
+        .material_override = desc.material_override,
+        .shader = desc.shader
+    };
 
-        bool hasMaterialOverride = !meshDesc.material_override.empty();
-        if(kind==SchemeKind::Embedded && !hasMaterialOverride){
-            AppError("embedded mesh {} requires at least one material",
-                meshDesc.id);
-            return;
-        }
+    bool hasMaterialOverride = !desc.material_override.empty();
+    if(kind==SchemeKind::Embedded && !hasMaterialOverride){
+        AppError("embedded mesh {} requires at least one material",
+            desc.id);
     }
+    return work;
+}
 
-    {
-        for(const auto& matDesc: meshDesc.material_override){
-            if(!matDesc.baseColor.empty()){
-                auto [kind, path] = splitSchemeAndPath(matDesc.baseColor);
-                if(kind != SchemeKind::Unknown){
-                    WorkItem matWork{
-                        .entityName = entityName,
-                        .kind = kind,
-                        .id = matDesc.baseColor,
-                        .path = path,
-                    };
-                    matWorks.push_back(std::move(matWork));
-                } else{
-                    AppWarn("unknown seheme in baseColor: {}",
-                        matDesc.baseColor);
-                }
+auto AssetLoader::collectMaterialWorks(
+    const std::string& entityName, const MeshDescriptor& desc
+)-> MaterialWorks{
+    MaterialWorks works;
+    works.reserve(desc.material_override.size());
+
+    for(const auto& matDesc: desc.material_override){
+        if(!matDesc.baseColor.empty()){
+            auto [kind, path] = splitSchemeAndPath(matDesc.baseColor);
+            if(kind != SchemeKind::Unknown){
+                WorkItem work{
+                    .entityName = entityName,
+                    .kind = kind,
+                    .id = matDesc.baseColor,
+                    .path = path,
+                };
+                works.push_back(std::move(work));
+            } else{
+                AppWarn("unknown scheme in baseColor: {}",
+                    matDesc.baseColor);
             }
         }
     }
 
-    {
-        const auto& sd = meshDesc.shader;
-        auto [kind, path] = splitSchemeAndPath(sd.module_);
-        if(kind != SchemeKind::Unknown){
-            WorkItem shaderWork{
-                .kind = kind,
-                .id = sd.module_,
-                .path = path,
-            };
-            shaderWorks.push_back(std::move(shaderWork));
-        }
-    }
+    return works;
+}
+
+auto AssetLoader::collectShaderWork(
+    const std::string& entityName, const MeshDescriptor& desc
+)->ShaderWork{
+    const auto& sd = desc.shader;
+    auto [kind, path] = splitSchemeAndPath(sd.module_);
+    return ShaderWork{
+        .kind = kind,
+        .id = sd.module_,
+        .path = path,
+    };
 }
 
 // Process a "file" scheme on mesh id

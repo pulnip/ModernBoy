@@ -23,12 +23,19 @@ namespace ModernBoy::Asset
         std::vector<MaterialDescriptor> material_override;
         ShaderDescriptor shader;
     };
+
     struct WorkItem{
         std::string entityName;
         SchemeKind kind=SchemeKind::Unknown;
         std::string id;
         std::string path;
     };
+
+    using MeshWorks = std::vector<MeshWork>;
+    using MaterialWork = WorkItem;
+    using MaterialWorks = std::vector<MaterialWork>;
+    using ShaderWork = WorkItem;
+    using ShaderWorks = std::vector<ShaderWork>;
 
     class AssetLoader{
     public:
@@ -47,16 +54,22 @@ namespace ModernBoy::Asset
             table.try_emplace(id, uuid);
         }
 
-        void load(const std::vector<Entity>& entities,
-            const std::vector<MeshDescriptor>&);
+        void load(const EntityDescriptors&,
+            const MeshDescriptors&);
 
         // 1. load planning
-        void collectWorkItems(const std::string& entityName,
-            const MeshDescriptor&,
-            std::vector<MeshWork>& meshWorks,
-            std::vector<WorkItem>& matWorks,
-            std::vector<WorkItem>& shaderWorks
-        );
+        auto collectMeshWork(
+            const std::string& entityName,
+            const MeshDescriptor&
+        ) -> MeshWork;
+        auto collectMaterialWorks(
+            const std::string& entityName,
+            const MeshDescriptor&
+        ) -> MaterialWorks;
+        auto collectShaderWork(
+            const std::string& entityName,
+            const MeshDescriptor&
+        ) -> ShaderWork;
 
         // 2. register to ResourceManager and load
         void processMeshFile(const MeshWork&);
