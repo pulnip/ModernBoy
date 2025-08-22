@@ -64,15 +64,19 @@ submeshManager(submeshManager), materialManager(materialManager),
 shaderManager(shaderManager), renderContext(renderContext){}
 
 void Asset::AssetLoader::load(const SceneDescriptor& desc){
-    load(desc.meshes);
+    load(desc.entities, desc.meshes);
 }
 
-void Asset::AssetLoader::load(const std::vector<MeshDescriptor>& meshes){
+void Asset::AssetLoader::load(const std::vector<Entity>& entities,
+    const std::vector<MeshDescriptor>& meshes
+){
     std::vector<MeshWork> meshWorks;
     std::vector<WorkItem> materialWorks, shaderWorks;
 
-    for(const auto& meshDesc: meshes)
-        collectWorkItems(meshDesc, meshWorks, materialWorks, shaderWorks);
+    for(const auto& entity: entities){
+        if(entity.meshIndex != INVALID)
+            collectWorkItems(entity.name, meshes[entity.meshIndex], meshWorks, materialWorks, shaderWorks);
+    }
 
     // Execute meshWork
     for(const auto& work: meshWorks){
@@ -119,13 +123,15 @@ void Asset::AssetLoader::load(const std::vector<MeshDescriptor>& meshes){
     }
 }
 
-void Asset::AssetLoader::collectWorkItems(const MeshDescriptor& meshDesc,
+void Asset::AssetLoader::collectWorkItems(
+    const std::string& entityName, const MeshDescriptor& meshDesc,
     std::vector<MeshWork>& meshWorks, std::vector<WorkItem>& matWorks,
     std::vector<WorkItem>& shaderWorks
 ){
     {
         auto [kind, path] = splitSchemeAndPath(meshDesc.id);
         MeshWork meshWork{
+            .entityName = entityName,
             .kind = kind,
             .id = meshDesc.id,
             .path = path,
@@ -148,6 +154,7 @@ void Asset::AssetLoader::collectWorkItems(const MeshDescriptor& meshDesc,
                 auto [kind, path] = splitSchemeAndPath(matDesc.baseColor);
                 if(kind != SchemeKind::Unknown){
                     WorkItem matWork{
+                        .entityName = entityName,
                         .kind = kind,
                         .id = matDesc.baseColor,
                         .path = path,
@@ -210,7 +217,8 @@ void Asset::AssetLoader::processMeshFile(const MeshWork& item
     }
 
     auto meshID = issueID();
-    remember(item.id, meshID);
+    remember(std::format("{}:mesh", item.entityName),
+        meshID);
     meshTable.try_emplace(meshID, mesh);
 
     // material
@@ -274,7 +282,7 @@ void Asset::AssetLoader::processMeshFile(const MeshWork& item
     }
 
     auto materialSetID = issueID();
-    remember(std::format("{}:materialSet", item.id), materialSetID);
+    remember(std::format("{}:materialSet", item.entityName), materialSetID);
     materialSetTable.try_emplace(meshID, mesh);
 
     auto shader_it = table.find(item.shader.module_);
@@ -321,7 +329,7 @@ void Asset::AssetLoader::processMeshEmbedded(const MeshWork& item){
     }
 
     auto meshID = issueID();
-    remember(std::format("{}:mesh", item.id), meshID);
+    remember(std::format("{}:mesh", item.entityName), meshID);
     meshTable.try_emplace(meshID, mesh);
 
     std::vector<MaterialHandle> materialSet(1);
@@ -347,7 +355,7 @@ void Asset::AssetLoader::processMeshEmbedded(const MeshWork& item){
     }
 
     auto materialSetID = issueID();
-    remember(std::format("{}:materialSet", item.id), materialSetID);
+    remember(std::format("{}:materialSet", item.entityName), materialSetID);
     materialSetTable.try_emplace(materialSetID, materialSet);
 }
 

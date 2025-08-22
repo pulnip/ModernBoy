@@ -25,11 +25,12 @@ namespace{
     }
 
     auto convert(const MeshDescriptor& desc,
+        const std::string& name,
         const ResolveTable& table,
         const ShaderManager& shaderManager
     ){
-        auto meshUUID = table.at(std::format("{}:mesh", desc.id));
-        auto materialSetUUID = table.at(std::format("{}:materialSet", desc.id));
+        auto meshUUID = table.at(std::format("{}:mesh", name));
+        auto materialSetUUID = table.at(std::format("{}:materialSet", name));
 
         return Game::Mesh{
             .entity = invalidEntityID(),
@@ -135,7 +136,8 @@ void SceneLoader::loadScene(const SceneDescriptor& desc,
                 AppWarn("Component integrity Broken");
                 continue;
             }
-            mesh = convert(desc.meshes[entity.meshIndex], table, shaderManager);
+            mesh = convert(desc.meshes[entity.meshIndex],
+                entity.name, table, shaderManager);
         }
         if(entity.mask.test((size_t)ComponentKind::Rigidbody)){
             if(entity.rigidbodyIndex == INVALID){

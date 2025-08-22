@@ -16,6 +16,7 @@ namespace ModernBoy::Asset
     };
 
     struct MeshWork{
+        std::string entityName;
         SchemeKind kind=SchemeKind::Unknown;
         std::string id;
         std::string path;
@@ -23,6 +24,7 @@ namespace ModernBoy::Asset
         ShaderDescriptor shader;
     };
     struct WorkItem{
+        std::string entityName;
         SchemeKind kind=SchemeKind::Unknown;
         std::string id;
         std::string path;
@@ -60,10 +62,12 @@ namespace ModernBoy::Asset
             table.try_emplace(id, uuid);
         }
 
-        void load(const std::vector<MeshDescriptor>&);
+        void load(const std::vector<Entity>& entities,
+            const std::vector<MeshDescriptor>&);
 
         // 1. load planning
-        void collectWorkItems(const MeshDescriptor&,
+        void collectWorkItems(const std::string& entityName,
+            const MeshDescriptor&,
             std::vector<MeshWork>& meshWorks,
             std::vector<WorkItem>& matWorks,
             std::vector<WorkItem>& shaderWorks
