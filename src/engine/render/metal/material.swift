@@ -30,10 +30,10 @@ final class UnlitMaterial: Material {
         samplerState = sampler
     }
     func bind(encoder: MTLRenderCommandEncoder) {
-        encoder.setFragmentBytes(
-            &materialConstants,
-            length: MemoryLayout<MaterialConstants>.stride,
-            index: Binding.fragmentMaterialBuffer)
+        // encoder.setFragmentBytes(
+        //     &materialConstants,
+        //     length: MemoryLayout<MaterialConstants>.stride,
+        //     index: Binding.fragmentMaterialBuffer)
 
         encoder.setFragmentTexture(baseColorMap, index: 0)
 

@@ -29,6 +29,10 @@ extern "C"{
         void* nativeContext,
         void* texture
     );
+    extern void RenderContext_setUnlitMaterial(
+        void* nativeContext,
+        void* material
+    );
     extern void RenderContext_draw(
         void* nativeContext,
         float px, float py, float pz,

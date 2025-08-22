@@ -270,6 +270,11 @@ class RenderContext {
             texture.bind(encoder: encoder)
         }
     }
+    func setMaterial(_ material: Material) {
+        if let encoder = ensureMainEncoder() {
+            material.bind(encoder: encoder)
+        }
+    }
     func draw(
         _ modelMat: simd_float4x4, _ mesh: Mesh, _ alpha: Float,
         _ id: Int, _ useUV: Bool, _ color: simd_float4
@@ -566,6 +571,23 @@ public func RenderContext_setShader(
             .fromOpaque(shaderPtr).takeUnretainedValue()
 
         rctx.setShader(shader)
+    }
+}
+@_cdecl("RenderContext_setUnlitMaterial")
+public func RenderContext_setUnlitMaterial(
+    _ rctxPtr: UnsafeRawPointer?,
+    _ matPtr: UnsafeRawPointer?
+) {
+    autoreleasepool {
+        guard let rctxPtr = rctxPtr,
+            let matPtr: UnsafeRawPointer = matPtr
+        else { return }
+        let rctx = Unmanaged<RenderContext>
+            .fromOpaque(rctxPtr).takeUnretainedValue()
+        let material = Unmanaged<UnlitMaterial>
+            .fromOpaque(matPtr).takeUnretainedValue()
+
+        rctx.setMaterial(material)
     }
 }
 @_cdecl("RenderContext_setTexture")

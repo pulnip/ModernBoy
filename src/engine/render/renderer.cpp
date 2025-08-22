@@ -125,6 +125,9 @@ void Renderer::setMaterial(MaterialHandle handle){
     RenderTrace("Set Material, Index: {}", handle.index);
     const auto& material = materialManager.get(handle);
     RenderTrace("  Material Ptr: {}", material.material);
+#if defined(USE_METAL)
+    RenderContext_setUnlitMaterial(context, material.material);
+#endif
 }
 void Renderer::setTexture(TextureHandle handle){
     RenderTrace("Set Texture, Index: {}", handle.index);
