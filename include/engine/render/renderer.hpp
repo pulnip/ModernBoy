@@ -10,7 +10,6 @@
 #include "engine/interface.hpp"
 #include "core/thread/lock_free_queue.hpp"
 #include "core/thread/generator.hpp"
-#include "engine/render/command.hpp"
 #if defined(USE_DIRECTX)
 #include "engine/render/dx11/context.hpp"
 #elif defined(USE_METAL)

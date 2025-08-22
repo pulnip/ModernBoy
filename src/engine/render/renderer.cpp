@@ -6,7 +6,6 @@
 #include "engine/resource_manager.hpp"
 #include "engine/render/renderer.hpp"
 #include "engine/engine.hpp"
-#include "engine/render/command.hpp"
 #include "engine/interface/draw_service.hpp"
 #include "engine/interface/view_service.hpp"
 
