@@ -25,7 +25,8 @@ namespace{
     }
 
     auto convert(const MeshDescriptor& desc,
-        const ResolveTable& table
+        const ResolveTable& table,
+        const ShaderManager& shaderManager
     ){
         auto meshUUID = table.at(std::format("{}:mesh", desc.id));
         auto materialSetUUID = table.at(std::format("{}:materialSet", desc.id));
@@ -36,9 +37,9 @@ namespace{
             .alpha = 1.0,
             .mesh = meshUUID,
             .materialSet = materialSetUUID,
-            .shaderHandle = {
+            .shaderHandle = shaderManager.getHandle(
                 table.at(desc.shader.module_)
-            }
+            )
         };
     }
 
@@ -103,8 +104,9 @@ namespace{
 }
 
 SceneLoader::SceneLoader(
-    Game::EntityRegistry& registry)
-:registry(registry){}
+    Game::EntityRegistry& registry,
+    ShaderManager& shaderManager
+):registry(registry), shaderManager(shaderManager){}
 
 void SceneLoader::loadScene(const SceneDescriptor& desc,
     const ResolveTable& table
@@ -133,7 +135,7 @@ void SceneLoader::loadScene(const SceneDescriptor& desc,
                 AppWarn("Component integrity Broken");
                 continue;
             }
-            mesh = convert(desc.meshes[entity.meshIndex], table);
+            mesh = convert(desc.meshes[entity.meshIndex], table, shaderManager);
         }
         if(entity.mask.test((size_t)ComponentKind::Rigidbody)){
             if(entity.rigidbodyIndex == INVALID){

@@ -16,6 +16,7 @@ using namespace ModernBoy::Render;
 using namespace ModernBoy::Interface;
 
 Renderer::Renderer(SDL_Window* window,
+    SubmeshManager&submeshManager, MaterialManager& materialManager,
     MeshManager& meshManager, TextureManager& textureManager,
     ShaderManager& shaderManager, World& world,
     ViewService& viewSrv, DrawService& drawSrv)
@@ -27,7 +28,8 @@ metalLayer(SDL_Metal_GetLayer(view)),
 context(createRenderContext(metalLayer,
     "./asset/shader/ModernBoy.metallib")),
 #endif
-meshManager(meshManager), textureManager(textureManager), 
+meshManager(meshManager), textureManager(textureManager),
+submeshManager(submeshManager), materialManager(materialManager),
 shaderManager(shaderManager), world(world), ema(0ms),
 viewService(viewSrv), drawService(drawSrv),
 sphereMesh(context, "sphere"){}
@@ -43,32 +45,34 @@ void Renderer::update(DeltaTime){
     auto started = std::chrono::steady_clock::now();
     auto debugSpheres = drawService.drainSpheres();
 
-    auto meshObjects = drawService.drainMeshObjects();
+    // auto meshObjects = drawService.drainMeshObjects();
+    auto meshDrawCalls = drawService.drainDrawCalls();
     auto cameraObjects = viewService.drainCameraObjects();
 
     for(const auto& cameraObj: cameraObjects){
         setView(cameraObj);
 
         auto shaderHandle = invalidHandle();
-        auto textureHandle = invalidHandle();
-        for(const auto& meshObj: meshObjects){
-            if(meshObj.shaderHandle != shaderHandle){
-                shaderHandle = meshObj.shaderHandle;
+        auto materialHandle = invalidHandle();
+        for(const auto& drawCall: meshDrawCalls){
+            if(drawCall.shaderHandle != shaderHandle){
+                shaderHandle = drawCall.shaderHandle;
                 setShader(shaderHandle);
             }
-            if(meshObj.texHandle != textureHandle){
-                textureHandle = meshObj.texHandle;
-                setTexture(textureHandle);
+            if(drawCall.materialHandle != materialHandle){
+                materialHandle = drawCall.materialHandle;
+                setMaterial(materialHandle);
             }
-            drawMesh(meshObj.position, meshObj.rotation,
-                meshObj.scale, meshObj.meshHandle, meshObj.alpha,
-                static_cast<int>(meshObj.entity));
+
+            drawSubmesh(drawCall.position, drawCall.rotation,
+                drawCall.scale, drawCall.submeshHandle, drawCall.alpha,
+                static_cast<int>(drawCall.entity));
         }
 
         for(const auto& [pos, radius, color]: debugSpheres){
-            drawMesh(pos, unitQuat(),
+            drawSubmesh(pos, unitQuat(),
                 Vec3{.x=radius, .y=radius, .z=radius},
-                sphereMesh, 0.0f, 0,
+                sphereMesh_, 0.0f, 0,
                 false, color);
         }
     }
@@ -117,6 +121,11 @@ void Renderer::setShader(ShaderHandle handle){
     RenderContext_setShader(context, shader.shaderPtr);
 #endif
 }
+void Renderer::setMaterial(MaterialHandle handle){
+    RenderTrace("Set Material, Index: {}", handle.index);
+    const auto& material = materialManager.get(handle);
+    RenderTrace("  Material Ptr: {}", material.material);
+}
 void Renderer::setTexture(TextureHandle handle){
     RenderTrace("Set Texture, Index: {}", handle.index);
     const auto& texture = textureManager.get(handle);
@@ -147,6 +156,41 @@ void Renderer::drawMesh(
 #endif
     }
 }
+void Renderer::drawSubmesh(const Vec3& position,
+    const Vec4& rotation, const Vec3& scale,
+    SubmeshHandle handle, float alpha, int id
+){
+    RenderTrace("index: {}", handle.index);
+    const auto& submesh = submeshManager.get(handle);
+
+#if defined(USE_DIRECTX)
+    context.drawMesh(position, rotation, scale, partPtr, alpha);
+#elif defined(USE_METAL)
+    RenderContext_draw(context,
+        position.x, position.y, position.z,
+        rotation.x, rotation.y, rotation.z, rotation.w,
+        scale.x, scale.y, scale.z,
+        submesh.nativeMesh, alpha, id);
+#endif
+}
+void Renderer::drawSubmesh(
+    const Vec3& position, const Vec4& rotation,
+    const Vec3& scale, const Submesh& mesh,
+    float alpha, int id,
+    bool useUV, const Vec4& color
+){
+#if defined(USE_DIRECTX)
+    context.drawMesh(position, rotation, scale, partPtr, alpha);
+#elif defined(USE_METAL)
+    RenderContext_draw(context,
+        position.x, position.y, position.z,
+        rotation.x, rotation.y, rotation.z, rotation.w,
+        scale.x, scale.y, scale.z,
+        mesh.nativeMesh, alpha, id,
+        useUV, color.r, color.g, color.b, color.a);
+#endif
+}
+
 void Renderer::drawMesh(
     const Vec3& position, const Vec4& rotation,
     const Vec3& scale, const Mesh& mesh,

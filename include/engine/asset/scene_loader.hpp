@@ -8,13 +8,15 @@ namespace ModernBoy::Asset
 {
     class SceneLoader{
     public:
-        SceneLoader(Game::EntityRegistry&);
+        SceneLoader(Game::EntityRegistry&,
+            ShaderManager&);
 
         void loadScene(const SceneDescriptor&,
             const ResolveTable&);
 
     private:
         Game::EntityRegistry& registry;
+        ShaderManager& shaderManager;
     };
 } // namespace ModernBoy::Asset
 

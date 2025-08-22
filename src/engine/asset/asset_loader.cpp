@@ -309,16 +309,15 @@ void Asset::AssetLoader::processMeshEmbedded(const MeshWork& item){
             continue;
         }
 
-        auto mesh = loadEmbeddedMesh(item.path);
+        auto fittedMesh = loadEmbeddedMesh(item.path);
 
-        std::span vertices = mesh.vertices;
-        std::span indices = mesh.indices;
+        std::span vertices = fittedMesh.vertices;
+        std::span indices = fittedMesh.indices;
 
         auto meshID = issueID();
         remember(item.id, meshID);
-        auto handle = submeshManager.emplace(
+        mesh[i] = submeshManager.emplace(
             meshID, renderContext, vertices, indices);
-        (void)handle;
     }
 
     auto meshID = issueID();

@@ -24,7 +24,8 @@ namespace ModernBoy::Render
 {
     class Renderer{
     public:
-        Renderer(SDL_Window*, MeshManager&,
+        Renderer(SDL_Window*, SubmeshManager&,
+            MaterialManager&, MeshManager&,
             TextureManager&, ShaderManager&,
             World&, Interface::ViewService&,
             Interface::DrawService&);
@@ -59,6 +60,15 @@ namespace ModernBoy::Render
 
         void setView(const Interface::CameraObject&);
         void setShader(ShaderHandle handle);
+        void setMaterial(MaterialHandle handle);
+        void drawSubmesh(const Vec3& position,
+            const Vec4& rotation, const Vec3& scale,
+            SubmeshHandle handle, float alpha, int id);
+        void drawSubmesh(const Vec3& position,
+            const Vec4& rotation, const Vec3& scale,
+            const Submesh& mesh, float alpha, int id,
+            bool useUV = true,
+            const Vec4& color = Vec4{.r=1, .g=0, .b=0, .a=1});
         void setTexture(TextureHandle handle);
         void drawMesh(const Vec3& position,
             const Vec4& rotation, const Vec3& scale,
@@ -80,6 +90,8 @@ namespace ModernBoy::Render
     private:
         MeshManager& meshManager;
         TextureManager& textureManager;
+        SubmeshManager& submeshManager;
+        MaterialManager& materialManager;
         ShaderManager& shaderManager;
         World& world;
 
@@ -88,6 +100,7 @@ namespace ModernBoy::Render
         Interface::ViewService& viewService;
         Interface::DrawService& drawService;
         Mesh sphereMesh;
+        Submesh sphereMesh_;
     };
 } // namespace ModernBoy::Render
 

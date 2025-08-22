@@ -31,7 +31,7 @@ namespace ModernBoy::Metal
     };
 
     struct Submesh{
-        NativePtr meshPtr;
+        NativePtr nativeMesh;
 
         Submesh()=default;
         Submesh(const Submesh&)=delete;

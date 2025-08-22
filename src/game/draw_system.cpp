@@ -44,6 +44,7 @@ void DrawSystem::update(){
     for(const auto [id, bit, tc, mc]: registry.query<Transform, Mesh>()){
         const auto& submeshes = meshTable.at(mc.mesh);
         const auto& materials = materialSetTable.at(mc.materialSet);
+
         for(Index i=0; i<submeshes.size(); ++i){
             drawService.write(MeshDrawCall{
                 tc.position, tc.rotation, tc.scale,
@@ -53,7 +54,6 @@ void DrawSystem::update(){
                 id
             });
         }
-
     }
 }
 

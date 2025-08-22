@@ -57,6 +57,7 @@ std::vector<MeshDrawCall> DrawService::drainDrawCalls(){
     {
         std::lock_guard lock(drawCallMtx);
         sortDrawCalls();
+        out.swap(drawCalls);
     }
     return out;
 }

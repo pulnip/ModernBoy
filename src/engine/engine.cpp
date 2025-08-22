@@ -55,7 +55,7 @@ Engine::Engine(SDL_Window* window)
 meshManager(), textureManager(),
 shaderManager(), moduleManager(),
 // subsystems
-renderer(window, meshManager, textureManager,
+renderer(window, submeshManager, materialManager, meshManager, textureManager,
     shaderManager, world, viewService, drawService),
 userInterface(window, renderer, *this),
 inputDevice(window, inputService),
@@ -67,7 +67,7 @@ assetLoader(*this),
 assetLoader2(meshTable, materialSetTable,
     submeshManager, materialManager,
     shaderManager, renderer.context),
-sceneLoader(world.registry),
+sceneLoader(world.registry, shaderManager),
 lastTick(std::chrono::time_point_cast<
     std::chrono::microseconds>(steady_clock::now())){}
 

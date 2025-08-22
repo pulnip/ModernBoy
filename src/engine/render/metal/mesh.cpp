@@ -65,15 +65,22 @@ Submesh& Submesh::operator=(Submesh&& other){
     return *this;
 }
 void Submesh::moveFrom(Submesh&& other){
-    meshPtr = other.meshPtr;
+    nativeMesh = other.nativeMesh;
+    other.nativeMesh = nullptr;
 }
 
 Submesh::Submesh(NativePtr rctxPtr,
-    std::span<Asset::Vertex>,
-    std::span<uint32_t>
-){
-        
+    std::span<Asset::Vertex> vertices,
+    std::span<uint32_t> indices
+): nativeMesh(createMesh(rctxPtr,
+    reinterpret_cast<float*>(vertices.data()),
+    vertices.size(),
+    indices.data(),
+    indices.size()
+)){}
+Submesh::~Submesh(){
+    if(nativeMesh)
+        destroyMesh(nativeMesh);
 }
-Submesh::~Submesh(){}
 
 
