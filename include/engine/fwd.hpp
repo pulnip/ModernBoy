@@ -90,10 +90,12 @@ namespace ModernBoy
 
     using SubmeshHandle = Handle;
     using MaterialHandle = Handle;
-    using MaterialSetHandle = Handle;
     using ShaderHandle = Handle;
     using ModuleHandle = Handle;
     using ObjectHandle = Handle;
+
+    using Mesh = std::vector<SubmeshHandle>;
+    using MaterialSet = std::vector<MaterialHandle>;
 
     // template<typename Resource>
     // class ResourceManager;
@@ -101,9 +103,9 @@ namespace ModernBoy
     class ResourceManager;
 
     using SubmeshManager = ResourceManager<Submesh>;
-    using MeshTable = std::unordered_map<UUID, std::vector<SubmeshHandle>>;
+    using MeshTable = std::unordered_map<UUID, Mesh>;
     using MaterialManager = ResourceManager<Material>;
-    using MaterialSetTable = std::unordered_map<UUID, std::vector<MaterialHandle>>;
+    using MaterialSetTable = std::unordered_map<UUID, MaterialSet>;
     using ShaderManager = ResourceManager<Shader>;
     using ModuleManager = ResourceManager<Module, std::string>;
     using ObjectManager = ResourceManager<Object>;

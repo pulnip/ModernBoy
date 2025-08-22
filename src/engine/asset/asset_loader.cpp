@@ -201,7 +201,7 @@ void AssetLoader::processMeshFile(const MeshWork& item
     CookedMesh cooked = loadCookedOrImport(item.path);
 
     // submesh
-    std::vector<SubmeshHandle> mesh(cooked.submeshInfoTable.size());
+    Mesh mesh(cooked.submeshInfoTable.size());
     for(Index i=0; i<cooked.submeshInfoTable.size(); ++i){
         auto submesh_it = table.find(std::format("{}:submesh{}", item.id, i));
         if(submesh_it != table.end()){
@@ -241,7 +241,7 @@ void AssetLoader::processMeshFile(const MeshWork& item
         // TODO. add material slot name table
         // materialSlotToIndex.try_emplace(cooked.materialSlotTable[i], i);
 
-    std::vector<MaterialHandle> materialSet(cooked.materialInfoTable.size());
+    MaterialSet materialSet(cooked.materialInfoTable.size());
 
     for(const auto& matDesc: item.material_override){
         auto materialSetIndex = materialSlotToIndex.at(matDesc.targetSlot);
