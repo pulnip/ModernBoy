@@ -8,9 +8,6 @@ using namespace ModernBoy;
 using namespace ModernBoy::Asset;
 
 namespace{
-    using namespace ModernBoy;
-    using namespace ModernBoy::Asset;
-
     // "scheme:path" -> {scheme, path}
     std::pair<SchemeKind, std::string> splitSchemeAndPath(
         const std::string& id
@@ -53,6 +50,23 @@ namespace{
                 return "Unknown";
         }
     }
+
+    auto makeMaterialSetID(const std::string& baseID,
+        const MaterialDescriptors& descs
+    ){
+        auto materialSetID = baseID;
+        for(const auto& desc: descs){
+            materialSetID = std::format("{}:{}",
+                materialSetID, desc.baseColor);
+        }
+
+        return materialSetID;
+    }
+
+    auto makeShaderID(const ShaderDescriptor& desc){
+        return std::format("{}:{},{}", desc.module_,
+            desc.vsFunc, desc.fsFunc);
+    }
 }
 
 AssetLoader::AssetLoader(
@@ -93,7 +107,7 @@ void AssetLoader::load(const EntityDescriptors& entities,
     for(const auto& work: meshWorks){
         switch(work.kind){
         case SchemeKind::File:
-            processMeshFile(work);
+            executeMeshFileWork(work);
             break;
         case SchemeKind::Embedded:
             processMeshEmbedded(work);
@@ -195,119 +209,201 @@ auto AssetLoader::collectShaderWork(
     };
 }
 
-// Process a "file" scheme on mesh id
-void AssetLoader::processMeshFile(const MeshWork& item
-){
+void AssetLoader::executeMeshFileWork(const MeshWork& item){
+    const auto& bindTarget = item.entityName;
+
+    const auto& meshFileID = item.id;
+    auto meshFileIt = table.find(meshFileID);
+    auto isMeshLoaded = meshFileIt != table.end();
+
+    CookedMesh cookedMesh;
+
+    if(isMeshLoaded){
+        bindMeshToEntity(bindTarget, meshFileIt->second);
+    } else{
+        cookedMesh = loadCookedMeshFor(item);
+        auto newMeshUUID = loadSubmeshes(cookedMesh);
+
+        remember(meshFileID, newMeshUUID);
+        bindMeshToEntity(bindTarget, newMeshUUID);
+    }
+
+    // materialSet
+    auto materialSetID = makeMaterialSetID(meshFileID, item.material_override);
+    auto materialSetIt = table.find(materialSetID);
+    auto isMaterialSetLoaded = materialSetIt != table.end();
+
+    if(isMaterialSetLoaded){
+        bindMaterialSetToEntity(bindTarget, materialSetIt->second);
+    } else{
+        auto newMaterialSetUUID = loadMaterialSet(
+            meshFileID, cookedMesh, item.material_override);
+
+        remember(materialSetID, newMaterialSetUUID);
+        bindMaterialSetToEntity(bindTarget, newMaterialSetUUID);
+    }
+
+    auto shaderID = makeShaderID(item.shader);
+    auto shaderIt = table.find(shaderID);
+    auto isShaderLoaded = shaderIt != table.end();
+
+    if(isShaderLoaded){
+        bindShaderToEntity(bindTarget, shaderIt->second);
+    } else{
+        auto newShaderUUID = loadShader(item.shader);
+
+        remember(shaderID, newShaderUUID);
+        bindShaderToEntity(bindTarget, newShaderUUID);
+    }
+}
+
+bool AssetLoader::bindMeshToEntity(const std::string& entityName, UUID uuid){
+    auto entityMeshID = std::format("{}:mesh", entityName);
+    auto [it, bindSuccess] = table.try_emplace(entityMeshID, uuid);
+
+    return bindSuccess;
+}
+
+bool AssetLoader::bindMaterialSetToEntity(const std::string& entityName, UUID uuid){
+    auto entityMaterialSetID = std::format("{}:materialSet", entityName);
+    auto [it, bindSuccess] = table.try_emplace(entityMaterialSetID, uuid);
+
+    return bindSuccess;
+}
+
+bool AssetLoader::bindShaderToEntity(const std::string& entityName, UUID uuid){
+    auto entityShaderID = std::format("{}:shader", entityName);
+    auto [it, bindSuccess] = table.try_emplace(entityShaderID, uuid);
+
+    return bindSuccess;
+}
+
+CookedMesh AssetLoader::loadCookedMeshFor(const MeshWork& item){
     CookedMesh cooked = loadCookedOrImport(item.path);
+    return cooked;
+}
 
-    // submesh
-    Mesh mesh(cooked.submeshInfoTable.size());
-    for(Index i=0; i<cooked.submeshInfoTable.size(); ++i){
-        auto submesh_it = table.find(std::format("{}:submesh{}", item.id, i));
-        if(submesh_it != table.end()){
-            mesh[i] = submeshManager.getHandle(submesh_it->second);
-            continue;
-        }
+auto AssetLoader::loadSubmeshes(
+    const CookedMesh& cooked
+)->UUID{
+    Mesh mesh;
+    mesh.reserve(cooked.submeshInfoTable.size());
 
-        const auto& submeshInfo = cooked.submeshInfoTable[i];
-
-        std::span<Vertex> vertices(
-            cooked.vertices.begin() + submeshInfo.verticesSectionIndex,
+    for(const auto& submeshInfo: cooked.submeshInfoTable){
+        std::span<const Vertex> vertices(
+            cooked.vertices.cbegin() + submeshInfo.verticesSectionIndex,
             submeshInfo.vertexCount
         );
-        std::span<uint32_t> indices(
+        std::span<const uint32_t> indices(
             cooked.indices.begin() + submeshInfo.indicesSectionIndex,
             submeshInfo.indexCount
         );
-        
-        auto submeshID = issueID();
-        remember(std::format("{}:submesh{}", item.id, i), submeshID);
 
         auto submeshHandle = submeshManager.emplace(
-            submeshID, renderContext, vertices, indices
+            issueID(), renderContext, vertices, indices
         );
-        mesh[i] = submeshHandle;
+        mesh.push_back(std::move(submeshHandle));
     }
 
-    auto meshID = issueID();
-    remember(std::format("{}:mesh", item.entityName),
-        meshID);
-    meshTable.try_emplace(meshID, mesh);
+    auto newMeshUUID = issueID();
+    meshTable.try_emplace(
+        newMeshUUID, mesh);
+    return newMeshUUID;
+}
 
-    // material
-    std::unordered_map<std::string, uint32_t> materialSlotToIndex;
+auto AssetLoader::loadMaterialSet(
+    const std::string& meshFileName,
+    const CookedMesh& cooked,
+    const MaterialDescriptors& descs
+)->UUID{
+    MaterialSet materialSet;
+    materialSet.reserve(cooked.submeshInfoTable.size());
+
+    std::unordered_map<std::string, Index> slotNameToIndex;
     for(Index i=0; i<cooked.materialInfoTable.size(); ++i)
-        materialSlotToIndex.try_emplace(cooked.materialNameTable[i], i);
+        slotNameToIndex.try_emplace(cooked.materialNameTable[i], i);
         // TODO. add material slot name table
         // materialSlotToIndex.try_emplace(cooked.materialSlotTable[i], i);
 
-    MaterialSet materialSet(cooked.materialInfoTable.size());
-
-    for(const auto& matDesc: item.material_override){
-        auto materialSetIndex = materialSlotToIndex.at(matDesc.targetSlot);
-
-        auto mat_it = table.find(matDesc.baseColor);
-        if(mat_it == table.end()){
-            materialSet[materialSetIndex] = materialManager
-                .getHandle(mat_it->second);
-
+    // load overrided material first
+    for(const auto& desc: descs){
+        auto slotIt = slotNameToIndex.find(desc.targetSlot);
+        if(slotIt == slotNameToIndex.end()){
+            AppWarn("Specified slot not exist: {}", desc.targetSlot);
             continue;
         }
 
-        auto matID = issueID();
-        auto [matScheme, matPath] = splitSchemeAndPath(matDesc.baseColor);
-        remember(matDesc.baseColor, matID);
-        materialSet[materialSetIndex] = materialManager.emplace(
-            matID, renderContext, matPath
-        );
+        auto materialIt = table.find(desc.baseColor);
+        auto isMaterialLoaded = materialIt != table.end();
 
-        // override, so doesn't need to iterate
-        materialSlotToIndex.erase(matDesc.targetSlot);
+        if(isMaterialLoaded){
+            materialSet[slotIt->second] = shaderManager
+                .getHandle(materialIt->second);
+        } else{
+            auto newMaterialUUID = issueID();
+
+            materialSet[slotIt->second] = shaderManager
+                .emplace(newMaterialUUID,
+                    renderContext, desc.baseColor);
+            remember(desc.baseColor, newMaterialUUID);
+        }
+
+        // target slot overrided
+        slotNameToIndex.erase(slotIt);
     }
 
-    for(const auto& [slotName, i]: materialSlotToIndex){
-        const auto& materialInfo = cooked.materialInfoTable[i];
-        const auto& materialName = cooked.materialNameTable[i];
+    // load material not in material_override slot next
+    for(const auto& [slotName, i]: slotNameToIndex){
+        auto materialID = std::format("{}:material{}",
+            meshFileName, i);
 
-        // check material already loaded
-        auto mat_it = table.find(materialName);
-        if(mat_it != table.end()){
+        auto materialIt = table.find(materialID);
+        auto isMaterialLoaded = materialIt != table.end();
+
+        if(isMaterialLoaded){
             materialSet[i] = materialManager
-                .getHandle(mat_it->second);
+                .getHandle(materialIt->second);
+        } else{
+            auto newMaterialUUID = issueID();
 
-            continue;
+            const auto& textureInfo = cooked.textureInfoTable[
+                cooked.materialInfoTable[i].textureInfoTableIndex + 0];
+            std::span<const uint8_t> pixels(
+                cooked.pixels.begin() + textureInfo.pixelSectionIndex,
+                textureInfo.pixelCount
+            );
+
+            materialSet[i] = materialManager
+                .emplace(newMaterialUUID, renderContext,
+                    pixels, textureInfo.width, textureInfo.height);
+            remember(materialID, newMaterialUUID);
         }
-
-        // not loaded, so loading process start
-        const auto& textureInfo = cooked.textureInfoTable[
-            materialInfo.textureInfoTableIndex + 0];
-        
-        std::span<uint8_t> pixels(
-            cooked.pixels.begin() + textureInfo.pixelSectionIndex,
-            textureInfo.pixelCount
-        );
-
-        auto matID = issueID();
-        remember(materialName, matID);
-        auto handle = materialManager.emplace(
-            matID, renderContext, pixels,
-            textureInfo.width, textureInfo.height);
     }
 
-    auto materialSetID = issueID();
-    remember(std::format("{}:materialSet", item.entityName), materialSetID);
-    materialSetTable.try_emplace(meshID, mesh);
-
-    auto shader_it = table.find(item.shader.module_);
-    if(shader_it != table.end())
-        return;
-
-    auto shaderID = issueID();
-    remember(item.shader.module_, shaderID);
-    auto handle = shaderManager.emplace(shaderID, renderContext,
-        item.shader.vsFunc, item.shader.fsFunc, true);
-    (void)handle;
+    auto newMaterialSetUUID = issueID();
+    materialSetTable.try_emplace(
+        newMaterialSetUUID, materialSet);
+    return newMaterialSetUUID;
 }
+
+auto AssetLoader::loadShader(
+    const ShaderDescriptor& desc
+)->UUID{
+    auto shaderID = makeShaderID(desc);
+    auto shaderIt = table.find(shaderID);
+    auto isShaderLoaded = shaderIt == table.end();
+
+    if(isShaderLoaded)
+        return shaderIt->second;
+
+    auto newShaderUUID = issueID();
+    remember(shaderID, newShaderUUID);
+    (void)shaderManager.emplace(newShaderUUID,
+        renderContext, desc.vsFunc, desc.fsFunc);
+
+    return newShaderUUID;
+}
+
 
 CookedMesh AssetLoader::loadCookedOrImport(
     const std::string& path

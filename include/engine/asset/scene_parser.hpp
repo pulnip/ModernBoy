@@ -126,6 +126,7 @@ namespace ModernBoy::Asset
     struct EditorDescriptor{};
 
     using TransformDescriptors = std::vector<TransformDescriptor>;
+    using MaterialDescriptors = std::vector<MaterialDescriptor>;
     using MeshDescriptors = std::vector<MeshDescriptor>;
     using RigidbodyDescriptors = std::vector<RigidbodyDescriptor>;
     using BoxColliderDescriptors = std::vector<BoxColliderDescriptor>;

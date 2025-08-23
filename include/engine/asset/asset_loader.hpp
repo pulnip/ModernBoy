@@ -72,7 +72,25 @@ namespace ModernBoy::Asset
         ) -> ShaderWork;
 
         // 2. register to ResourceManager and load
-        void processMeshFile(const MeshWork&);
+        bool bindMeshToEntity(const std::string& entityName, UUID);
+        bool bindMaterialSetToEntity(const std::string& entityName, UUID);
+        bool bindShaderToEntity(const std::string& entityName, UUID);
+
+        CookedMesh loadCookedMeshFor(const MeshWork&);
+        auto loadSubmeshes(
+            const CookedMesh&
+        )->UUID;
+        auto loadMaterialSet(
+            const std::string& meshFileName,
+            const CookedMesh&,
+            const MaterialDescriptors&
+        )->UUID;
+        auto loadShader(
+            const ShaderDescriptor&
+        )->UUID;
+
+        void executeMeshFileWork(const MeshWork&);
+
         void processMeshEmbedded(const MeshWork&);
         void processMaterial(const WorkItem&);
         void processShader(const WorkItem&);
