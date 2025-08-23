@@ -5,6 +5,7 @@
 #include <vector>
 #include "engine/fwd.hpp"
 #include "engine/asset/asset_format.hpp"
+#include "engine/asset/mesh_importer.hpp"
 #include "engine/asset/scene_parser.hpp"
 
 namespace ModernBoy::Asset
@@ -72,6 +73,9 @@ namespace ModernBoy::Asset
         ) -> ShaderWork;
 
         // 2. register to ResourceManager and load
+        void executeMeshFileWork(const MeshWork&);
+        void executeMeshEmbeddedWork(const MeshWork&);
+
         bool bindMeshToEntity(const std::string& entityName, UUID);
         bool bindMaterialSetToEntity(const std::string& entityName, UUID);
         bool bindShaderToEntity(const std::string& entityName, UUID);
@@ -80,18 +84,23 @@ namespace ModernBoy::Asset
         auto loadSubmeshes(
             const CookedMesh&
         )->UUID;
+        auto loadSubmeshes(
+            const EmbeddedMesh&
+        )->UUID;
         auto loadMaterialSet(
             const std::string& meshFileName,
             const CookedMesh&,
+            const MaterialDescriptors&
+        )->UUID;
+        auto loadMaterialSet(
+            const std::string& meshFileName,
             const MaterialDescriptors&
         )->UUID;
         auto loadShader(
             const ShaderDescriptor&
         )->UUID;
 
-        void executeMeshFileWork(const MeshWork&);
 
-        void processMeshEmbedded(const MeshWork&);
         void processMaterial(const WorkItem&);
         void processShader(const WorkItem&);
 

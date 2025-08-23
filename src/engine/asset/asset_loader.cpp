@@ -1,6 +1,5 @@
 #include <span>
 #include "engine/asset/asset_loader.hpp"
-#include "engine/asset/mesh_importer.hpp"
 #include "engine/asset/material_importer.hpp"
 #include "engine/engine.hpp"
 
@@ -110,7 +109,7 @@ void AssetLoader::load(const EntityDescriptors& entities,
             executeMeshFileWork(work);
             break;
         case SchemeKind::Embedded:
-            processMeshEmbedded(work);
+            executeMeshEmbeddedWork(work);
             break;
         default:
             table.try_emplace(work.id, issueID());
@@ -257,6 +256,53 @@ void AssetLoader::executeMeshFileWork(const MeshWork& item){
     }
 }
 
+void AssetLoader::executeMeshEmbeddedWork(const MeshWork& item){
+    const auto& bindTarget = item.entityName;
+
+    const auto& meshEmbeddedID = item.id;
+    auto meshEmbeddedIt = table.find(meshEmbeddedID);
+    auto isMeshLoaded = meshEmbeddedIt != table.end();
+
+    if(isMeshLoaded){
+        bindMeshToEntity(bindTarget, meshEmbeddedIt->second);
+    } else{
+        auto fittedMesh = loadEmbeddedMesh(item.path);
+        auto newMeshUUID = loadSubmeshes(fittedMesh);
+
+        remember(meshEmbeddedID, newMeshUUID);
+        bindMeshToEntity(bindTarget, newMeshUUID);
+    }
+
+    // materialSet
+    auto materialSetID = makeMaterialSetID(
+        meshEmbeddedID, item.material_override);
+    auto materialSetIt = table.find(materialSetID);
+    auto isMaterialSetLoaded = materialSetIt != table.end();
+
+    if(isMaterialSetLoaded){
+        bindMaterialSetToEntity(bindTarget, materialSetIt->second);
+    } else{
+        auto newMaterialSetUUID = loadMaterialSet(
+            meshEmbeddedID, item.material_override);
+
+        remember(materialSetID, newMaterialSetUUID);
+        bindMaterialSetToEntity(bindTarget, newMaterialSetUUID);
+    }
+
+    auto shaderID = makeShaderID(item.shader);
+    auto shaderIt = table.find(shaderID);
+    auto isShaderLoaded = shaderIt != table.end();
+
+    if(isShaderLoaded){
+        bindShaderToEntity(bindTarget, shaderIt->second);
+    } else{
+        auto newShaderUUID = loadShader(item.shader);
+
+        remember(shaderID, newShaderUUID);
+        bindShaderToEntity(bindTarget, newShaderUUID);
+    }
+}
+
 bool AssetLoader::bindMeshToEntity(const std::string& entityName, UUID uuid){
     auto entityMeshID = std::format("{}:mesh", entityName);
     auto [it, bindSuccess] = table.try_emplace(entityMeshID, uuid);
@@ -304,6 +350,24 @@ auto AssetLoader::loadSubmeshes(
         );
         mesh.push_back(std::move(submeshHandle));
     }
+
+    auto newMeshUUID = issueID();
+    meshTable.try_emplace(
+        newMeshUUID, mesh);
+    return newMeshUUID;
+}
+
+auto AssetLoader::loadSubmeshes(
+    const EmbeddedMesh& fitted
+)->UUID{
+    Mesh mesh(1);
+
+    std::span<const Vertex> vertices = fitted.vertices;
+    std::span<const uint32_t> indices = fitted.indices;
+
+    mesh[0] = submeshManager.emplace(
+        issueID(), renderContext, vertices, indices
+    );
 
     auto newMeshUUID = issueID();
     meshTable.try_emplace(
@@ -386,12 +450,48 @@ auto AssetLoader::loadMaterialSet(
     return newMaterialSetUUID;
 }
 
+auto AssetLoader::loadMaterialSet(
+    const std::string& meshFileName,
+    const MaterialDescriptors& descs
+)->UUID{
+    MaterialSet materialSet;
+    materialSet.resize(descs.size());
+
+    std::unordered_map<std::string, uint32_t> materialSlotToIndex;
+    materialSlotToIndex.try_emplace("*", 0);
+
+    for(const auto& desc: descs){
+        auto materialSetIndex = materialSlotToIndex.at(desc.targetSlot);
+
+        auto materialIt = table.find(desc.baseColor);
+        auto isMaterialLoaded = materialIt != table.end();
+
+        if(isMaterialLoaded){
+            materialSet[materialSetIndex] = materialManager
+                .getHandle(materialIt->second);
+        } else{
+            auto newMaterialUUID = issueID();
+
+            auto [matScheme, matPath] = splitSchemeAndPath(desc.baseColor);
+            materialSet[materialSetIndex] = materialManager
+                .emplace(newMaterialUUID,
+                    renderContext, matPath);
+            remember(desc.baseColor, newMaterialUUID);
+        }
+    }
+
+    auto newMaterialSetUUID = issueID();
+    materialSetTable.try_emplace(
+        newMaterialSetUUID, materialSet);
+    return newMaterialSetUUID;
+}
+
 auto AssetLoader::loadShader(
     const ShaderDescriptor& desc
 )->UUID{
     auto shaderID = makeShaderID(desc);
     auto shaderIt = table.find(shaderID);
-    auto isShaderLoaded = shaderIt == table.end();
+    auto isShaderLoaded = shaderIt != table.end();
 
     if(isShaderLoaded)
         return shaderIt->second;
@@ -413,59 +513,6 @@ CookedMesh AssetLoader::loadCookedOrImport(
         return loadMeshFile(path);
     else
         return importMeshFile(path);
-}
-
-// Process an "embedded" scheme on mesh id
-void AssetLoader::processMeshEmbedded(const MeshWork& item){
-    std::vector<SubmeshHandle> mesh(1);
-
-    for(Index i=0; i<1; ++i){
-        auto submesh_it = table.find(item.id);
-        if(submesh_it != table.end()){
-            mesh[i] = submeshManager.getHandle(submesh_it->second);
-            continue;
-        }
-
-        auto fittedMesh = loadEmbeddedMesh(item.path);
-
-        std::span vertices = fittedMesh.vertices;
-        std::span indices = fittedMesh.indices;
-
-        auto meshID = issueID();
-        remember(item.id, meshID);
-        mesh[i] = submeshManager.emplace(
-            meshID, renderContext, vertices, indices);
-    }
-
-    auto meshID = issueID();
-    remember(std::format("{}:mesh", item.entityName), meshID);
-    meshTable.try_emplace(meshID, mesh);
-
-    std::vector<MaterialHandle> materialSet(1);
-    std::unordered_map<std::string, uint32_t> materialSlotToIndex;
-    materialSlotToIndex.try_emplace("*", 0);
-
-    for(const auto& matDesc: item.material_override){
-        auto materialSetIndex = materialSlotToIndex.at(matDesc.targetSlot);
-
-        auto mat_it = table.find(matDesc.baseColor);
-        if(mat_it != table.end()){
-            materialSet[materialSetIndex] = materialManager
-                .getHandle(mat_it->second);
-
-            continue;
-        }
-
-        auto matID = issueID();
-        auto [matScheme, matPath] = splitSchemeAndPath(matDesc.baseColor);
-        remember(matDesc.baseColor, matID);
-        materialSet[materialSetIndex] = materialManager.emplace(
-            matID, renderContext, matPath);
-    }
-
-    auto materialSetID = issueID();
-    remember(std::format("{}:materialSet", item.entityName), materialSetID);
-    materialSetTable.try_emplace(materialSetID, materialSet);
 }
 
 void AssetLoader::processMaterial(const WorkItem& item){
