@@ -83,211 +83,119 @@ void AssetLoader::load(const SceneDescriptor& desc){
 void AssetLoader::load(const EntityDescriptors& entities,
     const MeshDescriptors& meshes
 ){
-    MeshWorks meshWorks;
-    MaterialWorks materialWorks;
+    MeshMaterialWorks meshMaterialWorks;
     ShaderWorks shaderWorks;
 
-    meshWorks.reserve(entities.size());
-    materialWorks.reserve(entities.size());
+    meshMaterialWorks.reserve(entities.size());
     shaderWorks.reserve(entities.size());
 
+    // collect works
     for(const auto& entity: entities){
         if(entity.meshIndex != INVALID){
-            meshWorks.push_back(collectMeshWork(
-                entity.name, meshes[entity.meshIndex]));
-            materialWorks.append_range(collectMaterialWorks(
-                entity.name, meshes[entity.meshIndex]));
-            shaderWorks.push_back(collectShaderWork(
-                entity.name, meshes[entity.meshIndex]));
+            meshMaterialWorks.push_back(MeshMaterialWork{
+                .entityName = entity.name,
+                .meshID = meshes[entity.meshIndex].id,
+                .material_override = meshes[entity.meshIndex].material_override
+            });
+            shaderWorks.push_back(ShaderWork{
+                .entityName = entity.name,
+                .shader = meshes[entity.meshIndex].shader
+            });
         }
     }
 
-    // Execute meshWork
-    for(const auto& work: meshWorks){
-        switch(work.kind){
-        case SchemeKind::File:
-            executeMeshFileWork(work);
-            break;
-        case SchemeKind::Embedded:
-            executeMeshEmbeddedWork(work);
-            break;
-        default:
-            table.try_emplace(work.id, issueID());
-            AppWarn("id without scheme detected: {}", work.id);
-            break;
-        }
+    // execute works
+    for(const auto& work: meshMaterialWorks){
+        executeMeshMaterialWork(work);
     }
-    // Execute TextureWork
-    for(const auto& work: materialWorks){
-        switch(work.kind){
-        case SchemeKind::File:
-            processMaterial(work);
-            break;
-        case SchemeKind::Embedded:
-            AppWarn("embedded texture not supported");
-            break;
-        default:
-            AppWarn("id without scheme detected: {}", work.id);
-            break;
-        }
-    }
-    // Execute ShaderWork
     for(const auto& work: shaderWorks){
-        switch(work.kind){
-        case SchemeKind::File:
-            processShader(work);
-            break;
-        case SchemeKind::Embedded:
-            AppWarn("embedded shader not supported");
-            break;
-        default:
-            AppWarn("id without scheme detected: {}", work.id);
-            break;
-        }
+        executeShaderWork(work);
     }
 }
 
-auto AssetLoader::collectMeshWork(
-    const std::string& entityName,
-    const MeshDescriptor& desc
-)->MeshWork{
-    auto [kind, path] = splitSchemeAndPath(desc.id);
-    MeshWork work{
-        .entityName = entityName,
-        .kind = kind,
-        .id = desc.id,
-        .path = path,
-        .material_override = desc.material_override,
-        .shader = desc.shader
-    };
-
-    bool hasMaterialOverride = !desc.material_override.empty();
-    if(kind==SchemeKind::Embedded && !hasMaterialOverride){
-        AppError("embedded mesh {} requires at least one material",
-            desc.id);
-    }
-    return work;
-}
-
-auto AssetLoader::collectMaterialWorks(
-    const std::string& entityName, const MeshDescriptor& desc
-)-> MaterialWorks{
-    MaterialWorks works;
-    works.reserve(desc.material_override.size());
-
-    for(const auto& matDesc: desc.material_override){
-        if(!matDesc.baseColor.empty()){
-            auto [kind, path] = splitSchemeAndPath(matDesc.baseColor);
-            if(kind != SchemeKind::Unknown){
-                WorkItem work{
-                    .entityName = entityName,
-                    .kind = kind,
-                    .id = matDesc.baseColor,
-                    .path = path,
-                };
-                works.push_back(std::move(work));
-            } else{
-                AppWarn("unknown scheme in baseColor: {}",
-                    matDesc.baseColor);
-            }
-        }
-    }
-
-    return works;
-}
-
-auto AssetLoader::collectShaderWork(
-    const std::string& entityName, const MeshDescriptor& desc
-)->ShaderWork{
-    const auto& sd = desc.shader;
-    auto [kind, path] = splitSchemeAndPath(sd.module_);
-    return ShaderWork{
-        .kind = kind,
-        .id = sd.module_,
-        .path = path,
-    };
-}
-
-void AssetLoader::executeMeshFileWork(const MeshWork& item){
+void AssetLoader::executeMeshMaterialWork(const MeshMaterialWork& item){
     const auto& bindTarget = item.entityName;
 
-    const auto& meshFileID = item.id;
+    const auto& meshFileID = item.meshID;
     auto meshFileIt = table.find(meshFileID);
     auto isMeshLoaded = meshFileIt != table.end();
 
+    auto [scheme, path] = splitSchemeAndPath(meshFileID);
     CookedMesh cookedMesh;
 
     if(isMeshLoaded){
         bindMeshToEntity(bindTarget, meshFileIt->second);
+
+        executeMaterialSetWork(bindTarget,
+            path, item.material_override);
     } else{
-        cookedMesh = loadCookedMeshFor(item);
-        auto newMeshUUID = loadSubmeshes(cookedMesh);
+        UUID newMeshUUID;
+
+        if(scheme == SchemeKind::File){
+            cookedMesh = loadCookedOrImport(item.meshID);
+            newMeshUUID = loadSubmeshes(cookedMesh);
+
+            executeMaterialSetWork(bindTarget,
+                path, cookedMesh, item.material_override);
+        } else if(scheme == SchemeKind::Embedded){
+            auto fittedMesh = loadEmbeddedMesh(path);
+            newMeshUUID = loadSubmeshes(fittedMesh);
+
+            executeMaterialSetWork(bindTarget,
+                path, item.material_override);
+        } else{
+            AppWarn("invalid scheme detected: {}", meshFileID);
+            return;
+        }
 
         remember(meshFileID, newMeshUUID);
         bindMeshToEntity(bindTarget, newMeshUUID);
     }
+}
 
-    // materialSet
-    auto materialSetID = makeMaterialSetID(meshFileID, item.material_override);
+void AssetLoader::executeMaterialSetWork(
+    const std::string& entityName,
+    const std::string& meshPath,
+    const CookedMesh& cooked,
+    const MaterialDescriptors& material_override
+){
+    auto materialSetID = makeMaterialSetID(meshPath, material_override);
     auto materialSetIt = table.find(materialSetID);
     auto isMaterialSetLoaded = materialSetIt != table.end();
 
     if(isMaterialSetLoaded){
-        bindMaterialSetToEntity(bindTarget, materialSetIt->second);
+        bindMaterialSetToEntity(entityName, materialSetIt->second);
     } else{
         auto newMaterialSetUUID = loadMaterialSet(
-            meshFileID, cookedMesh, item.material_override);
+            meshPath, cooked, material_override);
 
         remember(materialSetID, newMaterialSetUUID);
-        bindMaterialSetToEntity(bindTarget, newMaterialSetUUID);
-    }
-
-    auto shaderID = makeShaderID(item.shader);
-    auto shaderIt = table.find(shaderID);
-    auto isShaderLoaded = shaderIt != table.end();
-
-    if(isShaderLoaded){
-        bindShaderToEntity(bindTarget, shaderIt->second);
-    } else{
-        auto newShaderUUID = loadShader(item.shader);
-
-        remember(shaderID, newShaderUUID);
-        bindShaderToEntity(bindTarget, newShaderUUID);
+        bindMaterialSetToEntity(entityName, newMaterialSetUUID);
     }
 }
 
-void AssetLoader::executeMeshEmbeddedWork(const MeshWork& item){
-    const auto& bindTarget = item.entityName;
-
-    const auto& meshEmbeddedID = item.id;
-    auto meshEmbeddedIt = table.find(meshEmbeddedID);
-    auto isMeshLoaded = meshEmbeddedIt != table.end();
-
-    if(isMeshLoaded){
-        bindMeshToEntity(bindTarget, meshEmbeddedIt->second);
-    } else{
-        auto fittedMesh = loadEmbeddedMesh(item.path);
-        auto newMeshUUID = loadSubmeshes(fittedMesh);
-
-        remember(meshEmbeddedID, newMeshUUID);
-        bindMeshToEntity(bindTarget, newMeshUUID);
-    }
-
-    // materialSet
-    auto materialSetID = makeMaterialSetID(
-        meshEmbeddedID, item.material_override);
+void AssetLoader::executeMaterialSetWork(
+    const std::string& entityName,
+    const std::string& meshName,
+    const MaterialDescriptors& material_override
+){
+    auto materialSetID = makeMaterialSetID(meshName, material_override);
     auto materialSetIt = table.find(materialSetID);
     auto isMaterialSetLoaded = materialSetIt != table.end();
 
     if(isMaterialSetLoaded){
-        bindMaterialSetToEntity(bindTarget, materialSetIt->second);
+        bindMaterialSetToEntity(entityName, materialSetIt->second);
     } else{
         auto newMaterialSetUUID = loadMaterialSet(
-            meshEmbeddedID, item.material_override);
+            meshName, material_override);
 
         remember(materialSetID, newMaterialSetUUID);
-        bindMaterialSetToEntity(bindTarget, newMaterialSetUUID);
+        bindMaterialSetToEntity(entityName, newMaterialSetUUID);
     }
+}
+
+void AssetLoader::executeShaderWork(const ShaderWork& item){
+    const auto& bindTarget = item.entityName;
 
     auto shaderID = makeShaderID(item.shader);
     auto shaderIt = table.find(shaderID);
@@ -322,11 +230,6 @@ bool AssetLoader::bindShaderToEntity(const std::string& entityName, UUID uuid){
     auto [it, bindSuccess] = table.try_emplace(entityShaderID, uuid);
 
     return bindSuccess;
-}
-
-CookedMesh AssetLoader::loadCookedMeshFor(const MeshWork& item){
-    CookedMesh cooked = loadCookedOrImport(item.path);
-    return cooked;
 }
 
 auto AssetLoader::loadSubmeshes(
@@ -401,12 +304,12 @@ auto AssetLoader::loadMaterialSet(
         auto isMaterialLoaded = materialIt != table.end();
 
         if(isMaterialLoaded){
-            materialSet[slotIt->second] = shaderManager
+            materialSet[slotIt->second] = materialManager
                 .getHandle(materialIt->second);
         } else{
             auto newMaterialUUID = issueID();
 
-            materialSet[slotIt->second] = shaderManager
+            materialSet[slotIt->second] = materialManager
                 .emplace(newMaterialUUID,
                     renderContext, desc.baseColor);
             remember(desc.baseColor, newMaterialUUID);
@@ -514,28 +417,3 @@ CookedMesh AssetLoader::loadCookedOrImport(
     else
         return importMeshFile(path);
 }
-
-void AssetLoader::processMaterial(const WorkItem& item){
-    auto mat_it = table.find(item.id);
-    if(mat_it == table.end()){
-        auto matID = issueID();
-        remember(item.id, matID);
-        auto handle = materialManager.emplace(
-            matID, renderContext, item.path);
-        (void)handle;
-    }
-
-}
-
-void AssetLoader::processShader(const WorkItem& item){
-    auto shader_it = table.find(item.id);
-    if(shader_it == table.end()){
-        auto shaderID = issueID();
-        remember(item.id, shaderID);
-        auto handle = shaderManager.emplace(
-            shaderID, renderContext);
-        (void)handle;
-    }
-}
-
-

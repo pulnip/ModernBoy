@@ -31,6 +31,7 @@ namespace{
     ){
         auto meshUUID = table.at(std::format("{}:mesh", name));
         auto materialSetUUID = table.at(std::format("{}:materialSet", name));
+        auto shaderUUID = table.at(std::format("{}:shader", name));
 
         return Game::Mesh{
             .entity = invalidEntityID(),
@@ -38,9 +39,7 @@ namespace{
             .alpha = 1.0,
             .mesh = meshUUID,
             .materialSet = materialSetUUID,
-            .shaderHandle = shaderManager.getHandle(
-                table.at(desc.shader.module_)
-            )
+            .shaderHandle = shaderManager.getHandle(shaderUUID)
         };
     }
 

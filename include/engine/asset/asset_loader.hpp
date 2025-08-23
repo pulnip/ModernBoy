@@ -16,26 +16,18 @@ namespace ModernBoy::Asset
         Unknown=2
     };
 
-    struct MeshWork{
+    struct MeshMaterialWork{
         std::string entityName;
-        SchemeKind kind=SchemeKind::Unknown;
-        std::string id;
-        std::string path;
+        std::string meshID;
         std::vector<MaterialDescriptor> material_override;
+    };
+
+    struct ShaderWork{
+        std::string entityName;
         ShaderDescriptor shader;
     };
 
-    struct WorkItem{
-        std::string entityName;
-        SchemeKind kind=SchemeKind::Unknown;
-        std::string id;
-        std::string path;
-    };
-
-    using MeshWorks = std::vector<MeshWork>;
-    using MaterialWork = WorkItem;
-    using MaterialWorks = std::vector<MaterialWork>;
-    using ShaderWork = WorkItem;
+    using MeshMaterialWorks = std::vector<MeshMaterialWork>;
     using ShaderWorks = std::vector<ShaderWork>;
 
     class AssetLoader{
@@ -58,29 +50,30 @@ namespace ModernBoy::Asset
         void load(const EntityDescriptors&,
             const MeshDescriptors&);
 
-        // 1. load planning
-        auto collectMeshWork(
-            const std::string& entityName,
-            const MeshDescriptor&
-        ) -> MeshWork;
-        auto collectMaterialWorks(
-            const std::string& entityName,
-            const MeshDescriptor&
-        ) -> MaterialWorks;
-        auto collectShaderWork(
-            const std::string& entityName,
-            const MeshDescriptor&
-        ) -> ShaderWork;
-
         // 2. register to ResourceManager and load
-        void executeMeshFileWork(const MeshWork&);
-        void executeMeshEmbeddedWork(const MeshWork&);
+        void executeMeshMaterialWork(
+            const MeshMaterialWork&);
+        void executeMaterialSetWork(
+            const std::string& entityName,
+            const std::string& meshName,
+            const CookedMesh&,
+            const MaterialDescriptors& material_override);
+        void executeMaterialSetWork(
+            const std::string& entityName,
+            const std::string& meshName,
+            const MaterialDescriptors& material_override);
+        void executeShaderWork(const ShaderWork&);
 
-        bool bindMeshToEntity(const std::string& entityName, UUID);
-        bool bindMaterialSetToEntity(const std::string& entityName, UUID);
-        bool bindShaderToEntity(const std::string& entityName, UUID);
+        bool bindMeshToEntity(
+            const std::string& entityName,
+            UUID);
+        bool bindMaterialSetToEntity(
+            const std::string& entityName,
+            UUID);
+        bool bindShaderToEntity(
+            const std::string& entityName,
+            UUID);
 
-        CookedMesh loadCookedMeshFor(const MeshWork&);
         auto loadSubmeshes(
             const CookedMesh&
         )->UUID;
@@ -99,10 +92,6 @@ namespace ModernBoy::Asset
         auto loadShader(
             const ShaderDescriptor&
         )->UUID;
-
-
-        void processMaterial(const WorkItem&);
-        void processShader(const WorkItem&);
 
         auto loadCookedOrImport(
             const std::string& path
