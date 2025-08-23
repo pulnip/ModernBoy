@@ -44,26 +44,8 @@
             "configurationProvider": "ms-vscode.cmake-tools"
         },
         {
-            "name": "macOS",
-            "includePath": [
-                "/opt/homebrew/include",
-                "${workspaceFolder}/include",
-                "${workspaceFolder}/external/gsl-lite/include",
-                "${workspaceFolder}/external/imgui",
-                "${workspaceFolder}/external/tomlplusplus/include",
-                "${workspaceFolder}/external/angelscript/sdk/angelscript/include",
-                "${workspaceFolder}/external/angelscript/sdk/add_on",
-                "${workspaceFolder}/external/metal-cpp"
-            ],
-            "defines": [
-                "_DEBUG",
-                "USE_METAL"
-            ],
-            "cStandard": "c23",
-            "cppStandard": "c++23",
-            "intelliSenseMode": "macos-clang-arm64",
-            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang++",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "name": "CMake",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
         }
     ],
     "version": 4
