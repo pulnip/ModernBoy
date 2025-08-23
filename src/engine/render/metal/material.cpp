@@ -29,7 +29,7 @@ UnlitMaterial::UnlitMaterial(
 }
 UnlitMaterial::UnlitMaterial(
     NativePtr rctxPtr,
-    std::span<uint8_t> pixels,
+    std::span<const uint8_t> pixels,
     int width, int height)
 :material(createUnlitMaterialFromPixel(
     rctxPtr, pixels.data(), width, height)

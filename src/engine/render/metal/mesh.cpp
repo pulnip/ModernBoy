@@ -27,10 +27,10 @@ void Submesh::moveFrom(Submesh&& other){
 }
 
 Submesh::Submesh(NativePtr rctxPtr,
-    std::span<Asset::Vertex> vertices,
-    std::span<uint32_t> indices
+    std::span<const Asset::Vertex> vertices,
+    std::span<const uint32_t> indices
 ): nativeMesh(createMesh(rctxPtr,
-    reinterpret_cast<float*>(vertices.data()),
+    reinterpret_cast<const float*>(vertices.data()),
     vertices.size(),
     indices.data(),
     indices.size()

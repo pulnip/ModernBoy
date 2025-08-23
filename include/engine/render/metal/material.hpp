@@ -12,7 +12,7 @@ namespace ModernBoy::Metal
         UnlitMaterial(NativePtr rctxPtr,
             const std::string& filePath);
         UnlitMaterial(NativePtr rctxPtr,
-            std::span<uint8_t> pixels,
+            std::span<const uint8_t> pixels,
             int width, int height);
         ~UnlitMaterial();
 

@@ -18,8 +18,8 @@ namespace ModernBoy::Metal
         Submesh& operator=(Submesh&&);
 
         Submesh(NativePtr rctxPtr,
-            std::span<Asset::Vertex>,
-            std::span<uint32_t>);
+            std::span<const Asset::Vertex>,
+            std::span<const uint32_t>);
         ~Submesh();
 
     private:
