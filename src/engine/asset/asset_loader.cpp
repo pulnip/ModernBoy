@@ -132,7 +132,7 @@ void AssetLoader::executeMeshMaterialWork(const MeshMaterialWork& item){
         UUID newMeshUUID;
 
         if(scheme == SchemeKind::File){
-            cookedMesh = loadCookedOrImport(item.meshID);
+            cookedMesh = loadCookedOrImport(path);
             newMeshUUID = loadSubmeshes(cookedMesh);
 
             executeMaterialSetWork(bindTarget,
@@ -283,8 +283,7 @@ auto AssetLoader::loadMaterialSet(
     const CookedMesh& cooked,
     const MaterialDescriptors& descs
 )->UUID{
-    MaterialSet materialSet;
-    materialSet.reserve(cooked.submeshInfoTable.size());
+    MaterialSet materialSet(cooked.submeshInfoTable.size());
 
     std::unordered_map<std::string, Index> slotNameToIndex;
     for(Index i=0; i<cooked.materialInfoTable.size(); ++i)
