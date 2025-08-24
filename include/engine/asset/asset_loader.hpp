@@ -107,6 +107,9 @@ namespace ModernBoy::Asset
         ResolveTable table;
         UUID uuid = 0;
     };
+
+    // Test helpers
+    auto countLoadedResources(const ResolveTable&)->size_t;
 } // namespace ModernBoy::Asset
 
 #endif // MODERNBOY_ASSET_ASSETLOADER_HPP

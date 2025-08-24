@@ -29,4 +29,5 @@ include(GoogleTest)
 add_test(
     NAME ${PROJECT_NAME}-Test
     COMMAND $<TARGET_FILE:${PROJECT_NAME}Test>
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
