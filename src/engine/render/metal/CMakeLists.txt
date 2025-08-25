@@ -11,10 +11,13 @@ target_compile_options(RenderBackend
 PRIVATE
     -Wall -Wextra
 )
-
 target_compile_definitions(RenderBackend
 PUBLIC
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
+)
+target_compile_options(MetalContext
+PRIVATE
+    "-import-objc-header" ${CMAKE_CURRENT_SOURCE_DIR}/../ktx2_transcode.h
 )
 
 target_include_directories(RenderBackend
@@ -31,4 +34,8 @@ PRIVATE
     MetalContext
     # SDL3
     SDL3::SDL3
+)
+target_link_libraries(MetalContext
+PRIVATE
+    RenderModule
 )
