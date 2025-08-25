@@ -56,7 +56,7 @@ public func createUnlitMaterialFromPath(
     let baseColorURL = URL(fileURLWithPath: baseColorPath)
     let loader = MTKTextureLoader(device: rctx.layer.device!)
 
-    let options: [MTKTextureLoader.Option: Any] = [.SRGB: false]
+    let options: [MTKTextureLoader.Option: Any] = [.SRGB: true]
     let baseColor = try? loader.newTexture(
         URL: baseColorURL, options: options
     )
