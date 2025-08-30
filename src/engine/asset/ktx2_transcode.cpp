@@ -4,7 +4,7 @@ extern "C" {
 #include <vector>
 #include <cstring>
 #include <cstdlib>
-#include "ktx2_transcode.h"
+#include "engine/asset/ktx2_transcode.h"
 
 namespace{
     ktx_transcode_fmt_e pick_fmt_bcn(int preferBC7){

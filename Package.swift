@@ -22,7 +22,7 @@ let package = Package(
                 .unsafeFlags(
                     [
                         "-import-objc-header",
-                        "src/engine/render/ktx2_transcode.h",
+                        "include/engine/render/ktx2_transcode.h",
                     ]
                 )
             ]

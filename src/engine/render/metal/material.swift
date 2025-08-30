@@ -151,8 +151,8 @@ private func makeMetalTextureFromASTC(
     return tex
 }
 
-@_cdecl("creatUnlitMaterialFromASTC")
-public func creatUnlitMaterialFromASTC(
+@_cdecl("createUnlitMaterialFromASTC")
+public func createUnlitMaterialFromASTC(
     _ rctxPtr: UnsafeRawPointer?,
     _ baseColorASTC: UnsafePointer<GpuPayload>?
 ) -> UnsafeRawPointer? {

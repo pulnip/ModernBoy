@@ -17,7 +17,7 @@ PUBLIC
 )
 target_compile_options(MetalContext
 PRIVATE
-    "-import-objc-header" ${CMAKE_CURRENT_SOURCE_DIR}/../ktx2_transcode.h
+    "-import-objc-header" ${CMAKE_SOURCE_DIR}/include/engine/asset/ktx2_transcode.h
 )
 
 target_include_directories(RenderBackend
