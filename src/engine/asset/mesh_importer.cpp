@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <numbers>
 #include <string>
@@ -16,6 +17,7 @@
 #include <assimp/cimport.h>
 #include <iterator>
 #include "engine/asset/mesh_importer.hpp"
+#include "engine/asset/ktx2_encoder.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Asset;
@@ -23,6 +25,85 @@ using namespace ModernBoy::Asset;
 namespace fs = std::filesystem;
 
 namespace {
+    // Write raw bytes to a file (utility)
+    bool write_bytes(const fs::path& p, const void* data, size_t n){
+        std::error_code ec; fs::create_directories(p.parent_path(), ec);
+        std::ofstream ofs(p, std::ios::binary); if(!ofs) return false;
+        ofs.write(reinterpret_cast<const char*>(data), static_cast<std::streamsize>(n));
+        return ofs.good();
+    }
+
+    // Minimal uncompressed 32-bit TGA writer (RGBA8 -> BGRA on disk, origin bottom-left)
+    bool write_tga_rgba8(const fs::path& path, int w, int h, const unsigned char* rgba){
+        if(w <= 0 || h <= 0 || !rgba)
+            return false;
+        std::vector<unsigned char> buf;
+        buf.reserve(18 + 4*w*h);
+
+        unsigned char hdr[18]{}; // uncompressed true-color
+        hdr[2]  = 2;             // image type = uncompressed true-color
+        hdr[12] = static_cast<unsigned char>( w        & 0xFF);
+        hdr[13] = static_cast<unsigned char>((w >> 8)  & 0xFF);
+        hdr[14] = static_cast<unsigned char>( h        & 0xFF);
+        hdr[15] = static_cast<unsigned char>((h >> 8)  & 0xFF);
+        hdr[16] = 32;                    // 32 bits/pixel
+        hdr[17] = 0;                     // origin bottom-left, alpha bits = 0
+        buf.insert(buf.end(), hdr, hdr+18);
+
+        // TGA expects BGRA order per pixel
+        const auto pixels = w*h;
+        buf.resize(buf.size() + 4*pixels);
+
+        unsigned char* out = buf.data() + 18;
+        for(int i=0; i<pixels; ++i){
+            const unsigned char* s = rgba + i*4;
+            out[i*4 + 0] = s[2]; // B
+            out[i*4 + 1] = s[1]; // G
+            out[i*4 + 2] = s[0]; // R
+            out[i*4 + 3] = s[3]; // A
+        }
+        return write_bytes(path, buf.data(), buf.size());
+    }
+
+    // Export an Assimp embedded texture to a temporary ordinary image file.
+    // For compressed blobs (mHeight==0), we dump the blob with an extension hint.
+    // For uncompressed images (mHeight>0), we write a simple 32-bit TGA.
+    bool export_assimp_embedded_to_temp(const aiTexture* tex,
+        const fs::path& outPathHint, fs::path& outRealPath
+    ){
+        if(!tex)
+            return false;
+        if(tex->mHeight == 0){
+            // Compressed blob; pick extension from achFormatHint if present
+            std::string ext = (tex->achFormatHint[0]) ?
+                std::string(tex->achFormatHint) : std::string("bin");
+            fs::path tmp = outPathHint; tmp.replace_extension(ext);
+            if(!write_bytes(tmp, tex->pcData, tex->mWidth))
+                return false;
+            outRealPath = tmp; return true;
+        }else {
+            // Uncompressed pixel array (aiTexel is RGBA8)
+            const auto w = tex->mWidth;
+            const auto h = tex->mHeight;
+            std::vector<uint8_t> rgba(4*w*h);
+            for(size_t y=0; y<h; ++y){
+                for(size_t x=0; x<w; ++x){
+                    const size_t idx = (y*w + x);
+                    const aiTexel& t = tex->pcData[idx];
+                    rgba[idx*4 + 0] = t.r;
+                    rgba[idx*4 + 1] = t.g;
+                    rgba[idx*4 + 2] = t.b;
+                    rgba[idx*4 + 3] = t.a;
+                }
+            }
+            fs::path tmp = outPathHint;
+            tmp.replace_extension("tga");
+
+            if(!write_tga_rgba8(tmp, w, h, rgba.data()))
+                return false;
+            outRealPath = tmp; return true;
+        }
+    }
     EmbeddedMesh createEmbeddedTriangle(){
         std::vector<Vertex> vertices = {
             {
@@ -219,33 +300,49 @@ namespace {
     struct RawScene{
         std::unique_ptr<aiScene, void(*)(aiScene*)> scene{
             nullptr, [](aiScene* s){
-                if(s) aiReleaseImport(s);
+                if(s)
+                    aiReleaseImport(s);
             }
         };
-        std::filesystem::path baseDir;
+        fs::path baseDir;
+        fs::path sourceStem;
     };
 
     TextureUsage mapTextureUsage(aiTextureType t){
         switch(t){
             case aiTextureType_BASE_COLOR:
-            case aiTextureType_DIFFUSE: return TextureUsage::BaseColor;
+                [[fallthrough]];
+            case aiTextureType_DIFFUSE:
+                return TextureUsage::BaseColor;
             case aiTextureType_NORMALS:
-            case aiTextureType_NORMAL_CAMERA: return TextureUsage::Normal;
+                [[fallthrough]];
+            case aiTextureType_NORMAL_CAMERA:
+                return TextureUsage::Normal;
             case aiTextureType_METALNESS:
+                [[fallthrough]];
             case aiTextureType_DIFFUSE_ROUGHNESS:
-            case aiTextureType_UNKNOWN: return TextureUsage::MR;
-            case aiTextureType_EMISSIVE: return TextureUsage::Emissive;
-            default: return TextureUsage::BaseColor;
+                [[fallthrough]];
+            case aiTextureType_UNKNOWN:
+                return TextureUsage::MR;
+            case aiTextureType_EMISSIVE:
+                return TextureUsage::Emissive;
+            default:
+                return TextureUsage::BaseColor;
         }
     }
 
     const char* usageToSlotName(TextureUsage u){
         switch(u){
-        case TextureUsage::BaseColor: return "BaseColor";
-        case TextureUsage::Normal:    return "Normal";
-        case TextureUsage::MR:        return "MR";
-        case TextureUsage::Emissive:  return "Emissive";
-        default: return "Unknown";
+        case TextureUsage::BaseColor:
+            return "BaseColor";
+        case TextureUsage::Normal:
+            return "Normal";
+        case TextureUsage::MR:
+            return "MR";
+        case TextureUsage::Emissive:
+            return "Emissive";
+        default:
+            return "Unknown";
         }
     }
 
@@ -272,6 +369,7 @@ namespace {
         aiScene* orphaned = importer.GetOrphanedScene();
         rawScene.scene.reset(orphaned);
         rawScene.baseDir = inputPath.parent_path();
+        rawScene.sourceStem = inputPath.stem();
         return rawScene;
     }
 
@@ -323,7 +421,10 @@ namespace {
         bool inited = false;
         for(const auto& sm : mesh.submeshes){
             for(const auto& v : sm.vertices){
-                if(!inited){ aabb.min = aabb.max = v.position; inited = true; }
+                if(!inited){
+                    aabb.min = aabb.max = v.position;
+                    inited = true;
+                }
                 aabb.min.x = std::min(aabb.min.x, v.position.x);
                 aabb.min.y = std::min(aabb.min.y, v.position.y);
                 aabb.min.z = std::min(aabb.min.z, v.position.z);
@@ -335,145 +436,309 @@ namespace {
         return aabb;
     }
 
+    struct BuildCtx {
+        const aiScene* aiScene{};
+        AxisInfo dstAxis{};
+        aiMatrix4x4 aiWorldFromSrc{};
+        fs::path textureOutDir = "asset/textures";
+        std::string sceneStem;
+        CookedMesh* out{};
+    };
+
+    auto make_ctx(const RawScene& scene, const AxisInfo& dst){
+        auto src = extractAxisInfo(scene);
+        Mat4 mat = buildTransform(src, dst);
+
+        BuildCtx ctx{};
+        ctx.aiScene = scene.scene.get();
+        ctx.dstAxis = dst;
+        ctx.aiWorldFromSrc = toAi(mat);
+        ctx.sceneStem = scene.sourceStem.string();
+        return ctx;
+    }
+
+    auto make_ktx_params(TextureUsage u){
+        Ktx2CookParams kp{};
+        kp.kind = (u==TextureUsage::BaseColor) ? TEXTURE_BASECOLOR :
+                  (u==TextureUsage::Emissive) ? TEXTURE_EMISSIVE :
+                  (u==TextureUsage::Normal)   ? TEXTURE_NORMAL   : TEXTURE_ORM;
+        kp.flag         = GENERATE_MIPMAPS | USE_UASTC;
+        kp.uastcLevel   = 2;
+        kp.etc1sQuality = 128;
+        kp.zstdLevel    = 18;
+        return kp;
+    }
+
+    auto make_tex_out_path(
+        const std::string& stem, const std::string& mat,
+        TextureUsage u, unsigned ti
+    ){
+        // Naming rule: <sceneStem>_<Material>_<Slot>_<ti>.ktx2
+        return fs::path("asset/textures") /
+            std::format("{}_{}_{}_{}.ktx2", stem, mat, usageToSlotName(u), ti);
+    }
+
+    void cook_texture_uri(
+        const fs::path& src, const fs::path& dst,
+        const Ktx2CookParams& kp, CookedTexture& outCt
+    ){
+        std::error_code ec;
+        fs::create_directories(dst.parent_path(), ec);
+    
+        int rc = cook_image_to_ktx2_file(
+            src.string().c_str(), dst.string().c_str(), &kp);
+        if(rc==0)
+            outCt.uri = dst.lexically_normal().string();
+        else
+            std::println(std::cerr, "[warn] ktx2 cook failed: {} -> {}",
+                src.string(), dst.string());
+    }
+
+    struct TexResolve {
+        bool embedded = false;
+        int  index    = -1;       // valid if embedded
+        fs::path src;             // external path (or filled when exporting embedded)
+        std::string debug;        // "embedded:N" or normalized path string
+    };
+
+    TexResolve resolve_uri(const RawScene& scene, const aiString& texPath){
+        TexResolve r{};
+        if(texPath.length>0 && texPath.C_Str()[0]=='*'){
+            r.embedded = true;
+            r.index = std::atoi(texPath.C_Str()+1);
+            r.debug = std::format("embedded:{}", r.index);
+        } else {
+            fs::path full = scene.baseDir / fs::path(texPath.C_Str());
+            r.src = full.lexically_normal();
+            r.debug = r.src.string();
+        }
+        return r;
+    }
+
+    void cook_one_texture(
+        const RawScene& scene, const TexResolve& R,
+        const fs::path& dst, const Ktx2CookParams& kp,
+        CookedTexture& outCt, const fs::path& tmpDir
+    ){
+        if(R.embedded){
+            const aiTexture* tex = (R.index>=0 && R.index < (int)scene.scene->mNumTextures)
+                ? scene.scene->mTextures[R.index] : nullptr;
+            if(!tex){
+                std::println(std::cerr, "[warn] missing embedded texture: {}", R.debug);
+                return;
+            }
+            fs::path hint = tmpDir / std::format("__emb{}_tmp", R.index);
+            fs::path real;
+            if(export_assimp_embedded_to_temp(tex, hint, real)){
+                cook_texture_uri(real, dst, kp, outCt);
+                std::error_code rec; fs::remove(real, rec);
+            } else {
+                std::println(std::cerr, "[warn] failed to export embedded texture: {}", R.debug);
+            }
+        } else {
+            cook_texture_uri(R.src, dst, kp, outCt);
+        }
+    }
+
+    void append_textures_for_type(
+        const aiMaterial* m, aiTextureType t,
+        const RawScene& scene, BuildCtx& ctx,
+        CookedMaterial& cm
+    ){
+        TextureUsage usage = mapTextureUsage(t);
+        unsigned n = m->GetTextureCount(t);
+        for(unsigned ti=0; ti<n; ++ti){
+            aiString texPath; if(m->GetTexture(t, ti, &texPath) != aiReturn_SUCCESS) continue;
+
+            CookedTexture ct{};
+            ct.usage = usage;
+            ct.flags = (usage==TextureUsage::BaseColor || usage==TextureUsage::Emissive) ?
+                TextureFlag_SRGB : 0;
+
+            TexResolve R = resolve_uri(scene, texPath);
+            ct.uri = R.debug; // will be replaced by final .ktx2 path on successful cook
+
+            fs::path outPath = make_tex_out_path(ctx.sceneStem, cm.name, usage, ti);
+            auto kp = make_ktx_params(usage);
+            cook_one_texture(scene, R, outPath, kp, ct, ctx.textureOutDir);
+
+            const char* key = usageToSlotName(usage);
+            if(!cm.textures.contains(key)) cm.textures.emplace(key, std::move(ct));
+        }
+    }
+
+    void build_materials(const RawScene& scene, BuildCtx& ctx){
+        if(!ctx.aiScene || !ctx.aiScene->HasMaterials())
+            return;
+
+        for(unsigned i=0; i<ctx.aiScene->mNumMaterials; ++i){
+            const aiMaterial* m = ctx.aiScene->mMaterials[i];
+
+            CookedMaterial cm{};
+            aiString aiName = m->GetName();
+            cm.name = (aiName.length>0) ? std::string(aiName.C_Str()) : std::format("Material{}", i);
+            cm.type = MaterialType::Unlit;
+
+            append_textures_for_type(m, aiTextureType_BASE_COLOR,        scene, ctx, cm);
+            append_textures_for_type(m, aiTextureType_DIFFUSE,           scene, ctx, cm);
+            append_textures_for_type(m, aiTextureType_NORMALS,           scene, ctx, cm);
+            append_textures_for_type(m, aiTextureType_NORMAL_CAMERA,     scene, ctx, cm);
+            append_textures_for_type(m, aiTextureType_METALNESS,         scene, ctx, cm);
+            append_textures_for_type(m, aiTextureType_DIFFUSE_ROUGHNESS, scene, ctx, cm);
+            append_textures_for_type(m, aiTextureType_UNKNOWN,           scene, ctx, cm);
+            append_textures_for_type(m, aiTextureType_EMISSIVE,          scene, ctx, cm);
+
+            if(!cm.textures.empty()) cm.type = MaterialType::PBR;
+            ctx.out->materials.emplace(cm.name, std::move(cm));
+        }
+    }
+
+    void fill_vertices(
+        const aiMesh* m, const aiMatrix4x4& T,
+        const aiMatrix3x3& N, const AxisInfo& dstAxis,
+        CookedSubmesh& sm
+    ){
+        sm.vertices.reserve(m->mNumVertices);
+        for(unsigned v=0; v<m->mNumVertices; ++v){
+            Vertex vx{};
+            if(m->HasPositions()){
+                aiVector3D p = T * m->mVertices[v];
+                vx.position = {{p.x,p.y,p.z}};
+            }
+            if(m->HasNormals()){
+                aiVector3D n = N * m->mNormals[v]; n.Normalize();
+                vx.normal = {{n.x,n.y,n.z}};
+            }
+            if(m->HasTangentsAndBitangents()){
+                aiVector3D t = N * m->mTangents[v]; t.Normalize();
+                vx.tangent = {{t.x,t.y,t.z, -1.0f}};
+            }
+            if(m->HasTextureCoords(0)){
+                vx.texcoord.x = m->mTextureCoords[0][v].x;
+                vx.texcoord.y = dstAxis.flipV ?
+                    (1.0f - m->mTextureCoords[0][v].y) :
+                    m->mTextureCoords[0][v].y;
+            }
+            sm.vertices.push_back(vx);
+        }
+    }
+
+    void fill_indices(const aiMesh* m, bool flipW, CookedSubmesh& sm){
+        sm.indices.reserve(m->mNumFaces*3);
+        for(unsigned f=0; f<m->mNumFaces; ++f){
+            const aiFace& face = m->mFaces[f];
+            if(face.mNumIndices==3){
+                uint32_t i0=face.mIndices[0], i1=face.mIndices[1], i2=face.mIndices[2];
+                if(flipW)
+                    sm.indices.insert(sm.indices.end(), {i0,i2,i1});
+                else
+                    sm.indices.insert(sm.indices.end(), {i0,i1,i2});
+            }
+        }
+    }
+
+    void visit_node(const aiNode* node, const aiMatrix4x4& parent, BuildCtx& ctx){
+        aiMatrix4x4 global = parent * node->mTransformation;
+        aiMatrix4x4 T = ctx.aiWorldFromSrc * global;
+        aiMatrix3x3 T3(T);
+        aiMatrix3x3 N3 = T3; N3.Inverse();
+        N3.Transpose();
+        bool flipW = (Det3x3(T3) < 0.0f);
+
+        for(unsigned im=0; im<node->mNumMeshes; ++im){
+            const aiMesh* m = ctx.aiScene->mMeshes[node->mMeshes[im]];
+            CookedSubmesh sm{};
+            sm.primitiveType = PrimitiveType::TriangleList;
+            sm.materialSlotName = node->mName.length>0 ?
+                std::format("{}#{}", node->mName.C_Str(), im) :
+                std::format("Submesh#{}", ctx.out->submeshes.size());
+            fill_vertices(m, T, N3, ctx.dstAxis, sm);
+            fill_indices(m, flipW, sm);
+            ctx.out->submeshes.push_back(std::move(sm));
+        }
+
+        for(unsigned c=0; c<node->mNumChildren; ++c)
+            visit_node(node->mChildren[c], global, ctx);
+    }
+
     auto buildMesh(
-        const RawScene& scene,
-        const AxisInfo& dstAxisInfo
-    )->CookedMesh{
-        auto aiScene = scene.scene.get();
+            const RawScene& scene,
+            const AxisInfo& dstAxisInfo
+        )->CookedMesh{
         CookedMesh out{};
         if(!scene.scene || !scene.scene->mRootNode)
             return out;
 
-        auto srcAxisInfo = extractAxisInfo(scene);
-        Mat4 mat = buildTransform(srcAxisInfo, dstAxisInfo);
-        const aiMatrix4x4 aiMat = toAi(mat);
+        BuildCtx ctx = make_ctx(scene, dstAxisInfo);
+        ctx.out = &out;
 
-        // 1) Build CookedMaterial map from aiMaterials (URI-only, no embedded textures)
-        if(aiScene->HasMaterials()){
-            for(unsigned i=0; i<aiScene->mNumMaterials; ++i){
-                const aiMaterial* m = aiScene->mMaterials[i];
-
-                CookedMaterial cm{};
-                aiString aiName = m->GetName();
-                cm.name = (aiName.length>0) ? std::string(aiName.C_Str())
-                                            : std::string(std::format("Material{}", i));
-                cm.type = MaterialType::Unlit; // ToDo. will upgrade to PBR if any textures attached
-
-                auto appendUris = [&](aiTextureType t){
-                    TextureUsage usage = mapTextureUsage(t);
-                    unsigned texCount = m->GetTextureCount(t);
-                    for(unsigned ti=0; ti<texCount; ++ti){
-                        aiString texPath; if(m->GetTexture(t, ti, &texPath) != aiReturn_SUCCESS) continue;
-                        std::string uri;
-                        if(texPath.length>0 && texPath.C_Str()[0]=='*'){
-                            // Embedded; mark with pseudo-URI (to be resolved by cooker/packager)
-                            int embeddedIndex = std::atoi(texPath.C_Str()+1);
-                            uri = std::format("embedded:{}", embeddedIndex);
-                        } else {
-                            fs::path full = scene.baseDir / fs::path(texPath.C_Str());
-                            uri = full.lexically_normal().string();
-                        }
-                        CookedTexture ct{};
-                        ct.usage = usage;
-                        ct.flags = (usage==TextureUsage::BaseColor || usage==TextureUsage::Emissive)
-                                    ? TextureFlag_SRGB : 0;
-                        ct.uri = std::move(uri);
-                        // store by human-friendly slot key; if multiple, keep the first
-                        const char* key = usageToSlotName(usage);
-                        if(!cm.textures.contains(key)) cm.textures.emplace(key, std::move(ct));
-                    }
-                };
-
-                // Common PBR slots
-                appendUris(aiTextureType_BASE_COLOR);
-                appendUris(aiTextureType_DIFFUSE);
-                appendUris(aiTextureType_NORMALS);
-                appendUris(aiTextureType_NORMAL_CAMERA);
-                appendUris(aiTextureType_METALNESS);
-                appendUris(aiTextureType_DIFFUSE_ROUGHNESS);
-                appendUris(aiTextureType_UNKNOWN); // some tools pack ORM here
-                appendUris(aiTextureType_EMISSIVE);
-
-                if(!cm.textures.empty()) cm.type = MaterialType::PBR;
-
-                // For middle-form convenience, key materials by their name
-                out.materials.emplace(cm.name, std::move(cm));
-            }
-        }
-
-        // 2) Traverse nodes, create CookedSubmesh with local vertices/indices
-        std::function<void(const aiNode*, aiMatrix4x4)> visit = [&](const aiNode* node, aiMatrix4x4 parent){
-            aiMatrix4x4 global = parent * node->mTransformation;
-            aiMatrix4x4 T = aiMat * global;
-            aiMatrix3x3 T3(T); aiMatrix3x3 N3 = T3; N3.Inverse(); N3.Transpose();
-            const bool flipWinding = (Det3x3(T3) < 0.0f);
-
-            for(unsigned im=0; im<node->mNumMeshes; ++im){
-                const aiMesh* m = aiScene->mMeshes[node->mMeshes[im]];
-
-                CookedSubmesh sm{};
-                sm.primitiveType = PrimitiveType::TriangleList;
-                // Slot name suggestion: NodeName#LocalMeshIndex (stable & readable)
-                sm.materialSlotName = node->mName.length>0
-                    ? std::format("{}#{}", node->mName.C_Str(), im)
-                    : std::format("Submesh#{}", out.submeshes.size());
-
-                sm.vertices.reserve(m->mNumVertices);
-                for(unsigned v=0; v<m->mNumVertices; ++v){
-                    Vertex vx{};
-                    if(m->HasPositions()){
-                        aiVector3D p = T * m->mVertices[v];
-                        vx.position = {{p.x, p.y, p.z}};
-                    }
-                    if(m->HasNormals()){
-                        aiVector3D n = N3 * m->mNormals[v]; n.Normalize();
-                        vx.normal = {{n.x, n.y, n.z}};
-                    }
-                    if(m->HasTangentsAndBitangents()){
-                        aiVector3D t = N3 * m->mTangents[v]; t.Normalize();
-                        vx.tangent = {{t.x, t.y, t.z, -1.0f}}; // handedness placeholder
-                    }
-                    if(m->HasTextureCoords(0)){
-                        vx.texcoord.x = m->mTextureCoords[0][v].x;
-                        vx.texcoord.y = dstAxisInfo.flipV ? (1.0f - m->mTextureCoords[0][v].y)
-                                                          :  m->mTextureCoords[0][v].y;
-                    }
-                    sm.vertices.push_back(vx);
-                }
-
-                // Local, 0-based indices
-                sm.indices.reserve(m->mNumFaces * 3);
-                for(unsigned f=0; f<m->mNumFaces; ++f){
-                    const aiFace& face = m->mFaces[f];
-                    if(face.mNumIndices == 3){
-                        uint32_t i0 = face.mIndices[0];
-                        uint32_t i1 = face.mIndices[1];
-                        uint32_t i2 = face.mIndices[2];
-                        if(flipWinding){ sm.indices.push_back(i0); sm.indices.push_back(i2); sm.indices.push_back(i1); }
-                        else            { sm.indices.push_back(i0); sm.indices.push_back(i1); sm.indices.push_back(i2); }
-                    }
-                }
-
-                out.submeshes.push_back(std::move(sm));
-            }
-
-            for(unsigned c=0; c<node->mNumChildren; ++c) visit(node->mChildren[c], global);
-        };
-
-        visit(aiScene->mRootNode, aiMatrix4x4());
+        build_materials(scene, ctx);
+        visit_node(scene.scene->mRootNode, aiMatrix4x4(), ctx);
 
         out.axisInfo = dstAxisInfo;
         out.aabb = computeAABB(out);
-
         return out;
     }
+
+    #pragma pack(push,1)
+    struct FileHeaderV2 {
+        char     magic[8];   // "MBMESH\2"
+        uint32_t version;    // 2
+        uint32_t reserved;   // 0
+    };
+    #pragma pack(pop)
+
+    // write helpers
+    template<class T>
+    inline void wpod(std::vector<uint8_t>& buf, const T& v){
+        const uint8_t* p = reinterpret_cast<const uint8_t*>(&v);
+        buf.insert(buf.end(), p, p+sizeof(T));
+    }
+    inline void wbytes(std::vector<uint8_t>& buf, const void* data, size_t n){
+        const uint8_t* p = reinterpret_cast<const uint8_t*>(data);
+        buf.insert(buf.end(), p, p+n);
+    }
+    inline void wstr(std::vector<uint8_t>& buf, std::string_view s){
+        uint32_t n = static_cast<uint32_t>(s.size());
+        wpod(buf, n);
+        if(n)
+            wbytes(buf, s.data(), n);
+    }
+
+    // read helpers
+    struct R{
+        const uint8_t* p;
+        const uint8_t* e;
+
+        inline bool ok() const { return p<=e; }
+
+        template<class T>
+        bool rpod(T& out){
+            if(static_cast<size_t>(e-p) < sizeof(T)) return false;
+            std::memcpy(&out, p, sizeof(T)); p += sizeof(T); return true;
+        }
+        bool rbytes(void* dst, size_t n){
+            if(static_cast<size_t>(e-p) < n)
+                return false;
+            std::memcpy(dst,p,n); p+=n; return true;
+        }
+        bool rstr(std::string& out){
+            uint32_t n = 0;
+            if(!rpod(n))
+                return false;
+            if(static_cast<size_t>(e - p) < n)
+                return false;
+            out.assign(reinterpret_cast<const char*>(p), n);
+            p += n;
+            return true;
+        }
+    };
 }
 
 auto Asset::importMeshFile(const fs::path& inputPath,
     const CookOptions& options
 )->CookedMesh{
     auto rawScene = import(inputPath);
-
     return buildMesh(rawScene, options.axes);
 }
 
@@ -513,63 +778,6 @@ auto Asset::loadEmbeddedMesh(const std::string& name)->EmbeddedMesh{
 //           u32 usage
 //           u16 flags; u16 pad
 //           u32 uriLen, bytes
-//
-// This is a convenience container for tools. It is not the old table/offset format.
-
-namespace {
-#pragma pack(push,1)
-struct FileHeaderV2 {
-    char     magic[8];   // "MBMESH\2"
-    uint32_t version;    // 2
-    uint32_t reserved;   // 0
-};
-#pragma pack(pop)
-
-// write helpers
-template<class T>
-static inline void wpod(std::vector<uint8_t>& buf, const T& v){
-    const uint8_t* p = reinterpret_cast<const uint8_t*>(&v);
-    buf.insert(buf.end(), p, p+sizeof(T));
-}
-static inline void wbytes(std::vector<uint8_t>& buf, const void* data, size_t n){
-    const uint8_t* p = reinterpret_cast<const uint8_t*>(data);
-    buf.insert(buf.end(), p, p+n);
-}
-static inline void wstr(std::vector<uint8_t>& buf, std::string_view s){
-    uint32_t n = static_cast<uint32_t>(s.size());
-    wpod(buf, n);
-    if(n) wbytes(buf, s.data(), n);
-}
-
-// read helpers
-struct R{
-    const uint8_t* p;
-    const uint8_t* e;
-
-    inline bool ok() const { return p<=e; }
-
-    template<class T>
-    bool rpod(T& out){
-        if(static_cast<size_t>(e-p) < sizeof(T)) return false;
-        std::memcpy(&out, p, sizeof(T)); p += sizeof(T); return true;
-    }
-    bool rbytes(void* dst, size_t n){
-        if(static_cast<size_t>(e-p) < n)
-            return false;
-        std::memcpy(dst,p,n); p+=n; return true;
-    }
-    bool rstr(std::string& out){
-        uint32_t n = 0;
-        if(!rpod(n))
-            return false;
-        if(static_cast<size_t>(e - p) < n)
-            return false;
-        out.assign(reinterpret_cast<const char*>(p), n);
-        p += n;
-        return true;
-    }
-};
-}
 
 auto Asset::extractHeader(const CookedMesh& cooked) -> Header {
     // Provide a best-effort synthetic header for legacy callers that still expect it.
@@ -579,8 +787,8 @@ auto Asset::extractHeader(const CookedMesh& cooked) -> Header {
     H.version = 0;
     H.headerSize = sizeof(Header);
     // We no longer use on-disk tables; fill some counts for reference only.
-    H.numSubmesh = static_cast<uint32_t>(cooked.submeshes.size());
-    H.numMaterial = static_cast<uint32_t>(cooked.materials.size());
+    H.numSubmesh = cooked.submeshes.size();
+    H.numMaterial = cooked.materials.size();
     H.numTexture = 0; // unknown in this container; textures are per-material maps
     H.numVertex = 0;  // not used
     H.numIndex  = 0;  // not used
@@ -604,47 +812,43 @@ auto Asset::serializeToBuffer(const CookedMesh& cooked) -> std::vector<uint8_t>{
     wpod(buf, cooked.aabb);
 
     // Submeshes
-    uint32_t smCount = static_cast<uint32_t>(cooked.submeshes.size());
+    auto smCount = cooked.submeshes.size();
     wpod(buf, smCount);
 
     for(const auto& sm : cooked.submeshes){
-        uint32_t prim = static_cast<uint32_t>(sm.primitiveType);
+        auto prim = sm.primitiveType;
         wpod(buf, prim);
         wstr(buf, sm.materialSlotName);
 
-        uint32_t vc = static_cast<uint32_t>(sm.vertices.size());
-        uint32_t ic = static_cast<uint32_t>(sm.indices.size());
-        wpod(buf, vc); if(vc) wbytes(buf, sm.vertices.data(), vc*sizeof(Vertex));
-        wpod(buf, ic); if(ic) wbytes(buf, sm.indices.data(),  ic*sizeof(uint32_t));
+        auto vc = sm.vertices.size();
+        auto ic = sm.indices.size();
+        wpod(buf, vc);
+        if(vc)
+            wbytes(buf, sm.vertices.data(), vc*sizeof(Vertex));
+        wpod(buf, ic);
+        if(ic)
+            wbytes(buf, sm.indices.data(),  ic*sizeof(uint32_t));
     }
 
-    // Materials (unordered_map -> write size, then each entry)
-    uint32_t matCount = static_cast<uint32_t>(cooked.materials.size());
+    auto matCount = cooked.materials.size();
     wpod(buf, matCount);
 
     for(const auto& kv : cooked.materials){
         const std::string& matName = kv.first;
         const CookedMaterial& m = kv.second;
         wstr(buf, matName);
-
-        uint32_t mt = static_cast<uint32_t>(m.type);
-        wpod(buf, mt);
-
-        uint32_t texCount = static_cast<uint32_t>(m.textures.size());
-        wpod(buf, texCount);
+        wpod(buf, m.type);
+        wpod(buf, m.textures.size());
 
         for(const auto& tv : m.textures){
             const std::string& slotKey = tv.first;
             const CookedTexture& t = tv.second;
             wstr(buf, slotKey);
 
-            uint32_t usage = static_cast<uint32_t>(t.usage);
-            wpod(buf, usage);
+            wpod(buf, t.usage);
 
-            uint16_t flags = t.flags;
-            uint16_t pad=0;
-            wpod(buf, flags);
-            wpod(buf, pad);
+            wpod(buf, t.flags);
+            wpod(buf, 0);
             wstr(buf, t.uri);
         }
     }
@@ -702,7 +906,8 @@ auto Asset::loadFromBuffer(const std::vector<uint8_t>& bin) -> CookedMesh{
             throw std::runtime_error("mbmesh: submesh idx");
     }
 
-    uint32_t matCount=0; if(!r.rpod(matCount))
+    uint32_t matCount=0;
+    if(!r.rpod(matCount))
         throw std::runtime_error("mbmesh: mat count");
     for(uint32_t mi=0; mi<matCount; ++mi){
         std::string matName;

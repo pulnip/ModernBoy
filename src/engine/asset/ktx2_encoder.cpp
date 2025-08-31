@@ -12,6 +12,9 @@ using namespace ModernBoy;
 using namespace ModernBoy::Asset;
 
 namespace{
+    constexpr ktx_uint32_t VK_FORMAT_R8G8B8A8_UNORM = 37;
+    constexpr ktx_uint32_t VK_FORMAT_R8G8B8A8_SRGB  = 43;
+
     auto ktx_fail(ktx_error_code_e e, const char* where){
         std::println(std::cerr, "[ktx2] {} failed: {}",
             where, int(e));
@@ -91,7 +94,7 @@ namespace{
     }
 
     auto load_rgba8(const char* path,
-        std::vector<uint8_t>& out, int w, int h
+        std::vector<uint8_t>& out, int& w, int& h
     ){
         int comp=0;
         unsigned char* pixels = stbi_load(path, &w, &h, &comp, 4);
@@ -116,7 +119,8 @@ namespace{
         Ktx2RAII& out, ktxTextureCreateInfo& outCi
     ){
         std::memset(&outCi, 0, sizeof(outCi));
-        outCi.vkFormat        = 0; // VK_FORMAT_UNDEFINED
+        outCi.vkFormat        = perceptual ?
+            VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
         outCi.baseWidth       = w;
         outCi.baseHeight      = h;
         outCi.baseDepth       = 1;
@@ -222,7 +226,6 @@ int Asset::cook_image_to_ktx2_file(
     const char* ktx2Path,
     const Ktx2CookParams* in_params
 ){
-{
     if(!imagePath || !ktx2Path){
         std::println(std::cerr, "[ktx2] invalid path argument");
         return -1;
@@ -259,5 +262,4 @@ int Asset::cook_image_to_ktx2_file(
         return ktx_fail(KTX_INVALID_OPERATION, "ktxTexture2_CompressBasisEx");
 
     return write_ktx2(tex.ptr, ktx2Path);
-}
 }

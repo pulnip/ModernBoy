@@ -2,7 +2,6 @@
 #define MODERNBOY_ASSET_KTX2_ENCODER_H
 
 #include <cstdint>
-#include <ktx.h>
 
 namespace ModernBoy::Asset{
     enum TextureKind{

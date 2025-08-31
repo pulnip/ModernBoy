@@ -122,6 +122,7 @@ imgui.ini
 *.ico
 *.fbx
 *.bmp
+*.ktx2
 
 *.asb
 
@@ -130,3 +131,4 @@ external/metal-cpp/
 .swiftpm
 
 *.mbmesh
+*.log
