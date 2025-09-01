@@ -1,7 +1,10 @@
+#include <filesystem>
 #include <span>
 #include "engine/asset/asset_loader.hpp"
 #include "engine/asset/material_importer.hpp"
 #include "engine/engine.hpp"
+
+namespace fs = std::filesystem;
 
 using namespace ModernBoy;
 using namespace ModernBoy::Asset;
@@ -398,7 +401,7 @@ CookedMesh AssetLoader::loadCookedOrImport(
     if(ext == "mbmesh")
         return loadMeshFile(path);
     else
-        return importMeshFile(path);
+        return importMeshFiles(std::vector{fs::path(path)});
 }
 auto Asset::countLoadedResources(
     const ResolveTable& table

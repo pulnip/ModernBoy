@@ -50,7 +50,7 @@ TEST(ImportCooked, ImportIfAssetExists){
     CookOptions opt{};
     opt.axes = AxisInfo{ AxisInfo::RH, 'Y', 'Z', true, 1.0f };
 
-    CookedMesh mesh = Asset::importMeshFile(candidate, opt);
+    CookedMesh mesh = Asset::importMeshFiles(std::vector{candidate}, opt);
 
     // Basic structure checks
     ASSERT_GT(mesh.submeshes.size(), 0u);
@@ -78,7 +78,7 @@ TEST(ImportCooked, MaterialsAreURIBased){
         GTEST_SKIP() << "No material test asset found at " << candidate.string() << ", skipping.";
     }
 
-    CookedMesh mesh = Asset::importMeshFile(candidate, {});
+    CookedMesh mesh = Asset::importMeshFiles(std::vector{candidate}, {});
 
     // If any materials exist, verify texture entries are URI-only
     if(!mesh.materials.empty()){

@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <format>
+#include <span>
 #include "core/math/type.hpp"
 #include "engine/asset/asset_format.hpp"
 
@@ -15,8 +16,8 @@ namespace ModernBoy::Asset
     };
 
     // Convert .fbx, ... to .mbmesh (simple container format)
-    auto importMeshFile(
-        const std::filesystem::path& inputPath,
+    auto importMeshFiles(
+        std::span<const std::filesystem::path> inputPaths,
         const CookOptions& options = {}
     )->CookedMesh;
 

@@ -10,6 +10,9 @@
 #include <numbers>
 #include <string>
 #include <print>
+#include <span>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -373,7 +376,7 @@ namespace {
         return rawScene;
     }
 
-    auto extractAxisInfo(const RawScene& scene)->AxisInfo{
+    auto extractAxisInfo([[maybe_unused]] const RawScene& scene)->AxisInfo{
         // ToDo. extract real axis info from scene
         return AxisInfo{
             .hand = AxisInfo::Hand::RH,
@@ -443,6 +446,10 @@ namespace {
         fs::path textureOutDir = "asset/textures";
         std::string sceneStem;
         CookedMesh* out{};
+
+        // normRelPath -> filename
+        const std::unordered_map<std::string, std::string>* finalNameByExternal = nullptr; 
+        const std::unordered_map<uint64_t, std::string>*    finalNameByEmbedded = nullptr;
     };
 
     auto make_ctx(const RawScene& scene, const AxisInfo& dst){
@@ -469,31 +476,6 @@ namespace {
         return kp;
     }
 
-    auto make_tex_out_path(
-        const std::string& stem, const std::string& mat,
-        TextureUsage u, unsigned ti
-    ){
-        // Naming rule: <sceneStem>_<Material>_<Slot>_<ti>.ktx2
-        return fs::path("asset/textures") /
-            std::format("{}_{}_{}_{}.ktx2", stem, mat, usageToSlotName(u), ti);
-    }
-
-    void cook_texture_uri(
-        const fs::path& src, const fs::path& dst,
-        const Ktx2CookParams& kp, CookedTexture& outCt
-    ){
-        std::error_code ec;
-        fs::create_directories(dst.parent_path(), ec);
-    
-        int rc = cook_image_to_ktx2_file(
-            src.string().c_str(), dst.string().c_str(), &kp);
-        if(rc==0)
-            outCt.uri = dst.lexically_normal().string();
-        else
-            std::println(std::cerr, "[warn] ktx2 cook failed: {} -> {}",
-                src.string(), dst.string());
-    }
-
     struct TexResolve {
         bool embedded = false;
         int  index    = -1;       // valid if embedded
@@ -515,30 +497,94 @@ namespace {
         return r;
     }
 
-    void cook_one_texture(
-        const RawScene& scene, const TexResolve& R,
-        const fs::path& dst, const Ktx2CookParams& kp,
-        CookedTexture& outCt, const fs::path& tmpDir
+    uint64_t fnv1a64(const void* data, size_t n){
+        const uint8_t* p = reinterpret_cast<const uint8_t*>(data);
+        uint64_t h = 1469598103934665603ull;
+        for(size_t i=0; i<n; ++i){
+            h ^= p[i];
+            h *= 1099511628211ull;
+        }
+        return h;
+    }
+    uint64_t fnv1a64_str(std::string_view s){
+        return fnv1a64(s.data(), s.size());
+    }
+    uint64_t content_hash(const aiTexture* tex){
+        if(!tex)
+            return 0;
+        if(tex->mHeight==0)
+            return fnv1a64(tex->pcData, tex->mWidth);
+        size_t n = size_t(tex->mWidth)*size_t(tex->mHeight)*4;
+        return fnv1a64(tex->pcData, n);
+    }
+
+    std::string normalizePathString(const fs::path& p){
+        std::string s = p.generic_string();
+        return s;
+    }
+    std::string sanitize(const std::string& s){
+        std::string r; r.reserve(s.size());
+        for(char c: s){
+            bool ok = std::isalnum(c) || c=='_' || c=='-' || c=='.';
+            r.push_back(ok ? c : '_');
+        }
+        return r;
+    }
+    std::string hex8(uint64_t x){
+        char b[17];
+        std::snprintf(b, sizeof(b), "%08llx", x & 0xffffffffULL);
+        return std::string(b);
+    }
+
+    std::string get_final_tex_filename(
+        const RawScene& scene, const BuildCtx& ctx, const TexResolve& R
     ){
         if(R.embedded){
-            const aiTexture* tex = (R.index>=0 && R.index < (int)scene.scene->mNumTextures)
-                ? scene.scene->mTextures[R.index] : nullptr;
-            if(!tex){
-                std::println(std::cerr, "[warn] missing embedded texture: {}", R.debug);
-                return;
+            const aiTexture* t = (R.index>=0 && R.index<(int)scene.scene->mNumTextures) ?
+                scene.scene->mTextures[R.index] : nullptr;
+            uint64_t h = content_hash(t);
+            if(ctx.finalNameByEmbedded){
+                auto it = ctx.finalNameByEmbedded->find(h);
+                if(it != ctx.finalNameByEmbedded->end())
+                    return it->second;
             }
-            fs::path hint = tmpDir / std::format("__emb{}_tmp", R.index);
-            fs::path real;
-            if(export_assimp_embedded_to_temp(tex, hint, real)){
-                cook_texture_uri(real, dst, kp, outCt);
-                std::error_code rec; fs::remove(real, rec);
-            } else {
-                std::println(std::cerr, "[warn] failed to export embedded texture: {}", R.debug);
+            return {};
+        }else {
+            fs::path rel = fs::path(R.src).lexically_relative(scene.baseDir);
+            std::string norm = normalizePathString(rel);
+            if(ctx.finalNameByExternal){
+                auto it = ctx.finalNameByExternal->find(norm);
+                if(it != ctx.finalNameByExternal->end())
+                    return it->second;
             }
-        } else {
-            cook_texture_uri(R.src, dst, kp, outCt);
+            return {};
         }
     }
+
+    // void cook_one_texture(
+    //     const RawScene& scene, const TexResolve& R,
+    //     const fs::path& dst, const Ktx2CookParams& kp,
+    //     CookedTexture& outCt, const fs::path& tmpDir
+    // ){
+    //     if(R.embedded){
+    //         const aiTexture* tex = (R.index>=0 && R.index < (int)scene.scene->mNumTextures)
+    //             ? scene.scene->mTextures[R.index] : nullptr;
+    //         if(!tex){
+    //             std::println(std::cerr, "[warn] missing embedded texture: {}", R.debug);
+    //             return;
+    //         }
+    //         fs::path hint = tmpDir / std::format("__emb{}_tmp", R.index);
+    //         fs::path real;
+    //         if(export_assimp_embedded_to_temp(tex, hint, real)){
+    //             cook_texture_uri(real, dst, kp, outCt);
+    //             std::error_code rec; fs::remove(real, rec);
+    //         } else {
+    //             std::println(std::cerr, "[warn] failed to export embedded texture: {}", R.debug);
+    //         }
+    //     } else {
+    //         cook_texture_uri(R.src, dst, kp, outCt);
+    //     }
+    // }
 
     void append_textures_for_type(
         const aiMaterial* m, aiTextureType t,
@@ -548,7 +594,9 @@ namespace {
         TextureUsage usage = mapTextureUsage(t);
         unsigned n = m->GetTextureCount(t);
         for(unsigned ti=0; ti<n; ++ti){
-            aiString texPath; if(m->GetTexture(t, ti, &texPath) != aiReturn_SUCCESS) continue;
+            aiString texPath;
+            if(m->GetTexture(t, ti, &texPath) != aiReturn_SUCCESS)
+                continue;
 
             CookedTexture ct{};
             ct.usage = usage;
@@ -556,11 +604,12 @@ namespace {
                 TextureFlag_SRGB : 0;
 
             TexResolve R = resolve_uri(scene, texPath);
-            ct.uri = R.debug; // will be replaced by final .ktx2 path on successful cook
-
-            fs::path outPath = make_tex_out_path(ctx.sceneStem, cm.name, usage, ti);
-            auto kp = make_ktx_params(usage);
-            cook_one_texture(scene, R, outPath, kp, ct, ctx.textureOutDir);
+            std::string finalFile = get_final_tex_filename(scene, ctx, R);
+            if(!finalFile.empty()){
+                ct.uri = (ctx.textureOutDir / finalFile).lexically_normal().string();
+            }else {
+                ct.uri = R.debug; // 배치 표에서 못 찾았을 때 디버그 표기
+            }
 
             const char* key = usageToSlotName(usage);
             if(!cm.textures.contains(key)) cm.textures.emplace(key, std::move(ct));
@@ -576,7 +625,9 @@ namespace {
 
             CookedMaterial cm{};
             aiString aiName = m->GetName();
-            cm.name = (aiName.length>0) ? std::string(aiName.C_Str()) : std::format("Material{}", i);
+            cm.name = (aiName.length>0) ?
+                std::string(aiName.C_Str()) :
+                std::format("Material{}", i);
             cm.type = MaterialType::Unlit;
 
             append_textures_for_type(m, aiTextureType_BASE_COLOR,        scene, ctx, cm);
@@ -714,13 +765,16 @@ namespace {
 
         template<class T>
         bool rpod(T& out){
-            if(static_cast<size_t>(e-p) < sizeof(T)) return false;
-            std::memcpy(&out, p, sizeof(T)); p += sizeof(T); return true;
+            if(static_cast<size_t>(e-p) < sizeof(T))
+                return false;
+            std::memcpy(&out, p, sizeof(T)); p += sizeof(T);
+                return true;
         }
         bool rbytes(void* dst, size_t n){
             if(static_cast<size_t>(e-p) < n)
                 return false;
-            std::memcpy(dst,p,n); p+=n; return true;
+            std::memcpy(dst,p,n); p+=n;
+                return true;
         }
         bool rstr(std::string& out){
             uint32_t n = 0;
@@ -733,13 +787,235 @@ namespace {
             return true;
         }
     };
+
+    struct ExtCandidate{
+        std::string normRelPath;
+        std::string stem;
+        std::string parentDirNorm;
+        fs::path    fullPath;
+    };
+    struct EmbCandidate{
+        uint64_t contentHash = 0;
+        std::string hint;
+        const aiTexture* tex = nullptr;
+        const aiScene* owner = nullptr;
+        TextureUsage usage = TextureUsage::BaseColor;
+    };
+    struct BatchTables {
+        std::unordered_set<std::string> existingNames;
+        std::unordered_map<std::string, std::string> finalNameByExternal;
+        std::unordered_map<uint64_t,   std::string> finalNameByEmbedded;
+        std::unordered_map<std::string, ExtCandidate> repByExternal;
+        std::unordered_map<uint64_t,   EmbCandidate> repByEmbedded;
+    };
+
+    void batch_scan_existing(const fs::path& texturesDir, BatchTables& bt){
+        std::error_code ec;
+        if(!fs::exists(texturesDir, ec))
+            return;
+        for(auto& e: fs::directory_iterator(texturesDir, ec)){
+            if(e.is_regular_file(ec) && e.path().extension()==".ktx2"){
+                bt.existingNames.insert(e.path().filename().string());
+            }
+        }
+    }
+
+    void batch_collect_from_scene(
+        const RawScene& scene, BuildCtx& ctx,
+        std::unordered_map<std::string, std::vector<ExtCandidate>>& groupsByStem,
+        BatchTables& bt
+    ){
+        if(!ctx.aiScene || !ctx.aiScene->HasMaterials())
+            return;
+
+        for(unsigned i=0; i<ctx.aiScene->mNumMaterials; ++i){
+            const aiMaterial* m = ctx.aiScene->mMaterials[i];
+            aiString aiName = m->GetName();
+            std::string matName = (aiName.length>0) ?
+                std::string(aiName.C_Str()) : std::format("Material{}", i);
+
+            auto handleOne = [&](aiTextureType t, TextureUsage usage){
+                auto n = m->GetTextureCount(t);
+                for(unsigned ti=0; ti<n; ++ti){
+                    aiString texPath; if(m->GetTexture(t, ti, &texPath) != aiReturn_SUCCESS)
+                        continue;
+                    TexResolve R = resolve_uri(scene, texPath);
+
+                    if(R.embedded){
+                        const aiTexture* tex = (R.index>=0 && R.index < int(scene.scene->mNumTextures)) ?
+                            scene.scene->mTextures[R.index] : nullptr;
+                        uint64_t h = content_hash(tex);
+                        if(!h)
+                            continue;
+
+                        std::string hint = sanitize(std::format("{}_{}_{}_{}",
+                            ctx.sceneStem, matName, usageToSlotName(usage), ti));
+                        if(!bt.repByEmbedded.count(h)){
+                            bt.repByEmbedded[h] = EmbCandidate{h, hint, tex, scene.scene.get(), usage};
+                        }
+                    }else {
+                        fs::path rel = fs::path(R.src).lexically_relative(scene.baseDir);
+                        std::string norm = normalizePathString(rel);
+                        fs::path p(norm);
+                        std::string stem = p.stem().string();
+                        std::string parent = normalizePathString(p.parent_path());
+                        if(!bt.repByExternal.count(norm)){
+                            bt.repByExternal[norm] = ExtCandidate{norm, stem, parent, R.src};
+                        }
+                        groupsByStem[stem].push_back(
+                            ExtCandidate{norm, stem, parent, R.src});
+                    }
+                }
+            };
+
+            handleOne(aiTextureType_BASE_COLOR,        TextureUsage::BaseColor);
+            handleOne(aiTextureType_DIFFUSE,           TextureUsage::BaseColor);
+            handleOne(aiTextureType_NORMALS,           TextureUsage::Normal);
+            handleOne(aiTextureType_NORMAL_CAMERA,     TextureUsage::Normal);
+            handleOne(aiTextureType_METALNESS,         TextureUsage::MR);
+            handleOne(aiTextureType_DIFFUSE_ROUGHNESS, TextureUsage::MR);
+            handleOne(aiTextureType_UNKNOWN,           TextureUsage::MR);
+            handleOne(aiTextureType_EMISSIVE,          TextureUsage::Emissive);
+        }
+    }
+
+    void batch_decide_final_names(
+        const fs::path& /*texturesDir*/,
+        std::unordered_map<std::string, std::vector<ExtCandidate>>& groupsByStem,
+        BatchTables& bt
+    ){
+        // 외부: stem 단일 → stem.ktx2, 다중 → stem_h8(parentDir).ktx2
+        for(auto& [stem, vec]: groupsByStem){
+            if(vec.size()==1){
+                const auto& c = vec[0];
+                bt.finalNameByExternal[c.normRelPath]
+                    = sanitize(stem) + ".ktx2";
+            }else {
+                for(const auto& c: vec){
+                    uint64_t dirh = fnv1a64_str(c.parentDirNorm);
+                    bt.finalNameByExternal[c.normRelPath]
+                        = sanitize(c.stem) + "_" + hex8(dirh) + ".ktx2";
+                }
+            }
+        }
+
+        // 디스크/배치 충돌시 identity 해시 추가
+        std::unordered_map<std::string,int> nameCount;
+
+        for(const auto& kv: bt.finalNameByExternal)
+            nameCount[kv.second]++;
+        for(auto& kv: bt.finalNameByExternal){
+            auto& decided = kv.second;
+            bool diskHit = bt.existingNames.count(decided)>0;
+            bool multi   = nameCount[decided]>1;
+            if(diskHit || multi){
+                uint64_t idh = fnv1a64_str(kv.first);
+                decided = fs::path(decided).stem().string() + "_" + hex8(idh) + ".ktx2";
+            }
+        }
+
+        // 임베드: hint__h8(hash).ktx2
+        for(const auto& [h, rep] : bt.repByEmbedded){
+            bt.finalNameByEmbedded[h] = rep.hint + "__" + hex8(h) + ".ktx2";
+        }
+    }
+
+    void batch_cook_missing(const fs::path& texturesDir, BatchTables& bt){
+        std::error_code ec;
+        fs::create_directories(texturesDir, ec);
+
+        for(const auto& [normRel, rep]: bt.repByExternal){
+            auto it = bt.finalNameByExternal.find(normRel);
+            if(it==bt.finalNameByExternal.end())
+                continue;
+
+            fs::path out = texturesDir / it->second;
+            if(fs::exists(out, ec))
+                continue;
+            auto kp = make_ktx_params(TextureUsage::BaseColor);
+            int rc = cook_image_to_ktx2_file(rep.fullPath.string().c_str(),
+                out.string().c_str(), &kp);
+            if(rc!=0){
+                std::println(std::cerr, "[warn] ktx2 cook failed (external): {} -> {}",
+                    rep.fullPath.string(), out.string());
+            }
+        }
+
+        for(const auto& [h, rep]: bt.repByEmbedded){
+            auto it = bt.finalNameByEmbedded.find(h);
+            if(it==bt.finalNameByEmbedded.end())
+                continue;
+            
+            fs::path out = texturesDir / it->second;
+            if(fs::exists(out, ec))
+                continue;
+
+            fs::path hint = texturesDir / std::format("__embed_tmp_{}", hex8(h));
+            fs::path real;
+            if(!export_assimp_embedded_to_temp(rep.tex, hint, real)){
+                std::println(std::cerr, "[warn] export embedded failed");
+                continue;
+            }
+            auto kp = make_ktx_params(rep.usage);
+            int rc = cook_image_to_ktx2_file(real.string().c_str(),
+                out.string().c_str(), &kp);
+            std::error_code rec; fs::remove(real, rec);
+            if(rc!=0){
+                std::println(std::cerr, "[warn] ktx2 cook failed (embedded): {} -> {}",
+                    real.string(), out.string());
+            }
+        }
+    }
 }
 
-auto Asset::importMeshFile(const fs::path& inputPath,
+auto Asset::importMeshFiles(
+    std::span<const fs::path> inputPaths,
     const CookOptions& options
 )->CookedMesh{
-    auto rawScene = import(inputPath);
-    return buildMesh(rawScene, options.axes);
+    // 1) 모두 로드
+    std::vector<RawScene> scenes; scenes.reserve(inputPaths.size());
+    for(const auto& p : inputPaths){
+        scenes.emplace_back(import(p));
+    }
+
+    // 2) 배치 테이블 준비 + 디스크 스캔
+    BatchTables bt{};
+    const fs::path texturesDir = "asset/textures";
+    batch_scan_existing(texturesDir, bt);
+
+    // 3) 후보 수집
+    std::unordered_map<std::string, std::vector<ExtCandidate>> groupsByStem;
+    for(const auto& rs : scenes){
+        BuildCtx ctx = make_ctx(rs, options.axes);
+        batch_collect_from_scene(rs, ctx, groupsByStem, bt);
+    }
+
+    // 4) 이름 확정
+    batch_decide_final_names(texturesDir, groupsByStem, bt);
+
+    // 5) 대표만 변환 (디스크에 없을 때만)
+    batch_cook_missing(texturesDir, bt);
+
+    // 6) 각 씬 빌드(URI는 결정된 이름을 참조)
+    CookedMesh merged{};
+    merged.axisInfo = options.axes;
+
+    for(const auto& rs : scenes){
+        BuildCtx ctx = make_ctx(rs, options.axes);
+        ctx.finalNameByExternal = &bt.finalNameByExternal;
+        ctx.finalNameByEmbedded = &bt.finalNameByEmbedded;
+        CookedMesh one = buildMesh(rs, options.axes);
+
+        // 머지
+        merged.submeshes.insert(merged.submeshes.end(),
+                                std::make_move_iterator(one.submeshes.begin()),
+                                std::make_move_iterator(one.submeshes.end()));
+        for(auto& kv : one.materials){
+            merged.materials.emplace(std::move(kv.first), std::move(kv.second));
+        }
+    }
+    merged.aabb = computeAABB(merged);
+    return merged;
 }
 
 auto Asset::loadEmbeddedMesh(const std::string& name)->EmbeddedMesh{
