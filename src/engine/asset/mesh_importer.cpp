@@ -714,19 +714,18 @@ namespace {
 
     auto buildMesh(
             const RawScene& scene,
-            const AxisInfo& dstAxisInfo
+            BuildCtx& ctx
         )->CookedMesh{
         CookedMesh out{};
         if(!scene.scene || !scene.scene->mRootNode)
             return out;
 
-        BuildCtx ctx = make_ctx(scene, dstAxisInfo);
         ctx.out = &out;
 
         build_materials(scene, ctx);
         visit_node(scene.scene->mRootNode, aiMatrix4x4(), ctx);
 
-        out.axisInfo = dstAxisInfo;
+        out.axisInfo = ctx.dstAxis;
         out.aabb = computeAABB(out);
         return out;
     }
@@ -1004,7 +1003,7 @@ auto Asset::importMeshFiles(
         BuildCtx ctx = make_ctx(rs, options.axes);
         ctx.finalNameByExternal = &bt.finalNameByExternal;
         ctx.finalNameByEmbedded = &bt.finalNameByEmbedded;
-        CookedMesh one = buildMesh(rs, options.axes);
+        CookedMesh one = buildMesh(rs, ctx);
 
         // 머지
         merged.submeshes.insert(merged.submeshes.end(),
@@ -1088,43 +1087,50 @@ auto Asset::serializeToBuffer(const CookedMesh& cooked) -> std::vector<uint8_t>{
     wpod(buf, cooked.aabb);
 
     // Submeshes
-    auto smCount = cooked.submeshes.size();
+    uint32_t smCount = static_cast<uint32_t>(cooked.submeshes.size());
     wpod(buf, smCount);
 
     for(const auto& sm : cooked.submeshes){
-        auto prim = sm.primitiveType;
+        uint32_t prim = static_cast<uint32_t>(sm.primitiveType);
         wpod(buf, prim);
         wstr(buf, sm.materialSlotName);
 
-        auto vc = sm.vertices.size();
-        auto ic = sm.indices.size();
+        uint32_t vc = static_cast<uint32_t>(sm.vertices.size());
+        uint32_t ic = static_cast<uint32_t>(sm.indices.size());
         wpod(buf, vc);
-        if(vc)
-            wbytes(buf, sm.vertices.data(), vc*sizeof(Vertex));
+        if (vc)
+            wbytes(buf, sm.vertices.data(), static_cast<size_t>(vc) * sizeof(Vertex));
         wpod(buf, ic);
-        if(ic)
-            wbytes(buf, sm.indices.data(),  ic*sizeof(uint32_t));
+        if (ic)
+            wbytes(buf, sm.indices.data(), static_cast<size_t>(ic) * sizeof(uint32_t));
     }
 
-    auto matCount = cooked.materials.size();
+    uint32_t matCount = static_cast<uint32_t>(cooked.materials.size());
     wpod(buf, matCount);
 
     for(const auto& kv : cooked.materials){
         const std::string& matName = kv.first;
         const CookedMaterial& m = kv.second;
         wstr(buf, matName);
-        wpod(buf, m.type);
-        wpod(buf, m.textures.size());
+        {
+            uint32_t mt = static_cast<uint32_t>(m.type);
+            wpod(buf, mt);
+        }
+        {
+            uint32_t texCount = static_cast<uint32_t>(m.textures.size());
+            wpod(buf, texCount);
+        }
 
         for(const auto& tv : m.textures){
             const std::string& slotKey = tv.first;
             const CookedTexture& t = tv.second;
             wstr(buf, slotKey);
-
-            wpod(buf, t.usage);
-
-            wpod(buf, t.flags);
-            wpod(buf, 0);
+            {
+                uint32_t usage = static_cast<uint32_t>(t.usage);
+                wpod(buf, usage);
+            }
+            wpod(buf, t.flags);            // uint16_t
+            wpod(buf, static_cast<uint16_t>(0)); // pad
             wstr(buf, t.uri);
         }
     }
@@ -1156,7 +1162,8 @@ auto Asset::loadFromBuffer(const std::vector<uint8_t>& bin) -> CookedMesh{
     if(!r.rpod(out.aabb))
         throw std::runtime_error("mbmesh: truncated aabb");
 
-    uint32_t smCount=0; if(!r.rpod(smCount))
+    uint32_t smCount=0;
+    if(!r.rpod(smCount))
         throw std::runtime_error("mbmesh: truncated submesh count");
     out.submeshes.resize(smCount);
 
