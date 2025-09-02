@@ -46,7 +46,7 @@ position = [15.0, 0.0, -10.0]
 rotation = [0.0, 0.0, 0.0, 1.0]
 scale    = [0.004, 0.004, 0.004]
 [entities.mesh]
-id = "file:asset/Hutao.mbmesh"
+id = "file:asset/Hu tao.mbmesh"
     [entities.mesh.shader]
     module = "file:asset/shader/ModernBoy.metallib"
     vsFunc = "vertex_main"
