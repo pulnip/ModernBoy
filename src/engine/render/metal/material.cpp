@@ -15,6 +15,8 @@ extern "C"{
     extern NativePtr createUnlitMaterialFromPixel(
         const NativePtr rctxPtr, const uint8_t* pixels,
         int32_t width, int32_t height);
+    extern NativePtr createUnlitMaterialFromASTC(
+        const NativePtr rctxPtr, GpuPayload*);
     extern void destroyUnlitMaterial(
         NativePtr nativeMaterial);
 }
@@ -36,6 +38,12 @@ UnlitMaterial::UnlitMaterial(
 ){
     AppTrace("UnlitMaterial: Ptr: {}", material);
 }
+UnlitMaterial::UnlitMaterial(
+    NativePtr rctxPtr,
+    GpuPayload* astcPayload)
+:material(createUnlitMaterialFromASTC(
+    rctxPtr, astcPayload)
+){}
 
 UnlitMaterial::~UnlitMaterial(){
     if(material != nullptr){
@@ -54,4 +62,3 @@ void UnlitMaterial::moveFrom(UnlitMaterial&& other){
     material = other.material;
     other.material = nullptr;
 }
-

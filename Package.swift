@@ -16,8 +16,16 @@ let package = Package(
                 "material.cpp",
                 "mesh.cpp",
                 "shader.cpp",
-                "texture.cpp",
+                "CMakeLists.txt",
+            ],
+            swiftSettings: [
+                .unsafeFlags(
+                    [
+                        "-import-objc-header",
+                        "include/engine/render/ktx2_transcode.h",
+                    ]
+                )
             ]
         )
-    ],
+    ]
 )

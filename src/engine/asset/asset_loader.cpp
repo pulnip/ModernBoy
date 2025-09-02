@@ -1,7 +1,10 @@
+#include <filesystem>
 #include <span>
 #include "engine/asset/asset_loader.hpp"
 #include "engine/asset/material_importer.hpp"
 #include "engine/engine.hpp"
+
+namespace fs = std::filesystem;
 
 using namespace ModernBoy;
 using namespace ModernBoy::Asset;
@@ -132,7 +135,7 @@ void AssetLoader::executeMeshMaterialWork(const MeshMaterialWork& item){
         UUID newMeshUUID;
 
         if(scheme == SchemeKind::File){
-            cookedMesh = loadCookedOrImport(item.meshID);
+            cookedMesh = loadCookedOrImport(path);
             newMeshUUID = loadSubmeshes(cookedMesh);
 
             executeMaterialSetWork(bindTarget,
@@ -236,20 +239,13 @@ auto AssetLoader::loadSubmeshes(
     const CookedMesh& cooked
 )->UUID{
     Mesh mesh;
-    mesh.reserve(cooked.submeshInfoTable.size());
+    mesh.reserve(cooked.submeshes.size());
 
-    for(const auto& submeshInfo: cooked.submeshInfoTable){
-        std::span<const Vertex> vertices(
-            cooked.vertices.cbegin() + submeshInfo.verticesSectionIndex,
-            submeshInfo.vertexCount
-        );
-        std::span<const uint32_t> indices(
-            cooked.indices.begin() + submeshInfo.indicesSectionIndex,
-            submeshInfo.indexCount
-        );
-
+    for(const auto& submeshInfo: cooked.submeshes){
         auto submeshHandle = submeshManager.emplace(
-            issueID(), renderContext, vertices, indices
+            issueID(), renderContext,
+            submeshInfo.vertices,
+            submeshInfo.indices
         );
         mesh.push_back(std::move(submeshHandle));
     }
@@ -283,68 +279,58 @@ auto AssetLoader::loadMaterialSet(
     const CookedMesh& cooked,
     const MaterialDescriptors& descs
 )->UUID{
-    MaterialSet materialSet;
-    materialSet.reserve(cooked.submeshInfoTable.size());
+    MaterialSet materialSet(cooked.submeshes.size());
 
-    std::unordered_map<std::string, Index> slotNameToIndex;
-    for(Index i=0; i<cooked.materialInfoTable.size(); ++i)
-        slotNameToIndex.try_emplace(cooked.materialNameTable[i], i);
-        // TODO. add material slot name table
-        // materialSlotToIndex.try_emplace(cooked.materialSlotTable[i], i);
+    auto materialSlotMap = cooked.materials;
 
     // load overrided material first
     for(const auto& desc: descs){
-        auto slotIt = slotNameToIndex.find(desc.targetSlot);
-        if(slotIt == slotNameToIndex.end()){
+        auto slotIt = materialSlotMap.find(desc.targetSlot);
+        if(slotIt == materialSlotMap.end()){
             AppWarn("Specified slot not exist: {}", desc.targetSlot);
             continue;
         }
 
-        auto materialIt = table.find(desc.baseColor);
-        auto isMaterialLoaded = materialIt != table.end();
-
-        if(isMaterialLoaded){
-            materialSet[slotIt->second] = materialManager
-                .getHandle(materialIt->second);
-        } else{
-            auto newMaterialUUID = issueID();
-
-            materialSet[slotIt->second] = materialManager
-                .emplace(newMaterialUUID,
-                    renderContext, desc.baseColor);
-            remember(desc.baseColor, newMaterialUUID);
+        auto texIt = slotIt->second.textures.find("BaseColor");
+        if(texIt == slotIt->second.textures.end()){
+            AppWarn("No BaseColor texture in material: {}",
+                desc.baseColor);
+            continue;
         }
 
-        // target slot overrided
-        slotNameToIndex.erase(slotIt);
+        // override texture uri
+        texIt->second.uri = desc.baseColor;
     }
 
+    auto materialSetIndex = 0;
     // load material not in material_override slot next
-    for(const auto& [slotName, i]: slotNameToIndex){
-        auto materialID = std::format("{}:material{}",
-            meshFileName, i);
+    for(const auto& [slotName, material]: materialSlotMap){
+        auto materialID = std::format("{}:{}",
+            meshFileName, material.name);
 
         auto materialIt = table.find(materialID);
         auto isMaterialLoaded = materialIt != table.end();
 
         if(isMaterialLoaded){
-            materialSet[i] = materialManager
+            materialSet[materialSetIndex] = materialManager
                 .getHandle(materialIt->second);
         } else{
             auto newMaterialUUID = issueID();
 
-            const auto& textureInfo = cooked.textureInfoTable[
-                cooked.materialInfoTable[i].textureInfoTableIndex + 0];
-            std::span<const uint8_t> pixels(
-                cooked.pixels.begin() + textureInfo.pixelSectionIndex,
-                textureInfo.pixelCount
-            );
+            auto texIt = material.textures.find("BaseColor");
+            if(texIt == material.textures.end()){
+                AppWarn("No BaseColor texture in material: {}",
+                    material.name);
+                continue;
+            }
 
-            materialSet[i] = materialManager
+            materialSet[materialSetIndex] = materialManager
                 .emplace(newMaterialUUID, renderContext,
-                    pixels, textureInfo.width, textureInfo.height);
+                    texIt->second.uri);
             remember(materialID, newMaterialUUID);
         }
+
+        ++materialSetIndex;
     }
 
     auto newMaterialSetUUID = issueID();
@@ -415,5 +401,20 @@ CookedMesh AssetLoader::loadCookedOrImport(
     if(ext == "mbmesh")
         return loadMeshFile(path);
     else
-        return importMeshFile(path);
+        return importMeshFiles(std::vector{fs::path(path)});
+}
+auto Asset::countLoadedResources(
+    const ResolveTable& table
+)->size_t{
+    size_t count = 0;
+
+    for(const auto& [key, uuid]: table){
+        if(key.find("file:") != std::string::npos ||
+           key.find("embedded:") != std::string::npos
+        ){
+            ++count;
+        }
+    }
+
+    return count;
 }

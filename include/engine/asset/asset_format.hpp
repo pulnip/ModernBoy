@@ -2,7 +2,10 @@
 #define MODERNBOY_ASSET_ASSETFORMAT_HPP
 
 #include <cstdint>
+#include <span>
 #include <vector>
+#include <unordered_map>
+#include <string>
 #include "core/math/type.hpp"
 #include "raw_resource.hpp"
 
@@ -16,11 +19,11 @@ namespace ModernBoy::Asset
     // ~SectionIndex: element index of its container
     // ~Count: number of element
 
+    // on-disk mesh representation
     struct Header{
-        char magic[8] = "MBMESH\1";
-        uint32_t version = 1;
+        char magic[8] = "MBMESH\2";
+        uint32_t version = 0;
         uint32_t headerSize = sizeof(Header);
-
 
         // equivalent to Submesh Slot Size [bytes]
         uint32_t submeshTableStride = 0;
@@ -33,8 +36,10 @@ namespace ModernBoy::Asset
         uint32_t numMaterial = 0;
         uint32_t materialTableByteSize = 0;
 
-        uint32_t materialNameByteOffset = 0;
-        uint32_t materialNameByteSize = 0;
+        uint32_t materialSlotStride = 0;
+        uint32_t materialSlotByteOffset = 0;
+        uint32_t numMaterialSlot = 0;
+        uint32_t materialSlotByteSize = 0;
 
         uint32_t textureInfoTableStride = 0;
         uint32_t textureInfoTableByteOffset = 0;
@@ -51,8 +56,8 @@ namespace ModernBoy::Asset
         uint32_t numIndex = 0;
         uint32_t indicesSectionByteSize = 0;
 
-        uint32_t pixelsSectionByteOffset = 0;
-        uint32_t pixelsSectionByteSize = 0;
+        uint32_t stringBlobByteOffset = 0;
+        uint32_t stringBlobByteSize = 0;
     };
 
     struct AxisInfo {
@@ -68,13 +73,30 @@ namespace ModernBoy::Asset
         Vec3 min, max;
     };
 
+    struct MaterialSlot{
+        uint32_t entrySize;
+        uint32_t slotNameByteOffset = 0;
+        uint32_t slotNameByteSize = 0;
+        uint32_t materialTableIndex = 0;
+    };
+
+    enum PrimitiveType: uint32_t{
+        PointList = 0,
+        LineList = 1,
+        LineStrip = 2,
+        TriangleList = 3,
+        TriangleStrip = 4,
+    };
+
     struct SubmeshInfo{
         uint32_t entrySize;
         uint32_t verticesSectionIndex = 0;
         uint32_t vertexCount = 0;
         uint32_t indicesSectionIndex = 0;
         uint32_t indexCount = 0;
-        uint32_t materialTableIndex = 0;
+        uint32_t materialSlotNameByteOffset = 0;
+        uint32_t materialSlotNameByteSize = 0;
+        PrimitiveType primitiveType = TriangleList;
     };
 
     enum MaterialType: uint32_t{
@@ -98,35 +120,47 @@ namespace ModernBoy::Asset
         Emissive = 3,
     };
 
-    enum TextureFormat: uint16_t{
-        R8G8B8A8_Unorm,
-        R8G8B8A8_SRGB
-    };
+    constexpr uint16_t TextureFlag_SRGB = 1 << 0;
 
     struct TextureInfo{
         uint32_t entrySize;
         TextureUsage usage;
-        TextureFormat format;
-        uint16_t width, height;
-        uint32_t pixelSectionIndex;
-        // equivalent to Pixel Byte Size
-        uint32_t pixelCount;
+        uint16_t flags;
+        uint32_t uriByteOffset = 0;
+        uint32_t uriByteSize = 0;
     };
 
+    // file - runtime intermediate representation
+    using MaterialSlotName = std::string;
+    using TextureSlotName = std::string;
+
+    struct CookedTexture{
+        TextureUsage usage;
+        uint16_t flags;
+        std::string uri;
+    };
+
+    struct CookedMaterial{
+        MaterialType type;
+        MaterialSlotName name;
+        std::unordered_map<TextureSlotName, CookedTexture> textures;
+    };
+
+    struct CookedSubmesh{
+        std::vector<Vertex> vertices;
+        std::vector<uint32_t> indices;
+        PrimitiveType primitiveType;
+        MaterialSlotName materialSlotName;
+    };
+
+    // Runtime mesh representation
     struct CookedMesh{
         // mesh metadata (16 byte aligned on file.)
-        Header header;
         AxisInfo axisInfo;
         AABB aabb;
         // information Tables (16 byte aligned on file.)
-        std::vector<SubmeshInfo> submeshInfoTable;
-        std::vector<MaterialInfo> materialInfoTable;
-        std::vector<std::string> materialNameTable;
-        std::vector<TextureInfo> textureInfoTable;
-
-        std::vector<Vertex> vertices;
-        std::vector<uint32_t> indices;
-        std::vector<uint8_t> pixels;
+        std::vector<CookedSubmesh> submeshes;
+        std::unordered_map<MaterialSlotName, CookedMaterial> materials;
     };
 } // namespace ModernBoy::Asset
 

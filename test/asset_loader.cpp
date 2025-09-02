@@ -10,76 +10,79 @@
 using namespace ModernBoy;
 using namespace ModernBoy::Asset;
 
-const MeshDescriptor desc1{
-    .id = "test:mesh1.mbmesh",
-    .material_override = {},
-    .shader = ShaderDescriptor{}
-};
-const MeshDescriptor desc2{
-    .id = "test:mesh2.mbmesh",
-    .material_override = {},
-    .shader = ShaderDescriptor{}
-};
-const MeshDescriptor desc3{
-    .id = "embedTest:cube",
-    .material_override = {},
-    .shader = ShaderDescriptor{}
-};
-
 MeshTable meshTable;
 MaterialSetTable materialSetTable;
 SubmeshManager submeshManager;
 MaterialManager materialManager;
 ShaderManager shaderManager;
 
-TEST(AssetLoader, LoadsFileOnce){
+TEST(AssetLoader, LoadsResourceOnce){
+    std::string tomlText = R"(
+    [[entities]]
+    name = "Box1"
+    [entities.mesh]
+    id = "embedded:cube"
+        [entities.mesh.shader]
+        module = "file:asset/shader/ModernBoy.metallib"
+        vsFunc = "vertex_main"
+        fsFunc = "fragment_main"
+    [[entities]]
+    name = "Box2"
+    [entities.mesh]
+    id = "embedded:cube"
+        [entities.mesh.shader]
+        module = "file:asset/shader/ModernBoy.metallib"
+        vsFunc = "vertex_main"
+        fsFunc = "fragment_main"
+    )";
+    auto temp = Asset::parseSceneFromString(tomlText);
+    auto registry = Asset::makeDefaultBinderRegistry();
+    auto scene = Asset::buildScene(temp, registry);
+
     Asset::AssetLoader loader(
         meshTable, materialSetTable,
         submeshManager, materialManager,
         shaderManager, nullptr);
 
-    SceneDescriptor scene;
-    scene.meshes.push_back(desc1);
-    scene.meshes.push_back(desc1);
-
     loader.load(scene);
     const auto& table = loader.get_table();
 
-    ASSERT_EQ(table.size(), 1);
-}
-
-TEST(AssetLoader, LoadsEmbedded){
-    Asset::AssetLoader loader(
-        meshTable, materialSetTable,
-        submeshManager, materialManager,
-        shaderManager, nullptr);
-
-    SceneDescriptor scene;
-
-    scene.meshes.push_back(desc3);
-
-    loader.load(scene);
-    const auto& table = loader.get_table();
-
-    ASSERT_EQ(table.size(), 1);
-    auto it = table.find("embedTest:cube");
-    ASSERT_NE(it, table.end());
+    // 1 for mesh, 1 for shader
+    ASSERT_EQ(Asset::countLoadedResources(table), 2);
 }
 
 TEST(AssetLoader, AssignsUniqueIDs) {
+    std::string tomlText = R"(
+    [[entities]]
+    name = "Box1"
+    [entities.mesh]
+    id = "embedded:cube"
+        [entities.mesh.shader]
+        module = "file:asset/shader/ModernBoy.metallib"
+        vsFunc = "vertex_main"
+        fsFunc = "fragment_main"
+    [[entities]]
+    name = "Box2"
+    [entities.mesh]
+    id = "embedded:cube"
+        [entities.mesh.shader]
+        module = "file:asset/shader/ModernBoy.metallib"
+        vsFunc = "vertex_main"
+        fsFunc = "fragment_main"
+    )";
+    auto temp = Asset::parseSceneFromString(tomlText);
+    auto registry = Asset::makeDefaultBinderRegistry();
+    auto scene = Asset::buildScene(temp, registry);
+
     Asset::AssetLoader loader(
         meshTable, materialSetTable,
         submeshManager, materialManager,
         shaderManager, nullptr);
 
-    SceneDescriptor scene;
-    scene.meshes.push_back(desc1);
-    scene.meshes.push_back(desc2);
-
     loader.load(scene);
     const auto& table = loader.get_table();
 
-    auto idA = table.at("test:mesh1.mbmesh");
-    auto idB = table.at("test:mesh2.mbmesh");
+    auto idA = table.at("file:asset/shader/ModernBoy.metallib:vertex_main,fragment_main");
+    auto idB = table.at("embedded:cube");
     ASSERT_NE(idA, idB);
 }

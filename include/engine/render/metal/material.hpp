@@ -3,6 +3,7 @@
 
 #include <span>
 #include "engine/fwd.hpp"
+#include "engine/asset/ktx2_transcode.h"
 
 namespace ModernBoy::Metal
 {
@@ -14,6 +15,8 @@ namespace ModernBoy::Metal
         UnlitMaterial(NativePtr rctxPtr,
             std::span<const uint8_t> pixels,
             int width, int height);
+        UnlitMaterial(NativePtr rctxPtr,
+            GpuPayload* astcPayload);
         ~UnlitMaterial();
 
         UnlitMaterial()=default;

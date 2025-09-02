@@ -42,7 +42,8 @@ public func createMesh(
     _ indicesPtr: UnsafePointer<UInt32>?, _ numIndices: Int32,
 ) -> UnsafeRawPointer? {
     guard let rctxPtr = rctxPtr else {
-        fatalError("Invalid Metel Layer Pointer")
+        print("Invalid Metel Layer Pointer")
+        return nil
     }
     let device = Unmanaged<RenderContext>
         .fromOpaque(rctxPtr).takeUnretainedValue().layer.device!
