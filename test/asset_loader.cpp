@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include "engine/resource_manager.hpp"
-#include "engine/asset/asset_loader.hpp"
+#include "resource_manager.hpp"
+#include "asset/asset_loader.hpp"
 #if defined(USE_METAL)
-#include "engine/render/metal/material.hpp"
-#include "engine/render/metal/submesh.hpp"
-#include "engine/render/metal/shader.hpp"
+#include "render/metal/material.hpp"
+#include "render/metal/submesh.hpp"
+#include "render/metal/shader.hpp"
 #endif
 
 using namespace ModernBoy;

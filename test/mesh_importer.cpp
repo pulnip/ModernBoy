@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <string>
 #include <unordered_map>
-#include "engine/asset/mesh_importer.hpp"
+#include "asset/mesh_importer.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Asset;

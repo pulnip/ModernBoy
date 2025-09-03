@@ -11,7 +11,7 @@ let package = Package(
     targets: [
         .target(
             name: "ModernBoy",
-            path: "src/engine/render/metal",
+            path: "engine/src/render/metal",
             exclude: [
                 "material.cpp",
                 "mesh.cpp",
@@ -22,7 +22,7 @@ let package = Package(
                 .unsafeFlags(
                     [
                         "-import-objc-header",
-                        "include/engine/render/ktx2_transcode.h",
+                        "engine/include/render/ktx2_transcode.h",
                     ]
                 )
             ]

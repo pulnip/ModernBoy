@@ -1,7 +1,7 @@
 #include <optional>
 #include <vector>
 #include <gtest/gtest.h>
-#include "core/memory/dynamic_vector.hpp"
+#include "memory/dynamic_vector.hpp"
 
 using namespace ModernBoy;
 

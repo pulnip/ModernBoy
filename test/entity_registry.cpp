@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/game/entity_registry.hpp"
+#include "../game/entity_registry.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Game;

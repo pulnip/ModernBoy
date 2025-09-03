@@ -1,0 +1,22 @@
+#ifndef MODERNBOY_GAME_FWD_HPP
+#define MODERNBOY_GAME_FWD_HPP
+
+#include <cstdint>
+#include "alias.hpp"
+
+namespace ModernBoy::Game
+{
+    using EntityID = ::ModernBoy::ID;
+    using ArchetypeBit = uint64_t;
+
+    class Context;
+    class EntityRegistry;
+
+    class GameCommandBus;
+    class RayService;
+    class IntentService;
+
+    struct Action;
+} // namespace ModernBoy::Game
+
+#endif // MODERNBOY_GAME_FWD_HPP

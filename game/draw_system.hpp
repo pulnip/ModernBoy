@@ -1,0 +1,34 @@
+#ifndef MODERNBOY_GAME_DRAW_SYSTEM_HPP
+#define MODERNBOY_GAME_DRAW_SYSTEM_HPP
+
+#include <vector>
+#include "fwd.hpp"
+#include "interface.hpp"
+#include "thread/generator.hpp"
+#include "game_fwd.hpp"
+
+namespace ModernBoy::Game
+{
+    class DrawSystem{
+    public:
+        DrawSystem(EntityRegistry&,
+            const MeshTable&, const MaterialSetTable&,
+            Interface::ViewService&,
+            Interface::DrawService&);
+
+        // size_t yield_count() noexcept;
+
+        void update();
+        // Generator<void> update(DeltaTime dt);
+
+    private:
+        EntityRegistry& registry;
+        const MeshTable& meshTable;
+        const MaterialSetTable& materialSetTable;
+
+        Interface::ViewService& viewService;
+        Interface::DrawService& drawService;
+    }; // static_assert(Schedulable<DrawSystem>);
+} // namespace ModernBoy::Game
+
+#endif // MODERNBOY_GAME_DRAW_SYSTEM_HPP

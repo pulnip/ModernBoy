@@ -27,13 +27,10 @@ target_compile_definitions(ImGui
 PUBLIC
     $<IF:$<CONFIG:DEBUG>, _DEBUG, NDEBUG>
 )
-set(ImGui_INCLUDE_DIRS
-    ${ImGui_DIR}
-    ${ImGui_DIR}/backends
-)
 target_include_directories(ImGui
 PUBLIC
     ${ImGui_DIR}
+    ${ImGui_DIR}/backends
 )
 target_link_libraries(ImGui
 PRIVATE
