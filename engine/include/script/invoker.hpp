@@ -8,7 +8,7 @@
 #include "script/type.hpp"
 #include "input/state.hpp"
 #include "task.hpp"
-#include "../../game/game_fwd.hpp"
+#include "../../game/src/game_fwd.hpp"
 
 class asIScriptContext;
 

@@ -2,7 +2,7 @@
 #define MODERNBOY_APP_STATE_HPP
 
 #include "alias.hpp"
-#include "../../game/context.hpp"
+#include "../../game/src/context.hpp"
 #include "event.hpp"
 #include "resource_manager.hpp"
 #include "fwd.hpp"

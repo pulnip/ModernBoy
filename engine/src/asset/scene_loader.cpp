@@ -3,8 +3,8 @@
 #include "resource_manager.hpp"
 #include "asset/scene_loader.hpp"
 #include "asset/scene_parser.hpp"
-#include "../../game/component.hpp"
-#include "../../game/entity_registry.hpp"
+#include "../../game/src/component.hpp"
+#include "../../game/src/entity_registry.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Asset;

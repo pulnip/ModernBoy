@@ -14,8 +14,8 @@
 #include "script/as_typehelper.hpp"
 #include "script/type.hpp"
 #include "task.hpp"
-#include "../../../game/context.hpp"
-#include "../../../game/component.hpp"
+#include "../../../game/src/context.hpp"
+#include "../../../game/src/component.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Script;

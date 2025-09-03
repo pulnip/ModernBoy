@@ -1,8 +1,14 @@
 {
-    "search.exclude": {
-        "build": true,
-        "external": true,
+    "files.exclude": {
         ".build": true,
+        ".swiftpm": true,
+        "imgui.ini": true
+    },
+    "search.exclude": {
+        ".build": true,
+        ".swiftpm": true,
+        "build": true,
+        "external": true
     },
     "[cpp]": {
         "editor.defaultFormatter": "ms-vscode.cpptools",

@@ -7,8 +7,8 @@
 #include "input/state.hpp"
 #include "interface/input_service.hpp"
 #include "engine.hpp"
-#include "../../../game/context.hpp"
-#include "../../../game/component.hpp"
+#include "../../../game/src/context.hpp"
+#include "../../../game/src/component.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Script;

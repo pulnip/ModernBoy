@@ -2,7 +2,7 @@
 #define MODERNBOY_ASSET_SCENELOADER_HPP
 
 #include "fwd.hpp"
-#include "../../game/game_fwd.hpp"
+#include "../../game/src/game_fwd.hpp"
 
 namespace ModernBoy::Asset
 {
