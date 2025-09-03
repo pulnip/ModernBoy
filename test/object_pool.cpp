@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "core/memory/object_pool.hpp"
+#include "memory/object_pool.hpp"
 
 using ModernBoy::ObjectPool;
 

@@ -2,8 +2,8 @@ find_package(GTest CONFIG REQUIRED)
 file(GLOB ALL_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME}Test
     ${ALL_SOURCES}
-    ${CMAKE_SOURCE_DIR}/src/engine/physics/physics.cpp
-    ${CMAKE_SOURCE_DIR}/src/game/entity_registry.cpp
+    ${CMAKE_SOURCE_DIR}/engine/src/physics/physics.cpp
+    ${CMAKE_SOURCE_DIR}/game/entity_registry.cpp
 )
 
 target_compile_options(${PROJECT_NAME}Test

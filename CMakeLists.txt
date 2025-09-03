@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
+option(MODERNBOY_BUILD_TOOLS "Build tools" ON)
+
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL TRUE)
@@ -39,8 +41,25 @@ target_compile_options(angelscript PRIVATE
 set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON
     CACHE INTERNAL "Restore dev warnings")
 
-add_subdirectory(src)
-# add_subdirectory(src/network/posix)
+add_library(sanitizer INTERFACE)
+target_compile_options(sanitizer
+INTERFACE
+    -fsanitize=address,leak -fno-omit-frame-pointer
+)
+target_link_options(sanitizer
+INTERFACE
+    -fsanitize=address
+)
+
+add_subdirectory(core)
+add_subdirectory(game)
+add_subdirectory(engine)
+add_subdirectory(shader)
+add_subdirectory(app)
+
+if(MODERNBOY_BUILD_TOOLS)
+    add_subdirectory(tool)
+endif()
 
 include(CTest)
 enable_testing()

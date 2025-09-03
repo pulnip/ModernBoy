@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "engine/asset/scene_parser.hpp"
+#include "asset/scene_parser.hpp"
 
 using namespace ModernBoy;
 using namespace ModernBoy::Asset;
