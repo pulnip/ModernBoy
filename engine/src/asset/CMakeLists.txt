@@ -14,6 +14,7 @@ add_library(AssetModule SHARED
 )
 target_include_directories(AssetModule
 PUBLIC
+    ${CMAKE_SOURCE_DIR}/core/include
     ${CMAKE_SOURCE_DIR}/engine/include
 PRIVATE
     ${CMAKE_SOURCE_DIR}/external/stb

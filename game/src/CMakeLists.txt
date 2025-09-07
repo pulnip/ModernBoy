@@ -14,4 +14,5 @@ target_link_libraries(Game
 PUBLIC
     Core
     Engine
+    EngineRuntime
 )

@@ -13,7 +13,6 @@ add_library(ModernBoy::Engine ALIAS Engine)
 
 target_link_libraries(Engine
 INTERFACE
-    EngineRuntime
     AssetModule
     InputModule
     InterfaceModule
